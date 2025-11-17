@@ -1,0 +1,116 @@
+<Page
+    Background="Transparent"
+    FontFamily="{DynamicResource GlobalFont}"
+    MinHeight="550"
+    MinWidth="1100"
+    Title="Installations"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Resources.Pages.Installations"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:local="clr-namespace:Launcher.UI.WPF.Resources"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid Margin="130,24,130,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid
+                Grid.Row="0"
+                Height="30"
+                Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    FontSize="20"
+                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                    Grid.Column="0"
+                    Text="Installations"
+                    VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" />
+                <Button
+                    Content="New Installation"
+                    FontSize="13"
+                    Grid.Column="2"
+                    Height="30"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Tag="{StaticResource Icon.AddIcon}"
+                    helpers:ButtonHelper.IconSize="13" />
+            </Grid>
+            <Grid Grid.Row="1">
+                <Grid Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border
+                        Background="{DynamicResource BackgroundSurfaceBrush}"
+                        BorderBrush="{DynamicResource BorderPrimaryBrush}"
+                        BorderThickness="{DynamicResource DefaultBorderThickness}"
+                        CornerRadius="{DynamicResource DefaultCorner}"
+                        Grid.Column="0"
+                        Height="30"
+                        Margin="0,0,6,0"
+                        x:Name="SearchBlock">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Path
+                                Data="{StaticResource Icon.Search}"
+                                Grid.Column="0"
+                                Height="12"
+                                Margin="10,0"
+                                Stretch="Uniform"
+                                Stroke="{DynamicResource ForegroundPrimaryBrush}"
+                                StrokeThickness="1"
+                                VerticalAlignment="Center"
+                                Width="12" />
+                            <TextBox
+                                FontSize="14"
+                                Grid.Column="1"
+                                Style="{StaticResource SearchTextBoxStyle}"
+                                VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                    <ComboBox
+                        Grid.Column="1"
+                        SelectedIndex="0"
+                        Style="{StaticResource DefaultComboBox}"
+                        Width="180">
+                        <ComboBoxItem Content="Sort: Last played" />
+                        <ComboBoxItem Content="Sort: Name" />
+                        <ComboBoxItem Content="Sort: Game version" />
+                        <ComboBoxItem Content="Sort: Mod loader" />
+                    </ComboBox>
+                </Grid>
+
+            </Grid>
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
+                <StackPanel Orientation="Vertical">
+                    <controls:VersionElement
+                        helpers:VersionElementHelper.GameVersion="1.16.5"
+                        helpers:VersionElementHelper.Icon="/Assets/Icons/forge-default.png"
+                        helpers:VersionElementHelper.LastPlayed="1 hour ago"
+                        helpers:VersionElementHelper.ModLoader="Forge"
+                        helpers:VersionElementHelper.VersionName="GregTech 1.16.5" />
+                    <controls:VersionElement
+                        helpers:VersionElementHelper.GameVersion="1.20.1"
+                        helpers:VersionElementHelper.Icon="/Assets/Icons/optifine-default.png"
+                        helpers:VersionElementHelper.LastPlayed="2 days ago"
+                        helpers:VersionElementHelper.ModLoader="OptiFine"
+                        helpers:VersionElementHelper.VersionName="Optifine 1.20.1" />
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

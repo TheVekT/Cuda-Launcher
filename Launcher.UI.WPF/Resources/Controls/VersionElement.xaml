@@ -1,0 +1,92 @@
+<UserControl
+    Background="Transparent"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Resources.Controls.VersionElement"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid
+        Height="60"
+        Margin="0,5,0,0"
+        VerticalAlignment="Top">
+        <Border
+            Background="{DynamicResource BackgroundLowTransparentBrush}"
+            BorderBrush="{DynamicResource BorderPrimaryBrush}"
+            BorderThickness="{DynamicResource DefaultBorderThickness}"
+            CornerRadius="{DynamicResource DefaultCorner}"
+            Padding="10,5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Image
+                    Grid.Column="0"
+                    Height="40"
+                    Margin="0,0,10,0"
+                    Source="{Binding Path=(helpers:VersionElementHelper.Icon), RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    Width="40" />
+                <Grid Grid.Column="1" Margin="0,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock
+                            FontSize="13"
+                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                            Text="{Binding Path=(helpers:VersionElementHelper.VersionName), RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                            Margin="12,0,0,0"
+                            Text="{Binding Path=(helpers:VersionElementHelper.ModLoader), RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                        <TextBlock FontSize="12" Foreground="{DynamicResource ForegroundSecondaryBrush}">
+                            <Run Text="Version: " />
+                            <Run Text="{Binding Path=(helpers:VersionElementHelper.GameVersion), RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                        </TextBlock>
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                            Margin="12,0,0,0">
+                            <Run Text="Last played: " />
+                            <Run Text="{Binding Path=(helpers:VersionElementHelper.LastPlayed), RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+                <StackPanel
+                    Grid.Column="2"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <Button
+                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                        Height="35"
+                        Margin="0,0,5,0"
+                        Padding="0"
+                        Style="{StaticResource DefaultButtonStyle}"
+                        Tag="{StaticResource Icon.Settings}"
+                        Width="35"
+                        helpers:ButtonHelper.IconSize="13"
+                        x:Name="SettingsBtn" />
+                    <Button
+                        FontSize="12"
+                        Foreground="{DynamicResource ColorDangerBrush}"
+                        Height="35"
+                        Padding="0"
+                        Style="{StaticResource DefaultButtonStyle}"
+                        Tag="{StaticResource Icon.Trash}"
+                        Width="35"
+                        helpers:ButtonHelper.IconSize="13"
+                        x:Name="DeleteBtn" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
+

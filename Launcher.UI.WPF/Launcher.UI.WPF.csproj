@@ -1,0 +1,90 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+    <PropertyGroup>
+        <OutputPath Condition="'$(Configuration)' == 'Debug'">..\Build\Debug\</OutputPath>
+        <OutputPath Condition="'$(Configuration)' == 'Release'">..\Build\Release\</OutputPath>
+
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <Resource Include="Assets\Icons\fabric-default.png" />
+      <Resource Include="Assets\Icons\forge-default.png" />
+      <Resource Include="Assets\Icons\logo.png" />
+      <Resource Include="Assets\Icons\neoforge-default.png" />
+      <None Remove="Assets\Images\banner-default.jpg" />
+      <Resource Include="Assets\Icons\optifine-default.png" />
+      <Resource Include="Assets\Images\banner-default.jpg" />
+      <None Remove="Assets\Skins\sk1.png" />
+      <Resource Include="Assets\Skins\sk1.png" />
+      <None Remove="Assets\Skins\sk2.png" />
+      <Resource Include="Assets\Skins\sk2.png" />
+      <None Remove="Assets\Skins\sk4.png" />
+      <Resource Include="Assets\Skins\sk4.png" />
+      <None Remove="Assets\Skins\sk3.png" />
+      <Resource Include="Assets\Skins\sk3.png" />
+      <None Remove="Assets\Skins\TheVekT(NOW).png" />
+      <Resource Include="Assets\Skins\TheVekT(NOW).png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Resources\Pages\Installations.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Resources\Pages\Play.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Resources\Pages\Skins.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Resources\Styles\Global.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Resources\Controls\CustomTitleBar.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Assets\Themes\Theme.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Assets\Themes\Default-Light\Theme.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="Assets\Images\banner-default.jpg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\Skins\" />
+      <Folder Include="Assets\Themes\Default-Dark\" />
+      <Folder Include="Resources\Icons\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Launcher.Core\Launcher.Core.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,198 @@
+
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
+
+namespace Launcher.UI.WPF.Helpers
+{
+    public static class ButtonHelper
+    {
+        public static readonly DependencyProperty BalanceTextProperty =
+            DependencyProperty.RegisterAttached(
+                "BalanceText",
+                typeof(bool),
+                typeof(ButtonHelper),
+                new PropertyMetadata(false));
+
+        [AttachedPropertyBrowsableForType(typeof(Button))]
+        public static bool GetBalanceText(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(BalanceTextProperty);
+        }
+
+        public static void SetBalanceText(DependencyObject obj, bool value)
+        {
+            obj.SetValue(BalanceTextProperty, value);
+        }
+        
+        
+        
+        public static readonly DependencyProperty IconSizeProperty =
+            DependencyProperty.RegisterAttached(
+                "IconSize", 
+                typeof(double), 
+                typeof(ButtonHelper), 
+                new PropertyMetadata(16.0));
+
+        public static void SetIconSize(DependencyObject element, double value)
+        {
+            element.SetValue(IconSizeProperty, value);
+        }
+
+        public static double GetIconSize(DependencyObject element)
+        {
+            return (double)element.GetValue(IconSizeProperty);
+        }
+        
+    }
+    public class ComboBoxHelper
+    {
+        public static readonly DependencyProperty PopupPlacementProperty =
+            DependencyProperty.RegisterAttached(
+                "PopupPlacement",
+                typeof(PlacementMode),
+                typeof(ComboBoxHelper),
+                new PropertyMetadata(PlacementMode.Bottom));
+
+        public static void SetPopupPlacement(DependencyObject element, PlacementMode value)
+        {
+            element.SetValue(PopupPlacementProperty, value);
+        }
+
+        public static PlacementMode GetPopupPlacement(DependencyObject element)
+        {
+            return (PlacementMode)element.GetValue(PopupPlacementProperty);
+        }
+    }
+
+    public class VersionElementHelper
+    {
+        public static readonly DependencyProperty IconProperty =
+            DependencyProperty.RegisterAttached(
+                "Icon",
+                typeof(string),
+                typeof(VersionElementHelper),
+                new PropertyMetadata(null));
+
+        public static string GetIcon(DependencyObject element)
+        {
+            return (string)element.GetValue(IconProperty);
+        }
+
+        public static void SetIcon(DependencyObject element, string value)
+        {
+            element.SetValue(IconProperty, value);
+        }
+        
+        public static readonly DependencyProperty VersionNameProperty =
+            DependencyProperty.RegisterAttached(
+                "VersionName",
+                typeof(string),
+                typeof(VersionElementHelper),
+                new PropertyMetadata(""));
+
+        public static string GetVersionName(DependencyObject element)
+        {
+            return (string)element.GetValue(VersionNameProperty);
+        }
+
+        public static void SetVersionName(DependencyObject element, string value)
+        {
+            element.SetValue(VersionNameProperty, value);
+        }
+        
+        public static readonly DependencyProperty ModLoaderProperty =
+            DependencyProperty.RegisterAttached(
+                "ModLoader",
+                typeof(string),
+                typeof(VersionElementHelper),
+                new PropertyMetadata(""));
+
+        public static string GetModLoader(DependencyObject element)
+        {
+            return (string)element.GetValue(ModLoaderProperty);
+        }
+
+        public static void SetModLoader(DependencyObject element, string value)
+        {
+            element.SetValue(ModLoaderProperty, value);
+        }
+        
+        public static readonly DependencyProperty GameVersionProperty =
+            DependencyProperty.RegisterAttached(
+                "GameVersion",
+                typeof(string),
+                typeof(VersionElementHelper),
+                new PropertyMetadata(""));
+
+        public static string GetGameVersion(DependencyObject element)
+        {
+            return (string)element.GetValue(GameVersionProperty);
+        }
+
+        public static void SetGameVersion(DependencyObject element, string value)
+        {
+            element.SetValue(GameVersionProperty, value);
+        }
+        
+        public static readonly DependencyProperty LastPlayedProperty =
+            DependencyProperty.RegisterAttached(
+                "LastPlayed",
+                typeof(string),
+                typeof(VersionElementHelper),
+                new PropertyMetadata(""));
+
+        public static string GetLastPlayed(DependencyObject element)
+        {
+            return (string)element.GetValue(LastPlayedProperty);
+        }
+
+        public static void SetLastPlayed(DependencyObject element, string value)
+        {
+            element.SetValue(LastPlayedProperty, value);
+        }
+    }
+
+    public static class SkinCardHelper
+    {
+        public static readonly DependencyProperty SkinNameProperty =
+            DependencyProperty.RegisterAttached(
+                "SkinName",
+                typeof(string),
+                typeof(SkinCardHelper),
+                new PropertyMetadata("Unknown"));
+
+        public static string GetSkinName(DependencyObject element) =>
+            (string)element.GetValue(SkinNameProperty);
+
+        public static void SetSkinName(DependencyObject element, string value) =>
+            element.SetValue(SkinNameProperty, value);
+        
+        public static readonly DependencyProperty SkinModelProperty =
+            DependencyProperty.RegisterAttached(
+                "SkinModel",
+                typeof(string),
+                typeof(SkinCardHelper),
+                new PropertyMetadata("Classic"));
+
+        public static string GetSkinModel(DependencyObject element) =>
+            (string)element.GetValue(SkinModelProperty);
+
+        public static void SetSkinModel(DependencyObject element, string value) =>
+            element.SetValue(SkinModelProperty, value);
+        
+        public static readonly DependencyProperty SkinPreviewProperty =
+            DependencyProperty.RegisterAttached(
+                "SkinPreview",
+                typeof(ImageSource),
+                typeof(SkinCardHelper),
+                new PropertyMetadata(default(ImageSource)));
+
+        public static ImageSource GetSkinPreview(DependencyObject element) =>
+            (ImageSource)element.GetValue(SkinPreviewProperty);
+
+        public static void SetSkinPreview(DependencyObject element, ImageSource value) =>
+            element.SetValue(SkinPreviewProperty, value);
+    }
+}

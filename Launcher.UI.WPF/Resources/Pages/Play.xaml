@@ -1,0 +1,97 @@
+<Page
+    Background="Transparent"
+    FontFamily="{DynamicResource GlobalFont}"
+    MinHeight="550"
+    MinWidth="1100"
+    Title="Play"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Resources.Pages.Play"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:local="clr-namespace:Launcher.UI.WPF.Resources"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <Button
+            Height="35"
+            HorizontalAlignment="Right"
+            Margin="0,0,20,10"
+            Opacity="0.5"
+            Padding="0"
+            Style="{StaticResource DefaultButtonStyle}"
+            Tag="{StaticResource Icon.EditBanner}"
+            VerticalAlignment="Bottom"
+            Width="35" />
+        <Border
+            Background="{DynamicResource BackgroundAccentBrush}"
+            BorderThickness="{DynamicResource SecondBorderThickness}"
+            CornerRadius="{DynamicResource DefaultCorner}"
+            HorizontalAlignment="Center"
+            Margin="0,0,0,-30"
+            VerticalAlignment="Bottom">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                <Border Padding="0">
+                    <Grid
+                        Margin="0,0,0,5"
+                        Visibility="Collapsed"
+                        x:Name="DownloadInfoPanel">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="6,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock
+                                FontSize="11"
+                                Foreground="{DynamicResource ForegroundOnAccentBrush}"
+                                Text="Extracting files..."
+                                TextTrimming="CharacterEllipsis"
+                                x:Name="StatusText" />
+
+                            <TextBlock
+                                FontSize="11"
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource ForegroundOnAccentBrush}"
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                Text="45%"
+                                x:Name="PercentText" />
+                        </Grid>
+
+                        <ProgressBar
+                            Background="{DynamicResource BackgroundSurfaceBrush}"
+                            BorderThickness="{DynamicResource SecondBorderThickness}"
+                            Foreground="{DynamicResource ForegroundOnAccentBrush}"
+                            Grid.Row="1"
+                            Height="4"
+                            Margin="6,0"
+                            Maximum="100"
+                            Value="45"
+                            x:Name="InstallProgressBar" />
+
+                    </Grid>
+                </Border>
+                <Button
+                    BorderThickness="{DynamicResource SecondBorderThickness}"
+                    Content="Play"
+                    FontSize="16"
+                    Height="50"
+                    HorizontalAlignment="Center"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Tag="{StaticResource Icon.Play}"
+                    Width="200"
+                    helpers:ButtonHelper.BalanceText="True"
+                    x:Name="PlayButton" />
+                <!--  Click="PlayButton_Click"  -->
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

@@ -1,0 +1,145 @@
+<Page
+    Background="Transparent"
+    FontFamily="{DynamicResource GlobalFont}"
+    MinHeight="550"
+    MinWidth="1100"
+    Title="Skins"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Resources.Pages.Skins"
+    x:Name="RootPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:local="clr-namespace:Launcher.UI.WPF.Resources"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Page.Resources>
+        <helpers:SnappingWidthConverter x:Key="SnappingConverter" />
+    </Page.Resources>
+
+    <Grid>
+
+        <Grid HorizontalAlignment="Center" Margin="0,24,0,24">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Grid
+                Grid.Column="0"
+                VerticalAlignment="Top"
+                x:Name="SkinPreview">
+                <Border
+                    Background="{DynamicResource BackgroundLowTransparentBrush}"
+                    BorderBrush="{DynamicResource BorderSecondaryBrush}"
+                    BorderThickness="{DynamicResource DefaultBorderThickness}"
+                    CornerRadius="{DynamicResource DefaultCorner}"
+                    Height="370"
+                    Padding="10"
+                    Width="280">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            FontSize="15"
+                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                            Grid.Row="0"
+                            HorizontalAlignment="Left"
+                            Padding="10,0"
+                            Text="Skin Preview"
+                            VerticalAlignment="Center" />
+                        <Image Grid.Row="1" Source="/Assets/Skins/sk1.png" />
+                    </Grid>
+                </Border>
+            </Grid>
+            <Grid Grid.Column="1" Margin="10,0,0,0">
+                <Border
+                    Background="{DynamicResource BackgroundLowTransparentBrush}"
+                    BorderBrush="{DynamicResource BorderSecondaryBrush}"
+                    BorderThickness="{DynamicResource DefaultBorderThickness}"
+                    CornerRadius="{DynamicResource DefaultCorner}"
+                    HorizontalAlignment="Left"
+                    Padding="10">
+
+                    <Border.Width>
+                        <MultiBinding Converter="{StaticResource SnappingConverter}">
+                            <Binding ElementName="RootPage" Path="ActualWidth" />
+                            <Binding Path="BorderThickness" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="Padding" RelativeSource="{RelativeSource Self}" />
+                        </MultiBinding>
+                    </Border.Width>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                FontSize="15"
+                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                Padding="5,0"
+                                Text="Skin Library"
+                                VerticalAlignment="Center" />
+                            <Button
+                                Content="Add Skin"
+                                FontSize="13"
+                                Grid.Column="1"
+                                Height="30"
+                                Margin="5,0"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Tag="{StaticResource Icon.AddIcon}"
+                                VerticalAlignment="Center"
+                                helpers:ButtonHelper.IconSize="13" />
+                        </Grid>
+
+                        <ScrollViewer
+                            Grid.Row="1"
+                            Margin="0,5,0,5"
+                            Padding="0,0,0,0"
+                            VerticalScrollBarVisibility="Hidden">
+
+                            <WrapPanel Orientation="Horizontal">
+
+                                <controls:SkinCard
+                                    Margin="5"
+                                    helpers:SkinCardHelper.SkinModel="Slim"
+                                    helpers:SkinCardHelper.SkinName="TheVekT"
+                                    helpers:SkinCardHelper.SkinPreview="/Assets/Skins/sk1.png" />
+
+                                <controls:SkinCard
+                                    Margin="5"
+                                    helpers:SkinCardHelper.SkinModel="Classic"
+                                    helpers:SkinCardHelper.SkinName="Steve"
+                                    helpers:SkinCardHelper.SkinPreview="/Assets/Skins/sk2.png" />
+
+                                <controls:SkinCard
+                                    Margin="5"
+                                    helpers:SkinCardHelper.SkinModel="Slim"
+                                    helpers:SkinCardHelper.SkinName="Alex"
+                                    helpers:SkinCardHelper.SkinPreview="/Assets/Skins/sk3.png" />
+
+                                <controls:SkinCard
+                                    Margin="5"
+                                    helpers:SkinCardHelper.SkinModel="Classic"
+                                    helpers:SkinCardHelper.SkinName="CustomSkin"
+                                    helpers:SkinCardHelper.SkinPreview="/Assets/Skins/sk4.png" />
+                            </WrapPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>
