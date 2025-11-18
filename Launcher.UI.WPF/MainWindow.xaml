@@ -6,7 +6,7 @@
     Margin="0"
     MinHeight="700"
     MinWidth="1100"
-    Title="MainWindow"
+    Title="{Binding Source={StaticResource Loc}, Path=[MainWindow.Title]}"
     Width="1100"
     WindowStyle="SingleBorderWindow"
     mc:Ignorable="d"
@@ -67,9 +67,8 @@
                                     FontSize="24"
                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                     Margin="6,0,0,0"
-                                    VerticalAlignment="Center">
-                                    MINE
-                                </TextBlock>
+                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LogoText]}"
+                                    VerticalAlignment="Center" />
                             </StackPanel>
                             <StackPanel
                                 Grid.Column="1"
@@ -98,7 +97,10 @@
                                                         StrokeThickness="1.33" />
                                                 </Grid>
                                             </Viewbox>
-                                            <TextBlock FontSize="14" Margin="6,0,0,0">Play</TextBlock>
+                                            <TextBlock
+                                                FontSize="14"
+                                                Margin="6,0,0,0"
+                                                Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Play]}" />
                                         </StackPanel>
                                     </RadioButton.Content>
                                 </RadioButton>
@@ -124,7 +126,10 @@
                                                         StrokeThickness="1.33" />
                                                 </Grid>
                                             </Viewbox>
-                                            <TextBlock FontSize="14" Margin="6,0,0,0">Installations</TextBlock>
+                                            <TextBlock
+                                                FontSize="14"
+                                                Margin="6,0,0,0"
+                                                Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Installations]}" />
                                         </StackPanel>
                                     </RadioButton.Content>
                                 </RadioButton>
@@ -150,13 +155,16 @@
                                                         StrokeThickness="1.33" />
                                                 </Grid>
                                             </Viewbox>
-                                            <TextBlock FontSize="14" Margin="6,0,0,0">Skins</TextBlock>
+                                            <TextBlock
+                                                FontSize="14"
+                                                Margin="6,0,0,0"
+                                                Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Skins]}" />
                                         </StackPanel>
                                     </RadioButton.Content>
                                 </RadioButton>
                             </StackPanel>
                             <Button
-                                Content="Login"
+                                Content="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}"
                                 FontSize="14"
                                 Grid.Column="2"
                                 Height="30"

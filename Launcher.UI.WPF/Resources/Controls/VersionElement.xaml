@@ -48,14 +48,14 @@
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal">
                         <TextBlock FontSize="12" Foreground="{DynamicResource ForegroundSecondaryBrush}">
-                            <Run Text="Version: " />
+                            <Run Text="{Binding Source={StaticResource Loc}, Path=[VersionElement.VersionLabel]}" />
                             <Run Text="{Binding Path=(helpers:VersionElementHelper.GameVersion), RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </TextBlock>
                         <TextBlock
                             FontSize="12"
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Margin="12,0,0,0">
-                            <Run Text="Last played: " />
+                            <Run Text="{Binding Source={StaticResource Loc}, Path=[VersionElement.LastPlayedLabel]}" />
                             <Run Text="{Binding Path=(helpers:VersionElementHelper.LastPlayed), RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </TextBlock>
                     </StackPanel>

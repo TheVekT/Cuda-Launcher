@@ -7,6 +7,7 @@
     <SolidColorBrush Color="{DynamicResource BackgroundAccent}" x:Key="BackgroundAccentBrush" />
 
     <SolidColorBrush Color="{DynamicResource OverlayButtonBackground}" x:Key="OverlayButtonBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlayHoverButtonBg}" x:Key="OverlayHoverButtonBgBrush" />
     <SolidColorBrush Color="{DynamicResource OverlayBackgroundPrimary}" x:Key="OverlayBackgroundPrimaryBrush" />
     <SolidColorBrush Color="{DynamicResource OverlayBackgroundSurface}" x:Key="OverlayBackgroundSurfaceBrush" />
     <SolidColorBrush Color="{DynamicResource OverlaySelection}" x:Key="OverlaySelectionBrush" />

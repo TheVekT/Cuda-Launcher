@@ -3,7 +3,7 @@
     FontFamily="{DynamicResource GlobalFont}"
     MinHeight="550"
     MinWidth="1100"
-    Title="Skins"
+    Title="{Binding Source={StaticResource Loc}, Path=[Skins.Title]}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Pages.Skins"
     x:Name="RootPage"
@@ -50,7 +50,7 @@
                             Grid.Row="0"
                             HorizontalAlignment="Left"
                             Padding="10,0"
-                            Text="Skin Preview"
+                            Text="{Binding Source={StaticResource Loc}, Path=[Skins.Preview.Title]}"
                             VerticalAlignment="Center" />
                         <Image Grid.Row="1" Source="/Assets/Skins/sk1.png" />
                     </Grid>
@@ -90,10 +90,10 @@
                                 Grid.Column="0"
                                 HorizontalAlignment="Left"
                                 Padding="5,0"
-                                Text="Skin Library"
+                                Text="{Binding Source={StaticResource Loc}, Path=[Skins.Library.Title]}"
                                 VerticalAlignment="Center" />
                             <Button
-                                Content="Add Skin"
+                                Content="{Binding Source={StaticResource Loc}, Path=[Skins.Library.AddSkinButton]}"
                                 FontSize="13"
                                 Grid.Column="1"
                                 Height="30"

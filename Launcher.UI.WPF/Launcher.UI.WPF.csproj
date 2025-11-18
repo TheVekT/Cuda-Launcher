@@ -75,6 +75,14 @@
       <Content Update="Assets\Images\banner-default.jpg">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <None Remove="Assets\Languages\en.json" />
+      <Content Include="Assets\Languages\en-US.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Assets\Languages\ru.json" />
+      <Content Include="Assets\Languages\ru-RU.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

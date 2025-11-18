@@ -11,7 +11,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-
+        <helpers:StringFormatConverter x:Key="StringFormatConverter" />
     </UserControl.Resources>
     <Grid Style="{StaticResource DefaultOverlayGridStyle}">
         <Border
@@ -24,12 +24,12 @@
                     FontSize="16"
                     FontWeight="Bold"
                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                    Margin="0,0,0,5">
-                    Launcher Settings
-                </TextBlock>
-                <TextBlock FontSize="13" Foreground="{DynamicResource ForegroundSecondaryBrush}">
-                    Configure your Minecraft launcher preferences
-                </TextBlock>
+                    Margin="0,0,0,5"
+                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Title]}" />
+                <TextBlock
+                    FontSize="13"
+                    Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Subtitle]}" />
                 <Border
                     Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
                     CornerRadius="{DynamicResource DefaultCorner}"
@@ -42,32 +42,32 @@
                     <helpers:FlexPanel>
 
                         <RadioButton
-                            Content="General"
+                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.General]}"
                             GroupName="SettingsTabs"
                             IsChecked="True"
                             Style="{StaticResource SegmentedTabButtonStyle}"
                             x:Name="TabGeneral" />
 
                         <RadioButton
-                            Content="Java"
+                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.Java]}"
                             GroupName="SettingsTabs"
                             Style="{StaticResource SegmentedTabButtonStyle}"
                             x:Name="TabJava" />
 
                         <RadioButton
-                            Content="Language"
+                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.Language]}"
                             GroupName="SettingsTabs"
                             Style="{StaticResource SegmentedTabButtonStyle}"
                             x:Name="TabLanguage" />
 
                         <RadioButton
-                            Content="Theme"
+                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.Theme]}"
                             GroupName="SettingsTabs"
                             Style="{StaticResource SegmentedTabButtonStyle}"
                             x:Name="TabTheme" />
 
                         <RadioButton
-                            Content="About"
+                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.About]}"
                             GroupName="SettingsTabs"
                             Style="{StaticResource SegmentedTabButtonStyle}"
                             x:Name="TabAbout" />
@@ -84,7 +84,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <CheckBox
-                        Content="Keep launcher open after game starts"
+                        Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.KeepLauncherOpen]}"
                         FontSize="14"
                         Grid.Row="0"
                         IsChecked="False"
@@ -93,7 +93,7 @@
                         VerticalAlignment="Top"
                         helpers:ScaleHelper.ScaleFactor="0.8" />
                     <CheckBox
-                        Content="Enable automatic updates"
+                        Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.EnableAutoUpdates]}"
                         FontSize="14"
                         Grid.Row="1"
                         IsChecked="True"
@@ -102,7 +102,7 @@
                         VerticalAlignment="Top"
                         helpers:ScaleHelper.ScaleFactor="0.8" />
                     <CheckBox
-                        Content="Enable snapshots"
+                        Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.EnableSnapshots]}"
                         FontSize="14"
                         Grid.Row="2"
                         IsChecked="False"
@@ -116,10 +116,11 @@
                         Orientation="Vertical">
                         <TextBlock FontSize="14" Foreground="{DynamicResource ForegroundPrimaryBrush}">
                             <TextBlock.Text>
-                                <Binding
-                                    ElementName="UiScaleSlider"
-                                    Path="Value"
-                                    StringFormat="Interface Scale: {0:0}%" />
+                                <MultiBinding Converter="{StaticResource StringFormatConverter}">
+                                    <Binding Path="[SettingsMenu.General.InterfaceScaleLabel]" Source="{StaticResource Loc}" />
+
+                                    <Binding ElementName="UiScaleSlider" Path="Value" />
+                                </MultiBinding>
                             </TextBlock.Text>
                         </TextBlock>
                         <Slider
@@ -130,17 +131,19 @@
                             TickFrequency="1"
                             Value="100"
                             x:Name="UiScaleSlider" />
-                        <TextBlock FontSize="11" Foreground="{DynamicResource ForegroundSecondaryBrush}">
-                            Adjust the size of all launcher elements (80% - 120%)
-                        </TextBlock>
+                        <TextBlock
+                            FontSize="11"
+                            Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.InterfaceScaleDescription]}" />
                     </StackPanel>
                     <StackPanel
                         Grid.Row="4"
                         Margin="0,5"
                         Orientation="Vertical">
-                        <TextBlock FontSize="14" Foreground="{DynamicResource ForegroundPrimaryBrush}">
-                            Minecraft Root Directory
-                        </TextBlock>
+                        <TextBlock
+                            FontSize="14"
+                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.MinecraftRootDirectoryLabel]}" />
                         <Border
                             Background="{DynamicResource AlertBackgroundBrush}"
                             BorderBrush="{DynamicResource AlertBorderBrush}"
@@ -173,12 +176,12 @@
                                     Grid.Column="1"
                                     HorizontalAlignment="Center"
                                     Margin="5"
-                                    Text="C:\Users\Username\AppData\Roaming\.minecraft"
+                                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.MinecraftRootDirectoryAlert]}"
                                     VerticalAlignment="Center" />
                             </Grid>
                         </Border>
                         <Button
-                            Content="Move .minecraft Folder"
+                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.MoveMinecraftFolderButton]}"
                             FontSize="14"
                             Height="35"
                             Style="{StaticResource OverlayDefaultButtonStyle}"

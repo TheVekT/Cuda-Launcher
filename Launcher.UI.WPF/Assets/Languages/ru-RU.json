@@ -1,0 +1,52 @@
+{
+  "Meta": {
+    "Name": "Русский",
+    "Author": "TheVekT"
+  },
+  "Translations": {
+    "MainWindow.Title": "Mine Launcher",
+    "MainWindow.Header.LogoText": "MINE",
+    "MainWindow.Header.LoginButton": "Войти",
+    "MainWindow.Navigation.Play": "Играть",
+    "MainWindow.Navigation.Installations": "Установки",
+    "MainWindow.Navigation.Skins": "Скины",
+
+    "Installations.Title": "Установки",
+    "Installations.Header.Title": "Установки",
+    "Installations.Header.NewInstallationButton": "Новая установка",
+    "Installations.Sort.LastPlayed": "Сорт.: Последний запуск",
+    "Installations.Sort.Name": "Сорт.: По имени",
+    "Installations.Sort.GameVersion": "Сорт.: Версия игры",
+    "Installations.Sort.ModLoader": "Сорт.: Загрузчик модов",
+
+    "Skins.Title": "Скины",
+    "Skins.Preview.Title": "Предпросмотр скина",
+    "Skins.Library.Title": "Библиотека скинов",
+    "Skins.Library.AddSkinButton": "Добавить скин",
+
+    "SkinCard.ApplyButton": "Применить",
+
+    "SettingsMenu.Title": "Настройки лаунчера",
+    "SettingsMenu.Subtitle": "Настройка параметров лаунчера Minecraft",
+    "SettingsMenu.Tabs.General": "Общие",
+    "SettingsMenu.Tabs.Java": "Java",
+    "SettingsMenu.Tabs.Language": "Язык",
+    "SettingsMenu.Tabs.Theme": "Тема",
+    "SettingsMenu.Tabs.About": "О программе",
+
+    "SettingsMenu.General.KeepLauncherOpen": "Не закрывать лаунчер после запуска игры",
+    "SettingsMenu.General.EnableAutoUpdates": "Включить автообновление",
+    "SettingsMenu.General.EnableSnapshots": "Отображать снапшоты",
+    "SettingsMenu.General.InterfaceScaleLabel": "Масштаб интерфейса: {0:0}%",
+    "SettingsMenu.General.InterfaceScaleDescription": "Настройка размера элементов лаунчера (80% - 120%)",
+    "SettingsMenu.General.MinecraftRootDirectoryLabel": "Корневая папка Minecraft",
+    "SettingsMenu.General.MinecraftRootDirectoryAlert": "Для перемещения папки .minecraft требуются права администратора.",
+    "SettingsMenu.General.MoveMinecraftFolderButton": "Переместить папку .minecraft",
+
+    "Play.Title": "Играть",
+    "Play.PlayButton": "Играть",
+
+    "VersionElement.VersionLabel": "Версия: ",
+    "VersionElement.LastPlayedLabel": "Последний запуск: "
+  }
+}

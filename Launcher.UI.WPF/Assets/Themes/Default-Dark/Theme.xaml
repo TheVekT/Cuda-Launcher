@@ -8,6 +8,7 @@
     <Color x:Key="BackgroundAccent">#FFFFFF</Color>
 
     <Color x:Key="OverlayButtonBackground">#0DFFFFFF</Color>
+    <Color x:Key="OverlayHoverButtonBg">#16FFFFFF</Color>
     <Color x:Key="OverlayBackgroundPrimary">#171717</Color>
     <Color x:Key="OverlayBackgroundSurface">#404040</Color>
     <Color x:Key="OverlaySelection">#A1A1A1</Color>

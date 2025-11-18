@@ -93,7 +93,7 @@
 
                 <Button
                     Click="ApplyButton_Click"
-                    Content="Apply"
+                    Content="{Binding Source={StaticResource Loc}, Path=[SkinCard.ApplyButton]}"
                     Grid.Column="0"
                     Height="25"
                     Margin="0,0,5,0"

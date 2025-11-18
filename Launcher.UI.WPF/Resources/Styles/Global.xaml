@@ -198,6 +198,71 @@
         x:Key="OverlayDefaultButtonStyle">
         <Setter Property="Background" Value="{DynamicResource OverlayButtonBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource OverlayBorderPrimaryBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{DynamicResource DefaultCorner}"
+                        Padding="{TemplateBinding Padding}"
+                        x:Name="PART_Border">
+
+                        <Grid IsSharedSizeScope="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="SideColumns" Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" x:Name="RightCol" />
+                            </Grid.ColumnDefinitions>
+
+                            <Viewbox
+                                Grid.Column="0"
+                                Height="{Binding Path=(helpers:ButtonHelper.IconSize), RelativeSource={RelativeSource TemplatedParent}}"
+                                HorizontalAlignment="Center"
+                                Stretch="Uniform"
+                                VerticalAlignment="Center"
+                                Width="{Binding Path=(helpers:ButtonHelper.IconSize), RelativeSource={RelativeSource TemplatedParent}}"
+                                x:Name="PART_Icon">
+
+                                <Path
+                                    Data="{TemplateBinding Tag}"
+                                    Fill="Transparent"
+                                    Stretch="Uniform"
+                                    Stroke="{TemplateBinding Foreground}"
+                                    StrokeThickness="1.33" />
+                            </Viewbox>
+
+                            <ContentPresenter
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                Margin="6,0,0,0"
+                                VerticalAlignment="Center"
+                                x:Name="ContentView" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.6" />
+                        </Trigger>
+                        <Trigger Property="helpers:ButtonHelper.BalanceText" Value="True">
+                            <Setter Property="SharedSizeGroup" TargetName="RightCol" Value="SideColumns" />
+                        </Trigger>
+                        <Trigger Property="Tag" Value="{x:Null}">
+                            <Setter Property="Visibility" TargetName="PART_Icon" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="Content" Value="{x:Null}">
+                            <Setter Property="Grid.Column" TargetName="PART_Icon" Value="1" />
+                            <Setter Property="Visibility" TargetName="ContentView" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
 

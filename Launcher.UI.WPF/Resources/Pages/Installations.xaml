@@ -3,7 +3,7 @@
     FontFamily="{DynamicResource GlobalFont}"
     MinHeight="550"
     MinWidth="1100"
-    Title="Installations"
+    Title="{Binding Source={StaticResource Loc}, Path=[Installations.Title]}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Pages.Installations"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -33,11 +33,11 @@
                     FontSize="20"
                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                     Grid.Column="0"
-                    Text="Installations"
+                    Text="{Binding Source={StaticResource Loc}, Path=[Installations.Header.Title]}"
                     VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" />
                 <Button
-                    Content="New Installation"
+                    Content="{Binding Source={StaticResource Loc}, Path=[Installations.Header.NewInstallationButton]}"
                     FontSize="13"
                     Grid.Column="2"
                     Height="30"
@@ -87,10 +87,10 @@
                         SelectedIndex="0"
                         Style="{StaticResource DefaultComboBox}"
                         Width="180">
-                        <ComboBoxItem Content="Sort: Last played" />
-                        <ComboBoxItem Content="Sort: Name" />
-                        <ComboBoxItem Content="Sort: Game version" />
-                        <ComboBoxItem Content="Sort: Mod loader" />
+                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.LastPlayed]}" />
+                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.Name]}" />
+                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.GameVersion]}" />
+                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.ModLoader]}" />
                     </ComboBox>
                 </Grid>
 
