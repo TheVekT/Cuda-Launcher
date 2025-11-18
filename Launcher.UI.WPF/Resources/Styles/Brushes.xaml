@@ -6,6 +6,12 @@
     <SolidColorBrush Color="{DynamicResource BackgroundLowTransparent}" x:Key="BackgroundLowTransparentBrush" />
     <SolidColorBrush Color="{DynamicResource BackgroundAccent}" x:Key="BackgroundAccentBrush" />
 
+    <SolidColorBrush Color="{DynamicResource OverlayButtonBackground}" x:Key="OverlayButtonBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlayBackgroundPrimary}" x:Key="OverlayBackgroundPrimaryBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlayBackgroundSurface}" x:Key="OverlayBackgroundSurfaceBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlaySelection}" x:Key="OverlaySelectionBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlayBorderPrimary}" x:Key="OverlayBorderPrimaryBrush" />
+
     <SolidColorBrush Color="{DynamicResource HoverBackgroundNav}" x:Key="HoverBackgroundNavBrush" />
     <SolidColorBrush Color="{DynamicResource HoverBackgroundDefaultBtn}" x:Key="HoverBackgroundDefaultBtnBrush" />
 
@@ -20,6 +26,9 @@
 
     <SolidColorBrush Color="{DynamicResource InputBackground}" x:Key="InputBackgroundBrush" />
 
+    <SolidColorBrush Color="{DynamicResource AlertBackground}" x:Key="AlertBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource AlertBorder}" x:Key="AlertBorderBrush" />
+    <SolidColorBrush Color="{DynamicResource AlertForeground}" x:Key="AlertForegroundBrush" />
     <SolidColorBrush Color="{DynamicResource ColorDanger}" x:Key="ColorDangerBrush" />
     <SolidColorBrush Color="{DynamicResource DropDownArrow}" x:Key="DropDownArrowBrush" />
 

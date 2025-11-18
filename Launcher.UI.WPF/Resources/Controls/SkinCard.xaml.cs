@@ -20,7 +20,7 @@ public partial class SkinCard : UserControl
         ApplyClicked?.Invoke(this, e);
     }
 
-    private void DeleteButton_Click(object sender, RoutedEventArgs e)
+    private void EditButton_Click(object sender, RoutedEventArgs e)
     {
         DeleteClicked?.Invoke(this, e);
     }

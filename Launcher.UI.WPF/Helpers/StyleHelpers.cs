@@ -65,6 +65,26 @@ namespace Launcher.UI.WPF.Helpers
             return (PlacementMode)element.GetValue(PopupPlacementProperty);
         }
     }
+    
+    public class ScaleHelper
+    {
+        public static readonly DependencyProperty ScaleFactorProperty =
+            DependencyProperty.RegisterAttached(
+                "ScaleFactor",
+                typeof(double),
+                typeof(ScaleHelper),
+                new PropertyMetadata(1.0));
+
+        public static void SetScaleFactor(DependencyObject element, double value)
+        {
+            element.SetValue(ScaleFactorProperty, value);
+        }
+
+        public static double GetScaleFactor(DependencyObject element)
+        {
+            return (double)element.GetValue(ScaleFactorProperty);
+        }
+    }
 
     public class VersionElementHelper
     {

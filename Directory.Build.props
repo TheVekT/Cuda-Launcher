@@ -1,0 +1,9 @@
+<Project>
+    <PropertyGroup>
+        <Version>0.1.0</Version>
+
+        <Authors>TheVekT</Authors>
+        <Company>MineLauncher</Company>
+        <Copyright>Copyright © 2025</Copyright>
+    </PropertyGroup>
+</Project>
