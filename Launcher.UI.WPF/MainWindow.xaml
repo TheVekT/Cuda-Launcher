@@ -33,7 +33,6 @@
             <ScaleTransform ScaleX="{Binding UiScale}" ScaleY="{Binding UiScale}" />
         </Grid.LayoutTransform>
         <Grid x:Name="MainPanel">
-
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -254,6 +253,7 @@
                                         x:Name="OpenFolderButton" />
                                     <Button
                                         BorderThickness="{DynamicResource DefaultBorderThickness}"
+                                        Command="{Binding OpenSettingsCommand}"
                                         Height="35"
                                         Margin="6,0,0,0"
                                         Padding="0"
@@ -269,15 +269,28 @@
                         <Frame
                             NavigationUIVisibility="Hidden"
                             Panel.ZIndex="10"
-                            Source="Resources/Pages/Installations.xaml"
+                            Source="Resources/Pages/Play.xaml"
                             x:Name="MainFrame" />
                     </Grid>
                 </Grid>
             </Grid>
         </Grid>
-        <Grid Panel.ZIndex="999" x:Name="OverlayContainer">
-            <Border Background="Transparent" />
-            <overlays:SettingsMenu HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <Grid
+            Panel.ZIndex="999"
+            Visibility="{Binding IsOverlayVisible, Converter={StaticResource BoolToVis}}"
+            x:Name="OverlayContainer">
+
+            <Border Background="Transparent">
+                <Border.InputBindings>
+                    <MouseBinding Command="{Binding CloseOverlayCommand}" MouseAction="LeftClick" />
+                </Border.InputBindings>
+            </Border>
+
+            <ContentControl
+                Content="{Binding CurrentOverlayView}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center" />
+
         </Grid>
     </Grid>
 </Window>

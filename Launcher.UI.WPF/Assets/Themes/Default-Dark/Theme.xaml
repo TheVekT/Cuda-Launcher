@@ -32,7 +32,7 @@
     <Color x:Key="InputBackground">#1AFFFFFF</Color>
 
     <Color x:Key="AlertBorder">#807B3306</Color>
-    <Color x:Key="AlertForeground">#FFB900</Color>
+    <Color x:Key="AlertForeground">#FEE685</Color>
     <Color x:Key="AlertBackground">#33461901</Color>
     <Color x:Key="ColorDanger">#FF6467</Color>
     <Color x:Key="DropDownArrow">#50717182</Color>

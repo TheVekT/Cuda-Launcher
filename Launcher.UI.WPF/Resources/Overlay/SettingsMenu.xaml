@@ -13,7 +13,6 @@
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <helpers:StringFormatConverter x:Key="StringFormatConverter" />
     </UserControl.Resources>
     <Grid Style="{StaticResource DefaultOverlayGridStyle}">
@@ -202,12 +201,14 @@
             </StackPanel>
         </Border>
         <Button
+            Command="{Binding CloseOverlayCommand}"
             Cursor="Hand"
             Height="12"
             HorizontalAlignment="Right"
             Margin="0,20,20,0"
             VerticalAlignment="Top"
-            Width="12">
+            Width="12"
+            x:Name="CloseMenuButton">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border Background="Transparent">
