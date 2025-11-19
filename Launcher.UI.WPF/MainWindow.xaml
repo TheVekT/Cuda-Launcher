@@ -29,10 +29,11 @@
             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
     <Grid>
+        <Grid.LayoutTransform>
+            <ScaleTransform ScaleX="{Binding UiScale}" ScaleY="{Binding UiScale}" />
+        </Grid.LayoutTransform>
         <Grid x:Name="MainPanel">
-            <Grid.LayoutTransform>
-                <ScaleTransform ScaleX="1.0" ScaleY="1.0" />
-            </Grid.LayoutTransform>
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -164,6 +165,7 @@
                                 </RadioButton>
                             </StackPanel>
                             <Button
+                                BorderThickness="{DynamicResource SecondBorderThickness}"
                                 Content="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}"
                                 FontSize="14"
                                 Grid.Column="2"
@@ -267,7 +269,7 @@
                         <Frame
                             NavigationUIVisibility="Hidden"
                             Panel.ZIndex="10"
-                            Source="Resources/Pages/Play.xaml"
+                            Source="Resources/Pages/Installations.xaml"
                             x:Name="MainFrame" />
                     </Grid>
                 </Grid>

@@ -1,7 +1,7 @@
 ﻿<Application
-    StartupUri="MainWindow.xaml"
     x:Class="Launcher.UI.WPF.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:local="clr-namespace:Launcher.UI.WPF"
     xmlns:services="clr-namespace:Launcher.UI.WPF.Services"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -20,6 +20,7 @@
                 <ResourceDictionary Source="Resources/Styles/Slider.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
+            <helpers:PercentToScaleConverter x:Key="PercentToScaleConverter" />
             <services:LocalizationService x:Key="Loc" />
         </ResourceDictionary>
     </Application.Resources>

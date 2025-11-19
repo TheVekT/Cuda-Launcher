@@ -1,6 +1,8 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
+using Launcher.UI.WPF.Resources.Overlay;
+using Launcher.UI.WPF.ViewModels;
 
 namespace Launcher.UI.WPF;
 
@@ -9,4 +11,28 @@ namespace Launcher.UI.WPF;
 /// </summary>
 public partial class App : Application
 {
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+
+        // 1. Создаем сервисы (если они нужны)
+        // var gameService = new LaunchService(); 
+        // ...
+
+        // 2. Создаем MainViewModel
+        // (Если у нее есть зависимости в конструкторе, передай их сюда)
+        var mainViewModel = new MainViewModel(); 
+        var settingsMenu = new SettingsMenu(); 
+        // 3. Создаем Главное Окно
+        var mainWindow = new MainWindow();
+
+        // 🔥 4. ГЛАВНЫЙ МОМЕНТ: ПРИВЯЗКА 🔥
+        // Мы говорим окну: "Твои данные - это вот этот класс mainViewModel"
+        mainWindow.DataContext = mainViewModel;
+        settingsMenu.DataContext = mainViewModel;
+        
+
+        // 5. Показываем окно
+        mainWindow.Show();
+    }
 }

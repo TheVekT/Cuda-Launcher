@@ -1,8 +1,8 @@
 <Page
     Background="Transparent"
     FontFamily="{DynamicResource GlobalFont}"
-    MinHeight="550"
-    MinWidth="1100"
+    MinHeight="450"
+    MinWidth="900"
     Title="{Binding Source={StaticResource Loc}, Path=[Installations.Title]}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Pages.Installations"
