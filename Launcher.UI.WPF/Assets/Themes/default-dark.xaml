@@ -1,4 +1,13 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:metadata="clr-namespace:Launcher.UI.WPF.Models"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <metadata:ThemeMetadata
+        Author="TheVekT"
+        Description="Default dark theme."
+        Name="Default Dark"
+        x:Key="ThemeInfo" />
+
     <FontFamily x:Key="GlobalFont">Arial</FontFamily>
 
     <Color x:Key="AppBackground">#0A0A0A</Color>

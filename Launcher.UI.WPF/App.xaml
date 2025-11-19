@@ -11,7 +11,7 @@
             <ResourceDictionary.MergedDictionaries>
 
                 <!--  Theme (можно заменить на runtime)  -->
-                <ResourceDictionary Source="Assets/Themes/Default-Dark/Theme.xaml" />
+                <ResourceDictionary Source="Assets/Themes/default-dark.xaml" />
 
                 <!--  Core styles (логика стилей, использует brushes из Theme)  -->
                 <ResourceDictionary Source="Resources/Styles/Global.xaml" />

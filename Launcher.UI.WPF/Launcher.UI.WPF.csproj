@@ -69,6 +69,16 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+      <Page Update="Assets\Themes\default-dark.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Assets\Themes\SteamPunk.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
     <ItemGroup>
@@ -87,7 +97,6 @@
 
     <ItemGroup>
       <Folder Include="Assets\Skins\" />
-      <Folder Include="Assets\Themes\Default-Dark\" />
       <Folder Include="Resources\Icons\" />
     </ItemGroup>
 
