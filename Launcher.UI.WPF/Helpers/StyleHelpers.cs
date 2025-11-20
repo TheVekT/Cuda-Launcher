@@ -85,7 +85,38 @@ namespace Launcher.UI.WPF.Helpers
             return (double)element.GetValue(ScaleFactorProperty);
         }
     }
+    
+    public class ScrollViewerHelper
+    {
+        public static readonly DependencyProperty EnableHorizontalScrollingProperty =
+            DependencyProperty.RegisterAttached(
+                "EnableHorizontalScrolling",
+                typeof(bool),
+                typeof(ScrollViewerHelper),
+                new PropertyMetadata(false, OnEnableHorizontalScrollingChanged));
 
+        public static void SetEnableHorizontalScrolling(DependencyObject element, bool value) 
+            => element.SetValue(EnableHorizontalScrollingProperty, value);
+
+        public static bool GetEnableHorizontalScrolling(DependencyObject element) 
+            => (bool)element.GetValue(EnableHorizontalScrollingProperty);
+
+        private static void OnEnableHorizontalScrollingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ScrollViewer scrollViewer && (bool)e.NewValue)
+            {
+                scrollViewer.PreviewMouseWheel += (s, args) =>
+                {
+                    if (args.Delta > 0)
+                        scrollViewer.LineLeft(); 
+                    else
+                        scrollViewer.LineRight();
+                    
+                    args.Handled = true;
+                };
+            }
+        }
+    }
     public class VersionElementHelper
     {
         public static readonly DependencyProperty IconProperty =

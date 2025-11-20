@@ -2,17 +2,19 @@
 using System.ComponentModel;
 using System.Windows.Input;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.ViewModels;
 
 public class MainViewModel : INotifyPropertyChanged
 {
-
+    private readonly ThemeService _themeService;
 
     private double _uiScale = 1.0;
     private bool _isOverlayVisible;
     private object _currentOverlayView;
-    
+    public ICommand ChangeThemeCommand { get; }
+    private string _currentThemePath = "/Assets/Themes/default-dark.xaml";
     public double UiScale
     {
         get => _uiScale;
@@ -25,7 +27,20 @@ public class MainViewModel : INotifyPropertyChanged
             }
         }
     }
-    
+    public string CurrentThemePath
+        {
+            get => _currentThemePath;
+            set
+            {
+                if (_currentThemePath != value)
+                {
+                    _currentThemePath = value;
+                    OnPropertyChanged(nameof(CurrentThemePath));
+                    
+                    _themeService.ChangeTheme(_currentThemePath);
+                }
+            }
+        }
     
     public bool IsOverlayVisible
     {
@@ -53,20 +68,23 @@ public class MainViewModel : INotifyPropertyChanged
     
     public ICommand OpenSettingsCommand { get; }
     
-    public MainViewModel()
+    public MainViewModel(ThemeService themeService)
     {
+        _themeService = themeService;
         OpenSettingsCommand = new RelayCommand(o => 
         {
             CurrentOverlayView = new Resources.Overlay.SettingsMenu();
         });
-
-        /*
-        OpenLoginCommand = new RelayCommand(o => 
+        
+        _themeService.ChangeTheme(_currentThemePath);
+        ChangeThemeCommand = new RelayCommand(path => 
         {
-            CurrentOverlayView = new Resources.Overlay.LoginMenu(); 
-        });*/
+            if (path is string themePath)
+            {
+                _themeService.ChangeTheme(themePath);
+            }
+        });
 
-        // Закрыть всё
         CloseOverlayCommand = new RelayCommand(o => 
         {
             CurrentOverlayView = null;

@@ -1,0 +1,85 @@
+<UserControl
+    Cursor="Hand"
+    Height="140"
+    Width="226"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Resources.Controls.ThemePreviewCard"
+    x:Name="CardRoot"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Border
+            Background="{Binding P_AppBackground, ElementName=CardRoot}"
+            BorderThickness="2"
+            CornerRadius="{DynamicResource DefaultCorner}"
+            Padding="10">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="BorderBrush" Value="{Binding P_BorderPrimary, ElementName=CardRoot}" />
+
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundAccentBrush}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=RadioButton}}" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundAccentBrush}" />
+                        </DataTrigger>
+
+                        <Trigger Property="IsMouseOver" Value="True" />
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel Orientation="Vertical">
+
+                <Border
+                    Background="{Binding P_BackgroundSurface, ElementName=CardRoot}"
+                    BorderBrush="{Binding P_BorderSecondary, ElementName=CardRoot}"
+                    CornerRadius="4"
+                    Height="25"
+                    Margin="0,4" />
+
+                <Border
+                    Background="{Binding P_InputBackground, ElementName=CardRoot}"
+                    CornerRadius="4"
+                    Height="15"
+                    HorizontalAlignment="Left"
+                    Margin="0,4"
+                    Width="110" />
+
+                <Border
+                    Background="{Binding P_BackgroundAccent, ElementName=CardRoot}"
+                    CornerRadius="4"
+                    Height="15"
+                    HorizontalAlignment="Left"
+                    Margin="0,4"
+                    Width="80">
+                    <TextBlock
+                        FontFamily="{DynamicResource GlobalFont}"
+                        FontSize="11"
+                        Foreground="{Binding P_ForegroundOnAccent, ElementName=CardRoot}"
+                        HorizontalAlignment="Center"
+                        Text="Play"
+                        VerticalAlignment="Center" />
+                </Border>
+
+                <TextBlock
+                    FontFamily="{DynamicResource GlobalFont}"
+                    FontSize="12"
+                    Foreground="{Binding P_ForegroundPrimary, ElementName=CardRoot}"
+                    Margin="0,4"
+                    Text="{Binding ThemeName, ElementName=CardRoot}" />
+
+                <TextBlock
+                    FontFamily="{DynamicResource GlobalFont}"
+                    FontSize="10"
+                    Foreground="{Binding P_ForegroundSecondary, ElementName=CardRoot}"
+                    Margin="0,4"
+                    Text="{Binding ThemeAuthor, ElementName=CardRoot, StringFormat='by {0}'}" />
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

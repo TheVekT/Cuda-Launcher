@@ -9,6 +9,7 @@
     Title="{Binding Source={StaticResource Loc}, Path=[MainWindow.Title]}"
     Width="1100"
     WindowStyle="SingleBorderWindow"
+    d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -19,6 +20,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:overlays="clr-namespace:Launcher.UI.WPF.Resources.Overlay"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+    xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome
@@ -223,6 +225,7 @@
                                         Height="35"
                                         ItemContainerStyle="{StaticResource ImageComboBoxItemStyle}"
                                         ItemTemplate="{StaticResource ImageComboBoxItemTemplate}"
+                                        SelectedIndex="0"
                                         Style="{StaticResource VersionsComboBox}"
                                         Width="300"
                                         helpers:ComboBoxHelper.PopupPlacement="Top">
@@ -230,7 +233,6 @@
                                         <ComboBoxItem Tag="/Assets/Icons/fabric-default.png">Fabric 1.19.2</ComboBoxItem>
                                     </ComboBox>
                                     <Button
-                                        BorderThickness="{DynamicResource SecondBorderThickness}"
                                         FontSize="16"
                                         Height="35"
                                         HorizontalAlignment="Center"

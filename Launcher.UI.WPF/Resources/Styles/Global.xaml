@@ -724,14 +724,6 @@
         </Setter>
     </Style>
 
-    <!--  Default Overlay grid Style  -->
-    <Style TargetType="Grid" x:Key="DefaultOverlayGridStyle">
-        <Setter Property="Background" Value="{DynamicResource OverlayBackgroundPrimaryBrush}" />
-        <Setter Property="Width" Value="512" />
-    </Style>
-
-
-
     <!--  Default ToggleSwitch Style  -->
     <Style TargetType="CheckBox" x:Key="DefaultToggleSwitchStyle">
         <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
@@ -899,5 +891,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+
 
 </ResourceDictionary>

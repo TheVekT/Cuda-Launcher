@@ -3,6 +3,7 @@ using System.Data;
 using System.Windows;
 using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.ViewModels;
+using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF;
 
@@ -18,10 +19,10 @@ public partial class App : Application
         // 1. Создаем сервисы (если они нужны)
         // var gameService = new LaunchService(); 
         // ...
-
+        var themeService = new ThemeService();
         // 2. Создаем MainViewModel
         // (Если у нее есть зависимости в конструкторе, передай их сюда)
-        var mainViewModel = new MainViewModel(); 
+        var mainViewModel = new MainViewModel(themeService); 
         var settingsMenu = new SettingsMenu(); 
         // 3. Создаем Главное Окно
         var mainWindow = new MainWindow();
