@@ -14,7 +14,6 @@
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
-        <helpers:RadioBoolConverter x:Key="RadioBoolConverter" />
         <helpers:StringFormatConverter x:Key="StringFormatConverter" />
         <helpers:InvertBoolConverter x:Key="BoolToBool" />
     </UserControl.Resources>
@@ -336,48 +335,13 @@
                             Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.SelectThemeLabel]}" />
                         <ScrollViewer Style="{StaticResource HorizontalScrollViewerStyle}" helpers:ScrollViewerHelper.EnableHorizontalScrolling="True">
                             <StackPanel Orientation="Horizontal">
+                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/default-dark.xaml" />
 
-                                <RadioButton GroupName="Themes" Style="{StaticResource InvisibleRadioStyle}">
+                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/default-light.xaml" />
 
-                                    <RadioButton.IsChecked>
-                                        <Binding
-                                            Converter="{StaticResource RadioBoolConverter}"
-                                            ConverterParameter="/Assets/Themes/default-dark.xaml"
-                                            Path="CurrentThemePath" />
-                                    </RadioButton.IsChecked>
+                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/SteamPunk.xaml" />
 
-                                    <controls:ThemePreviewCard ThemeSource="/Assets/Themes/default-dark.xaml" />
-                                </RadioButton>
-
-                                <RadioButton GroupName="Themes" Style="{StaticResource InvisibleRadioStyle}">
-                                    <RadioButton.IsChecked>
-                                        <Binding
-                                            Converter="{StaticResource RadioBoolConverter}"
-                                            ConverterParameter="/Assets/Themes/default-light.xaml"
-                                            Path="CurrentThemePath" />
-                                    </RadioButton.IsChecked>
-                                    <controls:ThemePreviewCard ThemeSource="/Assets/Themes/default-light.xaml" />
-                                </RadioButton>
-
-                                <RadioButton GroupName="Themes" Style="{StaticResource InvisibleRadioStyle}">
-                                    <RadioButton.IsChecked>
-                                        <Binding
-                                            Converter="{StaticResource RadioBoolConverter}"
-                                            ConverterParameter="/Assets/Themes/SteamPunk.xaml"
-                                            Path="CurrentThemePath" />
-                                    </RadioButton.IsChecked>
-                                    <controls:ThemePreviewCard ThemeSource="/Assets/Themes/SteamPunk.xaml" />
-                                </RadioButton>
-
-                                <RadioButton GroupName="Themes" Style="{StaticResource InvisibleRadioStyle}">
-                                    <RadioButton.IsChecked>
-                                        <Binding
-                                            Converter="{StaticResource RadioBoolConverter}"
-                                            ConverterParameter="/Assets/Themes/CyberPunk.xaml"
-                                            Path="CurrentThemePath" />
-                                    </RadioButton.IsChecked>
-                                    <controls:ThemePreviewCard ThemeSource="/Assets/Themes/CyberPunk.xaml" />
-                                </RadioButton>
+                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/CyberPunk.xaml" />
                             </StackPanel>
                         </ScrollViewer>
                     </StackPanel>

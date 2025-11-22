@@ -1,8 +1,10 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using Launcher.UI.WPF.Models;
+using Launcher.UI.WPF.ViewModels;
 
 namespace Launcher.UI.WPF.Resources.Controls
 {
@@ -11,6 +13,31 @@ namespace Launcher.UI.WPF.Resources.Controls
         public ThemePreviewCard()
         {
             InitializeComponent();
+            MouseLeftButtonUp += OnCardClick;
+        }
+
+        private void OnCardClick(object sender, MouseButtonEventArgs e)
+        {
+            if (ThemeSource == null) return;
+            
+            var dataContext = DataContext;
+            while (dataContext != null)
+            {
+                if (dataContext is MainViewModel vm)
+                {
+                    vm.CurrentThemePath = ThemeSource.OriginalString;
+                    return;
+                }
+                
+                if (this.Parent is FrameworkElement parent)
+                {
+                    dataContext = parent.DataContext;
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
         
         public static readonly DependencyProperty ThemeSourceProperty =
@@ -27,6 +54,25 @@ namespace Launcher.UI.WPF.Resources.Controls
         {
             get => (bool)GetValue(IsSelectedProperty);
             set => SetValue(IsSelectedProperty, value);
+        }
+        
+        public static readonly DependencyProperty CurrentThemePathVMProperty =
+            DependencyProperty.Register("CurrentThemePathVM", typeof(string), typeof(ThemePreviewCard), 
+                new PropertyMetadata(null, OnCurrentThemePathVMChanged));
+        public string CurrentThemePathVM
+        {
+            get => (string)GetValue(CurrentThemePathVMProperty);
+            set => SetValue(CurrentThemePathVMProperty, value);
+        }
+
+        private static void OnCurrentThemePathVMChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ThemePreviewCard card)
+            {
+                card.IsSelected = card.ThemeSource != null && 
+                                  card.CurrentThemePathVM != null &&
+                                  card.ThemeSource.OriginalString == card.CurrentThemePathVM;
+            }
         }
         
         public static readonly DependencyProperty P_GlobalFontProperty =

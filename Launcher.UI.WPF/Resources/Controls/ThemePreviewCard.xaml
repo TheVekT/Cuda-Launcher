@@ -1,6 +1,7 @@
 <UserControl
     Cursor="Hand"
     Height="140"
+    Margin="0,0,15,0"
     Width="226"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Controls.ThemePreviewCard"
@@ -20,15 +21,9 @@
                     <Setter Property="BorderBrush" Value="{Binding P_BorderPrimary, ElementName=CardRoot}" />
 
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                        <DataTrigger Binding="{Binding IsSelected, ElementName=CardRoot}" Value="True">
                             <Setter Property="BorderBrush" Value="{DynamicResource BackgroundAccentBrush}" />
                         </DataTrigger>
-
-                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=RadioButton}}" Value="True">
-                            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundAccentBrush}" />
-                        </DataTrigger>
-
-                        <Trigger Property="IsMouseOver" Value="True" />
                     </Style.Triggers>
                 </Style>
             </Border.Style>
