@@ -57,7 +57,7 @@
                     Margin="0,4"
                     Width="80">
                     <TextBlock
-                        FontFamily="{DynamicResource GlobalFont}"
+                        FontFamily="{Binding P_GlobalFont, ElementName=CardRoot}"
                         FontSize="11"
                         Foreground="{Binding P_ForegroundOnAccent, ElementName=CardRoot}"
                         HorizontalAlignment="Center"
@@ -66,14 +66,14 @@
                 </Border>
 
                 <TextBlock
-                    FontFamily="{DynamicResource GlobalFont}"
+                    FontFamily="{Binding P_GlobalFont, ElementName=CardRoot}"
                     FontSize="12"
                     Foreground="{Binding P_ForegroundPrimary, ElementName=CardRoot}"
                     Margin="0,4"
                     Text="{Binding ThemeName, ElementName=CardRoot}" />
 
                 <TextBlock
-                    FontFamily="{DynamicResource GlobalFont}"
+                    FontFamily="{Binding P_GlobalFont, ElementName=CardRoot}"
                     FontSize="10"
                     Foreground="{Binding P_ForegroundSecondary, ElementName=CardRoot}"
                     Margin="0,4"

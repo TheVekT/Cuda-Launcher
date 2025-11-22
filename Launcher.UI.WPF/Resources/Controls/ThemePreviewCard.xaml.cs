@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Launcher.UI.WPF.Models; // Для ThemeMetadata
+using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Resources.Controls
 {
@@ -15,19 +15,26 @@ namespace Launcher.UI.WPF.Resources.Controls
         
         public static readonly DependencyProperty ThemeSourceProperty =
             DependencyProperty.Register("ThemeSource", typeof(Uri), typeof(ThemePreviewCard), new PropertyMetadata(null, OnThemeSourceChanged));
-
         public Uri ThemeSource
         {
             get => (Uri)GetValue(ThemeSourceProperty);
             set => SetValue(ThemeSourceProperty, value);
         }
+
         public static readonly DependencyProperty IsSelectedProperty =
             DependencyProperty.Register("IsSelected", typeof(bool), typeof(ThemePreviewCard), new PropertyMetadata(false));
-
         public bool IsSelected
         {
             get => (bool)GetValue(IsSelectedProperty);
             set => SetValue(IsSelectedProperty, value);
+        }
+        
+        public static readonly DependencyProperty P_GlobalFontProperty =
+            DependencyProperty.Register("P_GlobalFont", typeof(FontFamily), typeof(ThemePreviewCard), new PropertyMetadata(new FontFamily("Arial")));
+        public FontFamily P_GlobalFont 
+        { 
+            get => (FontFamily)GetValue(P_GlobalFontProperty); 
+            set => SetValue(P_GlobalFontProperty, value); 
         }
         
         public static readonly DependencyProperty P_AppBackgroundProperty = DP("P_AppBackground");
@@ -74,23 +81,24 @@ namespace Launcher.UI.WPF.Resources.Controls
                 {
                     var dict = new ResourceDictionary { Source = uri };
                     
+                    // 1. Метаданные
                     if (dict.Contains("ThemeInfo") && dict["ThemeInfo"] is ThemeMetadata meta)
                     {
                         card.ThemeName = meta.Name;
                         card.ThemeAuthor = meta.Author;
                     }
 
+                    // 2. Шрифт (НОВОЕ)
+                    card.P_GlobalFont = GetFont(dict, "GlobalFont");
+
+                    // 3. Цвета
                     card.P_AppBackground = GetBrush(dict, "AppBackground");
                     card.P_BorderPrimary = GetBrush(dict, "BorderPrimary");
-                    
                     card.P_BackgroundSurface = GetBrush(dict, "BackgroundSurface");
                     card.P_BorderSecondary = GetBrush(dict, "BorderSecondary");
-                    
                     card.P_InputBackground = GetBrush(dict, "InputBackground");
-                    
                     card.P_BackgroundAccent = GetBrush(dict, "BackgroundAccent");
                     card.P_ForegroundOnAccent = GetBrush(dict, "ForegroundOnAccent");
-                    
                     card.P_ForegroundPrimary = GetBrush(dict, "ForegroundPrimary");
                     card.P_ForegroundSecondary = GetBrush(dict, "ForegroundSecondary");
                 }
@@ -110,6 +118,14 @@ namespace Launcher.UI.WPF.Resources.Controls
                 return b;
             }
             return Brushes.Transparent; 
+        }
+        private static FontFamily GetFont(ResourceDictionary dict, string key)
+        {
+            if (dict.Contains(key) && dict[key] is FontFamily font)
+            {
+                return font;
+            }
+            return new FontFamily("Arial");
         }
     }
 }

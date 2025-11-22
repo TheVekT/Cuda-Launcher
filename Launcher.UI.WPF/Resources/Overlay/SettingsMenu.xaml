@@ -353,10 +353,30 @@
                                     <RadioButton.IsChecked>
                                         <Binding
                                             Converter="{StaticResource RadioBoolConverter}"
+                                            ConverterParameter="/Assets/Themes/default-light.xaml"
+                                            Path="CurrentThemePath" />
+                                    </RadioButton.IsChecked>
+                                    <controls:ThemePreviewCard ThemeSource="/Assets/Themes/default-light.xaml" />
+                                </RadioButton>
+
+                                <RadioButton GroupName="Themes" Style="{StaticResource InvisibleRadioStyle}">
+                                    <RadioButton.IsChecked>
+                                        <Binding
+                                            Converter="{StaticResource RadioBoolConverter}"
                                             ConverterParameter="/Assets/Themes/SteamPunk.xaml"
                                             Path="CurrentThemePath" />
                                     </RadioButton.IsChecked>
                                     <controls:ThemePreviewCard ThemeSource="/Assets/Themes/SteamPunk.xaml" />
+                                </RadioButton>
+
+                                <RadioButton GroupName="Themes" Style="{StaticResource InvisibleRadioStyle}">
+                                    <RadioButton.IsChecked>
+                                        <Binding
+                                            Converter="{StaticResource RadioBoolConverter}"
+                                            ConverterParameter="/Assets/Themes/CyberPunk.xaml"
+                                            Path="CurrentThemePath" />
+                                    </RadioButton.IsChecked>
+                                    <controls:ThemePreviewCard ThemeSource="/Assets/Themes/CyberPunk.xaml" />
                                 </RadioButton>
                             </StackPanel>
                         </ScrollViewer>

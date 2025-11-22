@@ -79,9 +79,8 @@
                     </Grid>
                 </Border>
                 <Button
-                    BorderThickness="{DynamicResource SecondBorderThickness}"
                     Content="{Binding Source={StaticResource Loc}, Path=[Play.PlayButton]}"
-                    FontSize="16"
+                    FontSize="18"
                     Height="50"
                     HorizontalAlignment="Center"
                     Style="{StaticResource AccentButtonStyle}"
