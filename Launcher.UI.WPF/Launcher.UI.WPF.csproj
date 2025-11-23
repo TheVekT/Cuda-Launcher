@@ -1,117 +1,120 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <UseWPF>true</UseWPF>
-    </PropertyGroup>
-    <PropertyGroup>
-        <OutputPath Condition="'$(Configuration)' == 'Debug'">..\Build\Debug\</OutputPath>
-        <OutputPath Condition="'$(Configuration)' == 'Release'">..\Build\Release\</OutputPath>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutputPath Condition="'$(Configuration)' == 'Debug'">..\Build\Debug\</OutputPath>
+    <OutputPath Condition="'$(Configuration)' == 'Release'">..\Build\Release\</OutputPath>
 
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    </PropertyGroup>
-    <ItemGroup>
-      <Resource Include="Assets\Icons\fabric-default.png" />
-      <Resource Include="Assets\Icons\forge-default.png" />
-      <Resource Include="Assets\Icons\logo.png" />
-      <Resource Include="Assets\Icons\neoforge-default.png" />
-      <None Remove="Assets\Images\banner-default.jpg" />
-      <Resource Include="Assets\Icons\optifine-default.png" />
-      <Resource Include="Assets\Images\banner-default.jpg" />
-      <None Remove="Assets\Skins\sk1.png" />
-      <Resource Include="Assets\Skins\sk1.png" />
-      <None Remove="Assets\Skins\sk2.png" />
-      <Resource Include="Assets\Skins\sk2.png" />
-      <None Remove="Assets\Skins\sk4.png" />
-      <Resource Include="Assets\Skins\sk4.png" />
-      <None Remove="Assets\Skins\sk3.png" />
-      <Resource Include="Assets\Skins\sk3.png" />
-      <None Remove="Assets\Skins\TheVekT(NOW).png" />
-      <Resource Include="Assets\Skins\TheVekT(NOW).png" />
-    </ItemGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Icons\fabric-default.png" />
+    <Resource Include="Assets\Icons\forge-default.png" />
+    <Resource Include="Assets\Icons\logo.png" />
+    <Resource Include="Assets\Icons\neoforge-default.png" />
+    <None Remove="Assets\Images\banner-default.jpg" />
+    <Resource Include="Assets\Icons\optifine-default.png" />
+    <Resource Include="Assets\Images\banner-default.jpg" />
+    <None Remove="Assets\Skins\sk1.png" />
+    <Resource Include="Assets\Skins\sk1.png" />
+    <None Remove="Assets\Skins\sk2.png" />
+    <Resource Include="Assets\Skins\sk2.png" />
+    <None Remove="Assets\Skins\sk4.png" />
+    <Resource Include="Assets\Skins\sk4.png" />
+    <None Remove="Assets\Skins\sk3.png" />
+    <Resource Include="Assets\Skins\sk3.png" />
+    <None Remove="Assets\Skins\TheVekT(NOW).png" />
+    <Resource Include="Assets\Skins\TheVekT(NOW).png" />
+    <!-- Ensure theme XAML files are compiled as Page so CLR types in XAML resolve correctly -->
+    <Page Update="Assets\Themes\default-dark.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Assets\Themes\default-light.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
 
-    <ItemGroup>
-      <Page Update="Resources\Pages\Installations.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Resources\Pages\Play.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Resources\Pages\Skins.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Resources\Styles\Global.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Resources\Controls\CustomTitleBar.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Assets\Themes\Theme.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Assets\Themes\Default-Light\Theme.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Assets\Themes\default-dark.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Assets\Themes\SteamPunk.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Assets\Themes\CyberPunk.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Assets\Themes\default-light.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-    </ItemGroup>
+  <ItemGroup>
+    <Page Update="Resources\Pages\Installations.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\Pages\Play.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\Pages\Skins.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\Styles\Global.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\Controls\CustomTitleBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Assets\Themes\Theme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Assets\Themes\Default-Light\Theme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <!-- Ensure other theme files are compiled as Page -->
+    <Page Update="Assets\Themes\SteamPunk.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Assets\Themes\CyberPunk.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
 
-    <ItemGroup>
-      <Content Update="Assets\Images\banner-default.jpg">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <None Remove="Assets\Languages\en.json" />
-      <Content Include="Assets\Languages\en-US.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <None Remove="Assets\Languages\ru.json" />
-      <Content Include="Assets\Languages\ru-RU.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
+  <ItemGroup>
+    <Content Update="Assets\Images\banner-default.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Languages\en.json" />
+    <Content Include="Assets\Languages\en-US.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Languages\ru.json" />
+    <Content Include="Assets\Languages\ru-RU.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- theme files must not be Content when they define CLR types; compiled as Page above -->
+  </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Assets\Skins\" />
-      <Folder Include="Resources\Icons\" />
-    </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Skins\" />
+    <Folder Include="Resources\Icons\" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Launcher.Core\Launcher.Core.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Launcher.Core\Launcher.Core.csproj" />
+  </ItemGroup>
 
 </Project>

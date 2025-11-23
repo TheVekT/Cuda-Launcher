@@ -342,6 +342,7 @@
                                 <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/SteamPunk.xaml" />
 
                                 <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/CyberPunk.xaml" />
+
                             </StackPanel>
                         </ScrollViewer>
                     </StackPanel>
@@ -353,9 +354,9 @@
                             FontSize="14"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
                             Margin="0,0,0,5"
-                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.CustomizeAccentLabel]}" />
+                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.UploadThemeFileLabel]}" />
                         <Button
-                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.CustomizeAccentButton]}"
+                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.UploadThemeFileButton]}"
                             FontSize="14"
                             Height="35"
                             Style="{StaticResource OverlayDefaultButtonStyle}"

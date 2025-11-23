@@ -45,6 +45,8 @@
     "SettingsMenu.Language.UploadCustomLanguageLabel": "Custom Localization",
     "SettingsMenu.Language.UploadCustomLanguageButton": "Upload language file (.json)",
     "SettingsMenu.Theme.SelectThemeLabel": "Select Theme",
+    "SettingsMenu.Theme.UploadThemeFileLabel": "Custom Theme",
+    "SettingsMenu.Theme.UploadThemeFileButton": "Upload theme file (.xaml, .zip)",
     "Play.Title": "Play",
     "Play.PlayButton": "Play",
     "VersionElement.VersionLabel": "Version: ",

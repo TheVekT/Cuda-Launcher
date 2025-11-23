@@ -9,7 +9,7 @@
         Name="Cyberpunk"
         x:Key="ThemeInfo" />
 
-    <FontFamily x:Key="GlobalFont">/Assets/Fonts/#Orbitron</FontFamily>
+    <FontFamily x:Key="GlobalFont">/Assets/Themes/Fonts/#Orbitron</FontFamily>
 
     <Color x:Key="AppBackground">#050505</Color>
     <Color x:Key="BackgroundSurface">#E60B0B15</Color>
