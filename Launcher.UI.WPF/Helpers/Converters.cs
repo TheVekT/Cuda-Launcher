@@ -206,4 +206,32 @@ namespace Launcher.UI.WPF.Helpers
             throw new NotImplementedException();
         }
     }
+    public class AccountTypeToLocConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is not AccountType type)
+                return string.Empty;
+
+            var loc = System.Windows.Application.Current.Resources["Loc"];
+            if (loc == null)
+                return string.Empty;
+
+            var indexer = loc.GetType().GetProperty("Item"); 
+            if (indexer == null)
+                return string.Empty;
+
+            var key = type switch
+            {
+                AccountType.Microsoft => "AccountCard.MicrosoftType",
+                AccountType.Offline   => "AccountCard.OfflineType",
+                _                     => null
+            };
+
+            return key == null ? string.Empty : indexer.GetValue(loc, new object[] { key });
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
 }

@@ -49,7 +49,7 @@
                         <RadioButton
                             Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.General]}"
                             GroupName="SettingsTabs"
-                            IsChecked="False"
+                            IsChecked="True"
                             Style="{StaticResource SegmentedTabButtonStyle}"
                             x:Name="TabGeneral" />
 
@@ -70,7 +70,7 @@
                         <RadioButton
                             Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.Theme]}"
                             GroupName="SettingsTabs"
-                            IsChecked="True"
+                            IsChecked="False"
                             Style="{StaticResource SegmentedTabButtonStyle}"
                             x:Name="TabTheme" />
 
@@ -144,50 +144,12 @@
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.InterfaceScaleDescription]}" />
                     </StackPanel>
-                    <StackPanel
-                        Grid.Row="4"
-                        Margin="0,5"
-                        Orientation="Vertical">
+                    <StackPanel Grid.Row="4" Orientation="Vertical">
                         <TextBlock
                             FontSize="14"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                            Margin="0,4"
                             Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.MinecraftRootDirectoryLabel]}" />
-                        <Border
-                            Background="{DynamicResource AlertBackgroundBrush}"
-                            BorderBrush="{DynamicResource AlertBorderBrush}"
-                            BorderThickness="{DynamicResource DefaultBorderThickness}"
-                            CornerRadius="{DynamicResource DefaultCorner}"
-                            Margin="0,5">
-                            <Grid Margin="10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Viewbox
-                                    HorizontalAlignment="Center"
-                                    Stretch="Uniform"
-                                    VerticalAlignment="Center">
-                                    <Path
-                                        Data="{StaticResource Icon.Alert}"
-                                        Fill="Transparent"
-                                        Height="16"
-                                        Stretch="Uniform"
-                                        Stroke="{DynamicResource AlertForegroundBrush}"
-                                        StrokeEndLineCap="Round"
-                                        StrokeStartLineCap="Round"
-                                        StrokeThickness="1.33"
-                                        Width="16" />
-                                </Viewbox>
-                                <TextBlock
-                                    FontSize="12"
-                                    Foreground="{DynamicResource AlertForegroundBrush}"
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Center"
-                                    Margin="5"
-                                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.MinecraftRootDirectoryAlert]}"
-                                    VerticalAlignment="Center" />
-                            </Grid>
-                        </Border>
                         <Button
                             Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.MoveMinecraftFolderButton]}"
                             FontSize="14"

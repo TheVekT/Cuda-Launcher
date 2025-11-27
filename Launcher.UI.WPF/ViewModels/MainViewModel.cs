@@ -68,12 +68,19 @@ public class MainViewModel : INotifyPropertyChanged
     
     public ICommand OpenSettingsCommand { get; }
     
+    public ICommand OpenLoginCommand { get; }
+    
     public MainViewModel(ThemeService themeService)
     {
         _themeService = themeService;
         OpenSettingsCommand = new RelayCommand(o => 
         {
             CurrentOverlayView = new Resources.Overlay.SettingsMenu();
+        });
+        
+        OpenLoginCommand = new RelayCommand(o => 
+        {
+            CurrentOverlayView = new Resources.Overlay.LoginMenu();
         });
         
         _themeService.ChangeTheme(_currentThemePath);

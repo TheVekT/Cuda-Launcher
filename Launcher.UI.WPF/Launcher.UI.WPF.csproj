@@ -105,6 +105,10 @@
     <Content Include="Assets\Languages\ru-RU.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Remove="Assets\Themes\Fonts\Rajdhani-Medium.ttf" />
+    <Content Include="Assets\Themes\Fonts\Rajdhani-Medium.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <!-- theme files must not be Content when they define CLR types; compiled as Page above -->
   </ItemGroup>
 

@@ -1,0 +1,90 @@
+<UserControl
+    Background="Transparent"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Resources.Controls.AccountCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:local="clr-namespace:Launcher.UI.WPF.Resources.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Height="50" Margin="0,5">
+        <Border
+            Background="{DynamicResource OverlayButtonBackgroundBrush}"
+            BorderBrush="{DynamicResource OverlayBorderPrimaryBrush}"
+            BorderThickness="{DynamicResource DefaultBorderThickness}"
+            CornerRadius="{DynamicResource DefaultCorner}"
+            Padding="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border
+                    Background="{DynamicResource OverlayButtonBackgroundBrush}"
+                    CornerRadius="20"
+                    Grid.Column="0"
+                    Height="30"
+                    VerticalAlignment="Center"
+                    Width="30">
+                    <Path
+                        Data="{DynamicResource Icon.Login}"
+                        Height="13"
+                        Margin="10,0"
+                        Stretch="Uniform"
+                        Stroke="{DynamicResource ForegroundPrimaryBrush}"
+                        StrokeThickness="1"
+                        VerticalAlignment="Center"
+                        Width="13" />
+                </Border>
+                <StackPanel
+                    Grid.Column="1"
+                    Margin="10,2"
+                    Orientation="Vertical"
+                    VerticalAlignment="Center">
+                    <TextBlock
+                        FontSize="12"
+                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                        Text="{Binding Path=(helpers:AccountCardHelper.AccountName), RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        x:Name="AccountCardName" />
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                        Text="{Binding Path=(helpers:AccountCardHelper.AccountType), RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        x:Name="AccountCardType" />
+                </StackPanel>
+                <Button
+                    Content="{Binding Source={StaticResource Loc}, Path=[AccountCard.UseButton]}"
+                    FontSize="13"
+                    Grid.Column="2"
+                    Margin="5,0"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Width="60"
+                    helpers:ButtonHelper.BalanceText="True" />
+                <Button
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Grid.Column="3"
+                    Width="25">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                    <Path
+                        Data="{StaticResource Icon.Dots}"
+                        Height="14"
+                        Stretch="Uniform"
+                        Stroke="{DynamicResource ForegroundPrimaryBrush}"
+                        StrokeEndLineCap="Round"
+                        StrokeStartLineCap="Round"
+                        Width="14" />
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -166,7 +166,7 @@
                                 </RadioButton>
                             </StackPanel>
                             <Button
-                                BorderThickness="{DynamicResource SecondBorderThickness}"
+                                Command="{Binding OpenLoginCommand}"
                                 Content="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}"
                                 FontSize="14"
                                 Grid.Column="2"
@@ -229,8 +229,7 @@
                                         Style="{StaticResource VersionsComboBox}"
                                         Width="300"
                                         helpers:ComboBoxHelper.PopupPlacement="Top">
-                                        <ComboBoxItem Tag="/Assets/Icons/forge-default.png">Forge 1.16.6</ComboBoxItem>
-                                        <ComboBoxItem Tag="/Assets/Icons/fabric-default.png">Fabric 1.19.2</ComboBoxItem>
+                                        <ComboBoxItem Tag="/Assets/Icons/logo.png">Latest Release</ComboBoxItem>
                                     </ComboBox>
                                     <Button
                                         FontSize="16"

@@ -98,17 +98,11 @@
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
                 <StackPanel Orientation="Vertical">
                     <controls:VersionElement
-                        helpers:VersionElementHelper.GameVersion="1.16.5"
-                        helpers:VersionElementHelper.Icon="/Assets/Icons/forge-default.png"
-                        helpers:VersionElementHelper.LastPlayed="1 hour ago"
-                        helpers:VersionElementHelper.ModLoader="Forge"
-                        helpers:VersionElementHelper.VersionName="GregTech 1.16.5" />
-                    <controls:VersionElement
-                        helpers:VersionElementHelper.GameVersion="1.20.1"
-                        helpers:VersionElementHelper.Icon="/Assets/Icons/optifine-default.png"
-                        helpers:VersionElementHelper.LastPlayed="2 days ago"
-                        helpers:VersionElementHelper.ModLoader="OptiFine"
-                        helpers:VersionElementHelper.VersionName="Optifine 1.20.1" />
+                        helpers:VersionElementHelper.GameVersion="1.21.9"
+                        helpers:VersionElementHelper.Icon="/Assets/Icons/logo.png"
+                        helpers:VersionElementHelper.LastPlayed="Newer"
+                        helpers:VersionElementHelper.ModLoader="Vanilla"
+                        helpers:VersionElementHelper.VersionName="Latest Release" />
                 </StackPanel>
             </ScrollViewer>
         </Grid>

@@ -246,4 +246,34 @@ namespace Launcher.UI.WPF.Helpers
         public static void SetSkinPreview(DependencyObject element, ImageSource value) =>
             element.SetValue(SkinPreviewProperty, value);
     }
+    
+    public static class AccountCardHelper
+    {
+        public static readonly DependencyProperty AccountNameProperty =
+            DependencyProperty.RegisterAttached(
+                "AccountName",
+                typeof(string),
+                typeof(AccountCardHelper),
+                new PropertyMetadata("Unknown"));
+
+        public static string GetAccountName(DependencyObject element) =>
+            (string)element.GetValue(AccountNameProperty);
+
+        public static void SetAccountName(DependencyObject element, string value) =>
+            element.SetValue(AccountNameProperty, value);
+        
+        public static readonly DependencyProperty AccountTypeProperty =
+            DependencyProperty.RegisterAttached(
+                "AccountType",
+                typeof(AccountType),
+                typeof(AccountCardHelper),
+                new PropertyMetadata(AccountType.Microsoft));
+
+        public static AccountType GetAccountType(DependencyObject element) =>
+            (AccountType)element.GetValue(AccountTypeProperty);
+
+        public static void SetAccountType(DependencyObject element, AccountType value) =>
+            element.SetValue(AccountTypeProperty, value);
+    }
+    
 }
