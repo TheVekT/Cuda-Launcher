@@ -174,7 +174,7 @@
                                 HorizontalAlignment="Right"
                                 Margin="6,0,0,0"
                                 Style="{StaticResource AccentButtonStyle}"
-                                Tag="{StaticResource Icon.Login}"
+                                Tag="{StaticResource Icon.Account}"
                                 helpers:ButtonHelper.IconSize="14"
                                 x:Name="LoginButton" />
                         </Grid>

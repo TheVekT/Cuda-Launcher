@@ -30,7 +30,7 @@
                     VerticalAlignment="Center"
                     Width="30">
                     <Path
-                        Data="{DynamicResource Icon.Login}"
+                        Data="{DynamicResource Icon.Account}"
                         Height="13"
                         Margin="10,0"
                         Stretch="Uniform"

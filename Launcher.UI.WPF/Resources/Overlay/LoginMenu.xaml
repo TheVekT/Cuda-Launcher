@@ -1,5 +1,7 @@
 <UserControl
     Background="Transparent"
+    d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel,
+                                     IsDesignTimeCreatable=False}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Overlay.LoginMenu"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,6 +10,7 @@
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:local="clr-namespace:Launcher.UI.WPF.Resources.Overlay"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <helpers:AccountTypeToLocConverter x:Key="AccountTypeToLocConverter" />
@@ -20,7 +23,7 @@
             CornerRadius="{DynamicResource DefaultCorner}"
             Padding="20">
             <StackPanel Orientation="Vertical">
-                <Grid x:Name="AccountManager">
+                <Grid Visibility="Collapsed" x:Name="AccountManager">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -62,7 +65,7 @@
                                 VerticalAlignment="Center"
                                 Width="35">
                                 <Path
-                                    Data="{DynamicResource Icon.Login}"
+                                    Data="{DynamicResource Icon.Account}"
                                     Height="16"
                                     Margin="10,0"
                                     Stretch="Uniform"
@@ -128,7 +131,107 @@
                         <controls:AccountCard helpers:AccountCardHelper.AccountName="TheVekT" helpers:AccountCardHelper.AccountType="Microsoft" />
                     </StackPanel>
                 </Grid>
+                <Grid Visibility="Visible" x:Name="AddAccount">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                        Grid.Row="0"
+                        Margin="0,0,0,5"
+                        Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.Title]}" />
+                    <TextBlock
+                        FontSize="13"
+                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                        Grid.Row="1"
+                        Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.Subtitle]}" />
+                    <StackPanel Grid.Row="2" Margin="0,10">
+                        <TextBlock
+                            FontSize="14"
+                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                            Margin="0,5,0,0"
+                            Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.AccountTypeLabel]}" />
+                        <RadioButton
+                            Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.MicrosoftTypeLabel]}"
+                            GroupName="AccountTypeGroup"
+                            IsChecked="False"
+                            Margin="0,8,0,0"
+                            Style="{StaticResource PointOptionRadioStyle}"
+                            x:Name="MicrosoftTypeRadio" />
+                        <RadioButton
+                            Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.OfflineTypeLabel]}"
+                            GroupName="AccountTypeGroup"
+                            IsChecked="True"
+                            Margin="0,8,0,0"
+                            Style="{StaticResource PointOptionRadioStyle}"
+                            x:Name="OfflineTypeRadio" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Row="3"
+                        Orientation="Vertical"
+                        Visibility="{Binding ElementName=MicrosoftTypeRadio, Path=IsChecked, Converter={StaticResource BoolToVis}}">
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                            Margin="0,5"
+                            Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.MicrosoftDescription]}" />
+                        <Button
+                            Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.MicrosoftButton]}"
+                            FontSize="14"
+                            Height="40"
+                            Margin="0,10,0,0"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Tag="{StaticResource Icon.Account}"
+                            helpers:ButtonHelper.BalanceText="True"
+                            helpers:ButtonHelper.IconSize="16" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Row="3"
+                        Orientation="Vertical"
+                        Visibility="{Binding ElementName=OfflineTypeRadio, Path=IsChecked, Converter={StaticResource BoolToVis}}">
+                        <TextBox
+                            Margin="0,8"
+                            Style="{StaticResource DefaultTextInputStyle}"
+                            Tag="Enter Username" />
+                        <Button
+                            Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.OfflineButton]}"
+                            FontSize="14"
+                            Height="40"
+                            Margin="0,5,0,0"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Tag="{StaticResource Icon.Account}"
+                            helpers:ButtonHelper.BalanceText="True"
+                            helpers:ButtonHelper.IconSize="16" />
+                    </StackPanel>
+                </Grid>
             </StackPanel>
         </Border>
+        <Button
+            Command="{Binding CloseOverlayCommand}"
+            Cursor="Hand"
+            Height="12"
+            HorizontalAlignment="Right"
+            Margin="0,20,20,0"
+            VerticalAlignment="Top"
+            Width="12">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="Transparent">
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+            <Viewbox Stretch="Uniform">
+                <Path
+                    Data="{StaticResource Icon.Close}"
+                    Stroke="{DynamicResource ForegroundPlaceholderBrush}"
+                    StrokeThickness="1.33" />
+            </Viewbox>
+        </Button>
     </Grid>
 </UserControl>

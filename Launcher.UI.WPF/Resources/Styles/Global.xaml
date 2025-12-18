@@ -892,6 +892,160 @@
         </Setter>
     </Style>
 
+    <!--  Default text input  -->
+    <Style TargetType="TextBox" x:Key="DefaultTextInputStyle">
+        <Setter Property="FontFamily" Value="{DynamicResource GlobalFont}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSecondaryBrush}" />
+        <Setter Property="Background" Value="{DynamicResource OverlayButtonBackgroundBrush}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource DefaultBorderThickness}" />
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource ForegroundPrimaryBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource DefaultCorner}"
+                            x:Name="border">
+                            <ScrollViewer
+                                Focusable="false"
+                                HorizontalScrollBarVisibility="Hidden"
+                                VerticalScrollBarVisibility="Hidden"
+                                x:Name="PART_ContentHost" />
+                        </Border>
+                        <TextBlock
+                            FontSize="{TemplateBinding FontSize}"
+                            Foreground="{DynamicResource ForegroundPlaceholderBrush}"
+                            IsHitTestVisible="False"
+                            Margin="{TemplateBinding Padding}"
+                            Text="{TemplateBinding Tag}"
+                            VerticalAlignment="Center"
+                            Visibility="Collapsed"
+                            x:Name="PlaceholderText" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="Text" Value="" />
+                                <Condition Property="IsKeyboardFocused" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Visibility" TargetName="PlaceholderText" Value="Visible" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+
+    <!--  PointradioButton  -->
+    <Style TargetType="RadioButton" x:Key="PointOptionRadioStyle">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid
+                            Grid.Column="0"
+                            Margin="0,0,10,0"
+                            VerticalAlignment="Center">
+                            <Border
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Height="16"
+                                Width="16"
+                                x:Name="OuterCircle">
+                                <Border.BorderBrush>
+                                    <SolidColorBrush Color="{DynamicResource ForegroundSecondary}" />
+                                </Border.BorderBrush>
+                            </Border>
+
+                            <Ellipse
+                                Height="8"
+                                HorizontalAlignment="Center"
+                                Opacity="0"
+                                VerticalAlignment="Center"
+                                Width="8"
+                                x:Name="InnerDot">
+                                <Ellipse.Fill>
+                                    <SolidColorBrush Color="{DynamicResource BackgroundAccent}" />
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Grid>
+
+                        <StackPanel Grid.Column="1">
+                            <ContentPresenter Content="{TemplateBinding Content}">
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="FontSize" Value="14" />
+                                        <Setter Property="FontFamily" Value="{DynamicResource GlobalFont}" />
+                                        <Setter Property="Foreground">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="{DynamicResource ForegroundPrimary}" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+
+                            <TextBlock
+                                FontSize="12"
+                                Margin="0,2,0,0"
+                                Text="{TemplateBinding Tag}"
+                                TextWrapping="Wrap"
+                                x:Name="DescriptionText">
+                                <TextBlock.Foreground>
+                                    <SolidColorBrush Color="{DynamicResource ForegroundSecondary}" />
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Opacity" TargetName="InnerDot" Value="1" />
+                            <Setter Property="BorderThickness" TargetName="OuterCircle" Value="1" />
+                            <Setter Property="BorderBrush" TargetName="OuterCircle">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{DynamicResource BackgroundAccent}" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="BorderBrush" TargetName="OuterCircle">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{DynamicResource ForegroundPrimary}" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <Trigger Property="Tag" Value="{x:Null}">
+                            <Setter Property="Visibility" TargetName="DescriptionText" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="Tag" Value="">
+                            <Setter Property="Visibility" TargetName="DescriptionText" Value="Collapsed" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 
 </ResourceDictionary>
