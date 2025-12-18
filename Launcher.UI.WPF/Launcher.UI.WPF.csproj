@@ -14,12 +14,22 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Resource Include="Assets\Icons\fabric-default.png" />
-    <Resource Include="Assets\Icons\forge-default.png" />
-    <Resource Include="Assets\Icons\logo.png" />
-    <Resource Include="Assets\Icons\neoforge-default.png" />
+    <Resource Include="Assets\Icons\fabric-default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\forge-default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\neoforge-default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <None Remove="Assets\Images\banner-default.jpg" />
-    <Resource Include="Assets\Icons\optifine-default.png" />
+    <Resource Include="Assets\Icons\optifine-default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Assets\Images\banner-default.jpg" />
     <None Remove="Assets\Skins\sk1.png" />
     <Resource Include="Assets\Skins\sk1.png" />
@@ -42,6 +52,114 @@
       <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
+    <None Remove="Assets\Icons\150px-Yellow_Glazed_Terracotta_(S)_JE1_BE1.png" />
+    <Resource Include="Assets\Icons\150px-Yellow_Glazed_Terracotta_(S)_JE1_BE1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-TNT_JE3_BE2.png" />
+    <Resource Include="Assets\Icons\150px-TNT_JE3_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Stone_JE8.png" />
+    <Resource Include="Assets\Icons\150px-Stone_JE8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Smithing_Table_JE2_BE2.png" />
+    <Resource Include="Assets\Icons\150px-Smithing_Table_JE2_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Sand_JE5_BE3.png" />
+    <Resource Include="Assets\Icons\150px-Sand_JE5_BE3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Red_Glazed_Terracotta_(S)_JE1_BE1.png" />
+    <Resource Include="Assets\Icons\150px-Red_Glazed_Terracotta_(S)_JE1_BE1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Orange_Glazed_Terracotta_(S)_JE2_BE2.png" />
+    <Resource Include="Assets\Icons\150px-Orange_Glazed_Terracotta_(S)_JE2_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Oak_Log_(UD)_JE8_BE3.png" />
+    <Resource Include="Assets\Icons\150px-Oak_Log_(UD)_JE8_BE3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Netherrack_JE4_BE2.png" />
+    <Resource Include="Assets\Icons\150px-Netherrack_JE4_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Glass_JE4_BE2.png" />
+    <Resource Include="Assets\Icons\150px-Glass_JE4_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Glowstone_BE.png" />
+    <Resource Include="Assets\Icons\150px-Glowstone_BE.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Cobblestone_JE5_BE3.png" />
+    <Resource Include="Assets\Icons\150px-Cobblestone_JE5_BE3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Chest.gif" />
+    <Resource Include="Assets\Icons\150px-Chest.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Bookshelf_JE4_BE2.png" />
+    <Resource Include="Assets\Icons\150px-Bookshelf_JE4_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Block_of_Diamond_JE5_BE3.png" />
+    <Resource Include="Assets\Icons\150px-Block_of_Diamond_JE5_BE3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Bedrock_JE2_BE2.png" />
+    <Resource Include="Assets\Icons\150px-Bedrock_JE2_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Anvil_(N)_BE3.png" />
+    <Resource Include="Assets\Icons\150px-Anvil_(N)_BE3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\120px-Poison_JE3_BE2.png" />
+    <Resource Include="Assets\Icons\120px-Poison_JE3_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\120px-Impulse_Command_Block_JE5_BE2.png" />
+    <Resource Include="Assets\Icons\120px-Impulse_Command_Block_JE5_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\120px-Furnace_(S)_JE4.png" />
+    <Resource Include="Assets\Icons\120px-Furnace_(S)_JE4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\120px-Enchanting_Table_JE4_BE2.png" />
+    <Resource Include="Assets\Icons\120px-Enchanting_Table_JE4_BE2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\120px-Emerald_JE3_BE3.png" />
+    <Resource Include="Assets\Icons\120px-Emerald_JE3_BE3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\120px-Crafting_Table_JE4_BE3.png" />
+    <Resource Include="Assets\Icons\120px-Crafting_Table_JE4_BE3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\120px-Bricks_JE5_BE3.png" />
+    <Resource Include="Assets\Icons\120px-Bricks_JE5_BE3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\116px-Lectern_with_Book_(S).png" />
+    <Resource Include="Assets\Icons\116px-Lectern_with_Book_(S).png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\quilt-default.png" />
+    <Resource Include="Assets\Icons\quilt-default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="Assets\Icons\150px-Grass_Block_JE7_BE6.png" />
+    <Resource Include="Assets\Icons\150px-Grass_Block_JE7_BE6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -114,7 +232,6 @@
 
   <ItemGroup>
     <Folder Include="Assets\Skins\" />
-    <Folder Include="Resources\Icons\" />
   </ItemGroup>
 
   <ItemGroup>

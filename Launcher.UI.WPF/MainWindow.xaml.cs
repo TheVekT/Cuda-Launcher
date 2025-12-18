@@ -8,6 +8,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Launcher.UI.WPF.Resources.Pages;
+using Launcher.UI.WPF.ViewModels;
 
 namespace Launcher.UI.WPF;
 
@@ -31,7 +33,18 @@ public partial class MainWindow : Window
             }
             catch
             {
-                // Игнорируем, если uri невалиден
+                throw new NotImplementedException();
+            }
+        }
+    }
+
+    private void MainFrame_Navigated(object sender, NavigationEventArgs e)
+    {
+        if (e.Content is Installations installationsPage)
+        {
+            if (DataContext is MainViewModel mainVM)
+            {
+                installationsPage.DataContext = mainVM.InstallationsVM;
             }
         }
     }

@@ -22,15 +22,16 @@ public partial class App : Application
         var themeService = new ThemeService();
         // 2. Создаем MainViewModel
         // (Если у нее есть зависимости в конструкторе, передай их сюда)
-        var mainViewModel = new MainViewModel(themeService); 
-        var settingsMenu = new SettingsMenu(); 
+        
+        var mainViewModel = new MainViewModel(themeService);
+        
         // 3. Создаем Главное Окно
         var mainWindow = new MainWindow();
 
         // 🔥 4. ГЛАВНЫЙ МОМЕНТ: ПРИВЯЗКА 🔥
         // Мы говорим окну: "Твои данные - это вот этот класс mainViewModel"
         mainWindow.DataContext = mainViewModel;
-        settingsMenu.DataContext = mainViewModel;
+        
         
 
         // 5. Показываем окно

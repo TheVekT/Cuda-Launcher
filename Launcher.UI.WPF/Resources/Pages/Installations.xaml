@@ -4,6 +4,8 @@
     MinHeight="450"
     MinWidth="900"
     Title="{Binding Source={StaticResource Loc}, Path=[Installations.Title]}"
+    d:DataContext="{d:DesignInstance Type=viewModels:InstallationsViewModel,
+                                     IsDesignTimeCreatable=False}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Pages.Installations"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -12,6 +14,7 @@
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:local="clr-namespace:Launcher.UI.WPF.Resources"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid>
         <Grid Margin="130,24,130,0">
@@ -37,6 +40,7 @@
                     VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" />
                 <Button
+                    Command="{Binding OpenAddVersionCommand}"
                     Content="{Binding Source={StaticResource Loc}, Path=[Installations.Header.NewInstallationButton]}"
                     FontSize="13"
                     Grid.Column="2"

@@ -10,6 +10,9 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private readonly ThemeService _themeService;
 
+    public InstallationsViewModel InstallationsVM { get; }
+
+
     private double _uiScale = 1.0;
     private bool _isOverlayVisible;
     private object _currentOverlayView;
@@ -68,11 +71,16 @@ public class MainViewModel : INotifyPropertyChanged
     
     public ICommand OpenSettingsCommand { get; }
     
+    public ICommand OpenAddVersionCommand { get; }
+    
     public ICommand OpenLoginCommand { get; }
     
     public MainViewModel(ThemeService themeService)
     {
         _themeService = themeService;
+        InstallationsVM = new InstallationsViewModel(this);
+
+        
         OpenSettingsCommand = new RelayCommand(o => 
         {
             CurrentOverlayView = new Resources.Overlay.SettingsMenu();
@@ -81,6 +89,11 @@ public class MainViewModel : INotifyPropertyChanged
         OpenLoginCommand = new RelayCommand(o => 
         {
             CurrentOverlayView = new Resources.Overlay.LoginMenu();
+        });
+        
+        OpenAddVersionCommand = new RelayCommand(o => 
+        {
+            InstallationsVM.OpenAddVersionCommand.Execute(o);
         });
         
         _themeService.ChangeTheme(_currentThemePath);

@@ -1047,5 +1047,60 @@
         </Setter>
     </Style>
 
+    <!--  Drag & drop button  -->
 
+    <Style TargetType="Button" x:Key="UploadDropZoneStyle">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundSecondaryBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="AllowDrop" Value="True" />
+
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Rectangle
+                            Fill="{TemplateBinding Background}"
+                            IsHitTestVisible="False"
+                            RadiusX="6"
+                            RadiusY="6"
+                            Stroke="{TemplateBinding BorderBrush}"
+                            StrokeDashArray="4 2"
+                            StrokeThickness="1" />
+
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <StackPanel
+                                HorizontalAlignment="Center"
+                                Orientation="Vertical"
+                                VerticalAlignment="Center">
+                                <Grid>
+                                    <Grid.LayoutTransform>
+                                        <ScaleTransform ScaleX="{Binding Path=(helpers:ScaleHelper.ScaleFactor), RelativeSource={RelativeSource TemplatedParent}}" ScaleY="{Binding Path=(helpers:ScaleHelper.ScaleFactor), RelativeSource={RelativeSource TemplatedParent}}" />
+                                    </Grid.LayoutTransform>
+                                    <Path
+                                        Data="{DynamicResource Icon.Upload}"
+                                        Height="16"
+                                        Stroke="{TemplateBinding Foreground}"
+                                        StrokeThickness="1.33"
+                                        Width="16" />
+                                </Grid>
+                                <TextBlock
+                                    FontFamily="{DynamicResource GlobalFont}"
+                                    FontSize="12"
+                                    Foreground="{TemplateBinding Foreground}"
+                                    Text="{TemplateBinding Content}"
+                                    x:Name="TextDisplay" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
