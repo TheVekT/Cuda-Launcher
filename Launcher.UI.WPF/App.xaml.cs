@@ -15,26 +15,16 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-
-        // 1. Создаем сервисы (если они нужны)
-        // var gameService = new LaunchService(); 
-        // ...
+        
         var themeService = new ThemeService();
-        // 2. Создаем MainViewModel
-        // (Если у нее есть зависимости в конструкторе, передай их сюда)
-        
-        var mainViewModel = new MainViewModel(themeService);
-        
-        // 3. Создаем Главное Окно
-        var mainWindow = new MainWindow();
+        var authService = new Launcher.Core.Services.Auth.AuthService();
 
-        // 🔥 4. ГЛАВНЫЙ МОМЕНТ: ПРИВЯЗКА 🔥
-        // Мы говорим окну: "Твои данные - это вот этот класс mainViewModel"
+        var mainViewModel = new MainViewModel(themeService, authService);
+        
+        var mainWindow = new MainWindow();
+        
         mainWindow.DataContext = mainViewModel;
         
-        
-
-        // 5. Показываем окно
         mainWindow.Show();
     }
 }

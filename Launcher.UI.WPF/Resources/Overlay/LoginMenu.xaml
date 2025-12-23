@@ -23,7 +23,7 @@
             CornerRadius="{DynamicResource DefaultCorner}"
             Padding="20">
             <StackPanel Orientation="Vertical">
-                <Grid Visibility="Collapsed" x:Name="AccountManager">
+                <Grid Visibility="{Binding IsAddAccPageOpen, Converter={StaticResource InverseBoolToVis}}" x:Name="AccountManager">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -82,13 +82,23 @@
                                 <TextBlock
                                     FontSize="14"
                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                    Text="TheVekT"
+                                    Text="{Binding CurrentAccount.Username}"
                                     x:Name="AccountName" />
                                 <TextBlock
                                     FontSize="13"
                                     Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                                    Text="{Binding Source={StaticResource Loc}, Path=[AccountCard.MicrosoftType]}"
-                                    x:Name="AccountType" />
+                                    x:Name="AccountType">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="{Binding Source={StaticResource Loc}, Path=[AccountCard.MicrosoftType]}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentAccount.IsOffline}" Value="True">
+                                                    <Setter Property="Text" Value="{Binding Source={StaticResource Loc}, Path=[AccountCard.OfflineType]}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                             <Border
                                 Background="{DynamicResource BackgroundAccentBrush}"
@@ -121,6 +131,7 @@
                                 Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Manager.AccountListTitle]}"
                                 VerticalAlignment="Center" />
                             <Button
+                                Command="{Binding AddNewAccountCommand}"
                                 Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Manager.AddAccountButton]}"
                                 Grid.Column="1"
                                 Height="30"
@@ -128,10 +139,29 @@
                                 Tag="{StaticResource Icon.AddIcon}"
                                 helpers:ButtonHelper.IconSize="12" />
                         </Grid>
-                        <controls:AccountCard helpers:AccountCardHelper.AccountName="TheVekT" helpers:AccountCardHelper.AccountType="Microsoft" />
+                        <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Hidden">
+
+                            <ItemsControl ItemsSource="{Binding Accounts}">
+
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:AccountCard helpers:AccountCardHelper.AccountName="{Binding Username}" helpers:AccountCardHelper.AccountType="{Binding AccountTypeString}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                            </ItemsControl>
+
+                        </ScrollViewer>
+
                     </StackPanel>
                 </Grid>
-                <Grid Visibility="Visible" x:Name="AddAccount">
+                <Grid Visibility="{Binding IsAddAccPageOpen, Converter={StaticResource BoolToVis}}" x:Name="AddAccount">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -159,14 +189,14 @@
                         <RadioButton
                             Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.MicrosoftTypeLabel]}"
                             GroupName="AccountTypeGroup"
-                            IsChecked="False"
+                            IsChecked="True"
                             Margin="0,8,0,0"
                             Style="{StaticResource PointOptionRadioStyle}"
                             x:Name="MicrosoftTypeRadio" />
                         <RadioButton
                             Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.OfflineTypeLabel]}"
                             GroupName="AccountTypeGroup"
-                            IsChecked="True"
+                            IsChecked="False"
                             Margin="0,8,0,0"
                             Style="{StaticResource PointOptionRadioStyle}"
                             x:Name="OfflineTypeRadio" />
@@ -181,6 +211,7 @@
                             Margin="0,5"
                             Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.MicrosoftDescription]}" />
                         <Button
+                            Command="{Binding MicrosoftLoginCommand}"
                             Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.MicrosoftButton]}"
                             FontSize="14"
                             Height="40"
@@ -197,8 +228,11 @@
                         <TextBox
                             Margin="0,8"
                             Style="{StaticResource DefaultTextInputStyle}"
-                            Tag="Enter Username" />
+                            Tag="Enter Username"
+                            x:Name="OfflineUsernameBox" />
                         <Button
+                            Command="{Binding OfflineLoginCommand}"
+                            CommandParameter="{Binding ElementName=OfflineUsernameBox, Path=Text}"
                             Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.OfflineButton]}"
                             FontSize="14"
                             Height="40"

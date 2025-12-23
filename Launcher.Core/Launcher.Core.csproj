@@ -14,8 +14,10 @@
     <ItemGroup>
       <PackageReference Include="CmlLib.Core" Version="4.0.6" />
       <PackageReference Include="CmlLib.Core.Auth.Microsoft" Version="3.3.0" />
+      <PackageReference Include="CmlLib.Core.Auth.Microsoft.MsalClient" Version="2.0.0" />
       <PackageReference Include="CmlLib.Core.Installer.Forge" Version="1.1.0" />
       <PackageReference Include="CmlLib.Core.Installer.NeoForge" Version="4.0.0" />
+      <PackageReference Include="Microsoft.Identity.Client" Version="4.79.2" />
     </ItemGroup>
 
 </Project>

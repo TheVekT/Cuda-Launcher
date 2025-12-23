@@ -167,16 +167,28 @@
                             </StackPanel>
                             <Button
                                 Command="{Binding OpenLoginCommand}"
-                                Content="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}"
                                 FontSize="14"
                                 Grid.Column="2"
                                 Height="30"
                                 HorizontalAlignment="Right"
                                 Margin="6,0,0,0"
-                                Style="{StaticResource AccentButtonStyle}"
                                 Tag="{StaticResource Icon.Account}"
                                 helpers:ButtonHelper.IconSize="14"
-                                x:Name="LoginButton" />
+                                x:Name="LoginButton">
+                                <Button.Style>
+                                    <Style BasedOn="{StaticResource AccentButtonStyle}" TargetType="Button">
+
+                                        <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
+                                        <Style.Triggers>
+
+                                            <DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
+                                                <Setter Property="Content" Value="{Binding CurrentAccount.Username}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
                         </Grid>
                     </Grid>
                 </Border>
