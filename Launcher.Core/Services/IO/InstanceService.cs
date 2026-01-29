@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq; // Добавлено для LINQ методов (FirstOrDefault)
 using System.Text.Json;
 using Launcher.Core.Models;
 
@@ -10,6 +11,9 @@ namespace Launcher.Core.Services.IO
     {
         void SaveInstances(IEnumerable<MinecraftInstance> instances);
         List<MinecraftInstance> LoadInstances();
+        
+        // Добавлен метод удаления
+        void DeleteInstance(string instanceId);
     }
 
     public class InstanceService : IInstanceService
@@ -19,14 +23,12 @@ namespace Launcher.Core.Services.IO
 
         public InstanceService()
         {
-            // Portable путь: папка с .exe + Data
             _storagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
             _filePath = Path.Combine(_storagePath, "instances.json");
         }
 
         public void SaveInstances(IEnumerable<MinecraftInstance> instances)
         {
-            // Создаем папку Data, если её нет
             if (!Directory.Exists(_storagePath))
             {
                 Directory.CreateDirectory(_storagePath);
@@ -36,7 +38,7 @@ namespace Launcher.Core.Services.IO
             {
                 var options = new JsonSerializerOptions 
                 { 
-                    WriteIndented = true // Красивый JSON, чтобы можно было читать глазами
+                    WriteIndented = true 
                 };
                 
                 var json = JsonSerializer.Serialize(instances, options);
@@ -44,7 +46,6 @@ namespace Launcher.Core.Services.IO
             }
             catch (Exception ex)
             {
-                // Тут можно добавить логирование
                 System.Diagnostics.Debug.WriteLine($"Ошибка сохранения инстансов: {ex.Message}");
             }
         }
@@ -64,8 +65,29 @@ namespace Launcher.Core.Services.IO
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки инстансов (файл поврежден?): {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки инстансов: {ex.Message}");
                 return new List<MinecraftInstance>();
+            }
+        }
+
+        // Реализация удаления
+        public void DeleteInstance(string instanceId)
+        {
+            if (string.IsNullOrEmpty(instanceId)) return;
+
+            // 1. Загружаем текущий список
+            var currentInstances = LoadInstances();
+
+            // 2. Ищем инстанс для удаления
+            var instanceToRemove = currentInstances.FirstOrDefault(x => x.Id == instanceId);
+
+            if (instanceToRemove != null)
+            {
+                // 3. Удаляем из списка
+                currentInstances.Remove(instanceToRemove);
+
+                // 4. Сохраняем обновленный список обратно в файл
+                SaveInstances(currentInstances);
             }
         }
     }

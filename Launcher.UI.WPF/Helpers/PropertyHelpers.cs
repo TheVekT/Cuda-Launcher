@@ -1,4 +1,6 @@
-
+using Launcher.Core.Models;
+using System.Windows;
+using System.Windows.Input;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -6,6 +8,10 @@ using System.Windows.Media;
 
 namespace Launcher.UI.WPF.Helpers
 {
+
+
+    
+    
     public static class ButtonHelper
     {
         public static readonly DependencyProperty BalanceTextProperty =
@@ -119,6 +125,18 @@ namespace Launcher.UI.WPF.Helpers
     }
     public class VersionElementHelper
     {
+        public static readonly DependencyProperty DeleteCommandProperty =
+            DependencyProperty.RegisterAttached("DeleteCommand", typeof(ICommand), typeof(VersionElementHelper), new PropertyMetadata(null));
+
+        public static void SetDeleteCommand(DependencyObject element, ICommand value) => element.SetValue(DeleteCommandProperty, value);
+        public static ICommand GetDeleteCommand(DependencyObject element) => (ICommand)element.GetValue(DeleteCommandProperty);
+        
+        public static readonly DependencyProperty InstanceProperty =
+            DependencyProperty.RegisterAttached("Instance", typeof(MinecraftInstance), typeof(VersionElementHelper), new PropertyMetadata(null));
+
+        public static void SetInstance(DependencyObject element, MinecraftInstance value) => element.SetValue(InstanceProperty, value);
+        public static MinecraftInstance GetInstance(DependencyObject element) => (MinecraftInstance)element.GetValue(InstanceProperty);
+        
         public static readonly DependencyProperty IconProperty =
             DependencyProperty.RegisterAttached(
                 "Icon",

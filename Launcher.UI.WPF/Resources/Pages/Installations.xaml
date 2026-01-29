@@ -111,8 +111,10 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <controls:VersionElement
+                                helpers:VersionElementHelper.DeleteCommand="{Binding DataContext.DeleteInstanceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                 helpers:VersionElementHelper.GameVersion="{Binding GameVersion}"
                                 helpers:VersionElementHelper.Icon="{Binding IconPath}"
+                                helpers:VersionElementHelper.Instance="{Binding}"
                                 helpers:VersionElementHelper.LastPlayed="Never"
                                 helpers:VersionElementHelper.ModLoader="{Binding LoaderType}"
                                 helpers:VersionElementHelper.VersionName="{Binding Name}" />

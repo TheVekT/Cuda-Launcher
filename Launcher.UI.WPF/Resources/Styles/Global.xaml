@@ -396,6 +396,7 @@
                             AllowsTransparency="True"
                             Focusable="False"
                             IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                            MaxHeight="{Binding MaxDropDownHeight, RelativeSource={RelativeSource TemplatedParent}}"
                             Placement="{Binding Path=(helpers:ComboBoxHelper.PopupPlacement), RelativeSource={RelativeSource TemplatedParent}}"
                             PopupAnimation="Slide"
                             x:Name="PART_Popup">
@@ -407,7 +408,116 @@
                                 CornerRadius="{DynamicResource DefaultCorner}"
                                 MinWidth="{Binding ActualWidth, ElementName=MainBorder}"
                                 x:Name="PopupBorder">
-                                <ScrollViewer MaxHeight="300">
+                                <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Hidden">
+                                    <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsDropDownOpen, RelativeSource={RelativeSource Self}}" Value="True" />
+                                <Condition Binding="{Binding Path=(helpers:ComboBoxHelper.PopupPlacement), RelativeSource={RelativeSource Self}}" Value="Bottom" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="CornerRadius" TargetName="MainBorder" Value="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource EdgeConverter}, ConverterParameter=Bottom}" />
+                            <Setter Property="BorderThickness" TargetName="MainBorder" Value="{Binding BorderThickness, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource EdgeConverter}, ConverterParameter=Bottom}" />
+                            <Setter Property="CornerRadius" TargetName="PopupBorder" Value="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource EdgeConverter}, ConverterParameter=Top}" />
+                            <Setter Property="BorderThickness" TargetName="PopupBorder" Value="{Binding BorderThickness, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource EdgeConverter}, ConverterParameter=Top}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsDropDownOpen, RelativeSource={RelativeSource Self}}" Value="True" />
+                                <Condition Binding="{Binding Path=(helpers:ComboBoxHelper.PopupPlacement), RelativeSource={RelativeSource Self}}" Value="Top" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="CornerRadius" TargetName="MainBorder" Value="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource EdgeConverter}, ConverterParameter=Top}" />
+                            <Setter Property="BorderThickness" TargetName="MainBorder" Value="{Binding BorderThickness, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource EdgeConverter}, ConverterParameter=Top}" />
+                            <Setter Property="CornerRadius" TargetName="PopupBorder" Value="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource EdgeConverter}, ConverterParameter=Bottom}" />
+                            <Setter Property="BorderThickness" TargetName="PopupBorder" Value="{Binding BorderThickness, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource EdgeConverter}, ConverterParameter=Bottom}" />
+                        </MultiDataTrigger>
+
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Overlay ComboBox Style  -->
+    <Style TargetType="ComboBox" x:Key="OverlayComboBox">
+        <Setter Property="Background" Value="{DynamicResource OverlayBackgroundSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSecondaryBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource DefaultBorderThickness}" />
+        <Setter Property="Padding" Value="12,3" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBox}">
+                    <Grid>
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource DefaultCorner}"
+                            x:Name="MainBorder">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <ContentPresenter
+                                    Content="{TemplateBinding SelectionBoxItem}"
+                                    ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Left"
+                                    IsHitTestVisible="False"
+                                    Margin="{TemplateBinding Padding}"
+                                    VerticalAlignment="Center" />
+
+                                <Path
+                                    Data="{DynamicResource Icon.DropDownArrow}"
+                                    Fill="Transparent"
+                                    Grid.Column="1"
+                                    Height="11"
+                                    Margin="0,0,12,0"
+                                    Stretch="Uniform"
+                                    Stroke="{DynamicResource DropDownArrowBrush}"
+                                    VerticalAlignment="Center"
+                                    Width="11" />
+                            </Grid>
+                        </Border>
+
+                        <ToggleButton
+                            Background="Transparent"
+                            BorderThickness="{DynamicResource SecondBorderThickness}"
+                            IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                            x:Name="PART_ToggleButton">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="Transparent" CornerRadius="{DynamicResource DefaultCorner}" />
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+
+                        <Popup
+                            AllowsTransparency="True"
+                            Focusable="False"
+                            IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                            MaxHeight="{Binding MaxDropDownHeight, RelativeSource={RelativeSource TemplatedParent}}"
+                            Placement="{Binding Path=(helpers:ComboBoxHelper.PopupPlacement), RelativeSource={RelativeSource TemplatedParent}}"
+                            PopupAnimation="Slide"
+                            x:Name="PART_Popup">
+
+                            <Border
+                                Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource DefaultCorner}"
+                                MinWidth="{Binding ActualWidth, ElementName=MainBorder}"
+                                x:Name="PopupBorder">
+                                <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Hidden">
                                     <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
                                 </ScrollViewer>
                             </Border>
@@ -445,7 +555,8 @@
     <Style
         BasedOn="{StaticResource DefaultComboBox}"
         TargetType="ComboBox"
-        x:Key="VersionsComboBox">
+        x:Key="LoaderComboBox">
+        <Setter Property="Background" Value="{DynamicResource OverlayBackgroundSurfaceBrush}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ComboBox}">
@@ -519,12 +630,13 @@
                             AllowsTransparency="True"
                             Focusable="False"
                             IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                            MaxHeight="{Binding MaxDropDownHeight, RelativeSource={RelativeSource TemplatedParent}}"
                             Placement="{Binding Path=(helpers:ComboBoxHelper.PopupPlacement), RelativeSource={RelativeSource TemplatedParent}}"
                             PopupAnimation="Slide"
                             x:Name="PART_Popup">
 
                             <Border
-                                Background="{DynamicResource BackgroundSurfaceBrush}"
+                                Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{DynamicResource DefaultCorner}"

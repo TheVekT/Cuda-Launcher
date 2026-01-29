@@ -75,6 +75,8 @@
                         helpers:ButtonHelper.IconSize="13"
                         x:Name="SettingsBtn" />
                     <Button
+                        Command="{Binding Path=(helpers:VersionElementHelper.DeleteCommand), RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding Path=(helpers:VersionElementHelper.Instance), RelativeSource={RelativeSource AncestorType=UserControl}}"
                         FontSize="12"
                         Foreground="{DynamicResource ColorDangerBrush}"
                         Height="35"

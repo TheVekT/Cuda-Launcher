@@ -62,7 +62,7 @@
                             SelectedIndex="0"
                             SelectedValue="{Binding SelectedModLoader}"
                             SelectedValuePath="Content"
-                            Style="{StaticResource VersionsComboBox}">
+                            Style="{StaticResource LoaderComboBox}">
                             <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.VanillaModLoaderOption]}" Tag="/Assets/Icons/150px-Grass_Block_JE7_BE6.png" />
                             <ComboBoxItem Content="OptiFine" Tag="/Assets/Icons/optifine-default.png" />
                             <ComboBoxItem Content="Forge" Tag="/Assets/Icons/forge-default.png" />
@@ -81,8 +81,9 @@
                             Height="35"
                             ItemsSource="{Binding GameVersions}"
                             Margin="0,5,0,0"
+                            MaxDropDownHeight="230"
                             SelectedItem="{Binding SelectedGameVersion}"
-                            Style="{StaticResource DefaultComboBox}"
+                            Style="{StaticResource OverlayComboBox}"
                             x:Name="SelectVersionComboBox" />
                     </StackPanel>
                     <StackPanel Grid.Row="3" Margin="0,5">

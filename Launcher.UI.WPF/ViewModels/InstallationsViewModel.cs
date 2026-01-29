@@ -20,7 +20,8 @@ public class InstallationsViewModel : INotifyPropertyChanged
     private readonly MainViewModel _mainViewModel;
     private readonly IGameVersionService _versionService; 
     private readonly IInstanceService _instanceService;
-
+    
+    public ICommand DeleteInstanceCommand { get; }
     public ICommand OpenAddVersionCommand { get; }
     public ICommand ToggleCreatingPageCommand { get; }
     public ICommand CloseOverlayCommand { get; }
@@ -141,6 +142,15 @@ public class InstallationsViewModel : INotifyPropertyChanged
         _selectedModLoader = "Vanilla"; 
         
         CreateInstanceCommand = new RelayCommand(o => CreateInstance());
+        
+        DeleteInstanceCommand = new RelayCommand(o => 
+        {
+            
+            if (o is MinecraftInstance instanceToDelete)
+            {
+                DeleteInstance(instanceToDelete);
+            }
+        });
 
         OpenAddVersionCommand = new RelayCommand(async o => 
         {
@@ -192,7 +202,6 @@ public class InstallationsViewModel : INotifyPropertyChanged
             LoaderType = GetLoaderType(SelectedModLoader),
             IsolationType = SelectedIsolation,
             
-            // --- ИСПРАВЛЕНИЕ: Используем выбранную иконку ---
             IconPath = SelectedIcon ?? IconList.FirstOrDefault(), 
             
             LoaderVersion = (SelectedModLoader == "Vanilla") ? null : "Auto"
@@ -267,6 +276,18 @@ public class InstallationsViewModel : INotifyPropertyChanged
             {
                 SelectedIcon = IconList[0];
             }
+        }
+    }
+    
+    private void DeleteInstance(MinecraftInstance instance)
+    {
+        _instanceService.DeleteInstance(instance.Id);
+        
+        _mainViewModel.Instances.Remove(instance);
+
+        if (_mainViewModel.SelectedInstance == instance)
+        {
+            _mainViewModel.Instances.FirstOrDefault();
         }
     }
 
