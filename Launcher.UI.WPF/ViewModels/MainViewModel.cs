@@ -1,11 +1,13 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq; // Добавлен для LINQ
 using Launcher.Core.Models;
 using System.Threading.Tasks; 
 using System.Windows;   
 using System.Windows.Input;
 using Launcher.Core.Services.Auth; 
+using Launcher.Core.Services.IO;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Services;
 
@@ -15,20 +17,18 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private readonly ThemeService _themeService;
     private readonly IAuthService _authService; 
+    private readonly IAccountStorageService _accountStorage;
 
     public InstallationsViewModel InstallationsVM { get; }
-
 
     private double _uiScale = 1.0;
     private bool _isOverlayVisible;
     private object _currentOverlayView;
     private string _currentThemePath = "/Assets/Themes/default-dark.xaml";
 
-
     private bool _isLoggingIn;
     private bool _isAddAccPageOpen;
     private string _userName = "Guest";
-    private string _userUuid;
     
     public bool IsLoggedIn => CurrentAccount != null;
     
@@ -40,9 +40,23 @@ public class MainViewModel : INotifyPropertyChanged
         get => _currentAccount;
         set
         {
-            _currentAccount = value;
-            OnPropertyChanged(nameof(CurrentAccount));
-            OnPropertyChanged(nameof(IsLoggedIn)); 
+            if (_currentAccount != value)
+            {
+                _currentAccount = value;
+                
+                OnPropertyChanged(nameof(CurrentAccount));
+                OnPropertyChanged(nameof(IsLoggedIn)); 
+                
+                if (_currentAccount != null)
+                {
+                    UserName = _currentAccount.Username;
+                    foreach (var acc in Accounts)
+                    {
+                        acc.IsSelected = (acc.UUID == _currentAccount.UUID);
+                    }
+                    _accountStorage.SaveAccounts(Accounts);
+                }
+            }
         }
     }
 
@@ -82,24 +96,47 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand OpenAddVersionCommand { get; }
     public ICommand OpenLoginCommand { get; }
     
+    public ICommand SelectAccountCommand { get; }
     public ICommand MicrosoftLoginCommand { get; } 
     public ICommand OfflineLoginCommand { get; }
     public ICommand AddNewAccountCommand { get; }
 
-
-    public MainViewModel(ThemeService themeService, IAuthService authService)
+    public MainViewModel(
+        ThemeService themeService, 
+        IAuthService authService, 
+        IAccountStorageService accountStorage)
     {
         _themeService = themeService;
         _authService = authService;
+        _accountStorage = accountStorage;
+        
+        LoadSavedAccounts();
         
         InstallationsVM = new InstallationsViewModel(this);
         
-        MicrosoftLoginCommand = new RelayCommand(async (o) => await ExecuteLogin());
-        OfflineLoginCommand = new RelayCommand(o => LoginOffline(o as string));
-        AddNewAccountCommand = new RelayCommand(o =>
+        // Логика вызовов упрощена до делегирования сервису
+        MicrosoftLoginCommand = new RelayCommand(async (o) => await ExecuteMicrosoftLogin());
+        
+        OfflineLoginCommand = new RelayCommand(o => 
         {
-            IsAddAccPageOpen = true;
-        }); 
+            if (o is string nickname && !string.IsNullOrWhiteSpace(nickname))
+            {
+                var account = _authService.LoginOffline(nickname);
+                ProcessSuccessfulLogin(account);
+            }
+        });
+        
+        SelectAccountCommand = new RelayCommand(o => 
+        {
+            if (o is UserAccount account)
+            {
+                CurrentAccount = account;
+                // Опционально: Сохранить порядок или факт выбора, если нужно
+                _accountStorage.SaveAccounts(Accounts); 
+            }
+        });
+
+        AddNewAccountCommand = new RelayCommand(o => IsAddAccPageOpen = true); 
 
         OpenSettingsCommand = new RelayCommand(o => 
         {
@@ -108,10 +145,9 @@ public class MainViewModel : INotifyPropertyChanged
         
         OpenLoginCommand = new RelayCommand(o => 
         {
-            if (IsLoggedIn) IsAddAccPageOpen = false; else IsAddAccPageOpen = true;
+            IsAddAccPageOpen = !IsLoggedIn; // Упрощенная логика
             var loginMenu = new Resources.Overlay.LoginMenu();
             loginMenu.DataContext = this; 
-            
             CurrentOverlayView = loginMenu;
         });
         
@@ -130,60 +166,74 @@ public class MainViewModel : INotifyPropertyChanged
             }
         });
 
-        CloseOverlayCommand = new RelayCommand(o => 
-        {
-            CurrentOverlayView = null;
-        });
+        CloseOverlayCommand = new RelayCommand(o => CurrentOverlayView = null);
     }
     
-    private async Task ExecuteLogin()
+    private void LoadSavedAccounts()
+    {
+        var savedAccounts = _accountStorage.LoadAccounts();
+        
+        Accounts.Clear();
+        foreach (var acc in savedAccounts)
+        {
+            Accounts.Add(acc);
+        }
+        
+        var lastUsedAccount = Accounts.FirstOrDefault(x => x.IsSelected);
+
+        if (lastUsedAccount != null)
+        {
+            CurrentAccount = lastUsedAccount;
+        }
+        else if (Accounts.Count > 0)
+        {
+            CurrentAccount = Accounts.First();
+        }
+    }
+    
+    private async Task ExecuteMicrosoftLogin()
     {
         IsLoggingIn = true;
         try
         {
-            var session = await _authService.LoginWithMicrosoftAsync();
-            
-            var newAccount = new UserAccount(
-                session.Username, 
-                session.UUID, 
-                session.AccessToken, 
-                isOffline: false);
-            
-            var existing = Accounts.FirstOrDefault(x => x.UUID == newAccount.UUID);
-            if (existing == null)
-            {
-                Accounts.Add(newAccount);
-                CurrentAccount = newAccount;
-            }
-            else
-            {
-                CurrentAccount = existing;
-            }
-
-            CurrentOverlayView = null;
+            // Вся грязная работа теперь внутри сервиса
+            var newAccount = await _authService.LoginWithMicrosoftAsync();
+            ProcessSuccessfulLogin(newAccount);
         }
-        finally { IsLoggingIn = false; }
+        catch (Exception ex)
+        {
+            // Здесь можно добавить обработку ошибок (MessageBox и т.д.)
+            Console.WriteLine(ex.Message);
+        }
+        finally 
+        { 
+            IsLoggingIn = false; 
+        }
     }
 
-    public void LoginOffline(string nickname)
+    private void ProcessSuccessfulLogin(UserAccount newAccount)
     {
-        string fakeUuid = Guid.NewGuid().ToString(); 
-    
-        var newAccount = new UserAccount(
-            nickname, 
-            fakeUuid, 
-            token: string.Empty, 
-            isOffline: true);
-        Accounts.Add(newAccount);
+        var existing = Accounts.FirstOrDefault(x => x.UUID == newAccount.UUID);
         
-        CurrentAccount = newAccount;
-        
+        if (existing == null)
+        {
+            Accounts.Add(newAccount);
+            CurrentAccount = newAccount;
+        }
+        else
+        {
+            // Обновляем токен существующего аккаунта, если он изменился
+            existing.AccessToken = newAccount.AccessToken; 
+            CurrentAccount = existing;
+        }
+
+        // 2. СОХРАНЕНИЕ ПРИ ИЗМЕНЕНИИ СПИСКА
+        _accountStorage.SaveAccounts(Accounts);
+
         CurrentOverlayView = null;
     }
-    
-    
-    
 
+    // Остальные свойства (UiScale, CurrentThemePath, IsOverlayVisible и т.д.) без изменений...
     public double UiScale
     {
         get => _uiScale;

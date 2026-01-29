@@ -59,10 +59,13 @@
                             ItemTemplate="{StaticResource ImageComboBoxItemTemplate}"
                             Margin="0,5,0,0"
                             SelectedIndex="0"
+                            SelectedValue="{Binding SelectedModLoader}"
+                            SelectedValuePath="Content"
                             Style="{StaticResource VersionsComboBox}">
                             <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.VanillaModLoaderOption]}" Tag="/Assets/Icons/150px-Grass_Block_JE7_BE6.png" />
                             <ComboBoxItem Content="OptiFine" Tag="/Assets/Icons/optifine-default.png" />
                             <ComboBoxItem Content="Forge" Tag="/Assets/Icons/forge-default.png" />
+                            <ComboBoxItem Content="NeoForge" Tag="/Assets/Icons/neoforge-default.png" />
                             <ComboBoxItem Content="Fabric" Tag="/Assets/Icons/fabric-default.png" />
                             <ComboBoxItem Content="Quilt" Tag="/Assets/Icons/quilt-default.png" />
                         </ComboBox>
@@ -282,39 +285,52 @@
                         <CheckBox
                             FontSize="14"
                             IsChecked="False"
-                            Margin="0,5"
-                            Style="{StaticResource DefaultToggleSwitchStyle}"
+                            Margin="0,10,0,5"
                             VerticalAlignment="Top"
-                            Visibility="Collapsed"
                             helpers:ScaleHelper.ScaleFactor="0.8">
+
+                            <CheckBox.Style>
+                                <Style BasedOn="{StaticResource DefaultToggleSwitchStyle}" TargetType="CheckBox">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="Forge">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </CheckBox.Style>
+
                             <CheckBox.Content>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Foreground="{DynamicResource ForegroundPrimaryBrush}" Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.AutoInstallOptiFineLabel]}" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                                        Margin="0,2,0,0"
-                                        Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.AutoInstallOptiFineDesc]}"
-                                        TextWrapping="Wrap" />
                                 </StackPanel>
                             </CheckBox.Content>
                         </CheckBox>
+
                         <CheckBox
                             FontSize="14"
                             IsChecked="False"
-                            Margin="0,5"
-                            Style="{StaticResource DefaultToggleSwitchStyle}"
+                            Margin="0,10,0,5"
                             VerticalAlignment="Top"
                             helpers:ScaleHelper.ScaleFactor="0.8">
+
+                            <CheckBox.Style>
+                                <Style BasedOn="{StaticResource DefaultToggleSwitchStyle}" TargetType="CheckBox">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="Fabric">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="NeoForge">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </CheckBox.Style>
+
                             <CheckBox.Content>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Foreground="{DynamicResource ForegroundPrimaryBrush}" Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.AutoInstallIrisSodiumLabel]}" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                                        Margin="0,2,0,0"
-                                        Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.AutoInstallIrisSodiumDesc]}"
-                                        TextWrapping="Wrap" />
                                 </StackPanel>
                             </CheckBox.Content>
                         </CheckBox>

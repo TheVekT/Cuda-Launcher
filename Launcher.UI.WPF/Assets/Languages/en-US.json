@@ -91,9 +91,7 @@
     "AddInstallation.ConfigureInstallationTitle": "Configure Installation",
     "AddInstallation.ConfigureInstallationSubtitle": "Configure game folder and misc settings",
     "AddInstallation.AutoInstallOptiFineLabel": "Add OptiFine",
-    "AddInstallation.AutoInstallOptiFineDesc": "Automatically install OptiFine for enhanced graphics options",
     "AddInstallation.AutoInstallIrisSodiumLabel": "Add Iris & Sodium",
-    "AddInstallation.AutoInstallIrisSodiumDesc": "Automatically install Iris and Sodium for better performance",
     "AddInstallation.EditJVMArgumentsLabel": "JVM Arguments"
   
   }

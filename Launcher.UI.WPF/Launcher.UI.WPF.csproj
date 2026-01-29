@@ -220,9 +220,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Remove="Assets\Languages\ru.json" />
-    <Content Include="Assets\Languages\ru-RU.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Remove="Assets\Themes\Fonts\Rajdhani-Medium.ttf" />
     <Content Include="Assets\Themes\Fonts\Rajdhani-Medium.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

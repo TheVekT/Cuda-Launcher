@@ -4,6 +4,7 @@ using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Services;
 using System.Collections.ObjectModel;
 using System.IO;
+
 using System.Diagnostics;
 
 namespace Launcher.UI.WPF.ViewModels;
@@ -21,7 +22,24 @@ public class InstallationsViewModel : INotifyPropertyChanged
     public bool CreatingPage1Visible { get; set; } = false;
     public bool CreatingPage2Visible { get; set; } = true;
     
+    
+    private string _selectedModLoader;
+    public string SelectedModLoader
+    {
+        get => _selectedModLoader;
+        set
+        {
+            if (_selectedModLoader != value)
+            {
+                _selectedModLoader = value;
+                OnPropertyChanged(nameof(SelectedModLoader));
+            }
+        }
+    }
+    
     public InstallationsViewModel(MainViewModel mainViewModel){
+        SelectedModLoader = "Vanilla";
+        
         OpenAddVersionCommand = new RelayCommand(o => 
         {
             LoadIcons();
@@ -30,6 +48,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
             CreatingPage1Visible = true;
             CreatingPage2Visible = false;
             menu.DataContext = this; 
+            SelectedModLoader = "Vanilla";
             
             mainViewModel.CurrentOverlayView = menu;
         });

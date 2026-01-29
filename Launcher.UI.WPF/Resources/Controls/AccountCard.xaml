@@ -56,6 +56,9 @@
                         x:Name="AccountCardType" />
                 </StackPanel>
                 <Button
+    
+                    Command="{Binding DataContext.SelectAccountCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                    CommandParameter="{Binding}"
                     Content="{Binding Source={StaticResource Loc}, Path=[AccountCard.UseButton]}"
                     FontSize="13"
                     Grid.Column="2"

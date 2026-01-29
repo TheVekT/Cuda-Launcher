@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Launcher.Core.Models
 {
     public class UserAccount
@@ -7,7 +9,12 @@ namespace Launcher.Core.Models
         public string AccessToken { get; set; }
         public bool IsOffline { get; set; }
         
+        public bool IsSelected { get; set; }
         public string AccountTypeString => IsOffline ? "Offline" : "Microsoft";
+        
+        public UserAccount() 
+        { 
+        }
         public UserAccount(string name, string uuid, string token, bool isOffline)
         {
             Username = name;
