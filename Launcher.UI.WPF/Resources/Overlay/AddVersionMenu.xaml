@@ -78,15 +78,11 @@
                             Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.GameVersionLabel]}" />
                         <ComboBox
                             Height="35"
+                            ItemsSource="{Binding GameVersions}"
                             Margin="0,5,0,0"
-                            SelectedIndex="0"
-                            Style="{StaticResource DefaultComboBox}">
-                            <ComboBoxItem Content="1.20.4" />
-                            <ComboBoxItem Content="1.19.4" />
-                            <ComboBoxItem Content="1.18.2" />
-                            <ComboBoxItem Content="1.17.1" />
-                            <ComboBoxItem Content="1.16.5" />
-                        </ComboBox>
+                            SelectedItem="{Binding SelectedGameVersion}"
+                            Style="{StaticResource DefaultComboBox}"
+                            x:Name="SelectVersionComboBox" />
                     </StackPanel>
                     <StackPanel Grid.Row="3" Margin="0,5">
                         <TextBlock
@@ -99,7 +95,8 @@
                             Height="35"
                             Margin="0,5,0,0"
                             Style="{StaticResource DefaultTextInputStyle}"
-                            Tag="Enter Installation Name" />
+                            Tag="{Binding SuggestedName}"
+                            Text="{Binding InstallationName, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBlock
                             Background="Transparent"
                             FontSize="11"

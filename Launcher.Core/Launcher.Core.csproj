@@ -19,8 +19,5 @@
       <PackageReference Include="CmlLib.Core.Installer.NeoForge" Version="4.0.0" />
       <PackageReference Include="Microsoft.Identity.Client" Version="4.79.2" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Services\Game\" />
-    </ItemGroup>
 
 </Project>

@@ -6,6 +6,7 @@ using Launcher.UI.WPF.ViewModels;
 using Launcher.UI.WPF.Services;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Auth;
+using Launcher.Core.Services.Game;
 
 namespace Launcher.UI.WPF;
 
@@ -14,15 +15,17 @@ namespace Launcher.UI.WPF;
 /// </summary>
 public partial class App : Application
 {
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         
         var themeService = new ThemeService();
         var authService = new AuthService();
         var accountStorageService = new AccountStorageService();
+        var versionService = new GameVersionService();
 
-        var mainViewModel = new MainViewModel(themeService, authService, accountStorageService);
+        var mainViewModel = new MainViewModel(themeService, authService, accountStorageService, versionService);
+        await mainViewModel.InitializeAsync();
         
         var mainWindow = new MainWindow();
         

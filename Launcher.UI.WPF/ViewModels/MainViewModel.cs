@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using Launcher.Core.Services.Auth; 
 using Launcher.Core.Services.IO;
+using Launcher.Core.Services.Game;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Services;
 
@@ -101,10 +102,16 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand OfflineLoginCommand { get; }
     public ICommand AddNewAccountCommand { get; }
 
+
+    public async Task InitializeAsync()
+    {
+        await InstallationsVM.InitializeAsync();
+    }
     public MainViewModel(
         ThemeService themeService, 
         IAuthService authService, 
-        IAccountStorageService accountStorage)
+        IAccountStorageService accountStorage,
+        IGameVersionService versionService)
     {
         _themeService = themeService;
         _authService = authService;
@@ -112,7 +119,7 @@ public class MainViewModel : INotifyPropertyChanged
         
         LoadSavedAccounts();
         
-        InstallationsVM = new InstallationsViewModel(this);
+        InstallationsVM = new InstallationsViewModel(this, versionService);
         
         // Логика вызовов упрощена до делегирования сервису
         MicrosoftLoginCommand = new RelayCommand(async (o) => await ExecuteMicrosoftLogin());
