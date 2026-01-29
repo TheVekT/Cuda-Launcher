@@ -100,14 +100,26 @@
 
             </Grid>
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
-                <StackPanel Orientation="Vertical">
-                    <controls:VersionElement
-                        helpers:VersionElementHelper.GameVersion="1.21.9"
-                        helpers:VersionElementHelper.Icon="/Assets/Icons/logo.png"
-                        helpers:VersionElementHelper.LastPlayed="Newer"
-                        helpers:VersionElementHelper.ModLoader="Vanilla"
-                        helpers:VersionElementHelper.VersionName="Latest Release" />
-                </StackPanel>
+                <ItemsControl ItemsSource="{Binding Instances}">
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <controls:VersionElement
+                                helpers:VersionElementHelper.GameVersion="{Binding GameVersion}"
+                                helpers:VersionElementHelper.Icon="{Binding IconPath}"
+                                helpers:VersionElementHelper.LastPlayed="Never"
+                                helpers:VersionElementHelper.ModLoader="{Binding LoaderType}"
+                                helpers:VersionElementHelper.VersionName="{Binding Name}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+
+                </ItemsControl>
             </ScrollViewer>
         </Grid>
     </Grid>

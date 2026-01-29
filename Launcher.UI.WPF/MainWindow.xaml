@@ -235,14 +235,13 @@
                                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                                     <ComboBox
                                         Height="35"
-                                        ItemContainerStyle="{StaticResource ImageComboBoxItemStyle}"
-                                        ItemTemplate="{StaticResource ImageComboBoxItemTemplate}"
-                                        SelectedIndex="0"
-                                        Style="{StaticResource VersionsComboBox}"
+                                        ItemContainerStyle="{StaticResource InstanceItemContainerStyle}"
+                                        ItemTemplate="{StaticResource InstanceDataTemplate}"
+                                        ItemsSource="{Binding Instances}"
+                                        SelectedItem="{Binding SelectedInstance}"
+                                        Style="{StaticResource InstanceComboBox}"
                                         Width="300"
-                                        helpers:ComboBoxHelper.PopupPlacement="Top">
-                                        <ComboBoxItem Tag="/Assets/Icons/logo.png">Latest Release</ComboBoxItem>
-                                    </ComboBox>
+                                        helpers:ComboBoxHelper.PopupPlacement="Top" />
                                     <Button
                                         FontSize="16"
                                         Height="35"

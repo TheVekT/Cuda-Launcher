@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
+using Launcher.Core.Services.IO;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Services;
 
@@ -16,19 +17,44 @@ namespace Launcher.UI.WPF.ViewModels;
 
 public class InstallationsViewModel : INotifyPropertyChanged
 {
+    private readonly MainViewModel _mainViewModel;
     private readonly IGameVersionService _versionService; 
+    private readonly IInstanceService _instanceService;
 
     public ICommand OpenAddVersionCommand { get; }
     public ICommand ToggleCreatingPageCommand { get; }
     public ICommand CloseOverlayCommand { get; }
+    public ICommand CreateInstanceCommand { get; }
     
     public ObservableCollection<string> IconList { get; } = new();
-    
+    public ObservableCollection<MinecraftInstance> Instances => _mainViewModel.Instances;
     public ObservableCollection<string> GameVersions { get; } = new(); 
+    public ObservableCollection<IsolationType> IsolationTypes { get; } = new()
+    {
+        IsolationType.Global,
+        IsolationType.Full,
+        IsolationType.Partial
+    };
     
     public bool CreatingPage1Visible { get; set; } = false;
     public bool CreatingPage2Visible { get; set; } = true;
 
+    // --- НОВОЕ СВОЙСТВО: ВЫБРАННАЯ ИКОНКА ---
+    private string _selectedIcon;
+    public string SelectedIcon
+    {
+        get => _selectedIcon;
+        set
+        {
+            if (_selectedIcon != value)
+            {
+                _selectedIcon = value;
+                OnPropertyChanged(nameof(SelectedIcon));
+            }
+        }
+    }
+
+    // --- Свойства ввода ---
     private string _selectedGameVersion;
     public string SelectedGameVersion
     {
@@ -39,9 +65,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
             {
                 _selectedGameVersion = value;
                 OnPropertyChanged(nameof(SelectedGameVersion));
-                
-                // Уведомляем UI, что подсказка тоже изменилась!
-                OnPropertyChanged(nameof(SuggestedName)); 
+                OnPropertyChanged(nameof(SuggestedName));
             }
         }
     }
@@ -59,15 +83,27 @@ public class InstallationsViewModel : INotifyPropertyChanged
             }
         }
     }
+
+    private IsolationType _selectedIsolation = IsolationType.Global;
+    public IsolationType SelectedIsolation
+    {
+        get => _selectedIsolation;
+        set
+        {
+            if (_selectedIsolation != value)
+            {
+                _selectedIsolation = value;
+                OnPropertyChanged(nameof(SelectedIsolation));
+            }
+        }
+    }
     
     public string SuggestedName
     {
         get
         {
-            // Логика "Маленькой утилиты" прямо здесь
-            if (string.IsNullOrEmpty(SelectedGameVersion))
-                return "New Installation";
-                
+            if (string.IsNullOrEmpty(SelectedGameVersion)) return "New Installation";
+            if (SelectedModLoader == "Vanilla") return $"Version {SelectedGameVersion}";
             return $"{SelectedModLoader} {SelectedGameVersion}";
         }
     }
@@ -83,9 +119,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
                 _selectedModLoader = value;
                 OnPropertyChanged(nameof(SelectedModLoader));
                 _ = RefreshGameVersions();
-
-                // Уведомляем UI, что подсказка тоже изменилась!
-                OnPropertyChanged(nameof(SuggestedName)); 
+                OnPropertyChanged(nameof(SuggestedName));
             }
         }
     }
@@ -94,23 +128,31 @@ public class InstallationsViewModel : INotifyPropertyChanged
     {
         await RefreshGameVersions();
     }
-    public InstallationsViewModel(MainViewModel mainViewModel, IGameVersionService versionService)
+
+    public InstallationsViewModel(
+        MainViewModel mainViewModel, 
+        IGameVersionService versionService, 
+        InstanceService instanceService)
     {
+        _mainViewModel = mainViewModel;
         _versionService = versionService;
+        _instanceService = instanceService;
+        
         _selectedModLoader = "Vanilla"; 
         
-        
+        CreateInstanceCommand = new RelayCommand(o => CreateInstance());
+
         OpenAddVersionCommand = new RelayCommand(async o => 
         {
             LoadIcons();
             
-            // --- ИСПРАВЛЕНИЕ 1: Избегаем двойного обновления ---
-            // Меняем поле напрямую, чтобы НЕ вызывать RefreshGameVersions через сеттер
+            InstallationName = string.Empty;
+            SelectedIsolation = IsolationType.Global;
+
             bool typeChanged = _selectedModLoader != "Vanilla";
             _selectedModLoader = "Vanilla"; 
-            OnPropertyChanged(nameof(SelectedModLoader)); // Обновляем UI (ComboBox лоадеров)
+            OnPropertyChanged(nameof(SelectedModLoader)); 
 
-            // Теперь вызываем обновление версий вручную один раз
             await RefreshGameVersions();
 
             var menu = new Resources.Overlay.AddVersionMenu();
@@ -135,39 +177,56 @@ public class InstallationsViewModel : INotifyPropertyChanged
         });
     }
 
+    private void CreateInstance()
+    {
+        if (string.IsNullOrEmpty(SelectedGameVersion)) return;
+
+        var finalName = string.IsNullOrWhiteSpace(InstallationName) 
+            ? SuggestedName 
+            : InstallationName;
+
+        var newInstance = new MinecraftInstance
+        {
+            Name = finalName,
+            GameVersion = SelectedGameVersion,
+            LoaderType = GetLoaderType(SelectedModLoader),
+            IsolationType = SelectedIsolation,
+            
+            // --- ИСПРАВЛЕНИЕ: Используем выбранную иконку ---
+            IconPath = SelectedIcon ?? IconList.FirstOrDefault(), 
+            
+            LoaderVersion = (SelectedModLoader == "Vanilla") ? null : "Auto"
+        };
+
+        _mainViewModel.Instances.Add(newInstance);
+        _instanceService.SaveInstances(_mainViewModel.Instances);
+        CloseOverlayCommand.Execute(null);
+        Debug.WriteLine($"Created instance: {finalName}");
+    }
+
     private async Task RefreshGameVersions()
     {
         try 
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() => SelectedGameVersion = null);
 
-            GameLoaderType type = GetLoaderType(_selectedModLoader); // Используем поле, оно актуально
+            GameLoaderType type = GetLoaderType(_selectedModLoader);
             
-
-            // 2. Фоновая загрузка данных (не блокирует UI)
             var loadedVersions = await _versionService.GetGameVersionsByTypeAsync(type);
             var versionList = loadedVersions.ToList(); 
 
-            // 3. Обновление UI (Коллекция + Выбор)
-            // Делаем это внутри Invoke, чтобы события шли последовательно в UI потоке
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
             {
                 GameVersions.Clear();
-
                 if (versionList.Count == 0) return;
-
-                foreach (var version in versionList)
-                {
-                    GameVersions.Add(version);
-                }
+                foreach (var version in versionList) GameVersions.Add(version);
             });
             
+            await Task.Delay(50);
+
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
             {
-                if (GameVersions.Count > 0)
-                {
-                    SelectedGameVersion = GameVersions[0];
-                }
+                if (GameVersions.Count > 0) SelectedGameVersion = GameVersions[0];
             });
         }
         catch (Exception ex)
@@ -202,12 +261,15 @@ public class InstallationsViewModel : INotifyPropertyChanged
                 var fileName = Path.GetFileName(file);
                 if (!_ignoredIcons.Contains(fileName)) IconList.Add(file);
             }
+
+            // --- ВАЖНО: Выбираем первую иконку по умолчанию ---
+            if (IconList.Count > 0)
+            {
+                SelectedIcon = IconList[0];
+            }
         }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

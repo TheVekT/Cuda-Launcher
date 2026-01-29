@@ -252,4 +252,34 @@ namespace Launcher.UI.WPF.Helpers
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotImplementedException();
     }
+    public class EnumToBooleanConverter : IValueConverter
+    {
+        // Из ViewModel в XAML (Проверяем, совпадает ли значение с параметром)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null || parameter == null) return false;
+            
+            string checkValue = value.ToString();
+            string targetValue = parameter.ToString();
+            
+            return checkValue.Equals(targetValue, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        // Из XAML в ViewModel (Если радиокнопка стала True, возвращаем Enum)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null || parameter == null) return Binding.DoNothing;
+            
+            bool useValue = (bool)value;
+            string targetValue = parameter.ToString();
+            
+            if (useValue)
+            {
+                // Конвертируем строку-параметр обратно в Enum
+                return Enum.Parse(targetType, targetValue); 
+            }
+
+            return Binding.DoNothing;
+        }
+    }
 }

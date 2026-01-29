@@ -16,6 +16,7 @@
     <UserControl.Resources>
         <helpers:StringFormatConverter x:Key="StringFormatConverter" />
         <helpers:InvertBoolConverter x:Key="BoolToBool" />
+        <helpers:EnumToBooleanConverter x:Key="EnumToBoolConverter" />
     </UserControl.Resources>
     <Grid Width="512">
         <Border
@@ -123,7 +124,8 @@
                                 BorderThickness="0"
                                 ItemsSource="{Binding IconList}"
                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                SelectedItem="{Binding SelectedIcon}">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <UniformGrid Columns="8" VerticalAlignment="Top" />
@@ -260,19 +262,24 @@
                                 Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.IsolationDescription]}" />
                             <RadioButton
                                 Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionNoIsolation]}"
-                                IsChecked="True"
+                                GroupName="IsolationGroup"
+                                IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Global}"
                                 Margin="0,10,0,0"
                                 Style="{StaticResource PointOptionRadioStyle}"
                                 Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionNoIsolationDesc]}" />
+
                             <RadioButton
                                 Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolation]}"
-                                IsChecked="False"
+                                GroupName="IsolationGroup"
+                                IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Partial}"
                                 Margin="0,10,0,0"
                                 Style="{StaticResource PointOptionRadioStyle}"
                                 Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}" />
+
                             <RadioButton
                                 Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolation]}"
-                                IsChecked="False"
+                                GroupName="IsolationGroup"
+                                IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Full}"
                                 Margin="0,10,0,0"
                                 Style="{StaticResource PointOptionRadioStyle}"
                                 Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolationDesc]}" />
@@ -366,6 +373,7 @@
                             </Button.Tag>
                         </Button>
                         <Button
+                            Command="{Binding CreateInstanceCommand}"
                             Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.CreateButton]}"
                             FontSize="13"
                             Grid.Column="1"
