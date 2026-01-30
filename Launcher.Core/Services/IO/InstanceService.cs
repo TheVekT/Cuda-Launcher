@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq; // Добавлено для LINQ методов (FirstOrDefault)
+using System.Linq;
 using System.Text.Json;
 using Launcher.Core.Models;
 
@@ -11,83 +11,75 @@ namespace Launcher.Core.Services.IO
     {
         void SaveInstances(IEnumerable<MinecraftInstance> instances);
         List<MinecraftInstance> LoadInstances();
-        
-        // Добавлен метод удаления
         void DeleteInstance(string instanceId);
     }
 
     public class InstanceService : IInstanceService
     {
-        private readonly string _storagePath;
-        private readonly string _filePath;
+        private readonly string _instancesFolderPath; 
+        private readonly string _jsonFilePath;        
 
         public InstanceService()
         {
-            _storagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-            _filePath = Path.Combine(_storagePath, "instances.json");
+            // Формируем путь: .../Data/Instances
+            _instancesFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Instances");
+            _jsonFilePath = Path.Combine(_instancesFolderPath, "instances.json");
         }
 
         public void SaveInstances(IEnumerable<MinecraftInstance> instances)
         {
-            if (!Directory.Exists(_storagePath))
+            // Убеждаемся, что папка Data/Instances существует
+            if (!Directory.Exists(_instancesFolderPath))
             {
-                Directory.CreateDirectory(_storagePath);
+                Directory.CreateDirectory(_instancesFolderPath);
             }
 
             try
             {
-                var options = new JsonSerializerOptions 
-                { 
-                    WriteIndented = true 
-                };
-                
+                var options = new JsonSerializerOptions { WriteIndented = true };
                 var json = JsonSerializer.Serialize(instances, options);
-                File.WriteAllText(_filePath, json);
+                File.WriteAllText(_jsonFilePath, json);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка сохранения инстансов: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка сохранения: {ex.Message}");
             }
         }
 
         public List<MinecraftInstance> LoadInstances()
         {
-            if (!File.Exists(_filePath))
+            if (!File.Exists(_jsonFilePath))
             {
                 return new List<MinecraftInstance>();
             }
 
             try
             {
-                var json = File.ReadAllText(_filePath);
+                var json = File.ReadAllText(_jsonFilePath);
                 var instances = JsonSerializer.Deserialize<List<MinecraftInstance>>(json);
                 return instances ?? new List<MinecraftInstance>();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки инстансов: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки: {ex.Message}");
                 return new List<MinecraftInstance>();
             }
         }
 
-        // Реализация удаления
         public void DeleteInstance(string instanceId)
         {
             if (string.IsNullOrEmpty(instanceId)) return;
 
-            // 1. Загружаем текущий список
             var currentInstances = LoadInstances();
-
-            // 2. Ищем инстанс для удаления
             var instanceToRemove = currentInstances.FirstOrDefault(x => x.Id == instanceId);
 
             if (instanceToRemove != null)
             {
-                // 3. Удаляем из списка
                 currentInstances.Remove(instanceToRemove);
-
-                // 4. Сохраняем обновленный список обратно в файл
                 SaveInstances(currentInstances);
+                
+                // В будущем здесь добавим вызов:
+                // _fileSystemService.DeleteInstanceFolder(instanceToRemove.Name);
             }
         }
     }

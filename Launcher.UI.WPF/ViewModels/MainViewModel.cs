@@ -19,8 +19,9 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly ThemeService _themeService;
     private readonly IAuthService _authService; 
     private readonly IAccountStorageService _accountStorage;
-    private readonly IInstanceService _instanceService; // <-- Сервис инстансов
-
+    private readonly IInstanceService _instanceService; 
+    private readonly IInstanceFileSystemService _instanceFileSystemService;
+    private readonly ILaunchService _launchService;
     public InstallationsViewModel InstallationsVM { get; }
 
     // --- Свойства UI ---
@@ -56,6 +57,7 @@ public class MainViewModel : INotifyPropertyChanged
     }
 
     // --- Команды ---
+    public ICommand LaunchCommand { get; }
     public ICommand ChangeThemeCommand { get; }
     public ICommand CloseOverlayCommand { get; }
     public ICommand OpenSettingsCommand { get; }
@@ -76,12 +78,17 @@ public class MainViewModel : INotifyPropertyChanged
         IAuthService authService, 
         IAccountStorageService accountStorage,
         IGameVersionService versionService,
-        InstanceService instanceService) // Inject InstanceService
+        InstanceService instanceService,
+        IInstanceFileSystemService instanceFileSystemService,
+        ILaunchService launchService)
     {
         _themeService = themeService;
         _authService = authService;
         _accountStorage = accountStorage;
         _instanceService = instanceService;
+        _instanceFileSystemService = instanceFileSystemService;
+        _launchService = launchService;
+        
         
         // 1. Загрузка аккаунтов
         LoadSavedAccounts();
@@ -90,7 +97,9 @@ public class MainViewModel : INotifyPropertyChanged
         LoadSavedInstances();
 
         // Передаем this (MainViewModel), чтобы InstallationsVM мог добавлять инстансы в наш список
-        InstallationsVM = new InstallationsViewModel(this, versionService, instanceService);
+        InstallationsVM = new InstallationsViewModel(this, versionService, instanceService, instanceFileSystemService);
+        
+        LaunchCommand = new RelayCommand(async o => await LaunchCurrentInstance());
         
         // --- Инициализация команд ---
         MicrosoftLoginCommand = new RelayCommand(async (o) => await ExecuteMicrosoftLogin());
@@ -138,6 +147,53 @@ public class MainViewModel : INotifyPropertyChanged
         });
 
         CloseOverlayCommand = new RelayCommand(o => CurrentOverlayView = null);
+    }
+    
+    private async Task LaunchCurrentInstance()
+    {
+        Console.WriteLine("Launching instance...");
+        if (SelectedInstance == null) return;
+        if (CurrentAccount == null) 
+        {
+            Console.WriteLine("No account selected!");
+            // Показать ошибку: "Войдите в аккаунт"
+            return;
+        }
+
+        try
+        {
+            Console.WriteLine("Starting game...");
+            // Показываем какой-то UI прогресса
+            // IsGameRunning = true; 
+        
+            var progress = new Progress<double>(p => 
+            {
+                // Обновляем полоску загрузки во View
+                // LaunchProgress = p; 
+                // StatusText = $"Loading... {p:0}%";
+            });
+            
+            var process = await _launchService.LaunchGameAsync(SelectedInstance, CurrentAccount, progress);
+            Console.WriteLine("Game started!");
+            // Игра запустилась!
+            // Можно скрыть лаунчер
+            // Application.Current.MainWindow.Hide();
+        
+            process.WaitForExit();
+        
+            // Игра закрылась
+            // Application.Current.MainWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            // Показать ошибку
+            System.Diagnostics.Debug.WriteLine(ex);
+            // MessageBox.Show($"Ошибка запуска: {ex.Message}");
+        }
+        finally
+        {
+            // IsGameRunning = false;
+        }
     }
     
     // --- Логика Инстансов ---

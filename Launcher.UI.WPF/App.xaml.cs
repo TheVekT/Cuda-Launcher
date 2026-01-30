@@ -24,8 +24,10 @@ public partial class App : Application
         var accountStorageService = new AccountStorageService();
         var versionService = new GameVersionService();
         var instanceService = new InstanceService();
+        var instanceFileSystemService = new InstanceFileSystemService();
+        var launchService = new LaunchService(instanceFileSystemService);
 
-        var mainViewModel = new MainViewModel(themeService, authService, accountStorageService, versionService, instanceService);
+        var mainViewModel = new MainViewModel(themeService, authService, accountStorageService, versionService, instanceService, instanceFileSystemService, launchService);
         await mainViewModel.InitializeAsync();
         
         var mainWindow = new MainWindow();

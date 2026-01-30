@@ -79,6 +79,7 @@
                     </Grid>
                 </Border>
                 <Button
+                    Command="{Binding LaunchCommand}"
                     Content="{Binding Source={StaticResource Loc}, Path=[Play.PlayButton]}"
                     FontSize="18"
                     Height="50"

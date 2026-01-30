@@ -20,6 +20,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
     private readonly MainViewModel _mainViewModel;
     private readonly IGameVersionService _versionService; 
     private readonly IInstanceService _instanceService;
+    private readonly IInstanceFileSystemService _instanceFileSystemService;
     
     public ICommand DeleteInstanceCommand { get; }
     public ICommand OpenAddVersionCommand { get; }
@@ -133,11 +134,13 @@ public class InstallationsViewModel : INotifyPropertyChanged
     public InstallationsViewModel(
         MainViewModel mainViewModel, 
         IGameVersionService versionService, 
-        InstanceService instanceService)
+        InstanceService instanceService,
+        IInstanceFileSystemService instanceFileSystemService)
     {
         _mainViewModel = mainViewModel;
         _versionService = versionService;
         _instanceService = instanceService;
+        _instanceFileSystemService = instanceFileSystemService;
         
         _selectedModLoader = "Vanilla"; 
         
@@ -206,7 +209,6 @@ public class InstallationsViewModel : INotifyPropertyChanged
             
             LoaderVersion = (SelectedModLoader == "Vanilla") ? null : "Auto"
         };
-
         _mainViewModel.Instances.Add(newInstance);
         _instanceService.SaveInstances(_mainViewModel.Instances);
         CloseOverlayCommand.Execute(null);
@@ -284,7 +286,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
         _instanceService.DeleteInstance(instance.Id);
         
         _mainViewModel.Instances.Remove(instance);
-
+        
         if (_mainViewModel.SelectedInstance == instance)
         {
             _mainViewModel.Instances.FirstOrDefault();

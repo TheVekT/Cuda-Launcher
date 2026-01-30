@@ -14,51 +14,54 @@ namespace Launcher.Core.Services.IO
 
     public class AccountStorageService : IAccountStorageService
     {
-        private readonly string _storagePath;
+        private readonly string _userDataPath; // Путь к папке Data/UserData
         private readonly string _filePath;
 
         public AccountStorageService()
         {
-            // Portable путь: папка с .exe + папка Data
-            _storagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-            _filePath = Path.Combine(_storagePath, "accounts.json");
+            // Формируем путь: .../Data/UserData
+            _userDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "UserData");
+            _filePath = Path.Combine(_userDataPath, "accounts.json");
         }
 
         public void SaveAccounts(IEnumerable<UserAccount> accounts)
         {
-            if (!Directory.Exists(_storagePath))
+            // Создаем папку Data/UserData, если нет
+            if (!Directory.Exists(_userDataPath))
             {
-                Directory.CreateDirectory(_storagePath);
+                Directory.CreateDirectory(_userDataPath);
             }
 
-            var json = JsonSerializer.Serialize(accounts, new JsonSerializerOptions 
-            { 
-                WriteIndented = true 
-            });
-            
-            File.WriteAllText(_filePath, json);
+            try 
+            {
+                var json = JsonSerializer.Serialize(accounts, new JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
+                });
+                File.WriteAllText(_filePath, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving accounts: {ex.Message}");
+            }
         }
 
         public List<UserAccount> LoadAccounts()
         {
             if (!File.Exists(_filePath))
             {
-                Console.WriteLine("File not found: " + _filePath);
                 return new List<UserAccount>();
             }
 
             try
             {
-                Console.WriteLine("Loading accounts from file: " + _filePath);
                 var json = File.ReadAllText(_filePath);
                 var accounts = JsonSerializer.Deserialize<List<UserAccount>>(json);
                 return accounts ?? new List<UserAccount>();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error loading accounts from file: " + _filePath);
-                Console.WriteLine("Exception: " + ex.Message);
-                // Если файл поврежден, возвращаем пустой список
+                Console.WriteLine($"Error loading accounts: {ex.Message}");
                 return new List<UserAccount>();
             }
         }
