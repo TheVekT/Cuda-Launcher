@@ -15,26 +15,31 @@ namespace Launcher.Core.Services.IO
     public class InstanceFileSystemService : IInstanceFileSystemService
     {
         private readonly string _instancesBasePath;
-        private readonly string _globalBasePath; // Новое поле для кеширования пути
+        private readonly string _portableGlobalPath;
 
         public InstanceFileSystemService()
         {
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            // Data/Instances
+            // Путь для портативных инстансов: .../Data/Instances
             _instancesBasePath = Path.Combine(baseDir, "Data", "Instances");
-            
-            // ИСПРАВЛЕНИЕ: Используем локальную папку Data/Global, а не AppData
-            _globalBasePath = Path.Combine(baseDir, "Data", "Global");
+            // Путь для портативного хранилища (Warehouse): .../Data/Global
+            _portableGlobalPath = Path.Combine(baseDir, "Data", "Global");
         }
 
+        // Возвращает путь к портативному хранилищу ресурсов
         public string GetGlobalMinecraftPath()
         {
-            // Создаем папку, если её нет (это критично для первого запуска)
-            if (!Directory.Exists(_globalBasePath))
+            if (!Directory.Exists(_portableGlobalPath))
             {
-                Directory.CreateDirectory(_globalBasePath);
+                Directory.CreateDirectory(_portableGlobalPath);
             }
-            return _globalBasePath;
+            return _portableGlobalPath;
+        }
+
+        // Возвращает путь к системному .minecraft в AppData
+        private string GetExternalMinecraftPath()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraft");
         }
 
         public string PrepareInstance(MinecraftInstance instance)
@@ -42,13 +47,19 @@ namespace Launcher.Core.Services.IO
             switch (instance.IsolationType)
             {
                 case IsolationType.Global:
-                    return PrepareGlobal();
+                    // Используем системную папку напрямую
+                    var externalPath = GetExternalMinecraftPath();
+                    if (!Directory.Exists(externalPath)) Directory.CreateDirectory(externalPath);
+                    return externalPath;
+
                 case IsolationType.Full:
                     return PrepareFull(instance);
+
                 case IsolationType.Partial:
                     return PreparePartial(instance);
+
                 default:
-                    return PrepareGlobal();
+                    return GetGlobalMinecraftPath();
             }
         }
 
@@ -58,27 +69,11 @@ namespace Launcher.Core.Services.IO
             if (string.IsNullOrWhiteSpace(instance.Id)) return;
 
             var instancePath = Path.Combine(_instancesBasePath, instance.Id);
-            var globalPath = GetGlobalMinecraftPath();
-
-            if (string.Equals(instancePath, globalPath, StringComparison.OrdinalIgnoreCase)) return;
-            if (!instancePath.Contains("Data") || !instancePath.Contains("Instances")) return;
-
             if (Directory.Exists(instancePath))
             {
-                try
-                {
-                    Directory.Delete(instancePath, true);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Ошибка при удалении папки инстанса: {ex.Message}");
-                }
+                try { Directory.Delete(instancePath, true); }
+                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Error deleting instance: {ex.Message}"); }
             }
-        }
-
-        private string PrepareGlobal()
-        {
-            return GetGlobalMinecraftPath();
         }
 
         private string PrepareFull(MinecraftInstance instance)
@@ -86,13 +81,6 @@ namespace Launcher.Core.Services.IO
             var instancePath = Path.Combine(_instancesBasePath, instance.Id);
             CreateDir(instancePath);
             CreateStandardGameFolders(instancePath);
-
-            CreateDir(Path.Combine(instancePath, "assets"));
-            CreateDir(Path.Combine(instancePath, "libraries"));
-            CreateDir(Path.Combine(instancePath, "versions"));
-            CreateDir(Path.Combine(instancePath, "runtime"));
-            CreateDir(Path.Combine(instancePath, "webcache"));
-
             return instancePath;
         }
 
@@ -104,32 +92,20 @@ namespace Launcher.Core.Services.IO
             CreateDir(instancePath);
             CreateStandardGameFolders(instancePath);
 
-            // Создаем Junctions на папки из Data/Global
-            LinkFolder(instancePath, globalPath, "config");
-            LinkFolder(instancePath, globalPath, "saves");
-            LinkFolder(instancePath, globalPath, "logs");
-            LinkFolder(instancePath, globalPath, "resourcepacks");
-            LinkFolder(instancePath, globalPath, "screenshots");
-            LinkFolder(instancePath, globalPath, "shaderpacks");
-            
-            LinkFolder(instancePath, globalPath, "assets");
-            LinkFolder(instancePath, globalPath, "libraries");
-            LinkFolder(instancePath, globalPath, "versions");
-            LinkFolder(instancePath, globalPath, "runtime");
-            LinkFolder(instancePath, globalPath, "webcache");
+            // Создаем Junctions на общие папки данных
+            string[] foldersToLink = { "assets", "libraries", "versions", "runtime", "config", "saves", "resourcepacks", "shaderpacks" };
+            foreach (var folder in foldersToLink)
+            {
+                LinkFolder(instancePath, globalPath, folder);
+            }
 
             return instancePath;
         }
 
         private void CreateStandardGameFolders(string rootPath)
         {
-            CreateDir(Path.Combine(rootPath, "mods"));
-            CreateDir(Path.Combine(rootPath, "config"));
-            CreateDir(Path.Combine(rootPath, "saves"));
-            CreateDir(Path.Combine(rootPath, "resourcepacks"));
-            CreateDir(Path.Combine(rootPath, "shaderpacks"));
-            CreateDir(Path.Combine(rootPath, "screenshots"));
-            CreateDir(Path.Combine(rootPath, "logs"));
+            string[] folders = { "mods", "config", "saves", "resourcepacks", "shaderpacks", "screenshots", "logs" };
+            foreach (var folder in folders) CreateDir(Path.Combine(rootPath, folder));
         }
 
         private void CreateDir(string path)
@@ -145,14 +121,8 @@ namespace Launcher.Core.Services.IO
             if (Directory.Exists(linkPath)) return;
             if (!Directory.Exists(targetPath)) Directory.CreateDirectory(targetPath);
 
-            try
-            {
-                JunctionHelper.CreateJunctionSimple(linkPath, targetPath);
-            }
-            catch 
-            {
-                CreateDir(linkPath);
-            }
+            try { JunctionHelper.CreateJunctionSimple(linkPath, targetPath); }
+            catch { CreateDir(linkPath); }
         }
     }
 }

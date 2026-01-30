@@ -1,5 +1,7 @@
-
+using System;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Threading.Tasks;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.ProcessBuilder;
@@ -23,8 +25,7 @@ namespace Launcher.Core.Services.Game
         private readonly IInstanceFileSystemService _fileService;
         private readonly HttpClient _httpClient;
 
-        public LaunchService(
-            IInstanceFileSystemService fileService)
+        public LaunchService(IInstanceFileSystemService fileService)
         {
             _fileService = fileService;
             _httpClient = new HttpClient(); 
@@ -35,13 +36,22 @@ namespace Launcher.Core.Services.Game
             if (instance == null) throw new ArgumentNullException(nameof(instance));
             if (account == null) throw new ArgumentNullException(nameof(account));
 
-            var globalPath = _fileService.GetGlobalMinecraftPath();
+            // 1. Определяем путь запуска (куда игра будет писать конфиги)
             var instancePath = _fileService.PrepareInstance(instance); 
+            
+            // 2. Определяем путь хранилища (откуда качать библиотеки/ассеты)
+            // Если режим Global — качаем прямо в %APPDATA%. Если нет — в портативную папку.
+            var storagePath = (instance.IsolationType == IsolationType.Global) 
+                ? instancePath 
+                : _fileService.GetGlobalMinecraftPath();
 
-            var globalMinecraftPath = new MinecraftPath(globalPath);
-            var launcher = new MinecraftLauncher(globalMinecraftPath);
+            var storageMinecraftPath = new MinecraftPath(storagePath);
+            
+            // Use shared runtime folder even for Global isolation
+            storageMinecraftPath.Runtime = Path.Combine(_fileService.GetGlobalMinecraftPath(), "runtime");
 
-            // Оставляем прогресс для файлов
+            var launcher = new MinecraftLauncher(storageMinecraftPath);
+
             launcher.FileProgressChanged += (sender, args) =>
             {
                 if (args.TotalTasks > 0)
@@ -51,90 +61,67 @@ namespace Launcher.Core.Services.Game
                 }
             };
 
-            // --- ПЛАН Б: ЗАКОММЕНТИРУЙ ЭТОТ ВЫЗОВ ---
-            // var javaPath = await _javaService.GetJavaPathForInstanceAsync(instance, progress);
-            
+            // 3. Получаем версию
             IVersion versionToLaunch;
             if (instance.LoaderType == GameLoaderType.Vanilla)
                 versionToLaunch = await launcher.GetVersionAsync(instance.GameVersion);
             else
                 versionToLaunch = await InstallLoaderAsync(launcher, instance);
 
+            // 4. Настройка опций запуска
             var launchOption = new MLaunchOption
             {
                 MaximumRamMb = 4096, 
                 Session = new MSession(account.Username, account.AccessToken, account.UUID),
                 
-                // --- ПЛАН Б: УДАЛИ ИЛИ ЗАКОММЕНТИРУЙ ЭТУ СТРОКУ ---
-                // JavaPath = javaPath, 
-                
+                // Путь запуска (BaseDir) — это папка инстанса.
+                // Остальные пути (Assets, Library и т.д.) перенаправляем на хранилище.
                 Path = new MinecraftPath(instancePath) 
                 {
-                    Assets = globalMinecraftPath.Assets,
-                    Library = globalMinecraftPath.Library,
-                    Runtime = globalMinecraftPath.Runtime,
-                    Versions = globalMinecraftPath.Versions
+                    Assets = storageMinecraftPath.Assets,
+                    Library = storageMinecraftPath.Library,
+                    Runtime = storageMinecraftPath.Runtime,
+                    Versions = storageMinecraftPath.Versions
                 },
                 VersionType = instance.LoaderType.ToString(),
                 GameLauncherName = "Launcher"
             };
 
-            // Метод InstallAndBuildProcessAsync сам должен обнаружить отсутствие Java 
-            // и запустить встроенный экстрактор.
-            // Используйте этот метод, если хотите полный контроль
+            // 5. Создание процесса
             var process = await launcher.InstallAndBuildProcessAsync(versionToLaunch.Id, launchOption);
 
-            // ВКЛЮЧАЕМ ПЕРЕХВАТ ЛОГОВ
+            // Настройка логирования
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
 
-            process.OutputDataReceived += (s, e) => {
-                if (!string.IsNullOrEmpty(e.Data))
-                    Console.WriteLine($"[GAME OUT] {e.Data}");
-            };
-            process.ErrorDataReceived += (s, e) => {
-                if (!string.IsNullOrEmpty(e.Data))
-                    Console.WriteLine($"[GAME ERR] {e.Data}");
-            };
+            process.OutputDataReceived += (s, e) => { if (!string.IsNullOrEmpty(e.Data)) Console.WriteLine($"[GAME OUT] {e.Data}"); };
+            process.ErrorDataReceived += (s, e) => { if (!string.IsNullOrEmpty(e.Data)) Console.WriteLine($"[GAME ERR] {e.Data}"); };
 
-            process.Start(); // Начинаем чтение
+            process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
+
             return process;
         }
 
         private async Task<IVersion> InstallLoaderAsync(MinecraftLauncher launcher, MinecraftInstance instance)
         {
             var mcVersion = instance.GameVersion;
-
             switch (instance.LoaderType)
             {
                 case GameLoaderType.Forge:
-                {
                     var forge = new ForgeInstaller(launcher); 
-                    var versionName = await forge.Install(mcVersion);
-                    return await launcher.GetVersionAsync(versionName);
-                }
+                    return await launcher.GetVersionAsync(await forge.Install(mcVersion));
                 case GameLoaderType.Fabric:
-                {
-                    // FabricInstaller требует HttpClient
                     var fabric = new FabricInstaller(_httpClient);
-                    var versionName = await fabric.Install(mcVersion, launcher.MinecraftPath);
-                    return await launcher.GetVersionAsync(versionName);
-                }
+                    return await launcher.GetVersionAsync(await fabric.Install(mcVersion, launcher.MinecraftPath));
                 case GameLoaderType.NeoForge:
-                {
                     var neo = new NeoForgeInstaller(launcher);
-                    var versionName = await neo.Install(mcVersion);
-                    return await launcher.GetVersionAsync(versionName);
-                }
+                    return await launcher.GetVersionAsync(await neo.Install(mcVersion));
                 case GameLoaderType.Quilt:
-                {
                     var quilt = new QuiltInstaller(_httpClient);
-                    var versionName = await quilt.Install(mcVersion, launcher.MinecraftPath);
-                    return await launcher.GetVersionAsync(versionName);
-                }
+                    return await launcher.GetVersionAsync(await quilt.Install(mcVersion, launcher.MinecraftPath));
                 default:
                     return await launcher.GetVersionAsync(mcVersion);
             }
