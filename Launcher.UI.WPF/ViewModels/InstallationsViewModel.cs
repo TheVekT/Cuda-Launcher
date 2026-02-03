@@ -287,9 +287,11 @@ public class InstallationsViewModel : INotifyPropertyChanged
         
         _mainViewModel.Instances.Remove(instance);
         
+        _instanceFileSystemService.DeleteInstance(instance);
+        
         if (_mainViewModel.SelectedInstance == instance)
         {
-            _mainViewModel.Instances.FirstOrDefault();
+            _mainViewModel.SelectedInstance = _mainViewModel.Instances.FirstOrDefault();
         }
     }
 

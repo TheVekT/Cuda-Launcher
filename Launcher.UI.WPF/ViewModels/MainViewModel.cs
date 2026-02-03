@@ -35,10 +35,74 @@ public class MainViewModel : INotifyPropertyChanged
     private bool _isAddAccPageOpen;
     private string _userName = "Guest";
     private UserAccount _currentAccount;
+    // --- Свойства для статуса загрузки ---
+    private double _downloadProgress;
+    private string _downloadStatusText = "Initiating...";
+    private string _downloadPercentText = "0%";
+    private bool _isDownloading;
     
     public bool IsLoggedIn => CurrentAccount != null;
     public ObservableCollection<UserAccount> Accounts { get; set; } = new();
 
+    // 1. Свойство видимости (возвращает Visibility.Collapsed, если не качаем)
+    public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
+    public Boolean PlayButtonEnabled => !_isDownloading ;
+
+    // 2. Прогресс (0 - 100)
+    public double DownloadProgress
+    {
+        get => _downloadProgress;
+        set
+        {
+            if (Math.Abs(_downloadProgress - value) > 0.01)
+            {
+                _downloadProgress = value;
+                OnPropertyChanged(nameof(DownloadProgress));
+                DownloadPercentText = $"{value:0}%";
+            }
+        }
+    }
+    public bool IsDownloading
+    {
+        get => _isDownloading;
+        set
+        {
+            if (_isDownloading != value)
+            {
+                _isDownloading = value;
+                OnPropertyChanged(nameof(IsDownloading));
+                OnPropertyChanged(nameof(PlayButtonEnabled)); 
+                OnPropertyChanged(nameof(DownloadPanelVisibility)); 
+            }
+        }
+    }
+    // 3. Текст статуса (например "DOWNLOADING ASSETS")
+    public string DownloadStatusText
+    {
+        get => _downloadStatusText;
+        set
+        {
+            if (_downloadStatusText != value)
+            {
+                _downloadStatusText = value;
+                OnPropertyChanged(nameof(DownloadStatusText));
+            }
+        }
+    }
+
+    // 4. Текст процентов (отдельно для правого TextBlock)
+    public string DownloadPercentText
+    {
+        get => _downloadPercentText;
+        set
+        {
+            if (_downloadPercentText != value)
+            {
+                _downloadPercentText = value;
+                OnPropertyChanged(nameof(DownloadPercentText));
+            }
+        }
+    }
     // --- Свойства Инстансов (ЭТАП 1) ---
     public ObservableCollection<MinecraftInstance> Instances { get; set; } = new();
 
@@ -156,43 +220,46 @@ public class MainViewModel : INotifyPropertyChanged
         if (CurrentAccount == null) 
         {
             Console.WriteLine("No account selected!");
-            // Показать ошибку: "Войдите в аккаунт"
             return;
         }
 
         try
         {
-            Console.WriteLine("Starting game...");
-            // Показываем какой-то UI прогресса
-            // IsGameRunning = true; 
-        
+            IsDownloading = true;
+            OnPropertyChanged(nameof(DownloadPanelVisibility)); // Уведомляем UI, что видимость изменилась
+            DownloadStatusText = "Preparing...";
+            DownloadProgress = 0;
+
             var progress = new Progress<double>(p => 
             {
-                // Обновляем полоску загрузки во View
-                // LaunchProgress = p; 
-                // StatusText = $"Loading... {p:0}%";
+                // Обновляем данные UI
+                DownloadProgress = p;
+                
+                // Меняем текст в зависимости от этапа (опционально)
+                if (p < 100) DownloadStatusText = "Downloading files...";
+                else DownloadStatusText = "Finalizing...";
             });
             
             var process = await _launchService.LaunchGameAsync(SelectedInstance, CurrentAccount, progress);
+            
             Console.WriteLine("Game started!");
-            // Игра запустилась!
+            
+            // Ждем выхода, но панель загрузки скрываем сразу после старта
+            IsDownloading = false;
+            OnPropertyChanged(nameof(DownloadPanelVisibility)); // СКРЫВАЕМ ПАНЕЛЬ (станет Collapsed)
+
             // Можно скрыть лаунчер
             // Application.Current.MainWindow.Hide();
-        
-            process.WaitForExit();
-        
-            // Игра закрылась
+            
+            await process.WaitForExitAsync(); // Используйте асинхронное ожидание, если .NET позволяет
+            
             // Application.Current.MainWindow.Show();
         }
         catch (Exception ex)
         {
-            // Показать ошибку
             System.Diagnostics.Debug.WriteLine(ex);
-            // MessageBox.Show($"Ошибка запуска: {ex.Message}");
-        }
-        finally
-        {
-            // IsGameRunning = false;
+            IsDownloading = false;
+            OnPropertyChanged(nameof(DownloadPanelVisibility)); // Скрываем при ошибке
         }
     }
     

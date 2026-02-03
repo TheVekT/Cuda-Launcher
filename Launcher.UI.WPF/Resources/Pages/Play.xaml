@@ -35,8 +35,9 @@
                 <Border Padding="0">
                     <Grid
                         Margin="0,0,0,5"
-                        Visibility="Collapsed"
+                        Visibility="{Binding DownloadPanelVisibility}"
                         x:Name="DownloadInfoPanel">
+
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -51,7 +52,7 @@
                             <TextBlock
                                 FontSize="11"
                                 Foreground="{DynamicResource ForegroundOnAccentBrush}"
-                                Text="STATUS OF DOWNLOAD"
+                                Text="{Binding DownloadStatusText}"
                                 TextTrimming="CharacterEllipsis"
                                 x:Name="StatusText" />
 
@@ -61,7 +62,7 @@
                                 Foreground="{DynamicResource ForegroundOnAccentBrush}"
                                 Grid.Column="1"
                                 Margin="10,0,0,0"
-                                Text="45%"
+                                Text="{Binding DownloadPercentText}"
                                 x:Name="PercentText" />
                         </Grid>
 
@@ -73,7 +74,7 @@
                             Height="4"
                             Margin="6,0"
                             Maximum="100"
-                            Value="45"
+                            Value="{Binding DownloadProgress}"
                             x:Name="InstallProgressBar" />
 
                     </Grid>
@@ -84,6 +85,7 @@
                     FontSize="18"
                     Height="50"
                     HorizontalAlignment="Center"
+                    IsEnabled="{Binding PlayButtonEnabled}"
                     Style="{StaticResource AccentButtonStyle}"
                     Tag="{StaticResource Icon.Play}"
                     Width="200"
