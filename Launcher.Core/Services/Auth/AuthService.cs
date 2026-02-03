@@ -35,13 +35,14 @@ namespace Launcher.Core.Services.Auth
 
         public UserAccount LoginOffline(string nickname)
         {
-            // Логика генерации UUID перенесена сюда
-            string fakeUuid = Guid.NewGuid().ToString(); 
+            // Используем встроенный метод CmlLib для генерации правильной оффлайн-сессии.
+            // Он сам создаст UUID (на основе ника) и валидный фиктивный токен.
+            var offlineSession = MSession.CreateOfflineSession(nickname);
     
             return new UserAccount(
-                nickname, 
-                fakeUuid, 
-                token: string.Empty, 
+                offlineSession.Username, 
+                offlineSession.UUID, 
+                offlineSession.AccessToken, // <-- Тут теперь будет "access_token" или "0", а не null/empty
                 isOffline: true);
         }
     }
