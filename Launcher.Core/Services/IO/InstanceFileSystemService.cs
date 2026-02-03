@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Launcher.Core.Helpers;
 using Launcher.Core.Models;
 
@@ -20,13 +22,10 @@ namespace Launcher.Core.Services.IO
         public InstanceFileSystemService()
         {
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            // Путь для портативных инстансов: .../Data/Instances
             _instancesBasePath = Path.Combine(baseDir, "Data", "Instances");
-            // Путь для портативного хранилища (Warehouse): .../Data/Global
             _portableGlobalPath = Path.Combine(baseDir, "Data", "Global");
         }
 
-        // Возвращает путь к портативному хранилищу ресурсов
         public string GetGlobalMinecraftPath()
         {
             if (!Directory.Exists(_portableGlobalPath))
@@ -36,7 +35,6 @@ namespace Launcher.Core.Services.IO
             return _portableGlobalPath;
         }
 
-        // Возвращает путь к системному .minecraft в AppData
         private string GetExternalMinecraftPath()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraft");
@@ -47,7 +45,6 @@ namespace Launcher.Core.Services.IO
             switch (instance.IsolationType)
             {
                 case IsolationType.Global:
-                    // Используем системную папку напрямую
                     var externalPath = GetExternalMinecraftPath();
                     if (!Directory.Exists(externalPath)) Directory.CreateDirectory(externalPath);
                     return externalPath;
@@ -80,32 +77,66 @@ namespace Launcher.Core.Services.IO
         {
             var instancePath = Path.Combine(_instancesBasePath, instance.Id);
             CreateDir(instancePath);
-            CreateStandardGameFolders(instancePath);
+            // Для полной изоляции папки создаются пустыми
+            string[] basicFolders = { "mods", "config", "saves", "screenshots", "resourcepacks" };
+            foreach (var folder in basicFolders) CreateDir(Path.Combine(instancePath, folder));
             return instancePath;
         }
 
         private string PreparePartial(MinecraftInstance instance)
         {
             var instancePath = Path.Combine(_instancesBasePath, instance.Id);
-            var globalPath = GetGlobalMinecraftPath();
+            var sourcePath = GetExternalMinecraftPath();
 
             CreateDir(instancePath);
-            CreateStandardGameFolders(instancePath);
+            
+            CreateDir(Path.Combine(instancePath, "mods"));
 
-            // Создаем Junctions на общие папки данных
-            string[] foldersToLink = { "assets", "libraries", "versions", "runtime", "config", "saves", "resourcepacks", "shaderpacks" };
-            foreach (var folder in foldersToLink)
+            if (!Directory.Exists(sourcePath))
             {
-                LinkFolder(instancePath, globalPath, folder);
+                return instancePath;
+            }
+            
+            var exclusionList = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "assets", 
+                "libraries", 
+                "versions", 
+                "runtime", 
+                "runtimes",
+                "bin", 
+                "cache", 
+                "webcache",
+                "crash-reports",
+                "logs", 
+                "mods",
+                "launcher_profiles.json",
+                "launcher_accounts.json",
+            };
+
+
+            foreach (var dirPath in Directory.GetDirectories(sourcePath))
+            {
+                var dirName = new DirectoryInfo(dirPath).Name;
+
+                
+                if (exclusionList.Contains(dirName)) continue;
+
+                
+                LinkFolder(instancePath, sourcePath, dirName);
+            }
+
+            
+            foreach (var filePath in Directory.GetFiles(sourcePath))
+            {
+                var fileName = Path.GetFileName(filePath);
+
+                if (exclusionList.Contains(fileName)) continue;
+
+                LinkFile(instancePath, sourcePath, fileName);
             }
 
             return instancePath;
-        }
-
-        private void CreateStandardGameFolders(string rootPath)
-        {
-            string[] folders = { "mods", "config", "saves", "resourcepacks", "shaderpacks", "screenshots", "logs" };
-            foreach (var folder in folders) CreateDir(Path.Combine(rootPath, folder));
         }
 
         private void CreateDir(string path)
@@ -113,16 +144,45 @@ namespace Launcher.Core.Services.IO
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         }
 
-        private void LinkFolder(string instanceRoot, string globalRoot, string folderName)
+        private void LinkFolder(string instanceRoot, string sourceRoot, string folderName)
         {
             var linkPath = Path.Combine(instanceRoot, folderName);
-            var targetPath = Path.Combine(globalRoot, folderName);
+            var targetPath = Path.Combine(sourceRoot, folderName);
 
             if (Directory.Exists(linkPath)) return;
-            if (!Directory.Exists(targetPath)) Directory.CreateDirectory(targetPath);
+            if (!Directory.Exists(targetPath)) return; 
 
-            try { JunctionHelper.CreateJunctionSimple(linkPath, targetPath); }
-            catch { CreateDir(linkPath); }
+            try 
+            { 
+                JunctionHelper.CreateJunctionSimple(linkPath, targetPath); 
+            }
+            catch (Exception ex)
+            { 
+                System.Diagnostics.Debug.WriteLine($"Failed to link folder {folderName}: {ex.Message}");
+                CreateDir(linkPath); 
+            }
+        }
+
+        private void LinkFile(string instanceRoot, string sourceRoot, string fileName)
+        {
+            var linkPath = Path.Combine(instanceRoot, fileName);
+            var targetPath = Path.Combine(sourceRoot, fileName);
+
+            if (File.Exists(linkPath)) return;
+            if (!File.Exists(targetPath)) return;
+
+            try
+            {
+                File.CreateSymbolicLink(linkPath, targetPath);
+            }
+            catch
+            {
+                try 
+                {
+                    File.Copy(targetPath, linkPath, true);
+                }
+                catch { /**/ }
+            }
         }
     }
 }
