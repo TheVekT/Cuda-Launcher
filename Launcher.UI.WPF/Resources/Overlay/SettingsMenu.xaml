@@ -16,6 +16,7 @@
     <UserControl.Resources>
         <helpers:StringFormatConverter x:Key="StringFormatConverter" />
         <helpers:InvertBoolConverter x:Key="BoolToBool" />
+        <helpers:InverseBooleanToVisibilityConverter x:Key="inverseBoolToVis" />
     </UserControl.Resources>
     <Grid Width="512">
         <Border
@@ -210,9 +211,9 @@
                         </StackPanel>
                         <StackPanel
                             Grid.Row="2"
-                            IsEnabled="{Binding IsChecked, ElementName=FullscreenModeCheckbox, Converter={StaticResource BoolToBool}}"
                             Margin="0,5"
-                            Orientation="Vertical">
+                            Orientation="Vertical"
+                            Visibility="{Binding IsChecked, ElementName=FullscreenModeCheckbox, Converter={StaticResource inverseBoolToVis}}">
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
                                     <Style.Triggers>
