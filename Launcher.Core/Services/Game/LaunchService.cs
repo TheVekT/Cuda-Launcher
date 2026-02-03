@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Linq; 
 using System.Net.Http;
 using System.Threading.Tasks;
 using CmlLib.Core;
@@ -36,18 +38,14 @@ namespace Launcher.Core.Services.Game
             if (instance == null) throw new ArgumentNullException(nameof(instance));
             if (account == null) throw new ArgumentNullException(nameof(account));
 
-            // 1. Определяем путь запуска (куда игра будет писать конфиги)
+            // 1. Пути
             var instancePath = _fileService.PrepareInstance(instance); 
             
-            // 2. Определяем путь хранилища (откуда качать библиотеки/ассеты)
-            // Если режим Global — качаем прямо в %APPDATA%. Если нет — в портативную папку.
             var storagePath = (instance.IsolationType == IsolationType.Global) 
                 ? instancePath 
                 : _fileService.GetGlobalMinecraftPath();
 
             var storageMinecraftPath = new MinecraftPath(storagePath);
-            
-            // Use shared runtime folder even for Global isolation
             storageMinecraftPath.Runtime = Path.Combine(_fileService.GetGlobalMinecraftPath(), "runtime");
 
             var launcher = new MinecraftLauncher(storageMinecraftPath);
@@ -68,14 +66,11 @@ namespace Launcher.Core.Services.Game
             else
                 versionToLaunch = await InstallLoaderAsync(launcher, instance);
 
-            // 4. Настройка опций запуска
+            // 4. Опции запуска
             var launchOption = new MLaunchOption
             {
                 MaximumRamMb = 4096, 
                 Session = new MSession(account.Username, account.AccessToken, account.UUID),
-                
-                // Путь запуска (BaseDir) — это папка инстанса.
-                // Остальные пути (Assets, Library и т.д.) перенаправляем на хранилище.
                 Path = new MinecraftPath(instancePath) 
                 {
                     Assets = storageMinecraftPath.Assets,
@@ -90,7 +85,6 @@ namespace Launcher.Core.Services.Game
             // 5. Создание процесса
             var process = await launcher.InstallAndBuildProcessAsync(versionToLaunch.Id, launchOption);
 
-            // Настройка логирования
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
@@ -108,20 +102,54 @@ namespace Launcher.Core.Services.Game
         private async Task<IVersion> InstallLoaderAsync(MinecraftLauncher launcher, MinecraftInstance instance)
         {
             var mcVersion = instance.GameVersion;
+            
             switch (instance.LoaderType)
             {
                 case GameLoaderType.Forge:
                     var forge = new ForgeInstaller(launcher); 
                     return await launcher.GetVersionAsync(await forge.Install(mcVersion));
+
                 case GameLoaderType.Fabric:
                     var fabric = new FabricInstaller(_httpClient);
                     return await launcher.GetVersionAsync(await fabric.Install(mcVersion, launcher.MinecraftPath));
+
                 case GameLoaderType.NeoForge:
                     var neo = new NeoForgeInstaller(launcher);
-                    return await launcher.GetVersionAsync(await neo.Install(mcVersion));
+                    
+                    // 1. Получаем список всех версий
+                    var neoVersions = await neo.GetForgeVersions(mcVersion);
+                    
+                    // 2. Формируем префикс (например "1.21.1" -> "21.1.")
+                    string requiredPrefix = mcVersion.StartsWith("1.") ? mcVersion.Substring(2) + "." : mcVersion + ".";
+
+                    // 3. Фильтрация и умная сортировка
+                    var bestNeo = neoVersions
+                        .Where(v => v.VersionName.StartsWith(requiredPrefix)) // Отсекаем версии других патчей (21.10 для 1.21.1)
+                        .Select(v => 
+                        {
+                            bool isParsed = Version.TryParse(v.VersionName, out var parsedVer);
+                            return new { Original = v, Parsed = parsedVer, IsValid = isParsed };
+                        })
+                        .Where(x => x.IsValid)
+                        .OrderByDescending(x => x.Parsed) // Сортируем как числа (21.1.200 > 21.1.9)
+                        .FirstOrDefault();
+
+                    string installedNeoId;
+                    if (bestNeo != null)
+                    {
+                        installedNeoId = await neo.Install(mcVersion, bestNeo.Original.VersionName);
+                    }
+                    else
+                    {
+                        installedNeoId = await neo.Install(mcVersion);
+                    }
+                    
+                    return await launcher.GetVersionAsync(installedNeoId);
+
                 case GameLoaderType.Quilt:
                     var quilt = new QuiltInstaller(_httpClient);
                     return await launcher.GetVersionAsync(await quilt.Install(mcVersion, launcher.MinecraftPath));
+
                 default:
                     return await launcher.GetVersionAsync(mcVersion);
             }
