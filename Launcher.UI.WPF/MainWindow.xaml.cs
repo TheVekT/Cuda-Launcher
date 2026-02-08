@@ -40,9 +40,13 @@ public partial class MainWindow : Window
 
     private void MainFrame_Navigated(object sender, NavigationEventArgs e)
     {
-        if (e.Content is Installations installationsPage)
+        if (DataContext is MainViewModel mainVM)
         {
-            if (DataContext is MainViewModel mainVM)
+            bool isPlayPage = e.Uri != null && e.Uri.OriginalString.Contains("Play.xaml", StringComparison.OrdinalIgnoreCase);
+            
+            mainVM.ShowCompactPlayButton = !isPlayPage;
+            
+            if (e.Content is Installations installationsPage)
             {
                 installationsPage.DataContext = mainVM.InstallationsVM;
             }

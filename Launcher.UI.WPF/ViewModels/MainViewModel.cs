@@ -30,6 +30,7 @@ public class MainViewModel : INotifyPropertyChanged
     private object _currentOverlayView;
     private string _currentThemePath = "/Assets/Themes/default-dark.xaml";
 
+    private bool _showCompactPlayButton;
     // --- Свойства Аккаунта ---
     private bool _isLoggingIn;
     private bool _isAddAccPageOpen;
@@ -47,6 +48,18 @@ public class MainViewModel : INotifyPropertyChanged
     // 1. Свойство видимости (возвращает Visibility.Collapsed, если не качаем)
     public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
     public Boolean PlayButtonEnabled => !_isDownloading ;
+    public bool ShowCompactPlayButton
+    {
+        get => _showCompactPlayButton;
+        set
+        {
+            if (_showCompactPlayButton != value)
+            {
+                _showCompactPlayButton = value;
+                OnPropertyChanged(nameof(ShowCompactPlayButton));
+            }
+        }
+    }
 
     // 2. Прогресс (0 - 100)
     public double DownloadProgress

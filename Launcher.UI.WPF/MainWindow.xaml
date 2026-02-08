@@ -243,13 +243,15 @@
                                         Width="300"
                                         helpers:ComboBoxHelper.PopupPlacement="Top" />
                                     <Button
+                                        Command="{Binding LaunchCommand}"
                                         FontSize="16"
                                         Height="35"
                                         HorizontalAlignment="Center"
+                                        IsEnabled="{Binding PlayButtonEnabled}"
                                         Margin="6,0,0,0"
                                         Style="{StaticResource AccentButtonStyle}"
                                         Tag="{StaticResource Icon.Play}"
-                                        Visibility="Collapsed"
+                                        Visibility="{Binding ShowCompactPlayButton, Converter={StaticResource BoolToVis}}"
                                         Width="35"
                                         x:Name="PlayButtonCompact" />
                                 </StackPanel>
