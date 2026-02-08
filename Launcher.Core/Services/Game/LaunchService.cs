@@ -95,7 +95,9 @@ namespace Launcher.Core.Services.Game
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-
+            
+            instance.LastPlayedDate = DateTime.Now;
+            Console.WriteLine($"Launched instance at time: {instance.LastPlayedDate}");
             return process;
         }
 

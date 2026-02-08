@@ -44,6 +44,7 @@ public class MainViewModel : INotifyPropertyChanged
     
     public bool IsLoggedIn => CurrentAccount != null;
     public ObservableCollection<UserAccount> Accounts { get; set; } = new();
+    
 
     // 1. Свойство видимости (возвращает Visibility.Collapsed, если не качаем)
     public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
@@ -166,7 +167,6 @@ public class MainViewModel : INotifyPropertyChanged
         _instanceFileSystemService = instanceFileSystemService;
         _launchService = launchService;
         
-        
         // 1. Загрузка аккаунтов
         LoadSavedAccounts();
         
@@ -260,7 +260,7 @@ public class MainViewModel : INotifyPropertyChanged
             // Ждем выхода, но панель загрузки скрываем сразу после старта
             IsDownloading = false;
             OnPropertyChanged(nameof(DownloadPanelVisibility)); // СКРЫВАЕМ ПАНЕЛЬ (станет Collapsed)
-
+            _instanceService.SaveInstances(Instances);
             // Можно скрыть лаунчер
             // Application.Current.MainWindow.Hide();
             

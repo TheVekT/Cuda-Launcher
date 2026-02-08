@@ -282,4 +282,70 @@ namespace Launcher.UI.WPF.Helpers
             return Binding.DoNothing;
         }
     }
+    
+    public class TimeAgoConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // 1. Обработка null (Если игры никогда не запускались)
+            if (value == null)
+                return "Never"; // Ты писал "Newer", но по смыслу LastPlayed это "Never" (Никогда)
+
+            // 2. Проверка типа
+            if (value is not DateTime date)
+                return "Never";
+
+            // Если дата "минимальная" (дефолтная), считаем что не играли
+            if (date == DateTime.MinValue)
+                return "Never";
+
+            var timeSpan = DateTime.Now - date;
+
+            // 3. Логика "Сколько времени прошло"
+            
+            // Меньше минуты
+            if (timeSpan.TotalSeconds < 60)
+                return "just now";
+
+            // Меньше часа (минуты)
+            if (timeSpan.TotalMinutes < 60)
+                return $"{timeSpan.Minutes} min. ago";
+
+            // Меньше суток (часы)
+            if (timeSpan.TotalHours < 24)
+            {
+                // Можно добавить логику для "1 hr." vs "2 hrs.", но обычно сокращения hr. достаточно
+                return $"{timeSpan.Hours} hr. ago";
+            }
+
+            // Меньше 48 часов (вчера / 1 день назад)
+            if (timeSpan.TotalDays < 2)
+                return "1 day ago";
+
+            // Меньше месяца (дни)
+            if (timeSpan.TotalDays < 30)
+                return $"{timeSpan.Days} days ago";
+
+            // Меньше года (месяцы)
+            if (timeSpan.TotalDays < 365)
+            {
+                int months = (int)(timeSpan.TotalDays / 30);
+                return months <= 1 ? "1 month ago" : $"{months} months ago";
+            }
+
+            // Больше года
+            // Если чуть больше года
+            if (timeSpan.TotalDays < 730) // меньше 2 лет
+                return "over a year ago";
+            
+            // Если много лет
+            int years = (int)(timeSpan.TotalDays / 365);
+            return $"{years} years ago";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

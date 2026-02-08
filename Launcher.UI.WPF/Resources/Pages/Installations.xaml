@@ -16,6 +16,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Page.Resources>
+        <helpers:TimeAgoConverter x:Key="TimeAgoConverter" />
+    </Page.Resources>
     <Grid>
         <Grid Margin="130,24,130,0">
             <Grid.RowDefinitions>
@@ -115,7 +118,7 @@
                                 helpers:VersionElementHelper.GameVersion="{Binding GameVersion}"
                                 helpers:VersionElementHelper.Icon="{Binding IconPath}"
                                 helpers:VersionElementHelper.Instance="{Binding}"
-                                helpers:VersionElementHelper.LastPlayed="Never"
+                                helpers:VersionElementHelper.LastPlayed="{Binding LastPlayedDate, Converter={StaticResource TimeAgoConverter}}"
                                 helpers:VersionElementHelper.ModLoader="{Binding LoaderType}"
                                 helpers:VersionElementHelper.VersionName="{Binding Name}" />
                         </DataTemplate>
