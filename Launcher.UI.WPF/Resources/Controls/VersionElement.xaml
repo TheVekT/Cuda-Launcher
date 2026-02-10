@@ -10,7 +10,8 @@
     <Grid
         Height="60"
         Margin="0,5,0,0"
-        VerticalAlignment="Top">
+        VerticalAlignment="Top"
+        x:Name="VersionCard">
         <Border
             Background="{DynamicResource BackgroundLowTransparentBrush}"
             BorderBrush="{DynamicResource BorderPrimaryBrush}"
@@ -62,8 +63,37 @@
                 </Grid>
                 <StackPanel
                     Grid.Column="2"
+                    Opacity="0"
                     Orientation="Horizontal"
                     VerticalAlignment="Center">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=VersionCard}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Duration="0:0:0.2"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    To="1" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Duration="0:0:0.2"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    To="0" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
                     <Button
                         Foreground="{DynamicResource ForegroundSecondaryBrush}"
                         Height="35"

@@ -54,7 +54,6 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand CloseOverlayCommand { get; }
     public ICommand OpenSettingsCommand { get; }
     public ICommand OpenLoginCommand { get; }
-    public ICommand SelectAccountCommand { get; }
     public ICommand NavigateCommand { get; }
     
     //public attributes
@@ -97,7 +96,7 @@ public class MainViewModel : INotifyPropertyChanged
         _playVM = new PlayViewModel();
         _installationsVM = new InstallationsViewModel(versionService, instanceService, instancesStore, appStore);
         _skinsVM = new SkinsViewModel();
-        _loginVM = new LoginVM(_authService, _loginStore);
+        _loginVM = new LoginVM(_authService, _accountStorage,_loginStore);
         _settingsVM = new SettingsVM(_settingsStore);
         
         
@@ -118,15 +117,6 @@ public class MainViewModel : INotifyPropertyChanged
             }
         });
         CurrentView = PlayVM;
-        
-        SelectAccountCommand = new RelayCommand(o => 
-        {
-            if (o is UserAccount account)
-            {
-                _loginStore.CurrentAccount = account;
-                _accountStorage.SaveAccounts(_loginStore.Accounts); 
-            }
-        });
         
         OpenSettingsCommand = new RelayCommand(o =>
         {

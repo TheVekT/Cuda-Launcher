@@ -11,6 +11,7 @@ namespace Launcher.UI.WPF.ViewModels{
     {
         //Services
         private readonly IAuthService _authService;
+        private readonly IAccountStorageService _accountStorage;
         //Stores
         private readonly LoginStore _loginStore;
         //Attributes
@@ -23,16 +24,17 @@ namespace Launcher.UI.WPF.ViewModels{
         //Commands
         public ICommand MicrosoftLoginCommand { get; }
         public ICommand OfflineLoginCommand { get; }
-        
+        public ICommand SelectAccountCommand { get; }
         public ICommand CloseSelfCommand { get; }
         public ICommand AddNewAccountCommand { get; }
 
         public int _accountCount = 0;
 
 
-        public LoginVM(IAuthService authService, LoginStore loginStore)
+        public LoginVM(IAuthService authService, IAccountStorageService accountStorage,LoginStore loginStore)
         {
             _authService = authService;
+            _accountStorage = accountStorage;
             _loginStore = loginStore;
             
             AccountCount = _loginStore.Accounts.Count;
@@ -44,6 +46,15 @@ namespace Launcher.UI.WPF.ViewModels{
             CloseSelfCommand = new RelayCommand(o => RequestClose?.Invoke());
             
             AddNewAccountCommand = new RelayCommand(o => IsAddAccPageOpen = true); 
+            
+            SelectAccountCommand = new RelayCommand(o => 
+            {
+                if (o is UserAccount account)
+                {
+                    _loginStore.CurrentAccount = account;
+                    _accountStorage.SaveAccounts(_loginStore.Accounts); 
+                }
+            });
             
             _loginStore.Accounts.CollectionChanged += (s, e) => 
             {
@@ -57,6 +68,9 @@ namespace Launcher.UI.WPF.ViewModels{
             if (o is string nickname && !string.IsNullOrWhiteSpace(nickname))
             {
                 var account = _authService.LoginOffline(nickname);
+                
+                _loginStore.RegisterLogin(account); 
+                
                 RequestClose?.Invoke();
             }
         }

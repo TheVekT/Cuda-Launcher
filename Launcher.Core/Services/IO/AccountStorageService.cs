@@ -1,43 +1,52 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq; 
 using System.Text.Json;
+using Launcher.Core.Helpers; 
 using Launcher.Core.Models;
 
 namespace Launcher.Core.Services.IO
 {
+    // ИСПРАВЛЕНИЕ 1: class -> interface
     public interface IAccountStorageService
     {
         void SaveAccounts(IEnumerable<UserAccount> accounts);
         List<UserAccount> LoadAccounts();
     }
 
+    // Теперь класс наследует интерфейс корректно
     public class AccountStorageService : IAccountStorageService
     {
-        private readonly string _userDataPath; // Путь к папке Data/UserData
+        private readonly string _userDataPath;
         private readonly string _filePath;
 
         public AccountStorageService()
         {
-            // Формируем путь: .../Data/UserData
             _userDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "UserData");
             _filePath = Path.Combine(_userDataPath, "accounts.json");
         }
 
         public void SaveAccounts(IEnumerable<UserAccount> accounts)
         {
-            // Создаем папку Data/UserData, если нет
-            if (!Directory.Exists(_userDataPath))
-            {
-                Directory.CreateDirectory(_userDataPath);
-            }
+            if (!Directory.Exists(_userDataPath)) Directory.CreateDirectory(_userDataPath);
 
             try 
             {
-                var json = JsonSerializer.Serialize(accounts, new JsonSerializerOptions 
-                { 
-                    WriteIndented = true 
-                });
+                var accountsToSave = accounts.Select(acc => new UserAccount
+                {
+                    Username = acc.Username,
+                    UUID = acc.UUID,
+                    IsOffline = acc.IsOffline,
+                    IsSelected = acc.IsSelected,
+                    
+                    // Здесь ошибки пропадут, если исправить модель UserAccount (см. ниже)
+                    AccessToken = !acc.IsOffline 
+                        ? SecurityHelper.Protect(acc.AccessToken) 
+                        : acc.AccessToken
+                }).ToList();
+
+                var json = JsonSerializer.Serialize(accountsToSave, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_filePath, json);
             }
             catch (Exception ex)
@@ -48,16 +57,24 @@ namespace Launcher.Core.Services.IO
 
         public List<UserAccount> LoadAccounts()
         {
-            if (!File.Exists(_filePath))
-            {
-                return new List<UserAccount>();
-            }
+            if (!File.Exists(_filePath)) return new List<UserAccount>();
 
             try
             {
                 var json = File.ReadAllText(_filePath);
-                var accounts = JsonSerializer.Deserialize<List<UserAccount>>(json);
-                return accounts ?? new List<UserAccount>();
+                var loadedAccounts = JsonSerializer.Deserialize<List<UserAccount>>(json);
+
+                if (loadedAccounts == null) return new List<UserAccount>();
+
+                foreach (var acc in loadedAccounts)
+                {
+                    if (!acc.IsOffline)
+                    {
+                        var decryptedToken = SecurityHelper.Unprotect(acc.AccessToken);
+                        acc.AccessToken = decryptedToken;
+                    }
+                }
+                return loadedAccounts;
             }
             catch (Exception ex)
             {

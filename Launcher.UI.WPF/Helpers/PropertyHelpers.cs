@@ -292,6 +292,19 @@ namespace Launcher.UI.WPF.Helpers
 
         public static void SetAccountType(DependencyObject element, AccountType value) =>
             element.SetValue(AccountTypeProperty, value);
+        
+        public static readonly DependencyProperty UseCommandProperty =
+            DependencyProperty.RegisterAttached("UseCommand", typeof(ICommand), typeof(AccountCardHelper), new PropertyMetadata(null));
+
+        public static void SetUseCommand(DependencyObject element, ICommand value) => element.SetValue(UseCommandProperty, value);
+        public static ICommand GetUseCommand(DependencyObject element) => (ICommand)element.GetValue(UseCommandProperty);
+
+        // 2. Свойство для ПАРАМЕТРА (чтобы передать сам аккаунт)
+        public static readonly DependencyProperty CommandParameterProperty =
+            DependencyProperty.RegisterAttached("CommandParameter", typeof(object), typeof(AccountCardHelper), new PropertyMetadata(null));
+
+        public static void SetCommandParameter(DependencyObject element, object value) => element.SetValue(CommandParameterProperty, value);
+        public static object GetCommandParameter(DependencyObject element) => element.GetValue(CommandParameterProperty);
     }
     
 }
