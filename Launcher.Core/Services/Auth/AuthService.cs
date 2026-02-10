@@ -8,6 +8,11 @@ using Launcher.Core.Models; // Необходимо для UserAccount
 
 namespace Launcher.Core.Services.Auth
 {
+    public interface IAuthService
+    {
+        Task<UserAccount> LoginWithMicrosoftAsync();
+        UserAccount LoginOffline(string nickname);
+    }
     public class AuthService : IAuthService
     {
         private const string ClientId = "00000000402b5328"; 

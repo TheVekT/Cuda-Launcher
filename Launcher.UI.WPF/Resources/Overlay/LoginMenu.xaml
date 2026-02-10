@@ -14,6 +14,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <helpers:AccountTypeToLocConverter x:Key="AccountTypeToLocConverter" />
+        <helpers:StringFormatConverter x:Key="StringFormatConverter" />
     </UserControl.Resources>
     <Grid Width="512">
         <Border
@@ -128,8 +129,15 @@
                                 FontSize="13"
                                 Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                 Grid.Column="0"
-                                Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Manager.AccountListTitle]}"
-                                VerticalAlignment="Center" />
+                                VerticalAlignment="Center">
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource StringFormatConverter}">
+                                        <Binding Path="[LoginMenu.Manager.AccountListTitle]" Source="{StaticResource Loc}" />
+
+                                        <Binding Path="AccountCount" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
                             <Button
                                 Command="{Binding AddNewAccountCommand}"
                                 Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Manager.AddAccountButton]}"

@@ -3,7 +3,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq; 
 using System.Threading.Tasks; 
-using System.Windows;   
+using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using Launcher.Core.Models; // Твоя модель MinecraftInstance
 using Launcher.Core.Services.Auth; 
@@ -36,6 +37,7 @@ public class MainViewModel : INotifyPropertyChanged
     private bool _isAddAccPageOpen;
     private string _userName = "Guest";
     private UserAccount _currentAccount;
+    public int _accountCount = 0;
     // --- Свойства для статуса загрузки ---
     private double _downloadProgress;
     private string _downloadStatusText = "Initiating...";
@@ -49,6 +51,19 @@ public class MainViewModel : INotifyPropertyChanged
     // 1. Свойство видимости (возвращает Visibility.Collapsed, если не качаем)
     public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
     public Boolean PlayButtonEnabled => !_isDownloading ;
+
+    public int AccountCount
+    {
+        get => _accountCount;
+        set {
+            if (_accountCount != value)
+            {
+                _accountCount = value;
+                OnPropertyChanged(nameof(AccountCount));
+            }
+        }
+    }
+
     public bool ShowCompactPlayButton
     {
         get => _showCompactPlayButton;
@@ -167,11 +182,7 @@ public class MainViewModel : INotifyPropertyChanged
         _instanceFileSystemService = instanceFileSystemService;
         _launchService = launchService;
         
-        // 1. Загрузка аккаунтов
-        LoadSavedAccounts();
         
-        // 2. Загрузка инстансов (ЭТАП 1)
-        LoadSavedInstances();
 
         // Передаем this (MainViewModel), чтобы InstallationsVM мог добавлять инстансы в наш список
         InstallationsVM = new InstallationsViewModel(this, versionService, instanceService, instanceFileSystemService);
@@ -224,6 +235,17 @@ public class MainViewModel : INotifyPropertyChanged
         });
 
         CloseOverlayCommand = new RelayCommand(o => CurrentOverlayView = null);
+        
+        Accounts.CollectionChanged += (s, e) => 
+        {
+            AccountCount = Accounts.Count;
+        };
+        
+        // 1. Загрузка аккаунтов
+        LoadSavedAccounts();
+        
+        // 2. Загрузка инстансов (ЭТАП 1)
+        LoadSavedInstances();
     }
     
     private async Task LaunchCurrentInstance()
@@ -389,7 +411,7 @@ public class MainViewModel : INotifyPropertyChanged
         get => _currentOverlayView;
         set { _currentOverlayView = value; OnPropertyChanged(nameof(CurrentOverlayView)); IsOverlayVisible = _currentOverlayView != null; }
     }
-
+    
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
