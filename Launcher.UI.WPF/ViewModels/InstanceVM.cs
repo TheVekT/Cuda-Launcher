@@ -161,6 +161,8 @@ public class InstanceVM: INotifyPropertyChanged
         _instanceService.SaveInstances(_instancesStore.Instances);
         RequestClose?.Invoke();
         Debug.WriteLine($"Created instance: {finalName}");
+        _instancesStore.InvokeAddedInstance();
+        _instancesStore.SelectedInstance = newInstance;
     }
     
     
@@ -219,7 +221,6 @@ public class InstanceVM: INotifyPropertyChanged
         get
         {
             if (string.IsNullOrEmpty(SelectedGameVersion)) return "New Installation";
-            if (SelectedModLoader == "Vanilla") return $"Version {SelectedGameVersion}";
             return $"{SelectedModLoader} {SelectedGameVersion}";
         }
     }

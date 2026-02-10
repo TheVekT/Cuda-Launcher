@@ -12,18 +12,15 @@ public class InstancesStore: INotifyPropertyChanged
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly IInstanceService _instanceService;
     
+    //Attributes
     private MinecraftInstance _selectedInstance;
     
-    
+    //Collections
     public ObservableCollection<MinecraftInstance> Instances { get; set; } = new();
-
     
-    public ObservableCollection<IsolationType> IsolationTypes { get; } = new()
-    {
-        IsolationType.Global,
-        IsolationType.Full,
-        IsolationType.Partial
-    };
+    //Events
+    public event Action AddedInstance;
+
     
     public InstancesStore(IInstanceFileSystemService instanceFileSystemService, IInstanceService instanceService)
     {
@@ -32,6 +29,8 @@ public class InstancesStore: INotifyPropertyChanged
         
         LoadSavedInstances();
     }
+    
+    public void InvokeAddedInstance() => AddedInstance?.Invoke();
     
     private void LoadSavedInstances()
     {
@@ -44,18 +43,20 @@ public class InstancesStore: INotifyPropertyChanged
         
         if (Instances.Count > 0) SelectedInstance = Instances[0];
     }
-
+    
     public void DeleteInstance(MinecraftInstance instance)
     {
+        bool wasSelected = (SelectedInstance == instance);
+        
         _instanceService.DeleteInstance(instance.Id);
         
         Instances.Remove(instance);
         
         _instanceFileSystemService.DeleteInstance(instance);
         
-        if (SelectedInstance == instance)
+        if (wasSelected)
         {
-            SelectedInstance = Instances.FirstOrDefault();
+            SelectedInstance = Instances.FirstOrDefault() ;
         }
     }
     

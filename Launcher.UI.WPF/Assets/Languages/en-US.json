@@ -75,7 +75,6 @@
     "AddInstallation.ModLoaderLabel": "Mod Loader",
     "AddInstallation.InstallationIconLabel": "Installation Icon",
     "AddInstallation.InstallationIconUpload": "Upload custom icon",
-    "AddInstallation.VanillaModLoaderOption": "Vanilla",
     "AddInstallation.IsolationTitle":"Game Folder Settings",
     "AddInstallation.IsolationDescription":"Configure how game files will be organized for this version",
     "AddInstallation.OptionNoIsolation":"Use Global Folder",

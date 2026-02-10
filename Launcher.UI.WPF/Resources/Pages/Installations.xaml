@@ -89,9 +89,10 @@
                     </Border>
                     <ComboBox
                         Grid.Column="1"
-                        SelectedIndex="0"
+                        SelectedIndex="{Binding SelectedSortIndex}"
                         Style="{StaticResource DefaultComboBox}"
                         Width="180">
+
                         <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.LastPlayed]}" />
                         <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.Name]}" />
                         <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.GameVersion]}" />

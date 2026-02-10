@@ -59,8 +59,8 @@
                             SelectedValue="{Binding SelectedModLoader}"
                             SelectedValuePath="Content"
                             Style="{StaticResource LoaderComboBox}">
-                            <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.VanillaModLoaderOption]}" Tag="/Assets/Icons/150px-Grass_Block_JE7_BE6.png" />
-                            <ComboBoxItem Content="OptiFine" Tag="/Assets/Icons/optifine-default.png" />
+                            <ComboBoxItem Content="Vanilla" Tag="/Assets/Icons/150px-Grass_Block_JE7_BE6.png" />
+                            <!-- <ComboBoxItem Content="OptiFine" Tag="/Assets/Icons/optifine-default.png" /> -->
                             <ComboBoxItem Content="Forge" Tag="/Assets/Icons/forge-default.png" />
                             <ComboBoxItem Content="NeoForge" Tag="/Assets/Icons/neoforge-default.png" />
                             <ComboBoxItem Content="Fabric" Tag="/Assets/Icons/fabric-default.png" />

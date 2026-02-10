@@ -30,6 +30,9 @@ public class InstallationsViewModel : INotifyPropertyChanged
     public ICommand DeleteInstanceCommand { get; }
     public ICommand OpenAddVersionCommand { get; }
     
+    //Attributes
+    private int _selectedSortIndex;
+    
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
   
@@ -67,19 +70,75 @@ public class InstallationsViewModel : INotifyPropertyChanged
             };
             _appStore.CurrentOverlayView = menu;
         });
+        _instancesStore.AddedInstance += () =>
+        {
+            ApplySort();
+        };
+        ApplySort();
     }
 
+    private void ApplySort()
+    {
+        var lastSelectedInstance = _instancesStore.SelectedInstance;
+        // Берем текущие элементы
+        var items = _instancesStore.Instances.ToList();
+        IEnumerable<MinecraftInstance> sortedItems = null;
 
+        switch (_selectedSortIndex)
+        {
+            case 0: // Last Played (Сначала новые, null в конце)
+                sortedItems = items.OrderByDescending(x => x.LastPlayedDate.HasValue)
+                    .ThenByDescending(x => x.LastPlayedDate);
+                break;
 
+            case 1: // Name (А-Я)
+                sortedItems = items.OrderBy(x => x.Name);
+                break;
 
+            case 2: // Game Version (Сначала новые версии: 1.20 -> 1.8)
+                // Используем Version.TryParse, чтобы 1.10 было больше 1.2
+                sortedItems = items.OrderByDescending(x => 
+                {
+                    // Пытаемся распарсить версию, чтобы сортировать как числа, а не как текст
+                    if (Version.TryParse(x.GameVersion, out var v)) return v;
+                    return new Version(0, 0); // Если версия нестандартная, кидаем вниз
+                });
+                break;
+
+            case 3: // Mod Loader (Группировка по типу)
+                sortedItems = items.OrderBy(x => x.LoaderType.ToString())
+                    .ThenBy(x => x.GameVersion);
+                break;
+                
+            default:
+                return;
+        }
+        _instancesStore.Instances.Clear();
+        foreach (var item in sortedItems)
+        {
+            _instancesStore.Instances.Add(item);
+        }
+
+        _instancesStore.SelectedInstance = lastSelectedInstance;
+    }
+    
 
     
-    
-
-    
-
-    
-    
+    //Getters and setters
+    public int SelectedSortIndex
+    {
+        get => _selectedSortIndex;
+        set
+        {
+            if (_selectedSortIndex != value)
+            {
+                _selectedSortIndex = value;
+                OnPropertyChanged(nameof(SelectedSortIndex));
+                // Как только меняется выбор в ComboBox, запускаем сортировку
+                ApplySort();
+            }
+        }
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
