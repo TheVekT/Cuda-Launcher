@@ -22,35 +22,4 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
-    
-    private void NavRadio_Checked(object sender, RoutedEventArgs e)
-    {
-        if (sender is RadioButton rb && rb.Tag is string tag)
-        {
-            try
-            {
-                MainFrame.Source = new System.Uri(tag, System.UriKind.Relative);
-            }
-            catch
-            {
-                throw new NotImplementedException();
-            }
-        }
-    }
-
-    private void MainFrame_Navigated(object sender, NavigationEventArgs e)
-    {
-        if (DataContext is MainViewModel mainVM)
-        {
-            bool isPlayPage = e.Uri != null && e.Uri.OriginalString.Contains("Play.xaml", StringComparison.OrdinalIgnoreCase);
-            
-            mainVM.ShowCompactPlayButton = !isPlayPage;
-            
-            if (e.Content is Installations installationsPage)
-            {
-                installationsPage.DataContext = mainVM.InstallationsVM;
-            }
-        }
-    }
-
 }

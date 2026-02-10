@@ -1,9 +1,8 @@
-<Page
+<UserControl
     Background="Transparent"
     FontFamily="{DynamicResource GlobalFont}"
     MinHeight="450"
     MinWidth="900"
-    Title="{Binding Source={StaticResource Loc}, Path=[Installations.Title]}"
     d:DataContext="{d:DesignInstance Type=viewModels:InstallationsViewModel,
                                      IsDesignTimeCreatable=False}"
     mc:Ignorable="d"
@@ -12,13 +11,12 @@
     xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
-    xmlns:local="clr-namespace:Launcher.UI.WPF.Resources"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Page.Resources>
+    <UserControl.Resources>
         <helpers:TimeAgoConverter x:Key="TimeAgoConverter" />
-    </Page.Resources>
+    </UserControl.Resources>
     <Grid>
         <Grid Margin="130,24,130,0">
             <Grid.RowDefinitions>
@@ -103,7 +101,7 @@
 
             </Grid>
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
-                <ItemsControl ItemsSource="{Binding Instances}">
+                <ItemsControl ItemsSource="{Binding InstancesStore.Instances}">
 
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -128,4 +126,4 @@
             </ScrollViewer>
         </Grid>
     </Grid>
-</Page>
+</UserControl>

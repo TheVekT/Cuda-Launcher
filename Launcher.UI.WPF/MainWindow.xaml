@@ -16,12 +16,24 @@
     xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
-    xmlns:local="clr-namespace:Launcher.UI.WPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:overlays="clr-namespace:Launcher.UI.WPF.Resources.Overlay"
+    xmlns:pages="clr-namespace:Launcher.UI.WPF.Resources.Pages"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewModels:PlayViewModel}">
+            <pages:Play />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:InstallationsViewModel}">
+            <pages:Installations />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:SkinsViewModel}">
+            <pages:Skins />
+        </DataTemplate>
+    </Window.Resources>
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome
             CaptionHeight="1"
@@ -32,7 +44,7 @@
     </shell:WindowChrome.WindowChrome>
     <Grid>
         <Grid.LayoutTransform>
-            <ScaleTransform ScaleX="{Binding UiScale}" ScaleY="{Binding UiScale}" />
+            <ScaleTransform ScaleX="{Binding SettingsVM.SettingsStore.UiScale}" ScaleY="{Binding SettingsVM.SettingsStore.UiScale}" />
         </Grid.LayoutTransform>
         <Grid x:Name="MainPanel">
             <Grid.RowDefinitions>
@@ -79,12 +91,12 @@
                                 Orientation="Horizontal"
                                 x:Name="NavContainer">
                                 <RadioButton
-                                    Checked="NavRadio_Checked"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Play"
                                     Height="30"
                                     IsChecked="True"
                                     Padding="10,0"
                                     Style="{StaticResource NavRadioButtonStyle}"
-                                    Tag="Resources/Pages/Play.xaml"
                                     x:Name="PlayRadio">
                                     <RadioButton.Content>
                                         <StackPanel Orientation="Horizontal">
@@ -108,12 +120,12 @@
                                 </RadioButton>
 
                                 <RadioButton
-                                    Checked="NavRadio_Checked"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Installations"
                                     Height="30"
                                     Margin="6,0,0,0"
                                     Padding="10,0"
                                     Style="{StaticResource NavRadioButtonStyle}"
-                                    Tag="Resources/Pages/Installations.xaml"
                                     x:Name="InstallationsRadio">
                                     <RadioButton.Content>
                                         <StackPanel Orientation="Horizontal">
@@ -137,12 +149,12 @@
                                 </RadioButton>
 
                                 <RadioButton
-                                    Checked="NavRadio_Checked"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Skins"
                                     Height="30"
                                     Margin="6,0,0,0"
                                     Padding="10,0"
                                     Style="{StaticResource NavRadioButtonStyle}"
-                                    Tag="Resources/Pages/Skins.xaml"
                                     x:Name="SkinsRadio">
                                     <RadioButton.Content>
                                         <StackPanel Orientation="Horizontal">
@@ -181,8 +193,11 @@
                                         <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
                                         <Style.Triggers>
 
-                                            <DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
-                                                <Setter Property="Content" Value="{Binding CurrentAccount.Username}" />
+                                            <DataTrigger Binding="{Binding LoginVM.LoginStore.IsLoggedIn}" Value="True">
+                                                <Setter Property="Content" Value="{Binding LoginVM.LoginStore.UserName}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding LoginVM.LoginStore.IsLoggedIn}" Value="False">
+                                                <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -237,8 +252,8 @@
                                         Height="35"
                                         ItemContainerStyle="{StaticResource InstanceItemContainerStyle}"
                                         ItemTemplate="{StaticResource InstanceDataTemplate}"
-                                        ItemsSource="{Binding Instances}"
-                                        SelectedItem="{Binding SelectedInstance}"
+                                        ItemsSource="{Binding InstallationsVM.InstancesStore.Instances}"
+                                        SelectedItem="{Binding InstallationsVM.InstancesStore.SelectedInstance}"
                                         Style="{StaticResource InstanceComboBox}"
                                         Width="300"
                                         helpers:ComboBoxHelper.PopupPlacement="Top" />
@@ -247,7 +262,7 @@
                                         FontSize="16"
                                         Height="35"
                                         HorizontalAlignment="Center"
-                                        IsEnabled="{Binding PlayButtonEnabled}"
+                                        IsEnabled="{Binding PlayVM.PlayButtonEnabled}"
                                         Margin="6,0,0,0"
                                         Style="{StaticResource AccentButtonStyle}"
                                         Tag="{StaticResource Icon.Play}"
@@ -280,19 +295,14 @@
                         </Border>
                     </Grid>
                     <Grid Grid.Row="0" x:Name="TabsContainer">
-                        <Frame
-                            Navigated="MainFrame_Navigated"
-                            NavigationUIVisibility="Hidden"
-                            Panel.ZIndex="10"
-                            Source="Resources/Pages/Play.xaml"
-                            x:Name="MainFrame" />
+                        <ContentControl Content="{Binding CurrentView}" />
                     </Grid>
                 </Grid>
             </Grid>
         </Grid>
         <Grid
             Panel.ZIndex="999"
-            Visibility="{Binding IsOverlayVisible, Converter={StaticResource BoolToVis}}"
+            Visibility="{Binding AppStore.IsOverlayVisible, Converter={StaticResource BoolToVis}}"
             x:Name="OverlayContainer">
 
             <Border Background="Transparent">
@@ -302,7 +312,7 @@
             </Border>
 
             <ContentControl
-                Content="{Binding CurrentOverlayView}"
+                Content="{Binding AppStore.CurrentOverlayView}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center" />
 

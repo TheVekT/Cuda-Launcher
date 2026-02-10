@@ -1,7 +1,7 @@
 <UserControl
     Background="Transparent"
     FontFamily="{DynamicResource GlobalFont}"
-    d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel,
+    d:DataContext="{d:DesignInstance Type=viewModels:SettingsVM,
                                      IsDesignTimeCreatable=False}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Overlay.SettingsMenu"
@@ -9,13 +9,11 @@
     xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
-    xmlns:local="clr-namespace:Launcher.UI.WPF.Resources.Overlay"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <helpers:StringFormatConverter x:Key="StringFormatConverter" />
-        <helpers:InvertBoolConverter x:Key="BoolToBool" />
         <helpers:InverseBooleanToVisibilityConverter x:Key="inverseBoolToVis" />
     </UserControl.Resources>
     <Grid Width="512">
@@ -138,7 +136,7 @@
                             Minimum="80"
                             Style="{StaticResource DefaultSliderStyle}"
                             TickFrequency="1"
-                            Value="{Binding UiScale, Converter={StaticResource PercentToScaleConverter}}"
+                            Value="{Binding SettingsStore.UiScale, Converter={StaticResource PercentToScaleConverter}}"
                             x:Name="UiScaleSlider" />
                         <TextBlock
                             FontSize="11"
@@ -298,13 +296,13 @@
                             Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.SelectThemeLabel]}" />
                         <ScrollViewer Style="{StaticResource HorizontalScrollViewerStyle}" helpers:ScrollViewerHelper.EnableHorizontalScrolling="True">
                             <StackPanel Orientation="Horizontal">
-                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/default-dark.xaml" />
+                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding SettingsStore.CurrentThemePath}" ThemeSource="/Assets/Themes/default-dark.xaml" />
 
-                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/default-light.xaml" />
+                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding SettingsStore.CurrentThemePath}" ThemeSource="/Assets/Themes/default-light.xaml" />
 
-                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/SteamPunk.xaml" />
+                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding SettingsStore.CurrentThemePath}" ThemeSource="/Assets/Themes/SteamPunk.xaml" />
 
-                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding CurrentThemePath}" ThemeSource="/Assets/Themes/CyberPunk.xaml" />
+                                <controls:ThemePreviewCard CurrentThemePathVM="{Binding SettingsStore.CurrentThemePath}" ThemeSource="/Assets/Themes/CyberPunk.xaml" />
 
                             </StackPanel>
                         </ScrollViewer>
@@ -331,7 +329,7 @@
             </StackPanel>
         </Border>
         <Button
-            Command="{Binding CloseOverlayCommand}"
+            Command="{Binding CloseSelfCommand}"
             Cursor="Hand"
             Height="12"
             HorizontalAlignment="Right"

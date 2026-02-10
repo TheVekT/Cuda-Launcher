@@ -2,7 +2,7 @@ using System.Windows.Controls;
 
 namespace Launcher.UI.WPF.Resources.Pages;
 
-public partial class Installations : Page
+public partial class Installations : UserControl
 {
     public Installations()
     {

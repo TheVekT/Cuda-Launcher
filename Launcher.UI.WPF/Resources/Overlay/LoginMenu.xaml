@@ -1,6 +1,6 @@
 <UserControl
     Background="Transparent"
-    d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel,
+    d:DataContext="{d:DesignInstance Type=viewModels:LoginVM,
                                      IsDesignTimeCreatable=False}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Overlay.LoginMenu"
@@ -8,12 +8,10 @@
     xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
-    xmlns:local="clr-namespace:Launcher.UI.WPF.Resources.Overlay"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
-        <helpers:AccountTypeToLocConverter x:Key="AccountTypeToLocConverter" />
         <helpers:StringFormatConverter x:Key="StringFormatConverter" />
     </UserControl.Resources>
     <Grid Width="512">
@@ -83,7 +81,7 @@
                                 <TextBlock
                                     FontSize="14"
                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                    Text="{Binding CurrentAccount.Username}"
+                                    Text="{Binding LoginStore.CurrentAccount.Username}"
                                     x:Name="AccountName" />
                                 <TextBlock
                                     FontSize="13"
@@ -93,7 +91,7 @@
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="{Binding Source={StaticResource Loc}, Path=[AccountCard.MicrosoftType]}" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding CurrentAccount.IsOffline}" Value="True">
+                                                <DataTrigger Binding="{Binding LoginStore.CurrentAccount.IsOffline}" Value="True">
                                                     <Setter Property="Text" Value="{Binding Source={StaticResource Loc}, Path=[AccountCard.OfflineType]}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -149,7 +147,7 @@
                         </Grid>
                         <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Hidden">
 
-                            <ItemsControl ItemsSource="{Binding Accounts}">
+                            <ItemsControl ItemsSource="{Binding LoginStore.Accounts}">
 
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -254,7 +252,7 @@
             </StackPanel>
         </Border>
         <Button
-            Command="{Binding CloseOverlayCommand}"
+            Command="{Binding CloseSelfCommand}"
             Cursor="Hand"
             Height="12"
             HorizontalAlignment="Right"

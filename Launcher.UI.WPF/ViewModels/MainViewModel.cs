@@ -1,65 +1,228 @@
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq; 
-using System.Threading.Tasks; 
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
-using Launcher.Core.Models; // Твоя модель MinecraftInstance
+using Launcher.Core.Models;
 using Launcher.Core.Services.Auth; 
-using Launcher.Core.Services.IO; // Твой InstanceService
+using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Game;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels;
 
 public class MainViewModel : INotifyPropertyChanged
 {
+    //Services
     private readonly ThemeService _themeService;
     private readonly IAuthService _authService; 
     private readonly IAccountStorageService _accountStorage;
     private readonly IInstanceService _instanceService; 
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly ILaunchService _launchService;
-    public InstallationsViewModel InstallationsVM { get; }
-
-    // --- Свойства UI ---
-    private double _uiScale = 1.0;
-    private bool _isOverlayVisible;
-    private object _currentOverlayView;
-    private string _currentThemePath = "/Assets/Themes/default-dark.xaml";
-
+    
+    //Stores
+    private readonly LoginStore _loginStore;
+    private readonly SettingsStore _settingsStore;
+    private readonly LaunchStore _launchStore;
+    private readonly InstancesStore _instancesStore;
+    private readonly AppStore _appStore;
+    
+    //ViewModels
+    private PlayViewModel _playVM { get; }
+    private InstallationsViewModel _installationsVM { get; }
+    private SkinsViewModel _skinsVM { get; }
+    private LoginVM _loginVM { get; }
+    private SettingsVM _settingsVM { get; }
+    
+    
+    //Public ViewModels 
+    public SettingsVM SettingsVM => _settingsVM;
+    public LoginVM LoginVM => _loginVM;
+    public PlayViewModel PlayVM => _playVM;
+    public InstallationsViewModel InstallationsVM => _installationsVM;
+    public SkinsViewModel SkinsVM => _skinsVM;
+    
+    //Atributes
+    private object _currentView;
     private bool _showCompactPlayButton;
-    // --- Свойства Аккаунта ---
-    private bool _isLoggingIn;
-    private bool _isAddAccPageOpen;
-    private string _userName = "Guest";
-    private UserAccount _currentAccount;
-    public int _accountCount = 0;
-    // --- Свойства для статуса загрузки ---
-    private double _downloadProgress;
-    private string _downloadStatusText = "Initiating...";
-    private string _downloadPercentText = "0%";
-    private bool _isDownloading;
     
-    public bool IsLoggedIn => CurrentAccount != null;
-    public ObservableCollection<UserAccount> Accounts { get; set; } = new();
+    //Commands
+    public ICommand LaunchCommand { get; }
+    public ICommand ChangeThemeCommand { get; }
+    public ICommand CloseOverlayCommand { get; }
+    public ICommand OpenSettingsCommand { get; }
+    public ICommand OpenLoginCommand { get; }
+    public ICommand SelectAccountCommand { get; }
+    public ICommand NavigateCommand { get; }
     
+    //public attributes
+    public AppStore AppStore => _appStore;
 
-    // 1. Свойство видимости (возвращает Visibility.Collapsed, если не качаем)
-    public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
-    public Boolean PlayButtonEnabled => !_isDownloading ;
-
-    public int AccountCount
+    public async Task InitializeAsync()
     {
-        get => _accountCount;
-        set {
-            if (_accountCount != value)
+        // async initialization logic here (e.g. load accounts, instances, etc.)
+    }
+
+    public MainViewModel(
+        ThemeService themeService, 
+        IAuthService authService, 
+        IAccountStorageService accountStorage,
+        IGameVersionService versionService,
+        InstanceService instanceService,
+        IInstanceFileSystemService instanceFileSystemService,
+        ILaunchService launchService,
+        LoginStore loginStore,
+        SettingsStore settingsStore,
+        LaunchStore launchStore,
+        InstancesStore instancesStore,
+        AppStore appStore)
+    {
+        _themeService = themeService;
+        _authService = authService;
+        _accountStorage = accountStorage;
+        _instanceService = instanceService;
+        _instanceFileSystemService = instanceFileSystemService;
+        _launchService = launchService;
+        
+        //Stores
+        _loginStore = loginStore;
+        _settingsStore = settingsStore;
+        _launchStore = launchStore;
+        _instancesStore = instancesStore;
+        _appStore = appStore;
+        
+        //ViewModels
+        _playVM = new PlayViewModel();
+        _installationsVM = new InstallationsViewModel(versionService, instanceService, instancesStore, appStore);
+        _skinsVM = new SkinsViewModel();
+        _loginVM = new LoginVM(_authService, _loginStore);
+        _settingsVM = new SettingsVM(_settingsStore);
+        
+        
+        //Commands
+        
+        LaunchCommand = new RelayCommand(async o => await LaunchCurrentInstance());
+        
+        NavigateCommand = new RelayCommand(parameter => 
+        {
+            if (parameter is string pageName)
             {
-                _accountCount = value;
-                OnPropertyChanged(nameof(AccountCount));
+                switch (pageName)
+                {
+                    case "Play": CurrentView = PlayVM; break;
+                    case "Installations": CurrentView = InstallationsVM; break;
+                    case "Skins": CurrentView = SkinsVM; break;
+                }
+            }
+        });
+        CurrentView = PlayVM;
+        
+        SelectAccountCommand = new RelayCommand(o => 
+        {
+            if (o is UserAccount account)
+            {
+                _loginStore.CurrentAccount = account;
+                _accountStorage.SaveAccounts(_loginStore.Accounts); 
+            }
+        });
+        
+        OpenSettingsCommand = new RelayCommand(o =>
+        {
+            var settingsMenu = new Resources.Overlay.SettingsMenu();
+            settingsMenu.DataContext = _settingsVM;
+            _appStore.CurrentOverlayView = settingsMenu;
+        });
+        
+        OpenLoginCommand = new RelayCommand(o => 
+        {
+           
+            _loginVM.IsAddAccPageOpen = !_loginStore.IsLoggedIn; 
+            var loginMenu = new Resources.Overlay.LoginMenu();
+            loginMenu.DataContext = _loginVM; 
+            _appStore.CurrentOverlayView = loginMenu;
+        });
+        
+        _themeService.ChangeTheme(_settingsStore.CurrentThemePath);
+        
+        ChangeThemeCommand = new RelayCommand(path => 
+        {
+            if (path is string themePath) _themeService.ChangeTheme(themePath);
+        });
+
+        CloseOverlayCommand = new RelayCommand(o => _appStore.CurrentOverlayView = null);
+        
+        _loginVM.RequestClose += () => _appStore.CurrentOverlayView = null;
+        _settingsVM.RequestClose += () => _appStore.CurrentOverlayView = null;
+        _playVM.RequestLaunch += async () => await LaunchCurrentInstance();
+        
+    }
+    
+    
+        private async Task LaunchCurrentInstance()
+        {
+            Console.WriteLine("Launching instance...");
+            if (_instancesStore.SelectedInstance == null) return;
+            if (_loginStore.CurrentAccount == null) 
+            {
+                Console.WriteLine("No account selected!");
+                return;
+            }
+
+            try
+            {
+                _playVM.IsDownloading = true;
+                OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // Уведомляем UI, что видимость изменилась
+                _playVM.DownloadStatusText = "Preparing...";
+                _playVM.DownloadProgress = 0;
+
+                var progress = new Progress<double>(p => 
+                {
+                    // Обновляем данные UI
+                    _playVM.DownloadProgress = p;
+                
+                    // Меняем текст в зависимости от этапа (опционально)
+                    if (p < 100) _playVM.DownloadStatusText = "Downloading files...";
+                    else _playVM.DownloadStatusText = "Finalizing...";
+                });
+            
+                var process = await _launchService.LaunchGameAsync(_instancesStore.SelectedInstance, _loginStore.CurrentAccount, progress);
+            
+                Console.WriteLine("Game started!");
+            
+                // Ждем выхода, но панель загрузки скрываем сразу после старта
+                _playVM.IsDownloading = false;
+                OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // СКРЫВАЕМ ПАНЕЛЬ (станет Collapsed)
+                _instanceService.SaveInstances(_instancesStore.Instances);
+                // Можно скрыть лаунчер
+                // Application.Current.MainWindow.Hide();
+            
+                await process.WaitForExitAsync(); // Используйте асинхронное ожидание, если .NET позволяет
+            
+                // Application.Current.MainWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+                _playVM.IsDownloading = false;
+                OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // Скрываем при ошибке
+            }
+        }
+
+    //Getters & Setters
+    
+    public object CurrentView
+    {
+        get => _currentView;
+        set
+        {
+            if (_currentView != value)
+            {
+                _currentView = value;
+                OnPropertyChanged(nameof(CurrentView));
+                
+                ShowCompactPlayButton = !(_currentView is PlayViewModel);
             }
         }
     }
@@ -75,341 +238,6 @@ public class MainViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(ShowCompactPlayButton));
             }
         }
-    }
-
-    // 2. Прогресс (0 - 100)
-    public double DownloadProgress
-    {
-        get => _downloadProgress;
-        set
-        {
-            if (Math.Abs(_downloadProgress - value) > 0.01)
-            {
-                _downloadProgress = value;
-                OnPropertyChanged(nameof(DownloadProgress));
-                DownloadPercentText = $"{value:0}%";
-            }
-        }
-    }
-    public bool IsDownloading
-    {
-        get => _isDownloading;
-        set
-        {
-            if (_isDownloading != value)
-            {
-                _isDownloading = value;
-                OnPropertyChanged(nameof(IsDownloading));
-                OnPropertyChanged(nameof(PlayButtonEnabled)); 
-                OnPropertyChanged(nameof(DownloadPanelVisibility)); 
-            }
-        }
-    }
-    // 3. Текст статуса (например "DOWNLOADING ASSETS")
-    public string DownloadStatusText
-    {
-        get => _downloadStatusText;
-        set
-        {
-            if (_downloadStatusText != value)
-            {
-                _downloadStatusText = value;
-                OnPropertyChanged(nameof(DownloadStatusText));
-            }
-        }
-    }
-
-    // 4. Текст процентов (отдельно для правого TextBlock)
-    public string DownloadPercentText
-    {
-        get => _downloadPercentText;
-        set
-        {
-            if (_downloadPercentText != value)
-            {
-                _downloadPercentText = value;
-                OnPropertyChanged(nameof(DownloadPercentText));
-            }
-        }
-    }
-    // --- Свойства Инстансов (ЭТАП 1) ---
-    public ObservableCollection<MinecraftInstance> Instances { get; set; } = new();
-
-    private MinecraftInstance _selectedInstance;
-    public MinecraftInstance SelectedInstance
-    {
-        get => _selectedInstance;
-        set
-        {
-            if (_selectedInstance != value)
-            {
-                _selectedInstance = value;
-                OnPropertyChanged(nameof(SelectedInstance));
-            }
-        }
-    }
-
-    // --- Команды ---
-    public ICommand LaunchCommand { get; }
-    public ICommand ChangeThemeCommand { get; }
-    public ICommand CloseOverlayCommand { get; }
-    public ICommand OpenSettingsCommand { get; }
-    public ICommand OpenAddVersionCommand { get; }
-    public ICommand OpenLoginCommand { get; }
-    public ICommand SelectAccountCommand { get; }
-    public ICommand MicrosoftLoginCommand { get; } 
-    public ICommand OfflineLoginCommand { get; }
-    public ICommand AddNewAccountCommand { get; }
-
-    public async Task InitializeAsync()
-    {
-        await InstallationsVM.InitializeAsync();
-    }
-
-    public MainViewModel(
-        ThemeService themeService, 
-        IAuthService authService, 
-        IAccountStorageService accountStorage,
-        IGameVersionService versionService,
-        InstanceService instanceService,
-        IInstanceFileSystemService instanceFileSystemService,
-        ILaunchService launchService)
-    {
-        _themeService = themeService;
-        _authService = authService;
-        _accountStorage = accountStorage;
-        _instanceService = instanceService;
-        _instanceFileSystemService = instanceFileSystemService;
-        _launchService = launchService;
-        
-        
-
-        // Передаем this (MainViewModel), чтобы InstallationsVM мог добавлять инстансы в наш список
-        InstallationsVM = new InstallationsViewModel(this, versionService, instanceService, instanceFileSystemService);
-        
-        LaunchCommand = new RelayCommand(async o => await LaunchCurrentInstance());
-        
-        // --- Инициализация команд ---
-        MicrosoftLoginCommand = new RelayCommand(async (o) => await ExecuteMicrosoftLogin());
-        
-        OfflineLoginCommand = new RelayCommand(o => 
-        {
-            if (o is string nickname && !string.IsNullOrWhiteSpace(nickname))
-            {
-                var account = _authService.LoginOffline(nickname);
-                ProcessSuccessfulLogin(account);
-            }
-        });
-        
-        SelectAccountCommand = new RelayCommand(o => 
-        {
-            if (o is UserAccount account)
-            {
-                CurrentAccount = account;
-                _accountStorage.SaveAccounts(Accounts); 
-            }
-        });
-
-        AddNewAccountCommand = new RelayCommand(o => IsAddAccPageOpen = true); 
-
-        OpenSettingsCommand = new RelayCommand(o => CurrentOverlayView = new Resources.Overlay.SettingsMenu());
-        
-        OpenLoginCommand = new RelayCommand(o => 
-        {
-            IsAddAccPageOpen = !IsLoggedIn; 
-            var loginMenu = new Resources.Overlay.LoginMenu();
-            loginMenu.DataContext = this; 
-            CurrentOverlayView = loginMenu;
-        });
-        
-        OpenAddVersionCommand = new RelayCommand(o => 
-        {
-            InstallationsVM.OpenAddVersionCommand.Execute(o);
-        });
-        
-        _themeService.ChangeTheme(_currentThemePath);
-        
-        ChangeThemeCommand = new RelayCommand(path => 
-        {
-            if (path is string themePath) _themeService.ChangeTheme(themePath);
-        });
-
-        CloseOverlayCommand = new RelayCommand(o => CurrentOverlayView = null);
-        
-        Accounts.CollectionChanged += (s, e) => 
-        {
-            AccountCount = Accounts.Count;
-        };
-        
-        // 1. Загрузка аккаунтов
-        LoadSavedAccounts();
-        
-        // 2. Загрузка инстансов (ЭТАП 1)
-        LoadSavedInstances();
-    }
-    
-    private async Task LaunchCurrentInstance()
-    {
-        Console.WriteLine("Launching instance...");
-        if (SelectedInstance == null) return;
-        if (CurrentAccount == null) 
-        {
-            Console.WriteLine("No account selected!");
-            return;
-        }
-
-        try
-        {
-            IsDownloading = true;
-            OnPropertyChanged(nameof(DownloadPanelVisibility)); // Уведомляем UI, что видимость изменилась
-            DownloadStatusText = "Preparing...";
-            DownloadProgress = 0;
-
-            var progress = new Progress<double>(p => 
-            {
-                // Обновляем данные UI
-                DownloadProgress = p;
-                
-                // Меняем текст в зависимости от этапа (опционально)
-                if (p < 100) DownloadStatusText = "Downloading files...";
-                else DownloadStatusText = "Finalizing...";
-            });
-            
-            var process = await _launchService.LaunchGameAsync(SelectedInstance, CurrentAccount, progress);
-            
-            Console.WriteLine("Game started!");
-            
-            // Ждем выхода, но панель загрузки скрываем сразу после старта
-            IsDownloading = false;
-            OnPropertyChanged(nameof(DownloadPanelVisibility)); // СКРЫВАЕМ ПАНЕЛЬ (станет Collapsed)
-            _instanceService.SaveInstances(Instances);
-            // Можно скрыть лаунчер
-            // Application.Current.MainWindow.Hide();
-            
-            await process.WaitForExitAsync(); // Используйте асинхронное ожидание, если .NET позволяет
-            
-            // Application.Current.MainWindow.Show();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine(ex);
-            IsDownloading = false;
-            OnPropertyChanged(nameof(DownloadPanelVisibility)); // Скрываем при ошибке
-        }
-    }
-    
-    // --- Логика Инстансов ---
-    private void LoadSavedInstances()
-    {
-        var loaded = _instanceService.LoadInstances();
-        Instances.Clear();
-        foreach (var inst in loaded)
-        {
-            Instances.Add(inst);
-        }
-        
-        // Выбираем первый по умолчанию
-        if (Instances.Count > 0) SelectedInstance = Instances[0];
-    }
-
-    // --- Логика Аккаунтов ---
-    private void LoadSavedAccounts()
-    {
-        var savedAccounts = _accountStorage.LoadAccounts();
-        Accounts.Clear();
-        foreach (var acc in savedAccounts) Accounts.Add(acc);
-        
-        var lastUsedAccount = Accounts.FirstOrDefault(x => x.IsSelected);
-        if (lastUsedAccount != null) CurrentAccount = lastUsedAccount;
-        else if (Accounts.Count > 0) CurrentAccount = Accounts.First();
-    }
-    
-    public UserAccount CurrentAccount
-    {
-        get => _currentAccount;
-        set
-        {
-            if (_currentAccount != value)
-            {
-                _currentAccount = value;
-                OnPropertyChanged(nameof(CurrentAccount));
-                OnPropertyChanged(nameof(IsLoggedIn)); 
-                if (_currentAccount != null)
-                {
-                    UserName = _currentAccount.Username;
-                    foreach (var acc in Accounts) acc.IsSelected = (acc.UUID == _currentAccount.UUID);
-                    _accountStorage.SaveAccounts(Accounts);
-                }
-            }
-        }
-    }
-
-    // ... (Методы входа Microsoft/Offline остались без изменений) ...
-    private async Task ExecuteMicrosoftLogin()
-    {
-        IsLoggingIn = true;
-        try
-        {
-            var newAccount = await _authService.LoginWithMicrosoftAsync();
-            ProcessSuccessfulLogin(newAccount);
-        }
-        catch (Exception ex) { Console.WriteLine(ex.Message); }
-        finally { IsLoggingIn = false; }
-    }
-
-    private void ProcessSuccessfulLogin(UserAccount newAccount)
-    {
-        var existing = Accounts.FirstOrDefault(x => x.UUID == newAccount.UUID);
-        if (existing == null)
-        {
-            Accounts.Add(newAccount);
-            CurrentAccount = newAccount;
-        }
-        else
-        {
-            existing.AccessToken = newAccount.AccessToken; 
-            CurrentAccount = existing;
-        }
-        _accountStorage.SaveAccounts(Accounts);
-        CurrentOverlayView = null;
-    }
-
-    // ... (Геттеры и Сеттеры IsAddAccPageOpen, IsLoggingIn, UserName, UiScale и др. без изменений) ...
-
-    public bool IsAddAccPageOpen
-    {
-        get => _isAddAccPageOpen;
-        set { _isAddAccPageOpen = value; OnPropertyChanged(nameof(IsAddAccPageOpen)); }
-    }
-    public bool IsLoggingIn
-    {
-        get => _isLoggingIn;
-        set { _isLoggingIn = value; OnPropertyChanged(nameof(IsLoggingIn)); }
-    }
-    public string UserName
-    {
-        get => _userName;
-        set { _userName = value; OnPropertyChanged(nameof(UserName)); }
-    }
-    public double UiScale
-    {
-        get => _uiScale;
-        set { if (Math.Abs(_uiScale - value) > 0.001) { _uiScale = value; OnPropertyChanged(nameof(UiScale)); } }
-    }
-    public string CurrentThemePath
-    {
-        get => _currentThemePath;
-        set { if (_currentThemePath != value) { _currentThemePath = value; OnPropertyChanged(nameof(CurrentThemePath)); _themeService.ChangeTheme(_currentThemePath); } }
-    }
-    public bool IsOverlayVisible
-    {
-        get => _isOverlayVisible;
-        set { _isOverlayVisible = value; OnPropertyChanged(nameof(IsOverlayVisible)); }
-    }
-    public object CurrentOverlayView
-    {
-        get => _currentOverlayView;
-        set { _currentOverlayView = value; OnPropertyChanged(nameof(CurrentOverlayView)); IsOverlayVisible = _currentOverlayView != null; }
     }
     
     public event PropertyChangedEventHandler? PropertyChanged;

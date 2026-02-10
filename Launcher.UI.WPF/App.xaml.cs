@@ -4,6 +4,7 @@ using System.Windows;
 using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.ViewModels;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Stores;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.Game;
@@ -19,6 +20,7 @@ public partial class App : Application
     {
         base.OnStartup(e);
         
+        //Services
         var themeService = new ThemeService();
         var authService = new AuthService();
         var accountStorageService = new AccountStorageService();
@@ -26,8 +28,28 @@ public partial class App : Application
         var instanceService = new InstanceService();
         var instanceFileSystemService = new InstanceFileSystemService();
         var launchService = new LaunchService(instanceFileSystemService);
+        
+        //Stores
+        var loginStore = new LoginStore(accountStorageService);
+        var settingsStore = new SettingsStore(themeService);
+        var launchStore = new LaunchStore(launchService);
+        var instancesStore = new InstancesStore(instanceFileSystemService, instanceService);
+        var appStore = new AppStore();
 
-        var mainViewModel = new MainViewModel(themeService, authService, accountStorageService, versionService, instanceService, instanceFileSystemService, launchService);
+        //MainViewModel
+        var mainViewModel = new MainViewModel(
+            themeService, 
+            authService, 
+            accountStorageService, 
+            versionService, 
+            instanceService, 
+            instanceFileSystemService, 
+            launchService,
+            loginStore,
+            settingsStore,
+            launchStore,
+            instancesStore,
+            appStore);
         await mainViewModel.InitializeAsync();
         
         var mainWindow = new MainWindow();

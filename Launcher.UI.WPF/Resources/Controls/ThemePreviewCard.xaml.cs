@@ -19,25 +19,8 @@ namespace Launcher.UI.WPF.Resources.Controls
         private void OnCardClick(object sender, MouseButtonEventArgs e)
         {
             if (ThemeSource == null) return;
-            
-            var dataContext = DataContext;
-            while (dataContext != null)
-            {
-                if (dataContext is MainViewModel vm)
-                {
-                    vm.CurrentThemePath = ThemeSource.OriginalString;
-                    return;
-                }
-                
-                if (this.Parent is FrameworkElement parent)
-                {
-                    dataContext = parent.DataContext;
-                }
-                else
-                {
-                    break;
-                }
-            }
+            var dataContext = DataContext as SettingsVM;
+            dataContext.SettingsStore.CurrentThemePath = ThemeSource.OriginalString; 
         }
         
         public static readonly DependencyProperty ThemeSourceProperty =
@@ -127,17 +110,17 @@ namespace Launcher.UI.WPF.Resources.Controls
                 {
                     var dict = new ResourceDictionary { Source = uri };
                     
-                    // 1. Метаданные
+                    // 1. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     if (dict.Contains("ThemeInfo") && dict["ThemeInfo"] is ThemeMetadata meta)
                     {
                         card.ThemeName = meta.Name;
                         card.ThemeAuthor = meta.Author;
                     }
 
-                    // 2. Шрифт (НОВОЕ)
+                    // 2. пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ)
                     card.P_GlobalFont = GetFont(dict, "GlobalFont");
 
-                    // 3. Цвета
+                    // 3. пїЅпїЅпїЅпїЅпїЅ
                     card.P_AppBackground = GetBrush(dict, "AppBackground");
                     card.P_BorderPrimary = GetBrush(dict, "BorderPrimary");
                     card.P_BackgroundSurface = GetBrush(dict, "BackgroundSurface");

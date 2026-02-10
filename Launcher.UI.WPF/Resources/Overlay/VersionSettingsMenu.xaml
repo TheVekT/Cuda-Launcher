@@ -6,17 +6,10 @@
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Overlay.VersionSettingsMenu"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
-    xmlns:local="clr-namespace:Launcher.UI.WPF.Resources.Overlay"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <UserControl.Resources>
-        <helpers:StringFormatConverter x:Key="StringFormatConverter" />
-        <helpers:InvertBoolConverter x:Key="BoolToBool" />
-    </UserControl.Resources>
     <Grid Width="512">
         <Border
             Background="{DynamicResource OverlayBackgroundPrimaryBrush}"
