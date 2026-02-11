@@ -94,7 +94,7 @@ public class MainViewModel : INotifyPropertyChanged
         
         //ViewModels
         _playVM = new PlayViewModel();
-        _installationsVM = new InstallationsViewModel(versionService, instanceService, instancesStore, appStore);
+        _installationsVM = new InstallationsViewModel(versionService, instanceService, instanceFileSystemService, instancesStore, appStore);
         _skinsVM = new SkinsViewModel();
         _loginVM = new LoginVM(_authService, _accountStorage,_loginStore);
         _settingsVM = new SettingsVM(_settingsStore);

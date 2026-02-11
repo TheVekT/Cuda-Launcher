@@ -17,6 +17,7 @@ public class InstanceVM: INotifyPropertyChanged
     //Services
     private readonly IGameVersionService _versionService;
     private readonly IInstanceService _instanceService;
+    private readonly IInstanceFileSystemService _instanceFileSystemService;
     //Stores
     private readonly InstancesStore _instancesStore;
     
@@ -45,10 +46,12 @@ public class InstanceVM: INotifyPropertyChanged
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
     
-    public InstanceVM(IGameVersionService versionService, IInstanceService instanceService,InstancesStore instancesStore)
+    public InstanceVM(IGameVersionService versionService, IInstanceService instanceService, IInstanceFileSystemService instanceFileSystemService,InstancesStore instancesStore)
     {
         _versionService = versionService;
         _instanceService = instanceService;
+        _instanceFileSystemService = instanceFileSystemService;
+        
         _instancesStore = instancesStore;
         
         InstallationName = string.Empty;
@@ -148,21 +151,30 @@ public class InstanceVM: INotifyPropertyChanged
 
         var newInstance = new MinecraftInstance
         {
+            Id = Guid.NewGuid().ToString(), // Обязательно генерируем ID тут
             Name = finalName,
             GameVersion = SelectedGameVersion,
             LoaderType = GetLoaderType(SelectedModLoader),
             IsolationType = SelectedIsolation,
-            
             IconPath = SelectedIcon ?? IconList.FirstOrDefault(), 
-            
             LoaderVersion = (SelectedModLoader == "Vanilla") ? null : "Auto"
         };
-        _instancesStore.Instances.Add(newInstance);
-        _instanceService.SaveInstances(_instancesStore.Instances);
-        RequestClose?.Invoke();
-        Debug.WriteLine($"Created instance: {finalName}");
-        _instancesStore.InvokeAddedInstance();
-        _instancesStore.SelectedInstance = newInstance;
+
+        try
+        {
+            _instanceFileSystemService.InitializeOnCreation(newInstance);
+            _instancesStore.Instances.Add(newInstance);
+            _instanceService.SaveInstances(_instancesStore.Instances);
+        
+            RequestClose?.Invoke();
+            Debug.WriteLine($"Created instance: {finalName}");
+            _instancesStore.InvokeAddedInstance();
+            _instancesStore.SelectedInstance = newInstance;
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Ошибка создания инстанса: {ex.Message}", "Ошибка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
     }
     
     

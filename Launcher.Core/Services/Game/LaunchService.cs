@@ -1,19 +1,15 @@
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq; 
-using System.Net.Http;
-using System.Threading.Tasks;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
-using CmlLib.Core.ProcessBuilder;
-using CmlLib.Core.Version;
-using CmlLib.Core.Installer.Forge;      
-using CmlLib.Core.Installer.NeoForge; 
+using CmlLib.Core.Installer.Forge;
+using CmlLib.Core.Installer.NeoForge;
 using CmlLib.Core.ModLoaders.FabricMC;
 using CmlLib.Core.ModLoaders.QuiltMC;
+using CmlLib.Core.ProcessBuilder;
+using CmlLib.Core.Version;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
+
 
 namespace Launcher.Core.Services.Game
 {
@@ -38,17 +34,17 @@ namespace Launcher.Core.Services.Game
             if (instance == null) throw new ArgumentNullException(nameof(instance));
             if (account == null) throw new ArgumentNullException(nameof(account));
 
-            // 1. Пути
-            var instancePath = _fileService.PrepareInstance(instance); 
+            // 1. Получаем путь (БЕЗ АДМИН ПРАВ)
+            var instancePath = _fileService.PrepareForLaunch(instance); 
             
-            var storagePath = (instance.IsolationType == IsolationType.Global) 
-                ? instancePath 
-                : _fileService.GetGlobalMinecraftPath();
+            // 2. Настраиваем логику путей
+            // Global Path - это где лежат версии, библиотеки, ассеты.
+            // Instance Path - это где игра запустится (mods, configs, saves).
+            var globalPath = _fileService.GetGlobalMinecraftPath();
+            var globalMcPath = new MinecraftPath(globalPath);
 
-            var storageMinecraftPath = new MinecraftPath(storagePath);
-            storageMinecraftPath.Runtime = Path.Combine(_fileService.GetGlobalMinecraftPath(), "runtime");
-
-            var launcher = new MinecraftLauncher(storageMinecraftPath);
+            // 3. Лаунчер инициализируем с ГЛОБАЛЬНЫМ путем (для загрузки версий)
+            var launcher = new MinecraftLauncher(globalMcPath);
 
             launcher.FileProgressChanged += (sender, args) =>
             {
@@ -59,32 +55,37 @@ namespace Launcher.Core.Services.Game
                 }
             };
 
-            // 3. Получаем версию
+            // 4. Получаем версию
             IVersion versionToLaunch;
             if (instance.LoaderType == GameLoaderType.Vanilla)
                 versionToLaunch = await launcher.GetVersionAsync(instance.GameVersion);
             else
                 versionToLaunch = await InstallLoaderAsync(launcher, instance);
 
-            // 4. Опции запуска
+            // 5. Опции запуска
             var launchOption = new MLaunchOption
             {
                 MaximumRamMb = 4096, 
                 Session = new MSession(account.Username, account.AccessToken, account.UUID),
+                
+                // ВАЖНО: Тут мы говорим CmlLib "Используй instancePath как рабочую папку"
                 Path = new MinecraftPath(instancePath) 
                 {
-                    Assets = storageMinecraftPath.Assets,
-                    Library = storageMinecraftPath.Library,
-                    Runtime = storageMinecraftPath.Runtime,
-                    Versions = storageMinecraftPath.Versions
+                    // Но ресурсы и версии бери из общего хранилища!
+                    Assets = globalMcPath.Assets,
+                    Library = globalMcPath.Library,
+                    Runtime = globalMcPath.Runtime,
+                    Versions = globalMcPath.Versions
                 },
+                
                 VersionType = instance.LoaderType.ToString(),
                 GameLauncherName = "Launcher"
             };
 
-            // 5. Создание процесса
+            // 6. Создание процесса
             var process = await launcher.InstallAndBuildProcessAsync(versionToLaunch.Id, launchOption);
 
+            // ... Настройка потоков вывода (как у тебя было) ...
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;

@@ -21,6 +21,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
     //Services
     private readonly IGameVersionService _versionService; 
     private readonly IInstanceService _instanceService;
+    private readonly IInstanceFileSystemService _instanceFileSystemService;
     
     //Stores
     private readonly InstancesStore _instancesStore;
@@ -40,11 +41,13 @@ public class InstallationsViewModel : INotifyPropertyChanged
     public InstallationsViewModel(
         IGameVersionService versionService, 
         InstanceService instanceService,
+        IInstanceFileSystemService instanceFileSystemService,
         InstancesStore instancesStore,
         AppStore appStore)
     {
         _versionService = versionService;
         _instanceService = instanceService;
+        _instanceFileSystemService = instanceFileSystemService;
         
         _instancesStore = instancesStore;
         _appStore = appStore;
@@ -61,7 +64,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
         OpenAddVersionCommand = new RelayCommand(async o => 
         {
             var menu = new Resources.Overlay.AddVersionMenu();
-            var InstanceVM = new InstanceVM(_versionService, _instanceService, _instancesStore);
+            var InstanceVM = new InstanceVM(_versionService, _instanceService, _instanceFileSystemService, _instancesStore);
             await InstanceVM.InitializeAsync();
             menu.DataContext = InstanceVM; 
             InstanceVM.RequestClose += () => 

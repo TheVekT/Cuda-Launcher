@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+
 using Launcher.Core.Helpers;
 using Launcher.Core.Models;
 
@@ -9,7 +6,12 @@ namespace Launcher.Core.Services.IO
 {
     public interface IInstanceFileSystemService
     {
-        string PrepareInstance(MinecraftInstance instance);
+        // Вызывается 1 раз при создании (ViewModel). Может запросить права Админа.
+        void InitializeOnCreation(MinecraftInstance instance);
+        
+        // Вызывается перед каждым запуском (LaunchService).
+        string PrepareForLaunch(MinecraftInstance instance);
+        
         string GetGlobalMinecraftPath();
         void DeleteInstance(MinecraftInstance instance);
     }
@@ -28,10 +30,7 @@ namespace Launcher.Core.Services.IO
 
         public string GetGlobalMinecraftPath()
         {
-            if (!Directory.Exists(_portableGlobalPath))
-            {
-                Directory.CreateDirectory(_portableGlobalPath);
-            }
+            if (!Directory.Exists(_portableGlobalPath)) Directory.CreateDirectory(_portableGlobalPath);
             return _portableGlobalPath;
         }
 
@@ -40,20 +39,54 @@ namespace Launcher.Core.Services.IO
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraft");
         }
 
-        public string PrepareInstance(MinecraftInstance instance)
+        // --- ЭТАП 1: ИНИЦИАЛИЗАЦИЯ (UI) ---
+        public void InitializeOnCreation(MinecraftInstance instance)
         {
+            var instancePath = Path.Combine(_instancesBasePath, instance.Id);
+
+            switch (instance.IsolationType)
+            {
+                case IsolationType.Partial:
+                    // Самый важный момент: здесь вызываем UAC и создаем ссылки
+                    PreparePartial(instancePath); 
+                    break;
+
+                case IsolationType.Full:
+                    // Просто создаем папку, файлы скопируем потом (при запуске)
+                    if (!Directory.Exists(instancePath)) Directory.CreateDirectory(instancePath);
+                    break;
+
+                case IsolationType.Global:
+                    // Ничего делать не надо
+                    break;
+            }
+        }
+
+        // --- ЭТАП 2: ПОДГОТОВКА К ЗАПУСКУ (GAME) ---
+        public string PrepareForLaunch(MinecraftInstance instance)
+        {
+            var instancePath = Path.Combine(_instancesBasePath, instance.Id);
+
             switch (instance.IsolationType)
             {
                 case IsolationType.Global:
-                    var externalPath = GetExternalMinecraftPath();
-                    if (!Directory.Exists(externalPath)) Directory.CreateDirectory(externalPath);
-                    return externalPath;
-
-                case IsolationType.Full:
-                    return PrepareFull(instance);
+                    return GetExternalMinecraftPath(); // Или _portableGlobalPath, смотря как у тебя настроено
 
                 case IsolationType.Partial:
-                    return PreparePartial(instance);
+                    // Проверяем, жив ли инстанс. Если папки нет — беда, нужны права админа чтобы восстановить.
+                    if (!Directory.Exists(instancePath))
+                    {
+                        throw new DirectoryNotFoundException("Instance folder not found. Please recreate the installation.");
+                    }
+                    return instancePath;
+
+                case IsolationType.Full:
+                    // Ленивая загрузка: если файлов нет, копируем их сейчас
+                    if (!IsFullInstanceReady(instancePath))
+                    {
+                        PrepareFullLazy(instancePath);
+                    }
+                    return instancePath;
 
                 default:
                     return GetGlobalMinecraftPath();
@@ -73,116 +106,57 @@ namespace Launcher.Core.Services.IO
             }
         }
 
-        private string PrepareFull(MinecraftInstance instance)
-        {
-            var instancePath = Path.Combine(_instancesBasePath, instance.Id);
-            CreateDir(instancePath);
-            // Для полной изоляции папки создаются пустыми
-            string[] basicFolders = { "mods", "config", "saves", "screenshots", "resourcepacks" };
-            foreach (var folder in basicFolders) CreateDir(Path.Combine(instancePath, folder));
-            return instancePath;
-        }
+        // --- ВНУТРЕННИЕ МЕТОДЫ ---
 
-        private string PreparePartial(MinecraftInstance instance)
+        private void PreparePartial(string instancePath)
         {
-            var instancePath = Path.Combine(_instancesBasePath, instance.Id);
             var sourcePath = GetExternalMinecraftPath();
 
             CreateDir(instancePath);
-            
-            CreateDir(Path.Combine(instancePath, "mods"));
+            CreateDir(Path.Combine(instancePath, "mods")); // Своя папка модов
 
-            if (!Directory.Exists(sourcePath))
-            {
-                return instancePath;
-            }
+            if (!Directory.Exists(sourcePath)) return;
             
             var exclusionList = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "assets", 
-                "libraries", 
-                "versions", 
-                "runtime", 
-                "runtimes",
-                "bin", 
-                "cache", 
-                "webcache",
-                "crash-reports",
-                "logs", 
-                "mods",
-                "launcher_profiles.json",
-                "launcher_accounts.json",
+                "assets", "libraries", "versions", "runtime", "runtimes",
+                "bin", "cache", "webcache", "crash-reports", "logs", 
+                "mods", "launcher_profiles.json", "launcher_accounts.json",
             };
-
-
-            foreach (var dirPath in Directory.GetDirectories(sourcePath))
-            {
-                var dirName = new DirectoryInfo(dirPath).Name;
-
-                
-                if (exclusionList.Contains(dirName)) continue;
-
-                
-                LinkFolder(instancePath, sourcePath, dirName);
-            }
-
             
-            foreach (var filePath in Directory.GetFiles(sourcePath))
+            // Вызов хелпера (вызывает cmd от админа)
+            try 
             {
-                var fileName = Path.GetFileName(filePath);
-
-                if (exclusionList.Contains(fileName)) continue;
-
-                LinkFile(instancePath, sourcePath, fileName);
+                AdminSymlinkHelper.CreateSymlinksElevated(sourcePath, instancePath, exclusionList);
             }
+            catch (Exception ex)
+            {
+                // Если юзер нажал "Нет" в UAC или ошибка прав
+                // Удаляем папку, чтобы не оставлять мусор
+                if (Directory.Exists(instancePath)) Directory.Delete(instancePath, true);
+                throw new Exception("Administrator rights are required to create Partial Isolation links!", ex);
+            }
+        }
 
-            return instancePath;
+        private bool IsFullInstanceReady(string instancePath)
+        {
+            // Считаем инстанс готовым, если есть options.txt или папка resourcepacks
+            return File.Exists(Path.Combine(instancePath, "options.txt"));
+        }
+
+        private void PrepareFullLazy(string instancePath)
+        {
+            CreateDir(instancePath);
+            // Копируем базовые файлы из оригинала для старта
+            string[] basicFolders = { "mods", "config", "saves", "screenshots", "resourcepacks" };
+            foreach (var folder in basicFolders) CreateDir(Path.Combine(instancePath, folder));
+            
+            // Тут можно добавить логику копирования options.txt из глобала, если нужно
         }
 
         private void CreateDir(string path)
         {
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-        }
-
-        private void LinkFolder(string instanceRoot, string sourceRoot, string folderName)
-        {
-            var linkPath = Path.Combine(instanceRoot, folderName);
-            var targetPath = Path.Combine(sourceRoot, folderName);
-
-            if (Directory.Exists(linkPath)) return;
-            if (!Directory.Exists(targetPath)) return; 
-
-            try 
-            { 
-                JunctionHelper.CreateJunctionSimple(linkPath, targetPath); 
-            }
-            catch (Exception ex)
-            { 
-                System.Diagnostics.Debug.WriteLine($"Failed to link folder {folderName}: {ex.Message}");
-                CreateDir(linkPath); 
-            }
-        }
-
-        private void LinkFile(string instanceRoot, string sourceRoot, string fileName)
-        {
-            var linkPath = Path.Combine(instanceRoot, fileName);
-            var targetPath = Path.Combine(sourceRoot, fileName);
-
-            if (File.Exists(linkPath)) return;
-            if (!File.Exists(targetPath)) return;
-
-            try
-            {
-                File.CreateSymbolicLink(linkPath, targetPath);
-            }
-            catch
-            {
-                try 
-                {
-                    File.Copy(targetPath, linkPath, true);
-                }
-                catch { /**/ }
-            }
         }
     }
 }
