@@ -64,7 +64,7 @@
                     FontSize="13"
                     Grid.Column="2"
                     Margin="5,0"
-                    Width="60"
+                    MinWidth="60"
                     helpers:ButtonHelper.BalanceText="True">
                     <Button.Style>
                         <Style BasedOn="{StaticResource AccentButtonStyle}" TargetType="Button">

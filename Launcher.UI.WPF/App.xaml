@@ -24,7 +24,7 @@
             <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis" />
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
             <helpers:PercentToScaleConverter x:Key="PercentToScaleConverter" />
-            <services:LocalizationService x:Key="Loc" />
+            <x:Static Member="services:LocalizationService.Instance" x:Key="Loc" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -111,7 +111,7 @@ namespace Launcher.UI.WPF.Resources.Controls
                     var dict = new ResourceDictionary { Source = uri };
                     
                     // 1. ����������
-                    if (dict.Contains("ThemeInfo") && dict["ThemeInfo"] is ThemeMetadata meta)
+                    if (dict.Contains("ThemeInfo") && dict["ThemeInfo"] is ThemeMetaData meta)
                     {
                         card.ThemeName = meta.Name;
                         card.ThemeAuthor = meta.Author;

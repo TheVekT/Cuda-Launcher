@@ -1,6 +1,7 @@
 {
   "Meta": {
-    "Name": "English",
+    "Name": "English (US)",
+    "LanguageCode": "en-US",
     "Author": "TheVekT"
   },
   "Translations": {
@@ -64,7 +65,7 @@
     "AccountCard.MicrosoftType": "Microsoft",
     "AccountCard.OfflineType": "Offline",
     "Play.Title": "Play",
-    "Play.PlayButton": "Play",
+    "Play.PlayButton": "PLAY",
     "VersionElement.VersionLabel": "Version: ",
     "VersionElement.LastPlayedLabel": "Last played: ",
     "AddInstallation.Title": "Add New Installation",

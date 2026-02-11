@@ -1,13 +1,12 @@
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
-using System.ComponentModel;
 
 namespace Launcher.UI.WPF.Services
 {
@@ -16,11 +15,13 @@ namespace Launcher.UI.WPF.Services
         public static LocalizationService Instance { get; } = new LocalizationService();
 
         private Dictionary<string, string> _translations = new Dictionary<string, string>();
+        private string _languagesDir;
 
         public LocalizationService Current => this;
 
         public LocalizationService()
         {
+            Console.WriteLine("[LocalizationService] Constructor called.");
             LoadLanguage("en-US");
         }
 
@@ -30,38 +31,63 @@ namespace Launcher.UI.WPF.Services
             {
                 if (_translations.TryGetValue(key, out var value))
                     return value;
+                return key;
+            }
+        }
 
-                if (string.IsNullOrEmpty(key)) return "";
+        public string GetCodeByName(string name)
+        {
+            var dir = GetLanguagesDirectory();
+            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            {
+                return "en-US";
+            }
+
+            var files = Directory.GetFiles(dir, "*.json");
+
+            foreach (var file in files)
+            {
                 try
                 {
-                    var parts = key.Split('.');
-                    return parts.Length > 0 ? parts.Last() : key;
+                    var json = File.ReadAllText(file, Encoding.UTF8);
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var langData = JsonSerializer.Deserialize<LanguageFile>(json, options);
+
+                    if (langData?.Meta != null)
+                    {
+                        if (langData.Meta.TryGetValue("Name", out var metaName) && 
+                            !string.IsNullOrEmpty(metaName))
+                        {
+                            if (string.Equals(metaName, name, StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (langData.Meta.TryGetValue("LanguageCode", out var code))
+                                {
+                                    return code;
+                                }
+                            }
+                        }
+                    }
                 }
                 catch
                 {
-                    return key;
+                    // Если файл битый или занят другим процессом — просто пропускаем его
+                    continue;
                 }
             }
+            return "en-US";
         }
 
         public void LoadLanguage(string langCode)
         {
-            string assetsRelativePath = Path.Combine("Assets", "Languages", $"{langCode}.json");
-            string runtimePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, assetsRelativePath);
-
+            var dir = GetLanguagesDirectory();
             string foundPath = null;
 
-            if (File.Exists(runtimePath))
+            if (!string.IsNullOrEmpty(dir))
             {
-                foundPath = runtimePath;
+                foundPath = Path.Combine(dir, $"{langCode}.json");
             }
 
-            if (foundPath == null)
-            {
-                foundPath = FindFileViaSourceAnchor(assetsRelativePath);
-            }
-
-            if (foundPath != null)
+            if (File.Exists(foundPath))
             {
                 try
                 {
@@ -72,14 +98,8 @@ namespace Launcher.UI.WPF.Services
                 }
                 catch
                 {
-                    try
-                    {
-                        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                        var json = File.ReadAllText(foundPath, Encoding.GetEncoding(1251));
-                        var langData = JsonSerializer.Deserialize<LanguageFile>(json);
-                        _translations = langData?.Translations ?? new Dictionary<string, string>();
-                    }
-                    catch { }
+                     // Fallback logic for encoding if needed...
+                    _translations = new Dictionary<string, string>();
                 }
             }
             else
@@ -88,6 +108,31 @@ namespace Launcher.UI.WPF.Services
             }
 
             OnPropertyChanged("Item[]");
+        }
+        
+        private string GetLanguagesDirectory()
+        {
+            if (!string.IsNullOrEmpty(_languagesDir)) return _languagesDir;
+
+            string assetsRelativePath = Path.Combine("Assets", "Languages");
+            string runtimePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, assetsRelativePath);
+
+            if (Directory.Exists(runtimePath))
+            {
+                _languagesDir = runtimePath;
+                return runtimePath;
+            }
+            
+            string anchorFile = Path.Combine(assetsRelativePath, "en-US.json");
+            string foundFile = FindFileViaSourceAnchor(anchorFile);
+            
+            if (!string.IsNullOrEmpty(foundFile))
+            {
+                _languagesDir = Path.GetDirectoryName(foundFile);
+                return _languagesDir;
+            }
+
+            return null;
         }
 
         private string FindFileViaSourceAnchor(string relativePath)

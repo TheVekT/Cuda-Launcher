@@ -258,8 +258,10 @@
                             Background="{DynamicResource OverlayButtonBackgroundBrush}"
                             Height="35"
                             SelectedIndex="0"
+                            SelectionChanged="Selector_OnSelectionChanged"
                             Style="{StaticResource DefaultComboBox}">
                             <ComboBoxItem Content="English (US)" />
+                            <ComboBoxItem Content="Українська" />
                         </ComboBox>
                     </StackPanel>
                     <StackPanel

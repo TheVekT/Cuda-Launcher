@@ -28,7 +28,6 @@ public partial class App : Application
         var instanceService = new InstanceService();
         var instanceFileSystemService = new InstanceFileSystemService();
         var launchService = new LaunchService(instanceFileSystemService);
-        
         //Stores
         var loginStore = new LoginStore(accountStorageService);
         var settingsStore = new SettingsStore(themeService);

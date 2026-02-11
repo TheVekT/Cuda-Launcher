@@ -3,7 +3,7 @@
     xmlns:metadata="clr-namespace:Launcher.UI.WPF.Models"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <metadata:ThemeMetadata
+    <metadata:ThemeMetaData
         Author="TheVekT"
         Description="Clean light theme."
         Name="Default Light"
