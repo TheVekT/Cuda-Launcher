@@ -6,11 +6,9 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
+        <AssemblyName>Launcher Updater</AssemblyName>
     </PropertyGroup>
     <PropertyGroup>
-        <OutputPath Condition="'$(Configuration)' == 'Debug'">..\Build\Debug\</OutputPath>
-        <OutputPath Condition="'$(Configuration)' == 'Release'">..\Build\Release\</OutputPath>
-
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <SelfContained>true</SelfContained>
     </PropertyGroup>
 </Project>

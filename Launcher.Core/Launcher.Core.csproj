@@ -5,12 +5,6 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-    <PropertyGroup>
-        <OutputPath Condition="'$(Configuration)' == 'Debug'">..\Build\Debug\</OutputPath>
-        <OutputPath Condition="'$(Configuration)' == 'Release'">..\Build\Release\</OutputPath>
-
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="CmlLib.Core" Version="4.0.6" />
       <PackageReference Include="CmlLib.Core.Auth.Microsoft" Version="3.3.0" />

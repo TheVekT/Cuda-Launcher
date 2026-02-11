@@ -5,5 +5,12 @@
         <Authors>TheVekT</Authors>
         <Company>MineLauncher</Company>
         <Copyright>Copyright © 2025</Copyright>
+        
+        <OutputPath>$(SolutionDir)Build\$(Configuration)\</OutputPath>
+
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     </PropertyGroup>
 </Project>

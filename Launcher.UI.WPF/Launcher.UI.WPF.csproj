@@ -6,12 +6,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <AssemblyName>Mine Launcher</AssemblyName>
   </PropertyGroup>
   <PropertyGroup>
-    <OutputPath Condition="'$(Configuration)' == 'Debug'">..\Build\Debug\</OutputPath>
-    <OutputPath Condition="'$(Configuration)' == 'Release'">..\Build\Release\</OutputPath>
-
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Assets\Icons\fabric-default.png">

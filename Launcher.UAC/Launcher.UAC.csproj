@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Launcher Helper</AssemblyName>
+
+        <SelfContained>true</SelfContained>
+        <ApplicationIcon>..\Launcher.UI.WPF\icon.ico</ApplicationIcon>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="..\Launcher.UI.WPF\icon.ico">
+        <Link>icon.ico</Link>
+      </None>
+    </ItemGroup>
+
+</Project>
