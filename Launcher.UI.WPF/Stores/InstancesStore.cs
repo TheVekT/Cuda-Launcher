@@ -14,9 +14,12 @@ public class InstancesStore: INotifyPropertyChanged
     
     //Attributes
     private MinecraftInstance _selectedInstance;
+    private readonly List<string> _ignoredIcons = new() { "example.png" };
     
     //Collections
     public ObservableCollection<MinecraftInstance> Instances { get; set; } = new();
+    
+    public ObservableCollection<string> IconList { get; } = new();
     
     //Events
     public event Action AddedInstance;
@@ -27,6 +30,7 @@ public class InstancesStore: INotifyPropertyChanged
         _instanceFileSystemService = instanceFileSystemService;
         _instanceService = instanceService;
         
+        LoadIcons();
         LoadSavedInstances();
     }
     
@@ -60,6 +64,21 @@ public class InstancesStore: INotifyPropertyChanged
         }
     }
     
+    private void LoadIcons()
+    {
+        var iconsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Icons");
+        if (Directory.Exists(iconsPath))
+        {
+            var files = Directory.GetFiles(iconsPath, "*.png"); 
+            IconList.Clear();
+            foreach (var file in files)
+            {
+                var fileName = Path.GetFileName(file);
+                if (!_ignoredIcons.Contains(fileName)) IconList.Add(file);
+            }
+        }
+    }
+    
     //Getters and Setters
     public MinecraftInstance SelectedInstance
     {
@@ -73,6 +92,7 @@ public class InstancesStore: INotifyPropertyChanged
             }
         }
     }
+    
    
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

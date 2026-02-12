@@ -119,7 +119,7 @@
                             <ListBox
                                 Background="Transparent"
                                 BorderThickness="0"
-                                ItemsSource="{Binding IconList}"
+                                ItemsSource="{Binding InstancesStore.IconList}"
                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                 ScrollViewer.VerticalScrollBarVisibility="Hidden"
                                 SelectedItem="{Binding SelectedIcon}">

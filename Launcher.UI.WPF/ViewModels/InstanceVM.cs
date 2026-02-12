@@ -29,7 +29,7 @@ public class InstanceVM: INotifyPropertyChanged
     private string _installationName;
     private string _selectedModLoader;
     private IsolationType _selectedIsolation = IsolationType.Global;
-    private readonly List<string> _ignoredIcons = new() { "example.png" };
+    
     
     //Commands
     public ICommand ToggleCreatingPageCommand { get; }
@@ -40,7 +40,6 @@ public class InstanceVM: INotifyPropertyChanged
     public event Action RequestClose;
     
     //Collections
-    public ObservableCollection<string> IconList { get; } = new();
     public ObservableCollection<string> GameVersions { get; } = new(); 
     
     //public properties
@@ -65,8 +64,9 @@ public class InstanceVM: INotifyPropertyChanged
         CreatingPage1Visible = true;
         CreatingPage2Visible = false;
         
-        LoadIcons();
-        
+        if (_instancesStore.IconList.Count > 0){
+            SelectedIcon = _instancesStore.IconList.FirstOrDefault();;
+        }
         ToggleCreatingPageCommand = new RelayCommand(o =>
         {
             CreatingPage1Visible = !CreatingPage1Visible;
@@ -123,24 +123,7 @@ public class InstanceVM: INotifyPropertyChanged
             _ => GameLoaderType.Vanilla
         };
     }
-    private void LoadIcons()
-    {
-        var iconsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Icons");
-        if (Directory.Exists(iconsPath))
-        {
-            var files = Directory.GetFiles(iconsPath, "*.png"); 
-            IconList.Clear();
-            foreach (var file in files)
-            {
-                var fileName = Path.GetFileName(file);
-                if (!_ignoredIcons.Contains(fileName)) IconList.Add(file);
-            }
-            if (IconList.Count > 0)
-            {
-                SelectedIcon = IconList[0];
-            }
-        }
-    }
+    
     private void CreateInstance()
     {
         if (string.IsNullOrEmpty(SelectedGameVersion)) return;
@@ -156,7 +139,7 @@ public class InstanceVM: INotifyPropertyChanged
             GameVersion = SelectedGameVersion,
             LoaderType = GetLoaderType(SelectedModLoader),
             IsolationType = SelectedIsolation,
-            IconPath = SelectedIcon ?? IconList.FirstOrDefault(), 
+            IconPath = SelectedIcon ?? _instancesStore.IconList.FirstOrDefault(), 
             LoaderVersion = (SelectedModLoader == "Vanilla") ? null : "Auto"
         };
 
