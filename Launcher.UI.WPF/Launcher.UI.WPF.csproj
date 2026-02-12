@@ -151,6 +151,10 @@
     <Content Include="Assets\Icons\150px-Grass_Block_JE7_BE6.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Remove="Assets\Languages\uk-UA.json" />
+    <Content Include="Assets\Languages\uk-UA.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

@@ -262,52 +262,56 @@
                                 GroupName="IsolationGroup"
                                 IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Global}"
                                 Margin="0,10,0,0"
-                                Style="{StaticResource PointOptionRadioStyle}"
-                                Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionNoIsolationDesc]}" />
-
+                                Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionNoIsolationDesc]}">
+                                <RadioButton.Style>
+                                    <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
+                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[RecommendedBadge]}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </RadioButton.Style>
+                            </RadioButton>
                             <RadioButton
                                 Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolation]}"
                                 GroupName="IsolationGroup"
                                 IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Partial}"
                                 Margin="0,10,0,0"
-                                Style="{StaticResource PointOptionRadioStyle}"
-                                Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}" />
+                                Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}">
+                                <RadioButton.Style>
+                                    <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </RadioButton.Style>
+                            </RadioButton>
 
                             <RadioButton
                                 Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolation]}"
                                 GroupName="IsolationGroup"
                                 IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Full}"
                                 Margin="0,10,0,0"
-                                Style="{StaticResource PointOptionRadioStyle}"
-                                Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolationDesc]}" />
+                                Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolationDesc]}">
+                                <RadioButton.Style>
+                                    <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
+                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[RecommendedBadge]}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </RadioButton.Style>
+                            </RadioButton>
                         </StackPanel>
                     </Border>
                     <StackPanel Grid.Row="2">
-                        <CheckBox
-                            FontSize="14"
-                            IsChecked="False"
-                            Margin="0,10,0,5"
-                            VerticalAlignment="Top"
-                            helpers:ScaleHelper.ScaleFactor="0.8">
-
-                            <CheckBox.Style>
-                                <Style BasedOn="{StaticResource DefaultToggleSwitchStyle}" TargetType="CheckBox">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="Forge">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </CheckBox.Style>
-
-                            <CheckBox.Content>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Foreground="{DynamicResource ForegroundPrimaryBrush}" Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.AutoInstallOptiFineLabel]}" />
-                                </StackPanel>
-                            </CheckBox.Content>
-                        </CheckBox>
-
                         <CheckBox
                             FontSize="14"
                             IsChecked="False"

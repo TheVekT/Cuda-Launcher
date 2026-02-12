@@ -1100,21 +1100,29 @@
                         </Grid>
 
                         <StackPanel Grid.Column="1">
-                            <ContentPresenter Content="{TemplateBinding Content}">
-                                <ContentPresenter.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="VerticalAlignment" Value="Center" />
-                                        <Setter Property="FontSize" Value="14" />
-                                        <Setter Property="FontFamily" Value="{DynamicResource GlobalFont}" />
-                                        <Setter Property="Foreground">
-                                            <Setter.Value>
-                                                <SolidColorBrush Color="{DynamicResource ForegroundPrimary}" />
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ContentPresenter.Resources>
-                            </ContentPresenter>
-
+                            <StackPanel Orientation="Horizontal">
+                                <ContentPresenter Content="{TemplateBinding Content}">
+                                    <ContentPresenter.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                            <Setter Property="FontSize" Value="14" />
+                                            <Setter Property="FontFamily" Value="{DynamicResource GlobalFont}" />
+                                            <Setter Property="Foreground">
+                                                <Setter.Value>
+                                                    <SolidColorBrush Color="{DynamicResource ForegroundPrimary}" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ContentPresenter.Resources>
+                                </ContentPresenter>
+                                <TextBlock
+                                    FontSize="13"
+                                    Foreground="{DynamicResource FeaturedForegroundBrush}"
+                                    Margin="10,0,0,0"
+                                    Text="{TemplateBinding helpers:RadioButtonHelper.RecommendedBadgeText}"
+                                    VerticalAlignment="Bottom"
+                                    x:Name="RecommendedBadge" />
+                            </StackPanel>
                             <TextBlock
                                 FontSize="12"
                                 Margin="0,2,0,0"
@@ -1138,7 +1146,6 @@
                                 </Setter.Value>
                             </Setter>
                         </Trigger>
-
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="BorderBrush" TargetName="OuterCircle">
                                 <Setter.Value>
@@ -1146,13 +1153,15 @@
                                 </Setter.Value>
                             </Setter>
                         </Trigger>
-
                         <Trigger Property="Tag" Value="{x:Null}">
                             <Setter Property="Visibility" TargetName="DescriptionText" Value="Collapsed" />
                         </Trigger>
                         <Trigger Property="Tag" Value="">
                             <Setter Property="Visibility" TargetName="DescriptionText" Value="Collapsed" />
                         </Trigger>
+                        <DataTrigger Binding="{Binding Path=(helpers:RadioButtonHelper.RecommendedBadgeText), RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                            <Setter Property="Visibility" TargetName="RecommendedBadge" Value="Collapsed" />
+                        </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

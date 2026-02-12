@@ -30,6 +30,7 @@
     <SolidColorBrush Color="{DynamicResource AlertBackground}" x:Key="AlertBackgroundBrush" />
     <SolidColorBrush Color="{DynamicResource AlertBorder}" x:Key="AlertBorderBrush" />
     <SolidColorBrush Color="{DynamicResource AlertForeground}" x:Key="AlertForegroundBrush" />
+    <SolidColorBrush Color="{DynamicResource FeaturedForeground}" x:Key="FeaturedForegroundBrush" />
     <SolidColorBrush Color="{DynamicResource ColorDanger}" x:Key="ColorDangerBrush" />
     <SolidColorBrush Color="{DynamicResource DropDownArrow}" x:Key="DropDownArrowBrush" />
 

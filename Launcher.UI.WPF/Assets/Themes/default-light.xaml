@@ -41,6 +41,7 @@
     <Color x:Key="AlertBorder">#F5C2C7</Color>
     <Color x:Key="AlertForeground">#842029</Color>
     <Color x:Key="AlertBackground">#80842029</Color>
+    <Color x:Key="FeaturedForeground">#C44000</Color>
     <Color x:Key="ColorDanger">#DC3545</Color>
 
     <CornerRadius x:Key="DefaultCorner">6</CornerRadius>

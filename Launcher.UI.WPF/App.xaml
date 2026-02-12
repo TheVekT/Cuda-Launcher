@@ -21,10 +21,11 @@
                 <ResourceDictionary Source="Resources/Styles/ThemePreviewStyles.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
+            <x:Static Member="services:LocalizationService.Instance" x:Key="Loc" />
             <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis" />
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
             <helpers:PercentToScaleConverter x:Key="PercentToScaleConverter" />
-            <x:Static Member="services:LocalizationService.Instance" x:Key="Loc" />
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -37,7 +37,9 @@
     <Color x:Key="AlertBackground">#40FF8C00</Color>
     <Color x:Key="AlertBorder">#B8860B</Color>
     <Color x:Key="AlertForeground">#FFD700</Color>
+    <Color x:Key="FeaturedForeground">#CD7F32</Color>
     <Color x:Key="ColorDanger">#ff4747</Color>
+
     <CornerRadius x:Key="DefaultCorner">3</CornerRadius>
     <CornerRadius x:Key="NavButtonsCorner">5</CornerRadius>
     <Thickness x:Key="DefaultBorderThickness">1</Thickness>

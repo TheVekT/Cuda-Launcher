@@ -93,6 +93,7 @@
     "AddInstallation.ConfigureInstallationSubtitle": "Папки та додаткові опції",
     "AddInstallation.AutoInstallOptiFineLabel": "Встановити OptiFine",
     "AddInstallation.AutoInstallIrisSodiumLabel": "Встановити Iris & Sodium",
-    "AddInstallation.EditJVMArgumentsLabel": "Аргументи JVM"
+    "AddInstallation.EditJVMArgumentsLabel": "Аргументи JVM",
+    "RecommendedBadge": "Рекомендовано"
   }
 }

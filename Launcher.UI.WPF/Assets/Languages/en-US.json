@@ -92,7 +92,8 @@
     "AddInstallation.ConfigureInstallationSubtitle": "Configure game folder and misc settings",
     "AddInstallation.AutoInstallOptiFineLabel": "Add OptiFine",
     "AddInstallation.AutoInstallIrisSodiumLabel": "Add Iris & Sodium",
-    "AddInstallation.EditJVMArgumentsLabel": "JVM Arguments"
+    "AddInstallation.EditJVMArgumentsLabel": "JVM Arguments",
+    "RecommendedBadge": "Recommended"
   
   }
 }

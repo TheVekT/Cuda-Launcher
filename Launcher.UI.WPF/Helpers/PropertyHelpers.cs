@@ -307,4 +307,25 @@ namespace Launcher.UI.WPF.Helpers
         public static object GetCommandParameter(DependencyObject element) => element.GetValue(CommandParameterProperty);
     }
     
+    public static class RadioButtonHelper
+    {
+        public static readonly DependencyProperty RecommendedBadgeTextProperty =
+            DependencyProperty.RegisterAttached(
+                "RecommendedBadgeText",
+                typeof(string), 
+                typeof(RadioButtonHelper), 
+                new PropertyMetadata(null));
+
+        [AttachedPropertyBrowsableForType(typeof(RadioButton))]
+        public static string GetRecommendedBadgeText(DependencyObject obj)
+        {
+            return (string)obj.GetValue(RecommendedBadgeTextProperty);
+        }
+
+        public static void SetRecommendedBadgeText(DependencyObject obj, string value)
+        {
+            obj.SetValue(RecommendedBadgeTextProperty, value);
+        }
+    }
+    
 }

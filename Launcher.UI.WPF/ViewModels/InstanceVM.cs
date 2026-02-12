@@ -244,6 +244,14 @@ public class InstanceVM: INotifyPropertyChanged
             if (_selectedModLoader != value)
             {
                 _selectedModLoader = value;
+                if (_selectedModLoader == "Vanilla")
+                {
+                    SelectedIsolation = IsolationType.Global;
+                }
+                else
+                {
+                    SelectedIsolation = IsolationType.Full;
+                }
                 OnPropertyChanged(nameof(SelectedModLoader));
                 _ = RefreshGameVersions();
                 OnPropertyChanged(nameof(SuggestedName));
