@@ -21,7 +21,6 @@ namespace Launcher.UI.WPF.Services
 
         public LocalizationService()
         {
-            Console.WriteLine("[LocalizationService] Constructor called.");
             LoadLanguage("en-US");
         }
 

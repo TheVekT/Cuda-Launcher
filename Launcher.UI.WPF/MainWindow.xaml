@@ -43,279 +43,294 @@
             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
     <Grid>
-        <Grid.LayoutTransform>
-            <ScaleTransform ScaleX="{Binding SettingsVM.SettingsStore.UiScale}" ScaleY="{Binding SettingsVM.SettingsStore.UiScale}" />
-        </Grid.LayoutTransform>
-        <Grid x:Name="MainPanel">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <controls:CustomTitleBar Grid.Row="0" />
-            <Grid
-                Background="{DynamicResource BackgroundTransparentBrush}"
-                Grid.Row="1"
-                Height="45"
-                VerticalAlignment="Top"
-                x:Name="Header">
-                <Border
-                    BorderBrush="{DynamicResource BorderPrimaryBrush}"
-                    BorderThickness="0,0,0,1"
-                    Padding="20,6">
-                    <Grid x:Name="HeaderContainer">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel
-                                Grid.Column="0"
-                                HorizontalAlignment="Left"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                                x:Name="LogoContainer">
-                                <Image Source="/Assets/Icons/logo.png" VerticalAlignment="Center" />
-                                <TextBlock
-                                    FontSize="24"
-                                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                    Margin="6,0,0,0"
-                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LogoText]}"
-                                    VerticalAlignment="Center" />
-                            </StackPanel>
-                            <StackPanel
-                                Grid.Column="1"
-                                HorizontalAlignment="Left"
-                                Margin="50,0,0,0"
-                                Orientation="Horizontal"
-                                x:Name="NavContainer">
-                                <RadioButton
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Play"
-                                    Height="30"
-                                    IsChecked="True"
-                                    Padding="10,0"
-                                    Style="{StaticResource NavRadioButtonStyle}"
-                                    x:Name="PlayRadio">
-                                    <RadioButton.Content>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Viewbox
-                                                Height="16"
-                                                Stretch="Uniform"
-                                                Width="16">
-                                                <Grid Height="16" Width="16">
-                                                    <Path
-                                                        Data="{StaticResource Icon.Block}"
-                                                        Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
-                                                        StrokeThickness="1.33" />
-                                                </Grid>
-                                            </Viewbox>
-                                            <TextBlock
-                                                FontSize="14"
-                                                Margin="6,0,0,0"
-                                                Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Play]}" />
-                                        </StackPanel>
-                                    </RadioButton.Content>
-                                </RadioButton>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <controls:CustomTitleBar Grid.Row="0" />
+        <Grid Grid.Row="1">
+            <Grid.LayoutTransform>
+                <ScaleTransform ScaleX="{Binding SettingsVM.SettingsStore.UiScale}" ScaleY="{Binding SettingsVM.SettingsStore.UiScale}" />
+            </Grid.LayoutTransform>
+            <Grid x:Name="MainPanel">
 
-                                <RadioButton
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Installations"
-                                    Height="30"
-                                    Margin="6,0,0,0"
-                                    Padding="10,0"
-                                    Style="{StaticResource NavRadioButtonStyle}"
-                                    x:Name="InstallationsRadio">
-                                    <RadioButton.Content>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Viewbox
-                                                Height="16"
-                                                Stretch="Uniform"
-                                                Width="16">
-                                                <Grid Height="16" Width="16">
-                                                    <Path
-                                                        Data="{StaticResource Icon.Settings}"
-                                                        Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
-                                                        StrokeThickness="1.33" />
-                                                </Grid>
-                                            </Viewbox>
-                                            <TextBlock
-                                                FontSize="14"
-                                                Margin="6,0,0,0"
-                                                Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Installations]}" />
-                                        </StackPanel>
-                                    </RadioButton.Content>
-                                </RadioButton>
-
-                                <RadioButton
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Skins"
-                                    Height="30"
-                                    Margin="6,0,0,0"
-                                    Padding="10,0"
-                                    Style="{StaticResource NavRadioButtonStyle}"
-                                    x:Name="SkinsRadio">
-                                    <RadioButton.Content>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Viewbox
-                                                Height="16"
-                                                Stretch="Uniform"
-                                                Width="16">
-                                                <Grid Height="16" Width="16">
-                                                    <Path
-                                                        Data="{StaticResource Icon.Skin}"
-                                                        Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
-                                                        StrokeThickness="1.33" />
-                                                </Grid>
-                                            </Viewbox>
-                                            <TextBlock
-                                                FontSize="14"
-                                                Margin="6,0,0,0"
-                                                Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Skins]}" />
-                                        </StackPanel>
-                                    </RadioButton.Content>
-                                </RadioButton>
-                            </StackPanel>
-                            <Button
-                                Command="{Binding OpenLoginCommand}"
-                                FontSize="14"
-                                Grid.Column="2"
-                                Height="30"
-                                HorizontalAlignment="Right"
-                                Margin="6,0,0,0"
-                                Tag="{StaticResource Icon.Account}"
-                                helpers:ButtonHelper.IconSize="14"
-                                x:Name="LoginButton">
-                                <Button.Style>
-                                    <Style BasedOn="{StaticResource AccentButtonStyle}" TargetType="Button">
-
-                                        <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
-                                        <Style.Triggers>
-
-                                            <DataTrigger Binding="{Binding LoginVM.LoginStore.IsLoggedIn}" Value="True">
-                                                <Setter Property="Content" Value="{Binding LoginVM.LoginStore.UserName}" />
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding LoginVM.LoginStore.IsLoggedIn}" Value="False">
-                                                <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-
-                        </Grid>
-                    </Grid>
-                </Border>
-            </Grid>
-            <Grid Grid.Row="2" x:Name="Main">
-                <Border x:Name="FooterAndHeaderBackground">
-                    <Border.Background>
-                        <ImageBrush ImageSource="Assets/Images/banner-default.jpg" Stretch="UniformToFill" />
-
-                    </Border.Background>
-                    <Border.Effect>
-                        <BlurEffect Radius="4" />
-                    </Border.Effect>
-                    <Border>
-                        <Border.Background>
-                            <LinearGradientBrush EndPoint="0.5, 1" StartPoint="0.5, 0">
-                                <GradientStop Color="#4D000000" Offset="0.0" />
-
-                                <GradientStop Color="#B3000000" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                    </Border>
-                </Border>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid
-                        Background="{DynamicResource BackgroundTransparentBrush}"
-                        Grid.Row="1"
-                        Height="47"
-                        x:Name="Footer">
-                        <Border
-                            BorderBrush="{DynamicResource BorderPrimaryBrush}"
-                            BorderThickness="0,1,0,0"
-                            Padding="20,5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid
+                    Background="{DynamicResource BackgroundTransparentBrush}"
+                    Grid.Row="0"
+                    Height="45"
+                    VerticalAlignment="Top"
+                    x:Name="Header">
+                    <Border
+                        BorderBrush="{DynamicResource BorderPrimaryBrush}"
+                        BorderThickness="0,0,0,1"
+                        Padding="20,6">
+                        <Grid x:Name="HeaderContainer">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                    <ComboBox
-                                        Height="35"
-                                        ItemContainerStyle="{StaticResource InstanceItemContainerStyle}"
-                                        ItemTemplate="{StaticResource InstanceDataTemplate}"
-                                        ItemsSource="{Binding InstallationsVM.InstancesStore.Instances}"
-                                        SelectedItem="{Binding InstallationsVM.InstancesStore.SelectedInstance}"
-                                        Style="{StaticResource InstanceComboBox}"
-                                        Width="300"
-                                        helpers:ComboBoxHelper.PopupPlacement="Top" />
-                                    <Button
-                                        Command="{Binding LaunchCommand}"
-                                        FontSize="16"
-                                        Height="35"
-                                        HorizontalAlignment="Center"
-                                        IsEnabled="{Binding PlayVM.PlayButtonEnabled}"
+                                <StackPanel
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Left"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    x:Name="LogoContainer">
+                                    <Image Source="/Assets/Icons/logo.png" VerticalAlignment="Center" />
+                                    <TextBlock
+                                        FontSize="24"
+                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                         Margin="6,0,0,0"
-                                        Style="{StaticResource AccentButtonStyle}"
-                                        Tag="{StaticResource Icon.Play}"
-                                        Visibility="{Binding ShowCompactPlayButton, Converter={StaticResource BoolToVis}}"
-                                        Width="35"
-                                        x:Name="PlayButtonCompact" />
+                                        Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LogoText]}"
+                                        VerticalAlignment="Center" />
                                 </StackPanel>
-                                <StackPanel Grid.Column="1" />
-                                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                    <Button
-                                        BorderThickness="{DynamicResource DefaultBorderThickness}"
-                                        Height="35"
-                                        Padding="0"
-                                        Style="{StaticResource DefaultButtonStyle}"
-                                        Tag="{StaticResource Icon.Folder}"
-                                        Width="35"
-                                        x:Name="OpenFolderButton" />
-                                    <Button
-                                        BorderThickness="{DynamicResource DefaultBorderThickness}"
-                                        Command="{Binding OpenSettingsCommand}"
-                                        Height="35"
+                                <StackPanel
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Left"
+                                    Margin="50,0,0,0"
+                                    Orientation="Horizontal"
+                                    x:Name="NavContainer">
+                                    <RadioButton
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Play"
+                                        Height="30"
+                                        IsChecked="True"
+                                        Padding="10,0"
+                                        Style="{StaticResource NavRadioButtonStyle}"
+                                        x:Name="PlayRadio">
+                                        <RadioButton.Content>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Viewbox
+                                                    Height="16"
+                                                    Stretch="Uniform"
+                                                    Width="16">
+                                                    <Grid Height="16" Width="16">
+                                                        <Path
+                                                            Data="{StaticResource Icon.Block}"
+                                                            Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                                            StrokeThickness="1.33" />
+                                                    </Grid>
+                                                </Viewbox>
+                                                <TextBlock
+                                                    FontSize="14"
+                                                    Margin="6,0,0,0"
+                                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Play]}" />
+                                            </StackPanel>
+                                        </RadioButton.Content>
+                                    </RadioButton>
+
+                                    <RadioButton
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Installations"
+                                        Height="30"
                                         Margin="6,0,0,0"
-                                        Padding="0"
-                                        Style="{StaticResource DefaultButtonStyle}"
-                                        Tag="{StaticResource Icon.Settings}"
-                                        Width="35"
-                                        x:Name="SettingsButton" />
+                                        Padding="10,0"
+                                        Style="{StaticResource NavRadioButtonStyle}"
+                                        x:Name="InstallationsRadio">
+                                        <RadioButton.Content>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Viewbox
+                                                    Height="16"
+                                                    Stretch="Uniform"
+                                                    Width="16">
+                                                    <Grid Height="16" Width="16">
+                                                        <Path
+                                                            Data="{StaticResource Icon.Settings}"
+                                                            Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                                            StrokeThickness="1.33" />
+                                                    </Grid>
+                                                </Viewbox>
+                                                <TextBlock
+                                                    FontSize="14"
+                                                    Margin="6,0,0,0"
+                                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Installations]}" />
+                                            </StackPanel>
+                                        </RadioButton.Content>
+                                    </RadioButton>
+
+                                    <RadioButton
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Skins"
+                                        Height="30"
+                                        Margin="6,0,0,0"
+                                        Padding="10,0"
+                                        Style="{StaticResource NavRadioButtonStyle}"
+                                        x:Name="SkinsRadio">
+                                        <RadioButton.Content>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Viewbox
+                                                    Height="16"
+                                                    Stretch="Uniform"
+                                                    Width="16">
+                                                    <Grid Height="16" Width="16">
+                                                        <Path
+                                                            Data="{StaticResource Icon.Skin}"
+                                                            Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                                            StrokeThickness="1.33" />
+                                                    </Grid>
+                                                </Viewbox>
+                                                <TextBlock
+                                                    FontSize="14"
+                                                    Margin="6,0,0,0"
+                                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Skins]}" />
+                                            </StackPanel>
+                                        </RadioButton.Content>
+                                    </RadioButton>
                                 </StackPanel>
+                                <Button
+                                    Command="{Binding OpenLoginCommand}"
+                                    FontSize="14"
+                                    Grid.Column="2"
+                                    Height="30"
+                                    HorizontalAlignment="Right"
+                                    Margin="6,0,0,0"
+                                    Tag="{StaticResource Icon.Account}"
+                                    helpers:ButtonHelper.IconSize="14"
+                                    x:Name="LoginButton">
+                                    <Button.Style>
+                                        <Style BasedOn="{StaticResource AccentButtonStyle}" TargetType="Button">
+
+                                            <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
+                                            <Style.Triggers>
+
+                                                <DataTrigger Binding="{Binding LoginVM.LoginStore.IsLoggedIn}" Value="True">
+                                                    <Setter Property="Content" Value="{Binding LoginVM.LoginStore.UserName}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding LoginVM.LoginStore.IsLoggedIn}" Value="False">
+                                                    <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+
                             </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+                <Grid Grid.Row="1" x:Name="Main">
+                    <Border x:Name="FooterAndHeaderBackground">
+                        <Border.Background>
+                            <ImageBrush ImageSource="Assets/Images/banner-default.jpg" Stretch="UniformToFill" />
+
+                        </Border.Background>
+                        <Border.Effect>
+                            <BlurEffect Radius="4" />
+                        </Border.Effect>
+                        <Border>
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0.5, 1" StartPoint="0.5, 0">
+                                    <GradientStop Color="#4D000000" Offset="0.0" />
+
+                                    <GradientStop Color="#B3000000" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
                         </Border>
-                    </Grid>
-                    <Grid Grid.Row="0" x:Name="TabsContainer">
-                        <ContentControl Content="{Binding CurrentView}" />
+                    </Border>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid
+                            Background="{DynamicResource BackgroundTransparentBrush}"
+                            Grid.Row="1"
+                            Height="47"
+                            x:Name="Footer">
+                            <Border
+                                BorderBrush="{DynamicResource BorderPrimaryBrush}"
+                                BorderThickness="0,1,0,0"
+                                Padding="20,5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <ComboBox
+                                            Height="35"
+                                            ItemContainerStyle="{StaticResource InstanceItemContainerStyle}"
+                                            ItemTemplate="{StaticResource InstanceDataTemplate}"
+                                            ItemsSource="{Binding InstallationsVM.InstancesStore.Instances}"
+                                            SelectedItem="{Binding InstallationsVM.InstancesStore.SelectedInstance}"
+                                            Style="{StaticResource InstanceComboBox}"
+                                            Width="300"
+                                            helpers:ComboBoxHelper.PopupPlacement="Top" />
+                                        <Button
+                                            Command="{Binding LaunchCommand}"
+                                            FontSize="16"
+                                            Height="35"
+                                            HorizontalAlignment="Center"
+                                            IsEnabled="{Binding PlayVM.PlayButtonEnabled}"
+                                            Margin="6,0,0,0"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Tag="{StaticResource Icon.Play}"
+                                            Visibility="{Binding ShowCompactPlayButton, Converter={StaticResource BoolToVis}}"
+                                            Width="35"
+                                            x:Name="PlayButtonCompact" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" />
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                        <Button
+                                            BorderThickness="{DynamicResource DefaultBorderThickness}"
+                                            Height="35"
+                                            Padding="0"
+                                            Style="{StaticResource DefaultButtonStyle}"
+                                            Tag="{StaticResource Icon.Folder}"
+                                            Width="35"
+                                            x:Name="OpenFolderButton" />
+                                        <Button
+                                            BorderThickness="{DynamicResource DefaultBorderThickness}"
+                                            Command="{Binding OpenSettingsCommand}"
+                                            Height="35"
+                                            Margin="6,0,0,0"
+                                            Padding="0"
+                                            Style="{StaticResource DefaultButtonStyle}"
+                                            Tag="{StaticResource Icon.Settings}"
+                                            Width="35"
+                                            x:Name="SettingsButton" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        <Grid Grid.Row="0" x:Name="TabsContainer">
+                            <ContentControl Content="{Binding CurrentView}" />
+                        </Grid>
                     </Grid>
                 </Grid>
             </Grid>
-        </Grid>
-        <Grid
-            Panel.ZIndex="999"
-            Visibility="{Binding AppStore.IsOverlayVisible, Converter={StaticResource BoolToVis}}"
-            x:Name="OverlayContainer">
+            <Grid
+                Panel.ZIndex="999"
+                Visibility="{Binding AppStore.IsOverlayVisible, Converter={StaticResource BoolToVis}}"
+                x:Name="OverlayContainer">
 
-            <Border Background="Transparent">
-                <Border.InputBindings>
-                    <MouseBinding Command="{Binding CloseOverlayCommand}" MouseAction="LeftClick" />
-                </Border.InputBindings>
-            </Border>
+                <Border Background="Transparent">
+                    <Border.InputBindings>
+                        <MouseBinding Command="{Binding CloseOverlayCommand}" MouseAction="LeftClick" />
+                    </Border.InputBindings>
+                </Border>
 
-            <ContentControl
-                Content="{Binding AppStore.CurrentOverlayView}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center" />
-
+                <ContentControl
+                    Content="{Binding AppStore.CurrentOverlayView}"
+                    HorizontalAlignment="Center"
+                    IsHitTestVisible="True"
+                    VerticalAlignment="Center">
+                    <ContentControl.Effect>
+                        <DropShadowEffect
+                            BlurRadius="125"
+                            Color="Black"
+                            Opacity="0.7"
+                            RenderingBias="Quality"
+                            ShadowDepth="0" />
+                    </ContentControl.Effect>
+                </ContentControl>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

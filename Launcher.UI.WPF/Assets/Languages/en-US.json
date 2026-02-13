@@ -93,7 +93,10 @@
     "AddInstallation.AutoInstallOptiFineLabel": "Add OptiFine",
     "AddInstallation.AutoInstallIrisSodiumLabel": "Add Iris & Sodium",
     "AddInstallation.EditJVMArgumentsLabel": "JVM Arguments",
-    "RecommendedBadge": "Recommended"
-  
+    "Confirmation.DeleteInstanceTitle": "Delete installation {0}?",
+    "Confirmation.DeleteInstanceMessage": "Are you sure you want to delete the installation {0}? \nThis action cannot be undone.",
+    "RecommendedBadge": "Recommended",
+    "CancelButtonText": "Cancel",
+    "ConfirmButtonText": "Confirm"
   }
 }

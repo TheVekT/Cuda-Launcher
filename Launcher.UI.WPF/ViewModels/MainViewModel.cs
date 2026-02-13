@@ -18,6 +18,7 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly ThemeService _themeService;
     private readonly IAuthService _authService; 
     private readonly IAccountStorageService _accountStorage;
+    private readonly IGameVersionService _versionService;
     private readonly IInstanceService _instanceService; 
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly ILaunchService _launchService;
@@ -61,6 +62,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     public async Task InitializeAsync()
     {
+        _ = Task.Run(async () => await _versionService.GetGameVersionsByTypeAsync(GameLoaderType.Vanilla));
         // async initialization logic here (e.g. load accounts, instances, etc.)
     }
 
@@ -81,6 +83,7 @@ public class MainViewModel : INotifyPropertyChanged
         _themeService = themeService;
         _authService = authService;
         _accountStorage = accountStorage;
+        _versionService = versionService;
         _instanceService = instanceService;
         _instanceFileSystemService = instanceFileSystemService;
         _launchService = launchService;

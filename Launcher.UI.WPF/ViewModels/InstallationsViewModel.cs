@@ -11,6 +11,7 @@ using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
@@ -53,13 +54,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
         _appStore = appStore;
         
         
-        DeleteInstanceCommand = new RelayCommand(o => 
-        {
-            if (o is MinecraftInstance instanceToDelete)
-            {
-                _instancesStore.DeleteInstance(instanceToDelete);
-            }
-        });
+        DeleteInstanceCommand = new RelayCommand(async o => await DeleteInstance(o as MinecraftInstance));
 
         OpenAddVersionCommand = new RelayCommand(async o => 
         {
@@ -78,6 +73,24 @@ public class InstallationsViewModel : INotifyPropertyChanged
             ApplySort();
         };
         ApplySort();
+    }
+    
+    private async Task DeleteInstance(MinecraftInstance instance)
+    {
+        var confirmVm = new ConfirmVM(
+            string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceTitle"], instance.Name), 
+            string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceMessage"], instance.Name));
+        var view = new ConfirmMenu();
+        view.DataContext = confirmVm;
+        _appStore.CurrentOverlayView = view;
+        bool isConfirmed = await confirmVm.WaitAsync();
+        _appStore.CurrentOverlayView = null;
+        
+        if (!isConfirmed)
+        {
+            return;
+        }
+        _instancesStore.DeleteInstance(instance);
     }
 
     private void ApplySort()
