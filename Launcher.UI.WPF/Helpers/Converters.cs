@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows;
+using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.Helpers
 {
@@ -289,15 +290,15 @@ namespace Launcher.UI.WPF.Helpers
         {
             // 1. Обработка null (Если игры никогда не запускались)
             if (value == null)
-                return "Never"; // Ты писал "Newer", но по смыслу LastPlayed это "Never" (Никогда)
+                return LocalizationService.Instance["VersionElement.LastPlayed.Never"]; // Ты писал "Newer", но по смыслу LastPlayed это "Never" (Никогда)
 
             // 2. Проверка типа
             if (value is not DateTime date)
-                return "Never";
+                return LocalizationService.Instance["VersionElement.LastPlayed.Never"];
 
             // Если дата "минимальная" (дефолтная), считаем что не играли
             if (date == DateTime.MinValue)
-                return "Never";
+                return LocalizationService.Instance["VersionElement.LastPlayed.Never"];
 
             var timeSpan = DateTime.Now - date;
 
@@ -305,42 +306,49 @@ namespace Launcher.UI.WPF.Helpers
             
             // Меньше минуты
             if (timeSpan.TotalSeconds < 60)
-                return "just now";
+                return LocalizationService.Instance["VersionElement.LastPlayed.JustNow"];
 
             // Меньше часа (минуты)
             if (timeSpan.TotalMinutes < 60)
-                return $"{timeSpan.Minutes} min. ago";
+                return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XMinsAgo"], timeSpan.Minutes);
 
             // Меньше суток (часы)
             if (timeSpan.TotalHours < 24)
             {
                 // Можно добавить логику для "1 hr." vs "2 hrs.", но обычно сокращения hr. достаточно
-                return $"{timeSpan.Hours} hr. ago";
+                return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XHoursAgo"], timeSpan.Hours);
             }
 
             // Меньше 48 часов (вчера / 1 день назад)
             if (timeSpan.TotalDays < 2)
-                return "1 day ago";
+                return LocalizationService.Instance["VersionElement.LastPlayed.1DayAgo"];
 
             // Меньше месяца (дни)
             if (timeSpan.TotalDays < 30)
-                return $"{timeSpan.Days} days ago";
+                return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XDaysAgo"], timeSpan.Days);
 
             // Меньше года (месяцы)
             if (timeSpan.TotalDays < 365)
             {
                 int months = (int)(timeSpan.TotalDays / 30);
-                return months <= 1 ? "1 month ago" : $"{months} months ago";
+                if (months <= 1)
+                {
+                    return LocalizationService.Instance["VersionElement.LastPlayed.1MonthAgo"];
+                }
+                else
+                {
+                    return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XMonthsAgo"], months);
+                }
             }
 
             // Больше года
             // Если чуть больше года
             if (timeSpan.TotalDays < 730) // меньше 2 лет
-                return "over a year ago";
+                return LocalizationService.Instance["VersionElement.LastPlayed.OverYearAgo"];
             
             // Если много лет
             int years = (int)(timeSpan.TotalDays / 365);
-            return $"{years} years ago";
+            return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XYearsAgo"], years);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
