@@ -11,6 +11,7 @@ namespace Launcher.UI.WPF.ViewModels
         private readonly TaskCompletionSource<bool> _tcs = new();
         private string _title;
         private string _message;
+        private ConfirmButtons _buttons;
         
         public ICommand ConfirmCommand { get; }
         public ICommand CancelCommand { get; }
@@ -18,10 +19,11 @@ namespace Launcher.UI.WPF.ViewModels
         public Task<bool> WaitAsync() => _tcs.Task;
         
 
-        public ConfirmVM(string title, string message)
+        public ConfirmVM(string title, string message, ConfirmButtons buttons = ConfirmButtons.Confirm)
         {
             Title = title;
             Message = message;
+            Buttons = buttons;
             
             ConfirmCommand = new RelayCommand(o => _tcs.TrySetResult(true));
             CancelCommand = new RelayCommand(o => _tcs.TrySetResult(false));
@@ -48,6 +50,16 @@ namespace Launcher.UI.WPF.ViewModels
             {
                 _message = value;
                 OnPropertyChanged(nameof(Message));
+            }
+        }
+        
+        public ConfirmButtons Buttons
+        {
+            get => _buttons;
+            set
+            {
+                _buttons = value;
+                OnPropertyChanged(nameof(Buttons));
             }
         }
         

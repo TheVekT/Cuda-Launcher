@@ -7,6 +7,7 @@ using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Game;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
@@ -48,6 +49,9 @@ public class MainViewModel : INotifyPropertyChanged
     //Atributes
     private object _currentView;
     private bool _showCompactPlayButton;
+    
+    //Overlays
+    private SettingsMenu _settingsMenu;
     
     //Commands
     public ICommand LaunchCommand { get; }
@@ -102,6 +106,9 @@ public class MainViewModel : INotifyPropertyChanged
         _loginVM = new LoginVM(_authService, _accountStorage,_loginStore);
         _settingsVM = new SettingsVM(_settingsStore);
         
+        //Overlays
+        _settingsMenu = new SettingsMenu();
+        _settingsMenu.DataContext = _settingsVM;
         
         //Commands
         
@@ -121,12 +128,7 @@ public class MainViewModel : INotifyPropertyChanged
         });
         CurrentView = PlayVM;
         
-        OpenSettingsCommand = new RelayCommand(o =>
-        {
-            var settingsMenu = new Resources.Overlay.SettingsMenu();
-            settingsMenu.DataContext = _settingsVM;
-            _appStore.CurrentOverlayView = settingsMenu;
-        });
+        OpenSettingsCommand = new RelayCommand(o => _appStore.CurrentOverlayView = _settingsMenu);
         
         OpenLoginCommand = new RelayCommand(o => 
         {

@@ -94,10 +94,11 @@
     "AddInstallation.AutoInstallOptiFineLabel": "Встановити OptiFine",
     "AddInstallation.AutoInstallIrisSodiumLabel": "Встановити Iris & Sodium",
     "AddInstallation.EditJVMArgumentsLabel": "Аргументи JVM",
+    "AddInstallation.RecommendedBadge": "Рекомендовано",
     "Confirmation.DeleteInstanceTitle": "Видалити збірку {0}?",
     "Confirmation.DeleteInstanceMessage": "Ви впевнені, що хочете видалити збірку {0}? \nЦя дія не може бути скасована.",
-    "RecommendedBadge": "Рекомендовано",
-    "CancelButtonText": "Ні",
-    "ConfirmButtonText": "Так"
+    "Confirmation.DeleteButtonText": "Видалити",
+    "Confirmation.CancelButtonText": "Ні",
+    "Confirmation.ConfirmButtonText": "Так"
   }
 }

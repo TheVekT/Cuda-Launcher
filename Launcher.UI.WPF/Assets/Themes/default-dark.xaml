@@ -48,6 +48,7 @@
     <Color x:Key="DropDownArrow">#50717182</Color>
 
     <CornerRadius x:Key="DefaultCorner">6</CornerRadius>
+    <CornerRadius x:Key="SecondaryCorner">10</CornerRadius>
     <CornerRadius x:Key="NavButtonsCorner">20</CornerRadius>
     <Thickness x:Key="DefaultBorderThickness">1</Thickness>
     <Thickness x:Key="SecondBorderThickness">0</Thickness>

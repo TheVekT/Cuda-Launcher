@@ -44,6 +44,7 @@
     <Color x:Key="ColorDanger">#FF003C</Color>
 
     <CornerRadius x:Key="DefaultCorner">0</CornerRadius>
+    <CornerRadius x:Key="SecondaryCorner">10</CornerRadius>
     <CornerRadius x:Key="NavButtonsCorner">0</CornerRadius>
 
     <Thickness x:Key="DefaultBorderThickness">1</Thickness>

@@ -79,7 +79,8 @@ public class InstallationsViewModel : INotifyPropertyChanged
     {
         var confirmVm = new ConfirmVM(
             string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceTitle"], instance.Name), 
-            string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceMessage"], instance.Name));
+            string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceMessage"], instance.Name),
+            ConfirmButtons.Delete);
         var view = new ConfirmMenu();
         view.DataContext = confirmVm;
         _appStore.CurrentOverlayView = view;

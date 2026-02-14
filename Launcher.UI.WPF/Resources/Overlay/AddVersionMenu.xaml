@@ -268,7 +268,7 @@
                                         <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
-                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[RecommendedBadge]}" />
+                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.RecommendedBadge]}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -300,7 +300,7 @@
                                 Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolationDesc]}">
                                 <RadioButton.Style>
                                     <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
-                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[RecommendedBadge]}" />
+                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.RecommendedBadge]}" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
                                                 <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />

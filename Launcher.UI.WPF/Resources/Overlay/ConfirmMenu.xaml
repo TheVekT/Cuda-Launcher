@@ -3,6 +3,7 @@
     FontFamily="{DynamicResource GlobalFont}"
     d:DataContext="{d:DesignInstance Type=viewModels:ConfirmVM,
                                      IsDesignTimeCreatable=False}"
+    helpers:ConfirmViewHelper.VisibleButtons="{Binding Buttons}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Overlay.ConfirmMenu"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -11,6 +12,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <helpers:ConfirmButtonVisibilityConverter x:Key="ButtonVisConverter" />
+    </UserControl.Resources>
     <Grid Height="Auto" Width="384">
         <Border
             Background="{DynamicResource OverlayBackgroundPrimaryBrush}"
@@ -21,19 +25,24 @@
             <Grid>
                 <StackPanel Orientation="Vertical">
                     <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
-                        <Viewbox
-                            Height="24"
-                            HorizontalAlignment="Left"
+                        <Border
+                            Background="{DynamicResource AlertBackgroundBrush}"
+                            CornerRadius="{DynamicResource SecondaryCorner}"
                             Margin="0,0,10,0"
-                            VerticalAlignment="Center"
-                            Width="24">
-                            <Path
-                                Data="{StaticResource Icon.Alert}"
-                                Stroke="{DynamicResource AlertForegroundBrush}"
-                                StrokeEndLineCap="Round"
-                                StrokeStartLineCap="Round"
-                                StrokeThickness="1.33" />
-                        </Viewbox>
+                            Padding="5">
+                            <Viewbox
+                                Height="24"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Width="24">
+                                <Path
+                                    Data="{StaticResource Icon.Alert}"
+                                    Stroke="{DynamicResource AlertForegroundBrush}"
+                                    StrokeEndLineCap="Round"
+                                    StrokeStartLineCap="Round"
+                                    StrokeThickness="1.33" />
+                            </Viewbox>
+                        </Border>
                         <TextBlock
                             FontSize="15"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
@@ -59,7 +68,7 @@
                         <Grid Grid.Column="0" />
                         <Button
                             Command="{Binding CancelCommand}"
-                            Content="{Binding Source={StaticResource Loc}, Path=[CancelButtonText]}"
+                            Content="{Binding Source={StaticResource Loc}, Path=[Confirmation.CancelButtonText]}"
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Grid.Column="1"
                             Height="35"
@@ -67,14 +76,29 @@
                             Tag="{StaticResource Icon.Close}"
                             helpers:ButtonHelper.IconSize="10" />
                         <Button
+                            Background="{DynamicResource ColorDangerBrush}"
                             Command="{Binding ConfirmCommand}"
-                            Content="{Binding Source={StaticResource Loc}, Path=[ConfirmButtonText]}"
+                            Content="{Binding Source={StaticResource Loc}, Path=[Confirmation.DeleteButtonText]}"
+                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
                             Grid.Column="2"
                             Height="35"
                             Margin="8,0,0,0"
                             Style="{StaticResource AccentButtonStyle}"
                             Tag="{StaticResource Icon.Trash}"
-                            helpers:ButtonHelper.IconSize="13" />
+                            Visibility="{Binding Path=(helpers:ConfirmViewHelper.VisibleButtons), RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource ButtonVisConverter}, ConverterParameter={x:Static helpers:ConfirmButtons.Delete}}"
+                            helpers:ButtonHelper.IconSize="13"
+                            x:Name="DeleteButton" />
+                        <Button
+                            Command="{Binding ConfirmCommand}"
+                            Content="{Binding Source={StaticResource Loc}, Path=[Confirmation.ConfirmButtonText]}"
+                            Grid.Column="2"
+                            Height="35"
+                            Margin="8,0,0,0"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Tag="{StaticResource Icon.Accept}"
+                            Visibility="{Binding Path=(helpers:ConfirmViewHelper.VisibleButtons), RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource ButtonVisConverter}, ConverterParameter={x:Static helpers:ConfirmButtons.Confirm}}"
+                            helpers:ButtonHelper.IconSize="13"
+                            x:Name="ConfirmButton" />
                     </Grid>
                 </StackPanel>
 

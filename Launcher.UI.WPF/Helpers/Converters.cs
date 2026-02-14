@@ -348,4 +348,24 @@ namespace Launcher.UI.WPF.Helpers
             throw new NotImplementedException();
         }
     }
+    
+    public class ConfirmButtonVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is ConfirmButtons currentMask && parameter is ConfirmButtons targetFlag)
+            {
+                return (currentMask & targetFlag) == targetFlag 
+                    ? Visibility.Visible 
+                    : Visibility.Collapsed;
+            }
+
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 namespace Launcher.UI.WPF.Helpers
 {
-
+    
 
     
     
@@ -325,6 +325,26 @@ namespace Launcher.UI.WPF.Helpers
         public static void SetRecommendedBadgeText(DependencyObject obj, string value)
         {
             obj.SetValue(RecommendedBadgeTextProperty, value);
+        }
+    }
+    public static class ConfirmViewHelper
+    {
+        // Регистрируем свойство типа ConfirmButtons
+        public static readonly DependencyProperty VisibleButtonsProperty =
+            DependencyProperty.RegisterAttached(
+                "VisibleButtons",
+                typeof(ConfirmButtons),
+                typeof(ConfirmViewHelper),
+                new PropertyMetadata(ConfirmButtons.ConfirmAndCancel)); // Значение по умолчанию
+        
+        public static ConfirmButtons GetVisibleButtons(DependencyObject obj)
+        {
+            return (ConfirmButtons)obj.GetValue(VisibleButtonsProperty);
+        }
+        
+        public static void SetVisibleButtons(DependencyObject obj, ConfirmButtons value)
+        {
+            obj.SetValue(VisibleButtonsProperty, value);
         }
     }
     
