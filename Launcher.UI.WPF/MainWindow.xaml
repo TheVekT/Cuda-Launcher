@@ -6,7 +6,9 @@
     Margin="0"
     MinHeight="700"
     MinWidth="1100"
+    TextOptions.TextFormattingMode="Display"
     Title="{Binding Source={StaticResource Loc}, Path=[MainWindow.Title]}"
+    UseLayoutRounding="True"
     Width="1100"
     WindowStyle="SingleBorderWindow"
     d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
@@ -310,26 +312,31 @@
                 Visibility="{Binding AppStore.IsOverlayVisible, Converter={StaticResource BoolToVis}}"
                 x:Name="OverlayContainer">
 
-                <Border Background="Transparent">
+                <Border Background="#10000000">
                     <Border.InputBindings>
                         <MouseBinding Command="{Binding CloseOverlayCommand}" MouseAction="LeftClick" />
                     </Border.InputBindings>
                 </Border>
 
-                <ContentControl
-                    Content="{Binding AppStore.CurrentOverlayView}"
+                <Grid
                     HorizontalAlignment="Center"
-                    IsHitTestVisible="True"
+                    Margin="0,0,0,32"
                     VerticalAlignment="Center">
-                    <ContentControl.Effect>
-                        <DropShadowEffect
-                            BlurRadius="125"
-                            Color="Black"
-                            Opacity="0.7"
-                            RenderingBias="Quality"
-                            ShadowDepth="0" />
-                    </ContentControl.Effect>
-                </ContentControl>
+
+                    <Border Background="{DynamicResource OverlayBackgroundSurfaceBrush}" CornerRadius="{DynamicResource DefaultCorner}">
+                        <Border.Effect>
+                            <DropShadowEffect
+                                BlurRadius="120"
+                                Color="Black"
+                                Opacity="1"
+                                RenderingBias="Quality"
+                                ShadowDepth="0" />
+                        </Border.Effect>
+                    </Border>
+
+                    <ContentControl Content="{Binding AppStore.CurrentOverlayView}" IsHitTestVisible="True" />
+                </Grid>
+
             </Grid>
         </Grid>
     </Grid>

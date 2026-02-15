@@ -13,6 +13,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <helpers:EnumToBooleanConverter x:Key="EnumToBoolConverter" />
+        <helpers:StringFormatConverter x:Key="StringFormatConverter" />
     </UserControl.Resources>
     <Grid Width="512">
         <Border
@@ -22,14 +23,12 @@
             CornerRadius="{DynamicResource DefaultCorner}"
             Padding="20">
             <Grid>
+
                 <Grid Visibility="{Binding CreatingPage1Visible, Converter={StaticResource BoolToVis}}">
                     <!-- <Grid Visibility="Collapsed"> -->
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0">
@@ -44,150 +43,164 @@
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.Subtitle]}" />
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Margin="0,10,0,0">
-                        <TextBlock
-                            FontSize="12"
-                            FontWeight="Bold"
-                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                            Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.ModLoaderLabel]}" />
-                        <ComboBox
-                            Height="35"
-                            ItemContainerStyle="{StaticResource ImageComboBoxItemStyle}"
-                            ItemTemplate="{StaticResource ImageComboBoxItemTemplate}"
-                            Margin="0,5,0,0"
-                            SelectedIndex="0"
-                            SelectedValue="{Binding SelectedModLoader}"
-                            SelectedValuePath="Content"
-                            Style="{StaticResource LoaderComboBox}">
-                            <ComboBoxItem Content="Vanilla" Tag="/Assets/Icons/150px-Grass_Block_JE7_BE6.png" />
-                            <!-- <ComboBoxItem Content="OptiFine" Tag="/Assets/Icons/optifine-default.png" /> -->
-                            <ComboBoxItem Content="Forge" Tag="/Assets/Icons/forge-default.png" />
-                            <ComboBoxItem Content="NeoForge" Tag="/Assets/Icons/neoforge-default.png" />
-                            <ComboBoxItem Content="Fabric" Tag="/Assets/Icons/fabric-default.png" />
-                            <ComboBoxItem Content="Quilt" Tag="/Assets/Icons/quilt-default.png" />
-                        </ComboBox>
-                    </StackPanel>
-                    <StackPanel Grid.Row="2" Margin="0,5">
-                        <TextBlock
-                            FontSize="12"
-                            FontWeight="Bold"
-                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                            Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.GameVersionLabel]}" />
-                        <ComboBox
-                            Height="35"
-                            ItemsSource="{Binding GameVersions}"
-                            Margin="0,5,0,0"
-                            MaxDropDownHeight="230"
-                            SelectedItem="{Binding SelectedGameVersion}"
-                            Style="{StaticResource OverlayComboBox}"
-                            x:Name="SelectVersionComboBox" />
-                    </StackPanel>
-                    <StackPanel Grid.Row="3" Margin="0,5">
-                        <TextBlock
-                            FontSize="12"
-                            FontWeight="Bold"
-                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                            Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.NameLabel]}" />
-                        <TextBox
-                            FontSize="12"
-                            Height="35"
-                            Margin="0,5,0,0"
-                            Style="{StaticResource DefaultTextInputStyle}"
-                            Tag="{Binding SuggestedName}"
-                            Text="{Binding InstallationName, UpdateSourceTrigger=PropertyChanged}" />
-                        <TextBlock
-                            Background="Transparent"
-                            FontSize="11"
-                            Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                            Margin="0,5,0,0"
-                            Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.NamePlaceholder]}" />
-                    </StackPanel>
-                    <StackPanel Grid.Row="4" Margin="0,5">
-                        <TextBlock
-                            FontSize="12"
-                            FontWeight="Bold"
-                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                            Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.InstallationIconLabel]}" />
+                    <ScrollViewer
+                        Grid.Row="1"
+                        HorizontalScrollBarVisibility="Disabled"
+                        Style="{StaticResource MinimalScrollViewer}"
+                        VerticalScrollBarVisibility="Auto">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Margin="0,10,0,0">
+                                <TextBlock
+                                    FontSize="12"
+                                    FontWeight="Bold"
+                                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                    Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.ModLoaderLabel]}" />
+                                <ComboBox
+                                    Height="35"
+                                    ItemContainerStyle="{StaticResource ImageComboBoxItemStyle}"
+                                    ItemTemplate="{StaticResource ImageComboBoxItemTemplate}"
+                                    Margin="0,5,0,0"
+                                    SelectedIndex="0"
+                                    SelectedValue="{Binding SelectedModLoader}"
+                                    SelectedValuePath="Content"
+                                    Style="{StaticResource LoaderComboBox}">
+                                    <ComboBoxItem Content="Vanilla" Tag="/Assets/Icons/150px-Grass_Block_JE7_BE6.png" />
+                                    <!-- <ComboBoxItem Content="OptiFine" Tag="/Assets/Icons/optifine-default.png" /> -->
+                                    <ComboBoxItem Content="Forge" Tag="/Assets/Icons/forge-default.png" />
+                                    <ComboBoxItem Content="NeoForge" Tag="/Assets/Icons/neoforge-default.png" />
+                                    <ComboBoxItem Content="Fabric" Tag="/Assets/Icons/fabric-default.png" />
+                                    <ComboBoxItem Content="Quilt" Tag="/Assets/Icons/quilt-default.png" />
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Margin="0,5">
+                                <TextBlock
+                                    FontSize="12"
+                                    FontWeight="Bold"
+                                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                    Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.GameVersionLabel]}" />
+                                <ComboBox
+                                    Height="35"
+                                    ItemsSource="{Binding GameVersions}"
+                                    Margin="0,5,0,0"
+                                    MaxDropDownHeight="230"
+                                    SelectedItem="{Binding SelectedGameVersion}"
+                                    Style="{StaticResource OverlayComboBox}"
+                                    x:Name="SelectVersionComboBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Margin="0,5">
+                                <TextBlock
+                                    FontSize="12"
+                                    FontWeight="Bold"
+                                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                    Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.NameLabel]}" />
+                                <TextBox
+                                    FontSize="12"
+                                    Height="35"
+                                    Margin="0,5,0,0"
+                                    Style="{StaticResource DefaultTextInputStyle}"
+                                    Tag="{Binding SuggestedName}"
+                                    Text="{Binding InstallationName, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock
+                                    Background="Transparent"
+                                    FontSize="11"
+                                    Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                    Margin="0,5,0,0"
+                                    Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.NamePlaceholder]}" />
+                            </StackPanel>
+                            <StackPanel Grid.Row="3" Margin="0,5">
+                                <TextBlock
+                                    FontSize="12"
+                                    FontWeight="Bold"
+                                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                    Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.InstallationIconLabel]}" />
 
-                        <Border
-                            Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
-                            CornerRadius="{DynamicResource DefaultCorner}"
-                            Margin="0,5,0,0"
-                            MaxHeight="120"
-                            Padding="5">
+                                <Border
+                                    Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
+                                    CornerRadius="{DynamicResource DefaultCorner}"
+                                    Margin="0,5,0,0"
+                                    MaxHeight="120"
+                                    Padding="5">
 
-                            <ListBox
-                                Background="Transparent"
-                                BorderThickness="0"
-                                ItemsSource="{Binding InstancesStore.IconList}"
-                                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                                SelectedItem="{Binding SelectedIcon}">
-                                <ListBox.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Columns="8" VerticalAlignment="Top" />
-                                    </ItemsPanelTemplate>
-                                </ListBox.ItemsPanel>
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border CornerRadius="{DynamicResource DefaultCorner}">
-                                            <Image
-                                                Height="40"
-                                                HorizontalAlignment="Center"
-                                                Source="{Binding}"
-                                                Stretch="Uniform"
-                                                VerticalAlignment="Center"
-                                                Width="40" />
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
+                                    <ListBox
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        ItemsSource="{Binding InstancesStore.IconList}"
+                                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                        ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                        SelectedItem="{Binding SelectedIcon}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="8" VerticalAlignment="Top" />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border CornerRadius="{DynamicResource DefaultCorner}">
+                                                    <Image
+                                                        Height="40"
+                                                        HorizontalAlignment="Center"
+                                                        Source="{Binding}"
+                                                        Stretch="Uniform"
+                                                        VerticalAlignment="Center"
+                                                        Width="40" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
 
-                                <ListBox.ItemContainerStyle>
-                                    <Style TargetType="ListBoxItem">
-                                        <Setter Property="Padding" Value="2" />
-                                        <Setter Property="Margin" Value="2" />
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="Cursor" Value="Hand" />
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="ListBoxItem">
-                                                    <Border
-                                                        Background="Transparent"
-                                                        BorderBrush="Transparent"
-                                                        BorderThickness="1"
-                                                        CornerRadius="{DynamicResource DefaultCorner}"
-                                                        Padding="{TemplateBinding Padding}"
-                                                        x:Name="Bd">
-                                                        <ContentPresenter />
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsSelected" Value="True">
-                                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource BorderAccentBrush}" />
-                                                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
-                                                        </Trigger>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ListBox.ItemContainerStyle>
-                            </ListBox>
-                        </Border>
+                                        <ListBox.ItemContainerStyle>
+                                            <Style TargetType="ListBoxItem">
+                                                <Setter Property="Padding" Value="2" />
+                                                <Setter Property="Margin" Value="2" />
+                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                <Setter Property="Cursor" Value="Hand" />
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="ListBoxItem">
+                                                            <Border
+                                                                Background="Transparent"
+                                                                BorderBrush="Transparent"
+                                                                BorderThickness="1"
+                                                                CornerRadius="{DynamicResource DefaultCorner}"
+                                                                Padding="{TemplateBinding Padding}"
+                                                                x:Name="Bd">
+                                                                <ContentPresenter />
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsSelected" Value="True">
+                                                                    <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource BorderAccentBrush}" />
+                                                                    <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
+                                                                </Trigger>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ListBox.ItemContainerStyle>
+                                    </ListBox>
+                                </Border>
 
 
-                        <!--  Click="UploadButton_Click"  -->
-                        <!--  DragEnter="UploadButton_DragEnter"  -->
-                        <!--  Drop="UploadButton_Drop"  -->
-                        <Button
-                            Content="Upload custom icon"
-                            Height="50"
-                            Margin="0,5,0,0"
-                            Style="{StaticResource UploadDropZoneStyle}" />
-                    </StackPanel>
-                    <Grid Grid.Row="5" Margin="0,8,0,0">
+                                <!--  Click="UploadButton_Click"  -->
+                                <!--  DragEnter="UploadButton_DragEnter"  -->
+                                <!--  Drop="UploadButton_Drop"  -->
+                                <Button
+                                    Content="Upload custom icon"
+                                    Height="50"
+                                    Margin="0,5,0,0"
+                                    Style="{StaticResource UploadDropZoneStyle}" />
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -217,12 +230,11 @@
 
                     </Grid>
                 </Grid>
+
                 <Grid Visibility="{Binding CreatingPage2Visible, Converter={StaticResource BoolToVis}}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0">
@@ -237,120 +249,179 @@
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.ConfigureInstallationSubtitle]}" />
                     </StackPanel>
-                    <Border
-                        Background="{DynamicResource OverlayButtonBackgroundBrush}"
-                        BorderBrush="{DynamicResource OverlayBorderPrimaryBrush}"
-                        BorderThickness="{DynamicResource DefaultBorderThickness}"
-                        CornerRadius="{DynamicResource DefaultCorner}"
+                    <ScrollViewer
                         Grid.Row="1"
-                        Margin="0,10,0,0"
-                        Padding="10,15">
-                        <StackPanel Orientation="Vertical">
+                        HorizontalScrollBarVisibility="Disabled"
+                        Style="{StaticResource MinimalScrollViewer}"
+                        VerticalScrollBarVisibility="Auto">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Border
+                                Background="{DynamicResource OverlayButtonBackgroundBrush}"
+                                BorderBrush="{DynamicResource OverlayBorderPrimaryBrush}"
+                                BorderThickness="{DynamicResource DefaultBorderThickness}"
+                                CornerRadius="{DynamicResource DefaultCorner}"
+                                Grid.Row="0"
+                                Margin="0,10,0,0"
+                                Padding="10,15">
+                                <StackPanel Orientation="Vertical">
 
-                            <TextBlock
-                                FontSize="13"
-                                FontWeight="Bold"
-                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.IsolationTitle]}" />
-                            <TextBlock
-                                FontSize="11"
-                                Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                                Margin="0,5,0,5"
-                                Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.IsolationDescription]}" />
-                            <RadioButton
-                                Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionNoIsolation]}"
-                                GroupName="IsolationGroup"
-                                IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Global}"
-                                Margin="0,10,0,0"
-                                Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionNoIsolationDesc]}">
-                                <RadioButton.Style>
-                                    <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
-                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
-                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.RecommendedBadge]}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </RadioButton.Style>
-                            </RadioButton>
-                            <RadioButton
-                                Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolation]}"
-                                GroupName="IsolationGroup"
-                                IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Partial}"
-                                Margin="0,10,0,0"
-                                Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}">
-                                <RadioButton.Style>
-                                    <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </RadioButton.Style>
-                            </RadioButton>
-
-                            <RadioButton
-                                Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolation]}"
-                                GroupName="IsolationGroup"
-                                IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Full}"
-                                Margin="0,10,0,0"
-                                Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolationDesc]}">
-                                <RadioButton.Style>
-                                    <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
-                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.RecommendedBadge]}" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                    <TextBlock
+                                        FontSize="13"
+                                        FontWeight="Bold"
+                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                        Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.IsolationTitle]}" />
+                                    <TextBlock
+                                        FontSize="11"
+                                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                        Margin="0,5,0,5"
+                                        Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.IsolationDescription]}" />
+                                    <RadioButton
+                                        Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionNoIsolation]}"
+                                        GroupName="IsolationGroup"
+                                        IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Global}"
+                                        Margin="0,10,0,0"
+                                        Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionNoIsolationDesc]}">
+                                        <RadioButton.Style>
+                                            <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
                                                 <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </RadioButton.Style>
-                            </RadioButton>
-                        </StackPanel>
-                    </Border>
-                    <StackPanel Grid.Row="2">
-                        <CheckBox
-                            FontSize="14"
-                            IsChecked="False"
-                            Margin="0,10,0,5"
-                            VerticalAlignment="Top"
-                            helpers:ScaleHelper.ScaleFactor="0.8">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.RecommendedBadge]}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </RadioButton.Style>
+                                    </RadioButton>
+                                    <RadioButton
+                                        Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolation]}"
+                                        GroupName="IsolationGroup"
+                                        IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Partial}"
+                                        Margin="0,10,0,0"
+                                        Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}">
+                                        <RadioButton.Style>
+                                            <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </RadioButton.Style>
+                                    </RadioButton>
 
-                            <CheckBox.Style>
-                                <Style BasedOn="{StaticResource DefaultToggleSwitchStyle}" TargetType="CheckBox">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="Fabric">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="NeoForge">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </CheckBox.Style>
-
-                            <CheckBox.Content>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Foreground="{DynamicResource ForegroundPrimaryBrush}" Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.AutoInstallIrisSodiumLabel]}" />
+                                    <RadioButton
+                                        Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolation]}"
+                                        GroupName="IsolationGroup"
+                                        IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Full}"
+                                        Margin="0,10,0,0"
+                                        Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolationDesc]}">
+                                        <RadioButton.Style>
+                                            <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
+                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.RecommendedBadge]}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </RadioButton.Style>
+                                    </RadioButton>
                                 </StackPanel>
-                            </CheckBox.Content>
-                        </CheckBox>
-                        <TextBlock
-                            FontSize="13"
-                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                            Margin="0,10,0,0"
-                            Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.EditJVMArgumentsLabel]}"
-                            TextWrapping="Wrap" />
-                        <TextBox
-                            Margin="0,5"
-                            Style="{StaticResource DefaultTextInputStyle}"
-                            Tag="JVM Arguments" />
-                    </StackPanel>
-                    <Grid Grid.Row="3" Margin="0,8,0,0">
+                            </Border>
+                            <StackPanel Grid.Row="1">
+                                <CheckBox
+                                    FontSize="14"
+                                    IsChecked="False"
+                                    Margin="0,10,0,5"
+                                    VerticalAlignment="Top"
+                                    helpers:ScaleHelper.ScaleFactor="0.8">
+
+                                    <CheckBox.Style>
+                                        <Style BasedOn="{StaticResource DefaultToggleSwitchStyle}" TargetType="CheckBox">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedModLoader}" Value="Fabric">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding SelectedModLoader}" Value="NeoForge">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </CheckBox.Style>
+
+                                    <CheckBox.Content>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Foreground="{DynamicResource ForegroundPrimaryBrush}" Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.AutoInstallIrisSodiumLabel]}" />
+                                        </StackPanel>
+                                    </CheckBox.Content>
+                                </CheckBox>
+                                <Expander
+                                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                    Header="{Binding Source={StaticResource Loc}, Path=[AddInstallation.MoreOptionsLabel]}"
+                                    Margin="0,10,0,0"
+                                    Style="{StaticResource MoreContentExpanderStyle}">
+
+                                    <StackPanel Orientation="Vertical">
+                                        <StackPanel Margin="0,5" Orientation="Vertical">
+                                            <TextBlock FontSize="14" Foreground="{DynamicResource ForegroundPrimaryBrush}">
+                                                <TextBlock FontSize="14" Foreground="{DynamicResource ForegroundPrimaryBrush}">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding Converter="{StaticResource StringFormatConverter}">
+                                                            <Binding Path="[SettingsMenu.Game.AllocatedMemoryLabel]" Source="{StaticResource Loc}" />
+
+                                                            <Binding ElementName="AllocatedMemory" Path="Value" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </TextBlock>
+                                            <Slider
+                                                IsSnapToTickEnabled="True"
+                                                Maximum="16384"
+                                                Minimum="1024"
+                                                Style="{StaticResource DefaultSliderStyle}"
+                                                TickFrequency="512"
+                                                Value="2048"
+                                                x:Name="AllocatedMemory" />
+                                        </StackPanel>
+                                        <TextBlock
+                                            FontSize="14"
+                                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                            Margin="0,5,0,5"
+                                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.WindowResolutionLabel]}" />
+                                        <ComboBox
+                                            Height="35"
+                                            SelectedIndex="0"
+                                            Style="{StaticResource OverlayComboBox}">
+                                            <ComboBoxItem Content="1920x1080" />
+                                            <ComboBoxItem Content="1600x900" />
+                                            <ComboBoxItem Content="1366x768" />
+                                            <ComboBoxItem Content="1280x720" />
+                                        </ComboBox>
+                                        <TextBlock
+                                            FontSize="13"
+                                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                            Margin="0,5,0,0"
+                                            Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.EditJVMArgumentsLabel]}"
+                                            TextWrapping="Wrap" />
+                                        <TextBox
+                                            Margin="0,5"
+                                            Style="{StaticResource DefaultTextInputStyle}"
+                                            Tag="JVM Arguments" />
+
+                                    </StackPanel>
+
+                                </Expander>
+
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -386,6 +457,7 @@
                             helpers:ButtonHelper.IconSize="13" />
                     </Grid>
                 </Grid>
+
 
             </Grid>
         </Border>

@@ -104,6 +104,7 @@
     "AddInstallation.AutoInstallIrisSodiumLabel": "Add Iris & Sodium",
     "AddInstallation.EditJVMArgumentsLabel": "JVM Arguments",
     "AddInstallation.RecommendedBadge": "Recommended",
+    "AddInstallation.MoreOptionsLabel": "More options",
     "Confirmation.DeleteInstanceTitle": "Delete installation {0}?",
     "Confirmation.DeleteInstanceMessage": "Are you sure you want to delete the installation {0}? \nThis action cannot be undone.",
     "Confirmation.DeleteButtonText": "Delete",
