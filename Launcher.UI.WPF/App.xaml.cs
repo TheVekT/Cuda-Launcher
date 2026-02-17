@@ -34,7 +34,27 @@ public partial class App : Application
         var launchStore = new LaunchStore(launchService);
         var instancesStore = new InstancesStore(instanceFileSystemService, instanceService);
         var appStore = new AppStore();
+        
+        var availableThemes = themeService.ReloadThemes();
 
+        string themeToLoad = settingsStore.CurrentThemePath;
+
+        if (string.IsNullOrEmpty(themeToLoad) || !System.IO.File.Exists(themeToLoad))
+        {
+            // Если настройки нет, берем первую найденную
+            if (availableThemes.Count > 0)
+            {
+                themeToLoad = availableThemes[0].ZipPath;
+                appStore.CurrentBannerPath = availableThemes[0].BannerPath;
+                settingsStore.CurrentThemePath = themeToLoad; // Это вызовет ChangeTheme
+            }
+        }
+        else
+        {
+            // Если настройка есть, просто применяем
+            themeService.ChangeTheme(themeToLoad);
+        }
+        
         //MainViewModel
         var mainViewModel = new MainViewModel(
             themeService, 

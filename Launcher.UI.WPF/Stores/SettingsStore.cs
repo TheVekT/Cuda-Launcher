@@ -1,4 +1,6 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.Stores;
@@ -10,11 +12,16 @@ public class SettingsStore: INotifyPropertyChanged
     
     //Attributes
     private double _uiScale = 1.0;
-    private string _currentThemePath = "/Assets/Themes/default-dark.xaml";
+    private string _currentThemePath;
+    
+    //Collections
+    public ObservableCollection<ThemeModel> AvailableThemes { get; set; } = new ObservableCollection<ThemeModel>();
     
     public SettingsStore(ThemeService themeService)
     {
         _themeService = themeService;
+
+        _currentThemePath = "";
         //Load settings from storage (not implemented yet)
     }
     
@@ -24,7 +31,17 @@ public class SettingsStore: INotifyPropertyChanged
     public string CurrentThemePath
     {
         get => _currentThemePath;
-        set { if (_currentThemePath != value) { _currentThemePath = value; OnPropertyChanged(nameof(CurrentThemePath)); _themeService.ChangeTheme(_currentThemePath); } }
+        set
+        {
+            if (_currentThemePath != value)
+            {
+                _currentThemePath = value;
+                OnPropertyChanged(nameof(CurrentThemePath));
+                    
+                // Сразу применяем тему
+                _themeService.ChangeTheme(_currentThemePath);
+            }
+        }
     }
     public double UiScale
     {

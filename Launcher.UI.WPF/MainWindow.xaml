@@ -218,11 +218,11 @@
                 <Grid Grid.Row="1" x:Name="Main">
                     <Border x:Name="FooterAndHeaderBackground">
                         <Border.Background>
-                            <ImageBrush ImageSource="Assets/Images/banner-default.jpg" Stretch="UniformToFill" />
+                            <ImageBrush ImageSource="{Binding AppStore.CurrentBannerPath}" Stretch="UniformToFill" />
 
                         </Border.Background>
                         <Border.Effect>
-                            <BlurEffect Radius="4" />
+                            <BlurEffect Radius="0" />
                         </Border.Effect>
                         <Border>
                             <Border.Background>

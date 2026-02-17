@@ -6,6 +6,7 @@ public class AppStore: INotifyPropertyChanged
 {
     private object _currentOverlayView;
     private bool _isOverlayVisible;
+    private string _currentBannerPath = "Assets/Images/banner-default.jpg";
 
     public AppStore()
     {
@@ -14,6 +15,23 @@ public class AppStore: INotifyPropertyChanged
     
     
     //Getters and Setters
+    public string CurrentBannerPath
+    {
+        get => _currentBannerPath;
+        set
+        {
+            if (_currentBannerPath == value) return;
+            if (value is null)
+            {
+                _currentBannerPath = "Assets/Images/banner-default.jpg";
+            }
+            else
+            {
+                _currentBannerPath = value; 
+            }
+            OnPropertyChanged(nameof(CurrentBannerPath));
+        }
+    }
     public bool IsOverlayVisible
     {
         get => _isOverlayVisible;

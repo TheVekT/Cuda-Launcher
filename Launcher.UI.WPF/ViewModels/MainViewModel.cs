@@ -104,7 +104,7 @@ public class MainViewModel : INotifyPropertyChanged
         _installationsVM = new InstallationsViewModel(versionService, instanceService, instanceFileSystemService, instancesStore, appStore);
         _skinsVM = new SkinsViewModel();
         _loginVM = new LoginVM(_authService, _accountStorage,_loginStore);
-        _settingsVM = new SettingsVM(_settingsStore);
+        _settingsVM = new SettingsVM(_settingsStore, _themeService, _appStore);
         
         //Overlays
         _settingsMenu = new SettingsMenu();
@@ -137,13 +137,6 @@ public class MainViewModel : INotifyPropertyChanged
             var loginMenu = new Resources.Overlay.LoginMenu();
             loginMenu.DataContext = _loginVM; 
             _appStore.CurrentOverlayView = loginMenu;
-        });
-        
-        _themeService.ChangeTheme(_settingsStore.CurrentThemePath);
-        
-        ChangeThemeCommand = new RelayCommand(path => 
-        {
-            if (path is string themePath) _themeService.ChangeTheme(themePath);
         });
 
         CloseOverlayCommand = new RelayCommand(o => _appStore.CurrentOverlayView = null);
