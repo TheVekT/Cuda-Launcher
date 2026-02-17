@@ -227,9 +227,9 @@
                         <Border>
                             <Border.Background>
                                 <LinearGradientBrush EndPoint="0.5, 1" StartPoint="0.5, 0">
-                                    <GradientStop Color="#4D000000" Offset="0.0" />
+                                    <GradientStop Color="#3D000000" Offset="0.0" />
 
-                                    <GradientStop Color="#B3000000" Offset="1.0" />
+                                    <GradientStop Color="#93000000" Offset="1.0" />
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>

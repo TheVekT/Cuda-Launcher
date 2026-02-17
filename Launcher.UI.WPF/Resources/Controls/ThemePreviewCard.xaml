@@ -8,8 +8,12 @@
     x:Name="CardRoot"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <helpers:StringFormatConverter x:Key="StringFormatConverter" />
+    </UserControl.Resources>
     <Grid>
         <Border
             Background="{Binding P_AppBackground, ElementName=CardRoot}"
@@ -56,7 +60,7 @@
                         FontSize="11"
                         Foreground="{Binding P_ForegroundOnAccent, ElementName=CardRoot}"
                         HorizontalAlignment="Center"
-                        Text="Play"
+                        Text="{Binding [ThemePreviewCard.ButtonLabel], Source={StaticResource Loc}}"
                         VerticalAlignment="Center" />
                 </Border>
 
@@ -70,10 +74,14 @@
                 <TextBlock
                     FontFamily="{Binding P_GlobalFont, ElementName=CardRoot}"
                     FontSize="10"
-                    Foreground="{Binding P_ForegroundSecondary, ElementName=CardRoot}"
-                    Margin="0,4"
-                    Text="{Binding ThemeAuthor, ElementName=CardRoot, StringFormat='by {0}'}" />
-
+                    Foreground="{Binding P_ForegroundSecondary, ElementName=CardRoot}">
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource StringFormatConverter}">
+                            <Binding Path="[ThemePreviewCard.CreatedByLabel]" Source="{StaticResource Loc}" />
+                            <Binding ElementName="CardRoot" Path="ThemeAuthor" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
             </StackPanel>
         </Border>
     </Grid>

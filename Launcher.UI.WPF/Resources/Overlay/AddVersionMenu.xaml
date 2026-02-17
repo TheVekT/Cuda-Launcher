@@ -296,24 +296,70 @@
                                             </Style>
                                         </RadioButton.Style>
                                     </RadioButton>
-                                    <RadioButton
-                                        Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolation]}"
-                                        GroupName="IsolationGroup"
-                                        IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Partial}"
-                                        Margin="0,10,0,0"
-                                        Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}">
-                                        <RadioButton.Style>
-                                            <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </RadioButton.Style>
-                                    </RadioButton>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <RadioButton
+                                            Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolation]}"
+                                            Grid.Column="0"
+                                            GroupName="IsolationGroup"
+                                            IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Partial}"
+                                            Margin="0,10,0,0"
+                                            Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}">
+                                            <RadioButton.Style>
+                                                <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </RadioButton.Style>
+                                        </RadioButton>
+                                        <Border
+                                            Background="{DynamicResource AlertBackgroundBrush}"
+                                            BorderBrush="{DynamicResource AlertBorderBrush}"
+                                            BorderThickness="{DynamicResource DefaultBorderThickness}"
+                                            CornerRadius="{DynamicResource DefaultCorner}"
+                                            Grid.Column="1"
+                                            Margin="10,0,0,0"
+                                            Padding="5"
+                                            VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Viewbox
+                                                    Height="18"
+                                                    VerticalAlignment="Center"
+                                                    Width="18">
+                                                    <Path
+                                                        Data="{StaticResource Icon.Alert}"
+                                                        Stroke="{DynamicResource AlertForegroundBrush}"
+                                                        StrokeEndLineCap="Round"
+                                                        StrokeStartLineCap="Round"
+                                                        StrokeThickness="1.33" />
+                                                </Viewbox>
+                                                <TextBlock
+                                                    FontSize="11"
+                                                    Foreground="{DynamicResource AlertForegroundBrush}"
+                                                    Margin="10,0,0,0"
+                                                    Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.UAC.AlertLabel]}"
+                                                    VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Border>
 
+                                    </Grid>
                                     <RadioButton
                                         Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionFullIsolation]}"
                                         GroupName="IsolationGroup"
