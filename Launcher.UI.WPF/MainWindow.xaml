@@ -269,12 +269,12 @@
                                             FontSize="16"
                                             Height="35"
                                             HorizontalAlignment="Center"
-                                            IsEnabled="{Binding PlayVM.PlayButtonEnabled}"
                                             Margin="6,0,0,0"
                                             Style="{StaticResource AccentButtonStyle}"
-                                            Tag="{StaticResource Icon.Play}"
+                                            Tag="{Binding PlayVM.CurrentPlayButtonIcon}"
                                             Visibility="{Binding ShowCompactPlayButton, Converter={StaticResource BoolToVis}}"
                                             Width="35"
+                                            helpers:ButtonHelper.IsLoading="{Binding PlayVM.IsDownloading}"
                                             x:Name="PlayButtonCompact" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" />

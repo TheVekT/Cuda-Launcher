@@ -14,6 +14,16 @@ namespace Launcher.UI.WPF.Helpers
     
     public static class ButtonHelper
     {
+        public static readonly DependencyProperty IsLoadingProperty =
+            DependencyProperty.RegisterAttached(
+                "IsLoading", 
+                typeof(bool), 
+                typeof(ButtonHelper), 
+                new PropertyMetadata(false));
+
+        public static bool GetIsLoading(DependencyObject obj) => (bool)obj.GetValue(IsLoadingProperty);
+        public static void SetIsLoading(DependencyObject obj, bool value) => obj.SetValue(IsLoadingProperty, value);
+        
         public static readonly DependencyProperty BalanceTextProperty =
             DependencyProperty.RegisterAttached(
                 "BalanceText",

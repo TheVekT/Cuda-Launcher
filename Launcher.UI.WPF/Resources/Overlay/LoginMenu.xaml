@@ -229,7 +229,8 @@
                             Style="{StaticResource AccentButtonStyle}"
                             Tag="{StaticResource Icon.Account}"
                             helpers:ButtonHelper.BalanceText="True"
-                            helpers:ButtonHelper.IconSize="16" />
+                            helpers:ButtonHelper.IconSize="16"
+                            helpers:ButtonHelper.IsLoading="{Binding IsLoggingIn}" />
                     </StackPanel>
                     <StackPanel
                         Grid.Row="3"

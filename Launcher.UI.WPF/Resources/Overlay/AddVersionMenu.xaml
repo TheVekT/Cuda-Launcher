@@ -500,7 +500,8 @@
                             Style="{StaticResource AccentButtonStyle}"
                             Tag="{DynamicResource Icon.AddIcon}"
                             helpers:ButtonHelper.BalanceText="True"
-                            helpers:ButtonHelper.IconSize="13" />
+                            helpers:ButtonHelper.IconSize="13"
+                            helpers:ButtonHelper.IsLoading="{Binding IsCreatingInstance}" />
                     </Grid>
                 </Grid>
 

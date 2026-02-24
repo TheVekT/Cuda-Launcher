@@ -7,7 +7,7 @@ namespace Launcher.Core.Services.IO
     public interface IInstanceFileSystemService
     {
         // Вызывается 1 раз при создании (ViewModel). Может запросить права Админа.
-        void InitializeOnCreation(MinecraftInstance instance);
+        Task InitializeOnCreation(MinecraftInstance instance);
         
         // Вызывается перед каждым запуском (LaunchService).
         string PrepareForLaunch(MinecraftInstance instance);
@@ -40,7 +40,7 @@ namespace Launcher.Core.Services.IO
         }
 
         // --- ЭТАП 1: ИНИЦИАЛИЗАЦИЯ (UI) ---
-        public void InitializeOnCreation(MinecraftInstance instance)
+        public async Task InitializeOnCreation(MinecraftInstance instance)
         {
             var instancePath = Path.Combine(_instancesBasePath, instance.Id);
 
@@ -48,7 +48,7 @@ namespace Launcher.Core.Services.IO
             {
                 case IsolationType.Partial:
                     // Самый важный момент: здесь вызываем UAC и создаем ссылки
-                    PreparePartial(instancePath); 
+                    await PreparePartial(instancePath); 
                     break;
 
                 case IsolationType.Full:
@@ -108,7 +108,7 @@ namespace Launcher.Core.Services.IO
 
         // --- ВНУТРЕННИЕ МЕТОДЫ ---
 
-        private void PreparePartial(string instancePath)
+        private async Task PreparePartial(string instancePath)
         {
             var sourcePath = GetExternalMinecraftPath();
 
@@ -116,22 +116,24 @@ namespace Launcher.Core.Services.IO
             CreateDir(Path.Combine(instancePath, "mods")); // Своя папка модов
 
             if (!Directory.Exists(sourcePath)) return;
-            
+    
             var exclusionList = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "assets", "libraries", "versions", "runtime", "runtimes",
                 "bin", "cache", "webcache", "crash-reports", "logs", 
                 "mods", "launcher_profiles.json", "launcher_accounts.json",
             };
-            
-            // Вызов хелпера (вызывает cmd от админа)
+    
             try 
             {
-                AdminSymlinkHelper.CreateSymlinksElevated(sourcePath, instancePath, exclusionList);
+                // Уводим тяжелую работу (создание процессов и ожидание UAC) в фоновый поток
+                await Task.Run(() => 
+                {
+                    AdminSymlinkHelper.CreateSymlinksElevated(sourcePath, instancePath, exclusionList);
+                });
             }
             catch (Exception ex)
             {
-                // Если юзер нажал "Нет" в UAC или ошибка прав
                 // Удаляем папку, чтобы не оставлять мусор
                 if (Directory.Exists(instancePath)) Directory.Delete(instancePath, true);
                 throw new Exception("Administrator rights are required to create Partial Isolation links!", ex);

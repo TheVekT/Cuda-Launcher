@@ -28,13 +28,14 @@ public class InstanceVM: INotifyPropertyChanged
     private string _selectedGameVersion;
     private string _installationName;
     private string _selectedModLoader;
+    private bool _isCreatingInstance;
     private IsolationType _selectedIsolation = IsolationType.Global;
     
     
     //Commands
     public ICommand ToggleCreatingPageCommand { get; }
     public ICommand CloseSelfCommand { get; }
-    public ICommand CreateInstanceCommand => new RelayCommand(o => CreateInstance());
+    public ICommand CreateInstanceCommand => new RelayCommand(async o => await CreateInstance());
     
     //Events
     public event Action RequestClose;
@@ -124,10 +125,10 @@ public class InstanceVM: INotifyPropertyChanged
         };
     }
     
-    private void CreateInstance()
+    private async Task CreateInstance()
     {
         if (string.IsNullOrEmpty(SelectedGameVersion)) return;
-
+        IsCreatingInstance = true;
         var finalName = string.IsNullOrWhiteSpace(InstallationName) 
             ? SuggestedName 
             : InstallationName;
@@ -145,10 +146,10 @@ public class InstanceVM: INotifyPropertyChanged
 
         try
         {
-            _instanceFileSystemService.InitializeOnCreation(newInstance);
+            await _instanceFileSystemService.InitializeOnCreation(newInstance);
             _instancesStore.Instances.Add(newInstance);
             _instanceService.SaveInstances(_instancesStore.Instances);
-        
+
             RequestClose?.Invoke();
             Debug.WriteLine($"Created instance: {finalName}");
             _instancesStore.InvokeAddedInstance();
@@ -156,12 +157,30 @@ public class InstanceVM: INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Ошибка создания инстанса: {ex.Message}", "Ошибка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            System.Windows.MessageBox.Show($"Ошибка создания инстанса: {ex.Message}", "Ошибка",
+                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsCreatingInstance = false;
         }
     }
     
     
     //Getters and Setters
+    public bool IsCreatingInstance
+    {
+        get => _isCreatingInstance;
+        set
+        {
+            if (_isCreatingInstance != value)
+            {
+                _isCreatingInstance = value;
+                OnPropertyChanged(nameof(IsCreatingInstance));
+            }
+        }
+    }
+    
     public string SelectedIcon
     {
         get => _selectedIcon;

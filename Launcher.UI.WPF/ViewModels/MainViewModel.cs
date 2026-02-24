@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using Launcher.Core.Models;
@@ -49,13 +50,13 @@ public class MainViewModel : INotifyPropertyChanged
     //Atributes
     private object _currentView;
     private bool _showCompactPlayButton;
+    private Process? _currentGameProcess;
     
     //Overlays
     private SettingsMenu _settingsMenu;
     
     //Commands
     public ICommand LaunchCommand { get; }
-    public ICommand ChangeThemeCommand { get; }
     public ICommand CloseOverlayCommand { get; }
     public ICommand OpenSettingsCommand { get; }
     public ICommand OpenLoginCommand { get; }
@@ -134,69 +135,98 @@ public class MainViewModel : INotifyPropertyChanged
         {
            
             _loginVM.IsAddAccPageOpen = !_loginStore.IsLoggedIn; 
-            var loginMenu = new Resources.Overlay.LoginMenu();
+            var loginMenu = new LoginMenu();
             loginMenu.DataContext = _loginVM; 
             _appStore.CurrentOverlayView = loginMenu;
         });
 
         CloseOverlayCommand = new RelayCommand(o => _appStore.CurrentOverlayView = null);
         
-        _loginVM.RequestClose += () => _appStore.CurrentOverlayView = null;
+        _loginVM.RequestClose += () =>
+        {
+            if (_loginStore.IsLoggingIn) return;
+            _appStore.CurrentOverlayView = null;
+        };
         _settingsVM.RequestClose += () => _appStore.CurrentOverlayView = null;
         _playVM.RequestLaunch += async () => await LaunchCurrentInstance();
         
     }
     
     
-        private async Task LaunchCurrentInstance()
+    private async Task CloseGameProcess()
+    {
+        if (_currentGameProcess != null && !_currentGameProcess.HasExited)
         {
-            Console.WriteLine("Launching instance...");
-            if (_instancesStore.SelectedInstance == null) return;
-            if (_loginStore.CurrentAccount == null) 
-            {
-                Console.WriteLine("No account selected!");
-                return;
-            }
-
             try
             {
-                _playVM.IsDownloading = true;
-                OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // Уведомляем UI, что видимость изменилась
-                _playVM.DownloadStatusText = "Preparing...";
-                _playVM.DownloadProgress = 0;
-
-                var progress = new Progress<double>(p => 
-                {
-                    // Обновляем данные UI
-                    _playVM.DownloadProgress = p;
-                
-                    // Меняем текст в зависимости от этапа (опционально)
-                    if (p < 100) _playVM.DownloadStatusText = "Downloading files...";
-                    else _playVM.DownloadStatusText = "Finalizing...";
-                });
-            
-                var process = await _launchService.LaunchGameAsync(_instancesStore.SelectedInstance, _loginStore.CurrentAccount, progress);
-            
-                Console.WriteLine("Game started!");
-            
-                // Ждем выхода, но панель загрузки скрываем сразу после старта
-                _playVM.IsDownloading = false;
-                OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // СКРЫВАЕМ ПАНЕЛЬ (станет Collapsed)
-                _instanceService.SaveInstances(_instancesStore.Instances);
-                // Можно скрыть лаунчер
-                // Application.Current.MainWindow.Hide();
-            
-                await process.WaitForExitAsync(); // Используйте асинхронное ожидание, если .NET позволяет
-            
-                // Application.Current.MainWindow.Show();
+                _currentGameProcess.Close();
+                await _currentGameProcess.WaitForExitAsync();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex);
-                _playVM.IsDownloading = false;
-                OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // Скрываем при ошибке
+                Debug.WriteLine($"Error closing game process: {ex}");
             }
         }
+    }
+    
+    private async Task LaunchCurrentInstance()
+    {
+        if (_playVM.IsDownloading) return;
+        if (_playVM.IsGameRunning) return;
+        
+        Console.WriteLine("Launching instance...");
+        if (_instancesStore.SelectedInstance == null) return;
+        if (_loginStore.CurrentAccount == null) 
+        { 
+            OpenLoginCommand.Execute(null); 
+            return;
+        }
+
+        try
+        {
+            _playVM.IsDownloading = true;
+            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // Уведомляем UI, что видимость изменилась
+            _playVM.DownloadStatusText = "Preparing...";
+            _playVM.DownloadProgress = 0;
+
+            var progress = new Progress<double>(p =>
+            {
+                // Обновляем данные UI
+                _playVM.DownloadProgress = p;
+                // Меняем текст в зависимости от этапа (опционально)
+                if (p < 100) _playVM.DownloadStatusText = "Downloading files...";
+                else _playVM.DownloadStatusText = "Finalizing..."; 
+            });
+
+            _currentGameProcess = await _launchService.LaunchGameAsync(_instancesStore.SelectedInstance,
+                _loginStore.CurrentAccount, progress);
+
+            Console.WriteLine("Game started!");
+
+            // Ждем выхода, но панель загрузки скрываем сразу после старта
+            _playVM.IsGameRunning = true;
+            _playVM.IsDownloading = false;
+            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // СКРЫВАЕМ ПАНЕЛЬ (станет Collapsed)
+            _instanceService.SaveInstances(_instancesStore.Instances);
+            // Можно скрыть лаунчер
+            // Application.Current.MainWindow.Hide();
+
+            await _currentGameProcess.WaitForExitAsync(); // Используйте асинхронное ожидание, если .NET позволяет
+            _playVM.IsGameRunning = false;
+            // Application.Current.MainWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+            _playVM.IsDownloading = false;
+            _playVM.IsGameRunning = false;
+            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // Скрываем при ошибке
+        }
+        finally
+        {
+            _currentGameProcess = null;
+        }
+    }
 
     //Getters & Setters
     

@@ -82,15 +82,15 @@
                 </Border>
                 <Button
                     Command="{Binding LaunchCommand}"
-                    Content="{Binding Source={StaticResource Loc}, Path=[Play.PlayButton]}"
+                    Content="{Binding CurrentPlayButtonText.Value}"
                     FontSize="18"
                     Height="50"
                     HorizontalAlignment="Center"
-                    IsEnabled="{Binding PlayButtonEnabled}"
                     Style="{StaticResource AccentButtonStyle}"
-                    Tag="{StaticResource Icon.Play}"
+                    Tag="{Binding CurrentPlayButtonIcon}"
                     Width="200"
                     helpers:ButtonHelper.BalanceText="True"
+                    helpers:ButtonHelper.IsLoading="{Binding IsDownloading}"
                     x:Name="PlayButton" />
                 <!--  Click="PlayButton_Click"  -->
 

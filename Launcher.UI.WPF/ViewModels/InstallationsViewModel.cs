@@ -64,6 +64,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
             menu.DataContext = InstanceVM; 
             InstanceVM.RequestClose += () => 
             {
+                if (InstanceVM.IsCreatingInstance) return;
                 _appStore.CurrentOverlayView = null;
             };
             _appStore.CurrentOverlayView = menu;

@@ -68,6 +68,8 @@
     "AccountCard.OfflineType": "Офлайн",
     "Play.Title": "Гра",
     "Play.PlayButton": "ГРАТИ",
+    "Play.PlayButton.Cancel": "Скасувати",
+    "Play.PlayButton.Close": "Закрити",
     "VersionElement.VersionLabel": "Версія: ",
     "VersionElement.LastPlayedLabel": "Запуск: ",
     "VersionElement.LastPlayed.Never": "Ніколи",

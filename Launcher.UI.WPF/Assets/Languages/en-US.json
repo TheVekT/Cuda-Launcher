@@ -68,6 +68,8 @@
     "AccountCard.OfflineType": "Offline",
     "Play.Title": "Play",
     "Play.PlayButton": "PLAY",
+    "Play.PlayButton.Cancel": "Cancel",
+    "Play.PlayButton.Close": "Close",
     "VersionElement.VersionLabel": "Version: ",
     "VersionElement.LastPlayedLabel": "Last played: ",
     "VersionElement.LastPlayed.Never": "Never",

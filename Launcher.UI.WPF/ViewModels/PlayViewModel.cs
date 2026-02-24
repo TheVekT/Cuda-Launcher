@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.ViewModels
 {
@@ -12,22 +13,56 @@ namespace Launcher.UI.WPF.ViewModels
         private string _downloadStatusText = "Initiating...";
         private string _downloadPercentText = "0%";
         private bool _isDownloading;
+        private bool _isGameRunning;
+        
+        private object _currentPlayButtonIcon;
+        public DynamicTranslation CurrentPlayButtonText { get; } = new DynamicTranslation("Play.PlayButton");
         
         public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
-        public Boolean PlayButtonEnabled => !_isDownloading ;
         
         //Commands
-        public ICommand LaunchCommand => new RelayCommand(o => RequestLaunch?.Invoke(), o => PlayButtonEnabled);
+        public ICommand LaunchCommand => new RelayCommand(o => RequestLaunch?.Invoke());
         
         //Events
         public event Action RequestLaunch;
 
         public PlayViewModel()
         {
-            
+            ChangeToPlayIcon("Icon.Play");
+        }
+        
+        public void ChangeToPlayIcon(string path)
+        {
+            CurrentPlayButtonIcon = Application.Current.TryFindResource(path);
         }
         
         //Getters and Setters
+        public object CurrentPlayButtonIcon
+        {
+            get => _currentPlayButtonIcon;
+            set
+            {
+                if (_currentPlayButtonIcon != value)
+                {
+                    _currentPlayButtonIcon = value;
+                    OnPropertyChanged(nameof(CurrentPlayButtonIcon));
+                }
+            }
+        }
+        
+        public bool IsGameRunning
+        {
+            get => _isGameRunning;
+            set
+            {
+                if (_isGameRunning != value)
+                {
+                    _isGameRunning = value;
+                    OnPropertyChanged(nameof(IsGameRunning));
+                }
+            }
+        }
+        
         public double DownloadProgress
         {
             get => _downloadProgress;
@@ -50,7 +85,6 @@ namespace Launcher.UI.WPF.ViewModels
                 {
                     _isDownloading = value;
                     OnPropertyChanged(nameof(IsDownloading));
-                    OnPropertyChanged(nameof(PlayButtonEnabled)); 
                     OnPropertyChanged(nameof(DownloadPanelVisibility)); 
                 }
             }
