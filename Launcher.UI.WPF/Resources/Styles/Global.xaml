@@ -1551,7 +1551,7 @@
                                 Foreground="{TemplateBinding Foreground}"
                                 Grid.Row="0"
                                 IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                Padding="0,5"
+                                Padding="0,0"
                                 Style="{StaticResource MoreExpanderHeaderStyle}"
                                 x:Name="HeaderSite" />
 

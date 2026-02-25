@@ -20,6 +20,8 @@ public class SettingsVM: INotifyPropertyChanged
     
     //Collections
     
+    //Attributes
+    private LanguageModel _selectedLanguage;
     
     //Events
     public event Action RequestClose;
@@ -45,6 +47,8 @@ public class SettingsVM: INotifyPropertyChanged
                 _appStore.CurrentBannerPath = theme.BannerPath;
             }
         });
+        SelectedLanguage = _settingsStore.AvailableLanguages.FirstOrDefault(l => l.Code == "en-US") 
+                           ?? _settingsStore.AvailableLanguages.FirstOrDefault();
         
         LoadThemes();
     }
@@ -56,6 +60,23 @@ public class SettingsVM: INotifyPropertyChanged
         foreach (var theme in themes)
         {
             _settingsStore.AvailableThemes.Add(theme);
+        }
+    }
+    
+    //Getters and Setters
+    
+    public LanguageModel SelectedLanguage
+    {
+        get => _selectedLanguage;
+        set
+        {
+            if (_selectedLanguage != value && value != null)
+            {
+                _selectedLanguage = value;
+                OnPropertyChanged(nameof(SelectedLanguage));
+                Console.WriteLine($"Selected language: {value.Name}, code: {value.Code}");
+                LocalizationService.Instance.LoadLanguage(value.Code);
+            }
         }
     }
     

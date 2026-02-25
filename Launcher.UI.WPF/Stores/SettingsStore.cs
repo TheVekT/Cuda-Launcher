@@ -16,10 +16,18 @@ public class SettingsStore: INotifyPropertyChanged
     
     //Collections
     public ObservableCollection<ThemeModel> AvailableThemes { get; set; } = new ObservableCollection<ThemeModel>();
+    public ObservableCollection<LanguageModel> AvailableLanguages { get; set; } = new ObservableCollection<LanguageModel>();
     
     public SettingsStore(ThemeService themeService)
     {
         _themeService = themeService;
+
+        AvailableLanguages.Clear();
+        var langs = LocalizationService.Instance.GetAvailableLanguages();
+        foreach (var lang in langs)
+        {
+            AvailableLanguages.Add(lang);
+        }
 
         _currentThemePath = "";
         //Load settings from storage (not implemented yet)

@@ -92,6 +92,27 @@
                                     SelectedItem="{Binding SelectedGameVersion}"
                                     Style="{StaticResource OverlayComboBox}"
                                     x:Name="SelectVersionComboBox" />
+                                <Expander
+                                    FontSize="12"
+                                    Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                    Header="{Binding Source={StaticResource Loc}, Path=[AddInstallation.LoaderVersionLabel]}"
+                                    Margin="0,5,0,0">
+                                    <Expander.Style>
+                                        <Style BasedOn="{StaticResource MoreContentExpanderStyle}" TargetType="Expander">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Expander.Style>
+                                    <ComboBox
+                                        Height="35"
+                                        Margin="0,5,0,0"
+                                        MaxDropDownHeight="185"
+                                        Style="{StaticResource OverlayComboBox}" />
+                                </Expander>
                             </StackPanel>
                             <StackPanel Grid.Row="2" Margin="0,5">
                                 <TextBlock
@@ -296,7 +317,7 @@
                                             </Style>
                                         </RadioButton.Style>
                                     </RadioButton>
-                                    <Grid>
+                                    <Grid Margin="0,10,0,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
@@ -306,7 +327,6 @@
                                             Grid.Column="0"
                                             GroupName="IsolationGroup"
                                             IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Partial}"
-                                            Margin="0,10,0,0"
                                             Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}">
                                             <RadioButton.Style>
                                                 <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
@@ -326,7 +346,7 @@
                                             CornerRadius="{DynamicResource DefaultCorner}"
                                             Grid.Column="1"
                                             Margin="10,0,0,0"
-                                            Padding="5"
+                                            Padding="8"
                                             VerticalAlignment="Center">
                                             <Border.Style>
                                                 <Style TargetType="Border">

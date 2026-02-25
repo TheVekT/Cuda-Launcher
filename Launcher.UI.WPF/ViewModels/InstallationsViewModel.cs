@@ -58,13 +58,12 @@ public class InstallationsViewModel : INotifyPropertyChanged
 
         OpenAddVersionCommand = new RelayCommand(async o => 
         {
-            var menu = new Resources.Overlay.AddVersionMenu();
+            var menu = new AddVersionMenu();
             var InstanceVM = new InstanceVM(_versionService, _instanceService, _instanceFileSystemService, _instancesStore);
             await InstanceVM.InitializeAsync();
             menu.DataContext = InstanceVM; 
             InstanceVM.RequestClose += () => 
             {
-                if (InstanceVM.IsCreatingInstance) return;
                 _appStore.CurrentOverlayView = null;
             };
             _appStore.CurrentOverlayView = menu;

@@ -144,24 +144,12 @@
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.InterfaceScaleDescription]}" />
                     </StackPanel>
-                    <StackPanel Grid.Row="4" Orientation="Vertical">
-                        <TextBlock
-                            FontSize="14"
-                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                            Margin="0,4"
-                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.MinecraftRootDirectoryLabel]}" />
-                        <Button
-                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.MoveMinecraftFolderButton]}"
-                            FontSize="14"
-                            Height="35"
-                            Style="{StaticResource OverlayDefaultButtonStyle}"
-                            Tag="{StaticResource Icon.Folder}" />
-                    </StackPanel>
                 </Grid>
                 <!--  Game Settings Panel  -->
                 <Grid Visibility="{Binding ElementName=TabGame, Path=IsChecked, Converter={StaticResource BoolToVis}}" x:Name="GameSettingsPanel">
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -193,14 +181,14 @@
                         </StackPanel>
                         <StackPanel Grid.Row="1" Orientation="Vertical">
                             <CheckBox
-                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.EnableSnapshots]}"
+                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.EnableSnapshots]}"
                                 FontSize="14"
                                 Margin="0,5"
                                 Style="{StaticResource DefaultToggleSwitchStyle}"
                                 VerticalAlignment="Top"
                                 helpers:ScaleHelper.ScaleFactor="0.8" />
                             <CheckBox
-                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.FullscreenModeLabel]}"
+                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.FullscreenModeLabel]}"
                                 FontSize="14"
                                 Margin="0,5"
                                 Style="{StaticResource DefaultToggleSwitchStyle}"
@@ -228,15 +216,62 @@
                                 Margin="0,0,0,5"
                                 Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.WindowResolutionLabel]}" />
                             <ComboBox
-                                Background="{DynamicResource OverlayButtonBackgroundBrush}"
                                 Height="35"
                                 SelectedIndex="0"
-                                Style="{StaticResource DefaultComboBox}">
+                                Style="{StaticResource OverlayComboBox}">
                                 <ComboBoxItem Content="1920x1080" />
                                 <ComboBoxItem Content="1600x900" />
                                 <ComboBoxItem Content="1366x768" />
                                 <ComboBoxItem Content="1280x720" />
                             </ComboBox>
+                        </StackPanel>
+                        <StackPanel Grid.Row="3" Orientation="Vertical">
+                            <TextBlock
+                                FontSize="14"
+                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                Margin="0,4"
+                                Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.MinecraftRootDirectoryLabel]}" />
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                Margin="0,0,0,4"
+                                Text="Binding C:/current/minecraft/root/directory/.path"
+                                x:Name="CurrentMinecraftRootDirectory" />
+                            <Button
+                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.MoveMinecraftFolderButton]}"
+                                FontSize="14"
+                                Height="35"
+                                Style="{StaticResource OverlayDefaultButtonStyle}"
+                                Tag="{StaticResource Icon.Folder}" />
+                            <Border
+                                Background="{DynamicResource AlertBackgroundBrush}"
+                                BorderBrush="{DynamicResource AlertBorderBrush}"
+                                BorderThickness="{DynamicResource DefaultBorderThickness}"
+                                CornerRadius="{DynamicResource DefaultCorner}"
+                                Margin="0,6"
+                                Padding="8"
+                                VerticalAlignment="Center">
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <Viewbox
+                                        Height="18"
+                                        VerticalAlignment="Center"
+                                        Width="18">
+                                        <Path
+                                            Data="{StaticResource Icon.Alert}"
+                                            Stroke="{DynamicResource AlertForegroundBrush}"
+                                            StrokeEndLineCap="Round"
+                                            StrokeStartLineCap="Round"
+                                            StrokeThickness="1.33" />
+                                    </Viewbox>
+                                    <TextBlock
+                                        FontSize="12"
+                                        Foreground="{DynamicResource AlertForegroundBrush}"
+                                        HorizontalAlignment="Center"
+                                        Margin="10,0,0,0"
+                                        Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.MinecraftRootDirectoryAlert]}"
+                                        VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -256,14 +291,11 @@
                             Margin="0,0,0,5"
                             Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Language.SelectLanguageLabel]}" />
                         <ComboBox
-                            Background="{DynamicResource OverlayButtonBackgroundBrush}"
+                            DisplayMemberPath="Name"
                             Height="35"
-                            SelectedIndex="0"
-                            SelectionChanged="Selector_OnSelectionChanged"
-                            Style="{StaticResource DefaultComboBox}">
-                            <ComboBoxItem Content="English (US)" />
-                            <ComboBoxItem Content="Українська" />
-                        </ComboBox>
+                            ItemsSource="{Binding SettingsStore.AvailableLanguages}"
+                            SelectedItem="{Binding SelectedLanguage}"
+                            Style="{StaticResource OverlayComboBox}" />
                     </StackPanel>
                     <StackPanel
                         Grid.Row="1"

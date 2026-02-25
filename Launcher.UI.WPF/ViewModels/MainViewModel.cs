@@ -113,7 +113,7 @@ public class MainViewModel : INotifyPropertyChanged
         
         //Commands
         
-        LaunchCommand = new RelayCommand(async o => await LaunchCurrentInstance());
+        LaunchCommand = new RelayCommand(async o => await HandlePlayButtonPress());
         
         NavigateCommand = new RelayCommand(parameter => 
         {
@@ -144,14 +144,31 @@ public class MainViewModel : INotifyPropertyChanged
         
         _loginVM.RequestClose += () =>
         {
-            if (_loginStore.IsLoggingIn) return;
             _appStore.CurrentOverlayView = null;
         };
         _settingsVM.RequestClose += () => _appStore.CurrentOverlayView = null;
-        _playVM.RequestLaunch += async () => await LaunchCurrentInstance();
+        _playVM.RequestLaunch += async () => await HandlePlayButtonPress();
         
     }
     
+    private async Task HandlePlayButtonPress()
+    {
+        // Если игра уже запущена - закрываем её
+        if (_playVM.IsGameRunning)
+        {
+            await CloseGameProcess();
+        }
+        // Если идет загрузка - просто игнорируем нажатие (так как отмену мы убрали)
+        else if (_playVM.IsDownloading)
+        {
+            return; 
+        }
+        // Иначе - запускаем
+        else
+        {
+            await LaunchCurrentInstance(); 
+        }
+    }
     
     private async Task CloseGameProcess()
     {
@@ -159,7 +176,7 @@ public class MainViewModel : INotifyPropertyChanged
         {
             try
             {
-                _currentGameProcess.Close();
+                _currentGameProcess.Kill(); // Заменили Close() на Kill()
                 await _currentGameProcess.WaitForExitAsync();
             }
             catch (Exception ex)
@@ -173,7 +190,7 @@ public class MainViewModel : INotifyPropertyChanged
     {
         if (_playVM.IsDownloading) return;
         if (_playVM.IsGameRunning) return;
-        
+    
         Console.WriteLine("Launching instance...");
         if (_instancesStore.SelectedInstance == null) return;
         if (_loginStore.CurrentAccount == null) 
@@ -185,15 +202,13 @@ public class MainViewModel : INotifyPropertyChanged
         try
         {
             _playVM.IsDownloading = true;
-            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // Уведомляем UI, что видимость изменилась
+            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility));
             _playVM.DownloadStatusText = "Preparing...";
             _playVM.DownloadProgress = 0;
 
             var progress = new Progress<double>(p =>
             {
-                // Обновляем данные UI
                 _playVM.DownloadProgress = p;
-                // Меняем текст в зависимости от этапа (опционально)
                 if (p < 100) _playVM.DownloadStatusText = "Downloading files...";
                 else _playVM.DownloadStatusText = "Finalizing..."; 
             });
@@ -203,27 +218,32 @@ public class MainViewModel : INotifyPropertyChanged
 
             Console.WriteLine("Game started!");
 
-            // Ждем выхода, но панель загрузки скрываем сразу после старта
+            // === ИГРА ЗАПУЩЕНА ===
             _playVM.IsGameRunning = true;
             _playVM.IsDownloading = false;
-            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // СКРЫВАЕМ ПАНЕЛЬ (станет Collapsed)
+        
+            // Меняем текст кнопки на "Close"
+            _playVM.CurrentPlayButtonText.Update("Play.PlayButton.Close"); 
+        
+            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); 
             _instanceService.SaveInstances(_instancesStore.Instances);
-            // Можно скрыть лаунчер
-            // Application.Current.MainWindow.Hide();
 
-            await _currentGameProcess.WaitForExitAsync(); // Используйте асинхронное ожидание, если .NET позволяет
-            _playVM.IsGameRunning = false;
-            // Application.Current.MainWindow.Show();
+            await _currentGameProcess.WaitForExitAsync(); 
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex);
-            _playVM.IsDownloading = false;
-            _playVM.IsGameRunning = false;
-            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); // Скрываем при ошибке
+            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); 
         }
         finally
         {
+            // === СБРОС СОСТОЯНИЯ (игра закрыта сама или убита кнопкой) ===
+            _playVM.IsDownloading = false;
+            _playVM.IsGameRunning = false;
+        
+            // Возвращаем текст кнопки на "PLAY"
+            _playVM.CurrentPlayButtonText.Update("Play.PlayButton");
+        
             _currentGameProcess = null;
         }
     }

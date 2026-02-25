@@ -46,7 +46,7 @@ public partial class App : Application
             {
                 themeToLoad = availableThemes[0].ZipPath;
                 appStore.CurrentBannerPath = availableThemes[0].BannerPath;
-                settingsStore.CurrentThemePath = themeToLoad; // Это вызовет ChangeTheme
+                settingsStore.CurrentThemePath = themeToLoad; 
             }
         }
         else

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Services
 {
@@ -32,6 +33,51 @@ namespace Launcher.UI.WPF.Services
                     return value;
                 return key;
             }
+        }
+        
+        public List<LanguageModel> GetAvailableLanguages()
+        {
+            var languages = new List<LanguageModel>();
+            var dir = GetLanguagesDirectory();
+
+            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            {
+                // Базовый фоллбэк, если папка не найдена
+                languages.Add(new LanguageModel { Name = "English", Code = "en-US" });
+                return languages;
+            }
+
+            var files = Directory.GetFiles(dir, "*.json");
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    var json = File.ReadAllText(file, Encoding.UTF8);
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var langData = JsonSerializer.Deserialize<LanguageFile>(json, options);
+
+                    if (langData?.Meta != null)
+                    {
+                        // Достаем имя и код из метадаты
+                        langData.Meta.TryGetValue("Name", out var name);
+                        langData.Meta.TryGetValue("LanguageCode", out var code);
+
+                        if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code))
+                        {
+                            languages.Add(new LanguageModel { Name = name, Code = code });
+                        }
+                    }
+                }
+                catch
+                {
+                    // Если файл битый, просто идем дальше
+                    continue;
+                }
+            }
+
+            // Возвращаем список, отсортированный по алфавиту для красоты
+            return languages.OrderBy(l => l.Name).ToList();
         }
 
         public string GetCodeByName(string name)

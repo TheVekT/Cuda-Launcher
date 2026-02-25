@@ -105,16 +105,18 @@ namespace Launcher.Core.Services.Game
         private async Task<IVersion> InstallLoaderAsync(MinecraftLauncher launcher, MinecraftInstance instance)
         {
             var mcVersion = instance.GameVersion;
-            
+            Console.WriteLine($"Installing loader for {mcVersion}...");
             switch (instance.LoaderType)
             {
                 case GameLoaderType.Forge:
                     var forge = new ForgeInstaller(launcher); 
-                    return await launcher.GetVersionAsync(await forge.Install(mcVersion));
+                    var installedForgeId = await forge.Install(mcVersion);
+                    return await launcher.GetVersionAsync(installedForgeId);
 
                 case GameLoaderType.Fabric:
                     var fabric = new FabricInstaller(_httpClient);
-                    return await launcher.GetVersionAsync(await fabric.Install(mcVersion, launcher.MinecraftPath));
+                    var installedFabricId = await fabric.Install(mcVersion, launcher.MinecraftPath);
+                    return await launcher.GetVersionAsync(installedFabricId);
 
                 case GameLoaderType.NeoForge:
                     var neo = new NeoForgeInstaller(launcher);
