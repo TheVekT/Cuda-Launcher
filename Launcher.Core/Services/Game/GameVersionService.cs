@@ -16,6 +16,7 @@ namespace Launcher.Core.Services.Game
     { 
         Task<IEnumerable<string>> GetVanillaVersionsAsync(); 
         Task<IEnumerable<string>> GetLoaderVersionsAsync(GameLoaderType type, string gameVersion);
+        Task<string> GetRecommendedLoaderVersionAsync(GameLoaderType type, string gameVersion);
         Task<IEnumerable<string>> GetGameVersionsByTypeAsync(GameLoaderType type); 
     }
     public class GameVersionService : IGameVersionService
@@ -74,7 +75,8 @@ namespace Launcher.Core.Services.Game
                         return await GetForgeVersions(gameVersion);
 
                     case GameLoaderType.NeoForge:
-                        return await GetNeoForgeVersions(gameVersion);
+                        var neoVersions = await GetNeoForgeVersions(gameVersion);
+                        return neoVersions.Reverse();
 
                     case GameLoaderType.Fabric:
                         return await GetFabricVersions(gameVersion);
@@ -93,6 +95,75 @@ namespace Launcher.Core.Services.Game
             }
         }
 
+        public async Task<string> GetRecommendedLoaderVersionAsync(GameLoaderType type, string gameVersion)
+        {
+            if (string.IsNullOrWhiteSpace(gameVersion)) return null;
+
+            try
+            {
+                // Получаем все версии
+                var versions = (await GetLoaderVersionsAsync(type, gameVersion)).ToList();
+                if (!versions.Any()) return null;
+
+                if (type == GameLoaderType.Vanilla)
+                    return gameVersion;
+
+                // === ЛОГИКА ДЛЯ NEOFORGE (От старых к новым) ===
+                if (type == GameLoaderType.NeoForge)
+                {
+                    string requiredPrefix = gameVersion.StartsWith("1.") ? gameVersion.Substring(2) + "." : gameVersion + ".";
+
+                    var parsedVersions = versions
+                        .Where(v => v.StartsWith(requiredPrefix))
+                        .Select(v => 
+                        {
+                            // Отсекаем суффиксы "-beta", "-rc" для парсера (например "21.4.11-beta" превращается в "21.4.11")
+                            string cleanVersion = v.Split('-')[0];
+                            bool isParsed = Version.TryParse(cleanVersion, out var parsedVer);
+            
+                            // Определяем, стабильная ли это сборка (нет приписок)
+                            bool isStable = !v.Contains("beta", StringComparison.OrdinalIgnoreCase) && 
+                                            !v.Contains("alpha", StringComparison.OrdinalIgnoreCase) && 
+                                            !v.Contains("rc", StringComparison.OrdinalIgnoreCase);
+
+                            return new { Original = v, Parsed = parsedVer, IsValid = isParsed, IsStable = isStable };
+                        })
+                        .Where(x => x.IsValid)
+                        .ToList();
+
+                    // 1. Пытаемся найти самую новую СТАБИЛЬНУЮ версию
+                    var bestStable = parsedVersions
+                        .Where(x => x.IsStable)
+                        .OrderByDescending(x => x.Parsed)
+                        .FirstOrDefault();
+    
+                    // 2. Если стабильных нет вообще (как на 1.21.4), берем самую новую БЕТУ
+                    var bestOverall = parsedVersions
+                        .OrderByDescending(x => x.Parsed)
+                        .FirstOrDefault();
+
+                    // Возвращаем стабильную -> если нет, самую свежую бету -> фоллбэк на крайний элемент массива
+                    // ВАЖНО: Если ты добавил .Reverse() в список всех версий, то в конце используй FirstOrDefault(), если нет - LastOrDefault()
+                    return bestStable?.Original ?? bestOverall?.Original ?? versions.FirstOrDefault(); 
+                }
+
+                // === ЛОГИКА ДЛЯ ОСТАЛЬНЫХ (От новых к старым) ===
+                // Ищем первую версию, в названии которой НЕТ слов beta, alpha, rc, snapshot
+                var stableVersion = versions.FirstOrDefault(v => 
+                    !v.Contains("beta", StringComparison.OrdinalIgnoreCase) && 
+                    !v.Contains("alpha", StringComparison.OrdinalIgnoreCase) && 
+                    !v.Contains("rc", StringComparison.OrdinalIgnoreCase) &&
+                    !v.Contains("snapshot", StringComparison.OrdinalIgnoreCase));
+
+                // Если стабильного релиза нет (одни беты) — возвращаем самую первую (самую свежую бету)
+                return stableVersion ?? versions.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error finding recommended version for {type}: {ex.Message}");
+                return null;
+            }
+        }
         // --- ПОЛУЧЕНИЕ КОНКРЕТНЫХ ВЕРСИЙ ЗАГРУЗЧИКОВ ---
 
         private async Task<IEnumerable<string>> GetForgeVersions(string gameVersion)

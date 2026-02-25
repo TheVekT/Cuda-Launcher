@@ -28,6 +28,7 @@ public class InstanceVM: INotifyPropertyChanged
     private string _selectedGameVersion;
     private string _installationName;
     private string _selectedModLoader;
+    private string _selectedLoaderVersion;
     private bool _isCreatingInstance;
     private IsolationType _selectedIsolation = IsolationType.Global;
     
@@ -42,6 +43,7 @@ public class InstanceVM: INotifyPropertyChanged
     
     //Collections
     public ObservableCollection<string> GameVersions { get; } = new(); 
+    public ObservableCollection<string> LoaderVersions { get; } = new();
     
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
@@ -81,6 +83,55 @@ public class InstanceVM: INotifyPropertyChanged
     public async Task InitializeAsync()
     {
         await RefreshGameVersions();
+    }
+    
+    private async Task RefreshLoaderVersions()
+    {
+        try
+        {
+            LoaderVersions.Clear();
+            System.Windows.Application.Current.Dispatcher.Invoke(() => SelectedLoaderVersion = null);
+
+            var type = GetLoaderType(_selectedModLoader);
+
+            // Если это Vanilla или версия игры еще не выбрана — очищаем список и выходим
+            if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(() => LoaderVersions.Clear());
+                return;
+            }
+
+            // Запрашиваем все версии лоадера для выбранной версии игры
+            var loadedVersions = await _versionService.GetLoaderVersionsAsync(type, SelectedGameVersion);
+            var versionList = loadedVersions.ToList();
+
+            // Запрашиваем рекомендуемую (стабильную) версию
+            var recommendedVersion = await _versionService.GetRecommendedLoaderVersionAsync(type, SelectedGameVersion);
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            {
+                LoaderVersions.Clear();
+                foreach (var version in versionList) 
+                {
+                    LoaderVersions.Add(version);
+                }
+            });
+
+            await Task.Delay(50); // Небольшая задержка для UI
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            {
+                if (LoaderVersions.Count > 0)
+                {
+                    // Ставим стабильную версию по умолчанию. Если ее нет - первую в списке.
+                    SelectedLoaderVersion = recommendedVersion ?? LoaderVersions.FirstOrDefault();
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[VM] Ошибка RefreshLoaderVersions: {ex.Message}");
+        }
     }
     
     private async Task RefreshGameVersions()
@@ -141,7 +192,7 @@ public class InstanceVM: INotifyPropertyChanged
             LoaderType = GetLoaderType(SelectedModLoader),
             IsolationType = SelectedIsolation,
             IconPath = SelectedIcon ?? _instancesStore.IconList.FirstOrDefault(), 
-            LoaderVersion = (SelectedModLoader == "Vanilla") ? null : "Auto"
+            LoaderVersion = (SelectedModLoader == "Vanilla") ? null : SelectedLoaderVersion
         };
 
         try
@@ -180,6 +231,19 @@ public class InstanceVM: INotifyPropertyChanged
             }
         }
     }
+
+    public string SelectedLoaderVersion
+    {
+        get => _selectedLoaderVersion;
+        set
+        {
+            if (_selectedLoaderVersion != value)
+            {
+                _selectedLoaderVersion = value;
+                OnPropertyChanged(nameof(SelectedLoaderVersion));
+            }
+        }
+    }
     
     public string SelectedIcon
     {
@@ -203,6 +267,8 @@ public class InstanceVM: INotifyPropertyChanged
                 _selectedGameVersion = value;
                 OnPropertyChanged(nameof(SelectedGameVersion));
                 OnPropertyChanged(nameof(SuggestedName));
+                
+                _ = RefreshLoaderVersions(); 
             }
         }
     }
@@ -256,6 +322,7 @@ public class InstanceVM: INotifyPropertyChanged
                 }
                 OnPropertyChanged(nameof(SelectedModLoader));
                 _ = RefreshGameVersions();
+                _ = RefreshLoaderVersions();
                 OnPropertyChanged(nameof(SuggestedName));
             }
         }

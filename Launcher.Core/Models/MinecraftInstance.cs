@@ -12,7 +12,7 @@ namespace Launcher.Core.Models
         public string IconPath { get; set; }
         
         public string GameVersion { get; set; }   // 1.20.1
-        public string LoaderVersion { get; set; } // 47.1.0 (для Vanilla будет null или пусто)
+        public string? LoaderVersion { get; set; } // 47.1.0 (для Vanilla будет null или пусто)
         
         public GameLoaderType LoaderType { get; set; }
         

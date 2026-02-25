@@ -105,55 +105,33 @@ namespace Launcher.Core.Services.Game
         private async Task<IVersion> InstallLoaderAsync(MinecraftLauncher launcher, MinecraftInstance instance)
         {
             var mcVersion = instance.GameVersion;
-            Console.WriteLine($"Installing loader for {mcVersion}...");
+            var loaderVersion = instance.LoaderVersion; // Теперь он гарантированно есть
+
+            Console.WriteLine($"Installing {instance.LoaderType} (Version: {loaderVersion}) for Minecraft {mcVersion}...");
+
             switch (instance.LoaderType)
             {
                 case GameLoaderType.Forge:
                     var forge = new ForgeInstaller(launcher); 
-                    var installedForgeId = await forge.Install(mcVersion);
+                    // Передаем конкретную версию лоадера вторым параметром
+                    var installedForgeId = await forge.Install(mcVersion, loaderVersion);
                     return await launcher.GetVersionAsync(installedForgeId);
 
                 case GameLoaderType.Fabric:
                     var fabric = new FabricInstaller(_httpClient);
-                    var installedFabricId = await fabric.Install(mcVersion, launcher.MinecraftPath);
+                    var installedFabricId = await fabric.Install(mcVersion, loaderVersion, launcher.MinecraftPath);
                     return await launcher.GetVersionAsync(installedFabricId);
 
                 case GameLoaderType.NeoForge:
                     var neo = new NeoForgeInstaller(launcher);
-                    
-                    // 1. Получаем список всех версий
-                    var neoVersions = await neo.GetForgeVersions(mcVersion);
-                    
-                    // 2. Формируем префикс (например "1.21.1" -> "21.1.")
-                    string requiredPrefix = mcVersion.StartsWith("1.") ? mcVersion.Substring(2) + "." : mcVersion + ".";
-
-                    // 3. Фильтрация и умная сортировка
-                    var bestNeo = neoVersions
-                        .Where(v => v.VersionName.StartsWith(requiredPrefix)) // Отсекаем версии других патчей (21.10 для 1.21.1)
-                        .Select(v => 
-                        {
-                            bool isParsed = Version.TryParse(v.VersionName, out var parsedVer);
-                            return new { Original = v, Parsed = parsedVer, IsValid = isParsed };
-                        })
-                        .Where(x => x.IsValid)
-                        .OrderByDescending(x => x.Parsed) // Сортируем как числа (21.1.200 > 21.1.9)
-                        .FirstOrDefault();
-
-                    string installedNeoId;
-                    if (bestNeo != null)
-                    {
-                        installedNeoId = await neo.Install(mcVersion, bestNeo.Original.VersionName);
-                    }
-                    else
-                    {
-                        installedNeoId = await neo.Install(mcVersion);
-                    }
-                    
+                    // Вся огромная логика поиска и сортировок удалена! Просто просим установить нужную.
+                    var installedNeoId = await neo.Install(mcVersion, loaderVersion);
                     return await launcher.GetVersionAsync(installedNeoId);
 
                 case GameLoaderType.Quilt:
                     var quilt = new QuiltInstaller(_httpClient);
-                    return await launcher.GetVersionAsync(await quilt.Install(mcVersion, launcher.MinecraftPath));
+                    var installedQuiltId = await quilt.Install(mcVersion, loaderVersion, launcher.MinecraftPath);
+                    return await launcher.GetVersionAsync(installedQuiltId);
 
                 default:
                     return await launcher.GetVersionAsync(mcVersion);
