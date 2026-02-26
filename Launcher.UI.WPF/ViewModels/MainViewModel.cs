@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using Launcher.Core.Models;
+using Launcher.Core.Services;
 using Launcher.Core.Services.Auth; 
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Game;
@@ -12,6 +13,7 @@ using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
+using Microsoft.VisualBasic;
 
 namespace Launcher.UI.WPF.ViewModels;
 
@@ -26,6 +28,7 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly ILaunchService _launchService;
     private readonly ISysInfoService _sysInfoService;
+    private readonly IDiscordService _discordService;
     
     //Stores
     private readonly LoginStore _loginStore;
@@ -82,6 +85,7 @@ public class MainViewModel : INotifyPropertyChanged
         IInstanceFileSystemService instanceFileSystemService,
         ILaunchService launchService,
         ISysInfoService sysInfoService,
+        IDiscordService discordService,
         LoginStore loginStore,
         SettingsStore settingsStore,
         LaunchStore launchStore,
@@ -96,6 +100,7 @@ public class MainViewModel : INotifyPropertyChanged
         _instanceFileSystemService = instanceFileSystemService;
         _launchService = launchService;
         _sysInfoService = sysInfoService;
+        _discordService = discordService;
         
         //Stores
         _loginStore = loginStore;
@@ -105,7 +110,7 @@ public class MainViewModel : INotifyPropertyChanged
         _appStore = appStore;
         
         //ViewModels
-        _playVM = new PlayViewModel();
+        _playVM = new PlayViewModel(_discordService, _settingsStore, _instancesStore);
         _installationsVM = new InstallationsViewModel(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore, _appStore);
         _skinsVM = new SkinsViewModel();
         _loginVM = new LoginVM(_authService, _accountStorage,_loginStore);
@@ -152,7 +157,7 @@ public class MainViewModel : INotifyPropertyChanged
         };
         _settingsVM.RequestClose += () => _appStore.CurrentOverlayView = null;
         _playVM.RequestLaunch += async () => await HandlePlayButtonPress();
-        
+        _discordService.Initialize(Core.Constants.DiscordAppId);
     }
     
     private async Task HandlePlayButtonPress()
@@ -230,8 +235,12 @@ public class MainViewModel : INotifyPropertyChanged
 
             // === ИГРА ЗАПУЩЕНА ===
             _playVM.IsGameRunning = true;
+            _playVM.UpdateDiscordPresence();
             _playVM.IsDownloading = false;
         
+            // hide main window when game is launched
+            if (!_settingsStore.IsKeepLauncherOpen) Application.Current.MainWindow.Hide();
+            
             // Меняем текст кнопки на "Close"
             _playVM.CurrentPlayButtonText.Update("Play.PlayButton.Close"); 
             _playVM.ChangeToPlayIcon("Icon.Close"); // Устанавливаем иконку крестика (предварительно добавив её в ресурсы)
@@ -239,7 +248,8 @@ public class MainViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); 
             _instanceService.SaveInstances(_instancesStore.Instances);
 
-            await _currentGameProcess.WaitForExitAsync(); 
+            await _currentGameProcess.WaitForExitAsync();
+            
         }
         catch (Exception ex)
         {
@@ -251,9 +261,11 @@ public class MainViewModel : INotifyPropertyChanged
             // === СБРОС СОСТОЯНИЯ (игра закрыта сама или убита кнопкой) ===
             _playVM.IsDownloading = false;
             _playVM.IsGameRunning = false;
+            Application.Current.MainWindow.Show();
         
             // Возвращаем текст кнопки на "PLAY"
             _playVM.CurrentPlayButtonText.Update("Play.PlayButton");
+            _playVM.UpdateDiscordPresence();
             _playVM.ChangeToPlayIcon("Icon.Play"); // И возвращаем иконку "Play"
         
             _currentGameProcess = null;

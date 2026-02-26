@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
+using Launcher.Core.Services;
 using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.ViewModels;
 using Launcher.UI.WPF.Services;
@@ -21,6 +22,8 @@ public partial class App : Application
     {
         base.OnStartup(e);
         
+        
+        
         //Services
         var themeService = new ThemeService();
         var authService = new AuthService();
@@ -31,6 +34,7 @@ public partial class App : Application
         var modrinthService = new ModrinthService();
         var launchService = new LaunchService(instanceFileSystemService, modrinthService);
         var sysInfoService = new SysInfoService();
+        var discordService = new DiscordService();
         //Stores
         var loginStore = new LoginStore(accountStorageService);
         var settingsStore = new SettingsStore(themeService, sysInfoService);
@@ -68,6 +72,7 @@ public partial class App : Application
             instanceFileSystemService, 
             launchService,
             sysInfoService,
+            discordService,
             loginStore,
             settingsStore,
             launchStore,

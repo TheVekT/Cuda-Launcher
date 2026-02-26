@@ -14,9 +14,17 @@ public class SettingsStore: INotifyPropertyChanged
     private readonly ISysInfoService _sysInfoService;
     
     //Attributes
-    private double _uiScale = 1.0;
     private string _currentThemePath;
     private LanguageModel _selectedLanguage;
+    
+    //General settings
+    
+    private bool _isKeepLauncherOpen;
+    private bool _isEnableAutoUpdates;
+    private bool _isEnableDiscordRichPresence;
+    private double _uiScale;
+    
+    //Game settings
     
     private long _maxPhysicalRam;
     private int _selectedMaxRam;
@@ -56,6 +64,11 @@ public class SettingsStore: INotifyPropertyChanged
         }
         
         SelectedLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == "en-US") ?? AvailableLanguages.FirstOrDefault();
+        
+        IsKeepLauncherOpen = false;
+        IsEnableAutoUpdates = true;
+        IsEnableDiscordRichPresence = true;
+        UiScale = 1.0;
 
         SelectedMaxRam = MaxPhysicalRam > 16000 ? 4096 : 2048;
         IsEnableSnapshots = false;
@@ -72,6 +85,46 @@ public class SettingsStore: INotifyPropertyChanged
     
     
     //Getters and Setters
+    
+    public bool IsKeepLauncherOpen
+    {
+        get => _isKeepLauncherOpen;
+        set
+        {
+            if (_isKeepLauncherOpen != value)
+            {
+                _isKeepLauncherOpen = value;
+                OnPropertyChanged(nameof(IsKeepLauncherOpen));
+            }
+        }
+    }
+    
+    public bool IsEnableAutoUpdates
+    {
+        get => _isEnableAutoUpdates;
+        set
+        {
+            if (_isEnableAutoUpdates != value)
+            {
+                _isEnableAutoUpdates = value;
+                OnPropertyChanged(nameof(IsEnableAutoUpdates));
+            }
+        }
+    }
+    
+    public bool IsEnableDiscordRichPresence
+    {
+        get => _isEnableDiscordRichPresence;
+        set
+        {
+            if (_isEnableDiscordRichPresence != value)
+            {
+                _isEnableDiscordRichPresence = value;
+                OnPropertyChanged(nameof(IsEnableDiscordRichPresence));
+            }
+        }
+    }
+    
     public long MaxPhysicalRam { get => _maxPhysicalRam; set => _maxPhysicalRam = value; }
     
     public int SelectedMaxRam

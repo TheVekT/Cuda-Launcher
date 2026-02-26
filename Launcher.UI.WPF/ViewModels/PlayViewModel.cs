@@ -1,14 +1,23 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using Launcher.Core.Services;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels
 {
     
     public class PlayViewModel: INotifyPropertyChanged
     {
+        //Services
+        private readonly IDiscordService _discordService;
+        
+        //Stores
+        private readonly SettingsStore _settingsStore;
+        private readonly InstancesStore _instancesStore;
+        
         private double _downloadProgress;
         private string _downloadStatusText = "Initiating...";
         private string _downloadPercentText = "0%";
@@ -26,9 +35,38 @@ namespace Launcher.UI.WPF.ViewModels
         //Events
         public event Action RequestLaunch;
 
-        public PlayViewModel()
+        public PlayViewModel(IDiscordService discordService, SettingsStore settingsStore, InstancesStore instancesStore)
         {
+            _discordService = discordService;
+            
+            _settingsStore = settingsStore;
+            _instancesStore = instancesStore;
+            
+            _settingsStore.PropertyChanged += OnSettingsStorePropertyChanged;
+            
+            
             ChangeToPlayIcon("Icon.Play");
+        }
+        
+        private void OnSettingsStorePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SettingsStore.IsEnableDiscordRichPresence))
+            {
+                UpdateDiscordPresence();
+            }
+        }
+
+        public void UpdateDiscordPresence()
+        {
+            if (_settingsStore.IsEnableDiscordRichPresence)
+            {
+                if(IsGameRunning) _discordService.SetPlayingPresence(_instancesStore.SelectedInstance);
+                else _discordService.SetMenuPresence();
+            }
+            else
+            {
+                _discordService.ClearPresence();
+            }
         }
         
         public void ChangeToPlayIcon(string path)
