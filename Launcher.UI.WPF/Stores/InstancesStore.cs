@@ -66,7 +66,9 @@ public class InstancesStore: INotifyPropertyChanged
     
     private void LoadIcons()
     {
+        // Используем AppDomain.CurrentDomain.BaseDirectory для портативности
         var iconsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Icons");
+    
         if (Directory.Exists(iconsPath))
         {
             var files = Directory.GetFiles(iconsPath, "*.png"); 
@@ -74,7 +76,11 @@ public class InstancesStore: INotifyPropertyChanged
             foreach (var file in files)
             {
                 var fileName = Path.GetFileName(file);
-                if (!_ignoredIcons.Contains(fileName)) IconList.Add(file);
+                if (!_ignoredIcons.Contains(fileName)) 
+                {
+                    // Для UI списка выбора храним полные пути
+                    IconList.Add(file); 
+                }
             }
         }
     }

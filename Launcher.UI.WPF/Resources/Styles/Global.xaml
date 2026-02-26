@@ -3,7 +3,7 @@
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <helpers:EdgeAdornerConverter x:Key="EdgeConverter" />
-
+    <helpers:ImagePathConverter x:Key="ImagePathConverter" />
     <!--  Footer navigation button style  -->
     <Style TargetType="RadioButton" x:Key="NavRadioButtonStyle">
         <Setter Property="Background" Value="Transparent" />
@@ -1293,7 +1293,7 @@
                 Height="24"
                 Margin="0,0,8,0"
                 RenderOptions.BitmapScalingMode="HighQuality"
-                Source="{Binding IconPath}"
+                Source="{Binding IconPath, Converter={StaticResource ImagePathConverter}}"
                 VerticalAlignment="Center"
                 Width="24" />
 

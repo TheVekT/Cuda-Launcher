@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Windows.Data;
 using System.Windows;
 using Launcher.UI.WPF.Services;
@@ -388,6 +389,24 @@ namespace Launcher.UI.WPF.Helpers
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) 
             => throw new NotImplementedException();
+    }
+    
+    public class ImagePathConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string fileName && !string.IsNullOrEmpty(fileName))
+            {
+                // Если путь уже полный (например, при выборе из списка), возвращаем как есть
+                if (Path.IsPathRooted(fileName)) return fileName;
+
+                // Иначе собираем путь относительно текущей папки
+                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Icons", fileName);
+            }
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
     
     public class NotEqualConverter : IValueConverter

@@ -115,7 +115,7 @@
                             <controls:VersionElement
                                 helpers:VersionElementHelper.DeleteCommand="{Binding DataContext.DeleteInstanceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                 helpers:VersionElementHelper.GameVersion="{Binding GameVersion}"
-                                helpers:VersionElementHelper.Icon="{Binding IconPath}"
+                                helpers:VersionElementHelper.Icon="{Binding IconPath, Converter={StaticResource ImagePathConverter}}"
                                 helpers:VersionElementHelper.Instance="{Binding}"
                                 helpers:VersionElementHelper.LastPlayed="{Binding LastPlayedDate, Converter={StaticResource TimeAgoConverter}}"
                                 helpers:VersionElementHelper.ModLoader="{Binding LoaderType}"

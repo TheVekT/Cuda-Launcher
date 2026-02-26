@@ -232,11 +232,30 @@ public class InstanceVM: INotifyPropertyChanged
         {
             Id = Guid.NewGuid().ToString(), // Обязательно генерируем ID тут
             Name = finalName,
+            IconPath = !string.IsNullOrEmpty(SelectedIcon) 
+                ? Path.GetFileName(SelectedIcon) 
+                : Path.GetFileName(_instancesStore.IconList.FirstOrDefault()),
             GameVersion = SelectedGameVersion,
+            LoaderVersion = (SelectedModLoader == "Vanilla") ? null : SelectedLoaderVersion,
             LoaderType = GetLoaderType(SelectedModLoader),
             IsolationType = SelectedIsolation,
-            IconPath = SelectedIcon ?? _instancesStore.IconList.FirstOrDefault(), 
-            LoaderVersion = (SelectedModLoader == "Vanilla") ? null : SelectedLoaderVersion
+            LastPlayedDate = null,
+            GameSettings = new GameSettings
+            {
+                AllocatedMemory = UseGlobalGameSettings ? null : (int?)SelectedMaxRam,
+                Fullscreen = UseGlobalGameSettings ? null : (bool?)IsGameFullscreen,
+                GameResolution = UseGlobalGameSettings ? null : SelectedResolution,
+                JvmArgs = UseGlobalGameSettings ? null : JVMArguments
+            },
+            BackupSettings = new BackupSettings
+            {
+                SavesBackupSettings = UseGlobalBackupSettings 
+                    ? BackupPolicy.Inherit 
+                    : (IsEnableAutoBackups ? BackupPolicy.ForceOn : BackupPolicy.ForceOff),
+                SavesBackupFrequency = UseGlobalBackupSettings ? null : (BackupFrequency?)SelectedBackupFrequency,
+                SavesMaxBackups = UseGlobalBackupSettings ? null : (int?)MaxBackupCount,
+                LastBackupDate = null
+            }
         };
 
         try
