@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Launcher.Core.Models;
+using Launcher.Core.Services.IO;
 using Launcher.Core.Services.System;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
@@ -12,6 +13,7 @@ public class SettingsStore: INotifyPropertyChanged
     //Services
     private readonly ThemeService _themeService;
     private readonly ISysInfoService _sysInfoService;
+    private readonly ISettingsService _settingsService;
     
     //Attributes
     private string _currentThemePath;
@@ -43,10 +45,19 @@ public class SettingsStore: INotifyPropertyChanged
     
     public IEnumerable<BackupFrequency> BackupFrequencyValues => Enum.GetValues(typeof(BackupFrequency)).Cast<BackupFrequency>();
     
-    public SettingsStore(ThemeService themeService, ISysInfoService sysInfoService)
+public SettingsStore(ThemeService themeService, ISysInfoService sysInfoService, ISettingsService settingsService)
     {
         _themeService = themeService;
         _sysInfoService = sysInfoService;
+        _settingsService = settingsService;
+        
+        // 1. Загружаем доступные темы в список
+        AvailableThemes.Clear();
+        var themes = _themeService.ReloadThemes();
+        foreach (var t in themes)
+        {
+            AvailableThemes.Add(t);
+        }
 
         MaxPhysicalRam = _sysInfoService.GetTotalRAMInMB();
         var avaliableRes = _sysInfoService.GetPrimaryMonitorResolutions();
@@ -65,27 +76,30 @@ public class SettingsStore: INotifyPropertyChanged
         
         SelectedLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == "en-US") ?? AvailableLanguages.FirstOrDefault();
         
-        IsKeepLauncherOpen = false;
-        IsEnableAutoUpdates = true;
-        IsEnableDiscordRichPresence = true;
-        UiScale = 1.0;
+        _isKeepLauncherOpen = false;
+        _isEnableAutoUpdates = true;
+        _isEnableDiscordRichPresence = true;
+        _uiScale = 1.0;
 
-        SelectedMaxRam = MaxPhysicalRam > 16000 ? 4096 : 2048;
-        IsEnableSnapshots = false;
-        IsGameFullScreen = false;
-        SelectedResolution = AvailableResolutions.FirstOrDefault();
-        IsEnableAutoBackups = true;
-        SelectedBackupFrequency = BackupFrequency.Weekly;
-        MaxBackupCount = 5;
-        JVMArguments = "";
+        _selectedMaxRam = MaxPhysicalRam > 16000 ? 4096 : 2048;
+        _isEnableSnapshots = false;
+        _isGameFullScreen = false;
+        _selectedResolution = AvailableResolutions.FirstOrDefault();
+        _isEnableAutoBackups = true;
+        _selectedBackupFrequency = BackupFrequency.Weekly;
+        _maxBackupCount = 5;
+        _JVMArguments = "";
         
-        _currentThemePath = "";
-        //Load settings from storage (not implemented yet)
+        _currentThemePath = "default-dark.zip";
+        
+        _settingsService.Initialize(this);
+        
+        _themeService.ChangeTheme(_currentThemePath);
     }
     
     
     //Getters and Setters
-    
+    [SettingProperty]
     public bool IsKeepLauncherOpen
     {
         get => _isKeepLauncherOpen;
@@ -98,7 +112,7 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
-    
+    [SettingProperty]
     public bool IsEnableAutoUpdates
     {
         get => _isEnableAutoUpdates;
@@ -111,7 +125,7 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
-    
+    [SettingProperty]
     public bool IsEnableDiscordRichPresence
     {
         get => _isEnableDiscordRichPresence;
@@ -124,9 +138,9 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
-    
+    [SettingProperty]
     public long MaxPhysicalRam { get => _maxPhysicalRam; set => _maxPhysicalRam = value; }
-    
+    [SettingProperty]
     public int SelectedMaxRam
     {
         get => _selectedMaxRam;
@@ -139,6 +153,7 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
+    [SettingProperty]
     public bool IsEnableSnapshots
     {
         get => _isEnableSnapshots;
@@ -151,7 +166,7 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
-    
+    [SettingProperty]
      public bool IsGameFullScreen
     {
         get => _isGameFullScreen;
@@ -166,22 +181,26 @@ public class SettingsStore: INotifyPropertyChanged
     }
      
 
-    
+    [SettingProperty]
     public LanguageModel SelectedLanguage
     {
         get => _selectedLanguage;
         set
         {
-            if (_selectedLanguage != value && value != null)
+            if (value == null) return;
+            
+            var actualLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == value.Code) ?? value;
+
+            if (_selectedLanguage != actualLanguage)
             {
-                _selectedLanguage = value;
+                _selectedLanguage = actualLanguage;
                 OnPropertyChanged(nameof(SelectedLanguage));
-                Console.WriteLine($"Selected language: {value.Name}, code: {value.Code}");
-                LocalizationService.Instance.LoadLanguage(value.Code);
+                Console.WriteLine($"Selected language: {actualLanguage.Name}, code: {actualLanguage.Code}");
+                LocalizationService.Instance.LoadLanguage(actualLanguage.Code);
             }
         }
     }
-    
+    [SettingProperty]
     public string SelectedResolution
     {
         get => _selectedResolution;
@@ -194,7 +213,7 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
-    
+    [SettingProperty]
     public bool IsEnableAutoBackups
     {
         get => _isEnableAutoBackups;
@@ -207,7 +226,7 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
-    
+    [SettingProperty]
     public BackupFrequency SelectedBackupFrequency
     {
         get => _selectedBackupFrequency;
@@ -220,7 +239,7 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
-
+    [SettingProperty]
     public int MaxBackupCount
     {
         get => _maxBackupCount;
@@ -233,7 +252,7 @@ public class SettingsStore: INotifyPropertyChanged
             } 
         }
     }
-    
+    [SettingProperty]
     public string JVMArguments
     { 
         get => _JVMArguments;
@@ -246,7 +265,7 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
-
+    [SettingProperty]
     public string CurrentThemePath
     {
         get => _currentThemePath;
@@ -262,6 +281,7 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
+    [SettingProperty]
     public double UiScale
     {
         get => _uiScale;

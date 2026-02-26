@@ -11,10 +11,12 @@ public class InstancesStore: INotifyPropertyChanged
     //Services
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly IInstanceService _instanceService;
+    private readonly SettingsService _settingsService;
     
     //Attributes
-    private MinecraftInstance _selectedInstance;
+    private MinecraftInstance? _selectedInstance;
     private readonly List<string> _ignoredIcons = new() { "example.png" };
+    private string? _lastSelectedInstanceId;
     
     //Collections
     public ObservableCollection<MinecraftInstance> Instances { get; set; } = new();
@@ -25,13 +27,29 @@ public class InstancesStore: INotifyPropertyChanged
     public event Action AddedInstance;
 
     
-    public InstancesStore(IInstanceFileSystemService instanceFileSystemService, IInstanceService instanceService)
+    public InstancesStore(IInstanceFileSystemService instanceFileSystemService, IInstanceService instanceService, SettingsService settingsService)
     {
         _instanceFileSystemService = instanceFileSystemService;
         _instanceService = instanceService;
+        _settingsService = settingsService;
         
         LoadIcons();
         LoadSavedInstances();
+        
+        _settingsService.Initialize(this);
+
+        if (!string.IsNullOrEmpty(LastSelectedInstanceId))
+        {
+            var lastSelected = Instances.FirstOrDefault(i => i.Id == LastSelectedInstanceId);
+            if (lastSelected != null)
+            {
+                SelectedInstance = lastSelected;
+            }
+            else
+            {
+                SelectedInstance = Instances.FirstOrDefault();
+            }
+        }
     }
     
     public void InvokeAddedInstance() => AddedInstance?.Invoke();
@@ -86,7 +104,21 @@ public class InstancesStore: INotifyPropertyChanged
     }
     
     //Getters and Setters
-    public MinecraftInstance SelectedInstance
+    [SettingProperty]
+    public string? LastSelectedInstanceId
+    {
+        get => _lastSelectedInstanceId;
+        set
+        {
+            if (_lastSelectedInstanceId != value)
+            {
+                _lastSelectedInstanceId = value;
+                OnPropertyChanged(nameof(LastSelectedInstanceId));
+            }
+        }
+    }
+    
+    public MinecraftInstance? SelectedInstance
     {
         get => _selectedInstance;
         set
@@ -94,6 +126,8 @@ public class InstancesStore: INotifyPropertyChanged
             if (_selectedInstance != value)
             {
                 _selectedInstance = value;
+                if (value != null) LastSelectedInstanceId = value.Id;
+                else LastSelectedInstanceId = null;
                 OnPropertyChanged(nameof(SelectedInstance));
             }
         }

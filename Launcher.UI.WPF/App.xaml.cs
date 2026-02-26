@@ -35,32 +35,13 @@ public partial class App : Application
         var launchService = new LaunchService(instanceFileSystemService, modrinthService);
         var sysInfoService = new SysInfoService();
         var discordService = new DiscordService();
+        var settingsService = new SettingsService();
         //Stores
-        var loginStore = new LoginStore(accountStorageService);
-        var settingsStore = new SettingsStore(themeService, sysInfoService);
+        var loginStore = new LoginStore(accountStorageService, settingsService);
+        var settingsStore = new SettingsStore(themeService, sysInfoService, settingsService);
         var launchStore = new LaunchStore(launchService);
-        var instancesStore = new InstancesStore(instanceFileSystemService, instanceService);
+        var instancesStore = new InstancesStore(instanceFileSystemService, instanceService, settingsService);
         var appStore = new AppStore();
-        
-        var availableThemes = themeService.ReloadThemes();
-
-        string themeToLoad = settingsStore.CurrentThemePath;
-
-        if (string.IsNullOrEmpty(themeToLoad) || !System.IO.File.Exists(themeToLoad))
-        {
-            // Если настройки нет, берем первую найденную
-            if (availableThemes.Count > 0)
-            {
-                themeToLoad = availableThemes[0].ZipPath;
-                appStore.CurrentBannerPath = availableThemes[0].BannerPath;
-                settingsStore.CurrentThemePath = themeToLoad; 
-            }
-        }
-        else
-        {
-            // Если настройка есть, просто применяем
-            themeService.ChangeTheme(themeToLoad);
-        }
         
         //MainViewModel
         var mainViewModel = new MainViewModel(

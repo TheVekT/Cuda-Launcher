@@ -153,11 +153,11 @@ namespace Launcher.UI.WPF.Services
 
             var model = new ThemeModel
             {
-                ZipPath = zipPath,
+                // ИЗМЕНЕНИЕ: Берем только имя файла (например "default-light.zip")
+                ZipPath = Path.GetFileName(zipPath), 
                 XamlPath = themeXamlPath,
                 Name = nameMatch.Success ? nameMatch.Groups[1].Value : folderName,
                 Author = authorMatch.Success ? authorMatch.Groups[1].Value : "Unknown",
-                // По умолчанию null
                 BannerPath = null 
             };
 
@@ -185,9 +185,14 @@ namespace Launcher.UI.WPF.Services
         }
 
         // === 4. Применение темы ===
-        public void ChangeTheme(string zipPath)
+        public void ChangeTheme(string themeFileName) // Переименовал параметр для понятности
         {
-            if (string.IsNullOrEmpty(zipPath) || !File.Exists(zipPath)) return;
+            if (string.IsNullOrEmpty(themeFileName)) return;
+
+            // ИЗМЕНЕНИЕ: Динамически собираем абсолютный путь к архиву
+            string zipPath = Path.Combine(_themesRoot, themeFileName);
+
+            if (!File.Exists(zipPath)) return;
 
             try
             {

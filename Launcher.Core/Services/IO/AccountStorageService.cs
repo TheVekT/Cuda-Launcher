@@ -8,14 +8,12 @@ using Launcher.Core.Models;
 
 namespace Launcher.Core.Services.IO
 {
-    // ИСПРАВЛЕНИЕ 1: class -> interface
     public interface IAccountStorageService
     {
         void SaveAccounts(IEnumerable<UserAccount> accounts);
         List<UserAccount> LoadAccounts();
     }
 
-    // Теперь класс наследует интерфейс корректно
     public class AccountStorageService : IAccountStorageService
     {
         private readonly string _userDataPath;
@@ -38,9 +36,7 @@ namespace Launcher.Core.Services.IO
                     Username = acc.Username,
                     UUID = acc.UUID,
                     IsOffline = acc.IsOffline,
-                    IsSelected = acc.IsSelected,
                     
-                    // Здесь ошибки пропадут, если исправить модель UserAccount (см. ниже)
                     AccessToken = !acc.IsOffline 
                         ? SecurityHelper.Protect(acc.AccessToken) 
                         : acc.AccessToken

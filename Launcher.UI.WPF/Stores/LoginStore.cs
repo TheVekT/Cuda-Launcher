@@ -1,30 +1,51 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
-
 
 namespace Launcher.UI.WPF.Stores
 {
     public class LoginStore : INotifyPropertyChanged
     {
         private readonly IAccountStorageService _accountStorage;
+        private readonly ISettingsService _settingsService;
         
         private bool _isLoggingIn;
         private UserAccount _currentAccount;
         private string _userName = "Guest";
+        private string _lastSelectedAccountUUID; // ID для сохранения в settings.json
         
         public bool IsLoggedIn => CurrentAccount != null;
         public ObservableCollection<UserAccount> Accounts { get; set; } = new();
 
-        public LoginStore(IAccountStorageService accountStorage)
+        // Добавили ISettingsService в конструктор
+        public LoginStore(IAccountStorageService accountStorage, ISettingsService settingsService)
         {
             _accountStorage = accountStorage;
+            _settingsService = settingsService;
+            
+            // Загружаем настройки (это восстановит LastSelectedAccountUUID, если он есть)
+            _settingsService.Initialize(this);
+            
             LoadSavedAccounts();
         }
-        
 
-        
+        // Это свойство теперь автоматически сохраняется умным сервисом!
+        [SettingProperty]
+        public string LastSelectedAccountUUID
+        {
+            get => _lastSelectedAccountUUID;
+            set
+            {
+                if (_lastSelectedAccountUUID != value)
+                {
+                    _lastSelectedAccountUUID = value;
+                    OnPropertyChanged(nameof(LastSelectedAccountUUID));
+                }
+            }
+        }
+
         public void RegisterLogin(UserAccount newAccount)
         {
             var existing = Accounts.FirstOrDefault(x => x.UUID == newAccount.UUID);
@@ -41,6 +62,7 @@ namespace Launcher.UI.WPF.Stores
                 CurrentAccount = existing;
             }
             
+            // Сохраняем файл с токенами только при регистрации/обновлении
             _accountStorage.SaveAccounts(Accounts);
         }
         
@@ -50,9 +72,18 @@ namespace Launcher.UI.WPF.Stores
             Accounts.Clear();
             foreach (var acc in savedAccounts) Accounts.Add(acc);
         
-            var lastUsedAccount = Accounts.FirstOrDefault(x => x.IsSelected);
-            if (lastUsedAccount != null) CurrentAccount = lastUsedAccount;
-            else if (Accounts.Count > 0) CurrentAccount = Accounts.First();
+            // Ищем по UUID, который загрузился из settings.json
+            if (!string.IsNullOrEmpty(LastSelectedAccountUUID))
+            {
+                var lastUsedAccount = Accounts.FirstOrDefault(x => x.UUID == LastSelectedAccountUUID);
+                if (lastUsedAccount != null)
+                {
+                    CurrentAccount = lastUsedAccount;
+                    return;
+                }
+            }
+            
+            if (Accounts.Count > 0) CurrentAccount = Accounts.First();
         }
         
         //Getters and Setters
@@ -78,11 +109,13 @@ namespace Launcher.UI.WPF.Stores
                     _currentAccount = value;
                     OnPropertyChanged(nameof(CurrentAccount));
                     OnPropertyChanged(nameof(IsLoggedIn)); 
+                    
                     if (_currentAccount != null)
                     {
                         UserName = _currentAccount.Username;
-                        foreach (var acc in Accounts) acc.IsSelected = (acc.UUID == _currentAccount.UUID);
-                        _accountStorage.SaveAccounts(Accounts);
+                        
+                        // Сохраняем выбранный UUID. Умный сервис сам запишет это в settings.json!
+                        LastSelectedAccountUUID = _currentAccount.UUID;
                     }
                 }
             }
