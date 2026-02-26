@@ -26,6 +26,10 @@ public class InstanceVM: INotifyPropertyChanged
     public bool CreatingPage1Visible { get; set; } = false;
     public bool CreatingPage2Visible { get; set; } = true;
     
+    //Attributes
+    private bool _irisAndSodiumVisible;
+    private bool _InstallPerformanceMods;
+    
     private string _selectedIcon;
     private string _selectedGameVersion;
     private string _installationName;
@@ -86,6 +90,8 @@ public class InstanceVM: INotifyPropertyChanged
 
         UseGlobalGameSettings = true;
         UseGlobalBackupSettings = true;
+        
+        InstallPerformanceMods = false;
         
         
         bool typeChanged = _selectedModLoader != "Vanilla";
@@ -255,7 +261,8 @@ public class InstanceVM: INotifyPropertyChanged
                 SavesBackupFrequency = UseGlobalBackupSettings ? null : (BackupFrequency?)SelectedBackupFrequency,
                 SavesMaxBackups = UseGlobalBackupSettings ? null : (int?)MaxBackupCount,
                 LastBackupDate = null
-            }
+            },
+            RequestPerformanceMods = InstallPerformanceMods
         };
 
         try
@@ -279,9 +286,51 @@ public class InstanceVM: INotifyPropertyChanged
             IsCreatingInstance = false;
         }
     }
+
+    private void RefreshPerfomanceModsVisibility()
+    {
+        if (SelectedModLoader == "Quilt" ||
+            SelectedModLoader == "NeoForge" ||
+            SelectedModLoader == "Fabric")
+        {
+            if (SelectedIsolation != IsolationType.Global) IrisAndSodiumVisible = true;
+            else IrisAndSodiumVisible = false;
+        }
+        else
+        {
+            IrisAndSodiumVisible = false;
+        }
+    }
     
     
     //Getters and Setters
+    
+    public bool InstallPerformanceMods
+    {
+        get => _InstallPerformanceMods;
+        set
+        {
+            if (_InstallPerformanceMods != value)
+            {
+                _InstallPerformanceMods = value;
+                OnPropertyChanged(nameof(InstallPerformanceMods));
+            }
+        }
+    }
+
+    public bool IrisAndSodiumVisible
+    {
+        get => _irisAndSodiumVisible;
+        set
+        {
+            if (_irisAndSodiumVisible != value)
+            {
+                _irisAndSodiumVisible = value;
+                OnPropertyChanged(nameof(IrisAndSodiumVisible));
+            }
+        }
+    }
+    
     public bool UseGlobalGameSettings
     {
         get => _useGlobalGameSettings;
@@ -472,6 +521,7 @@ public class InstanceVM: INotifyPropertyChanged
             if (_selectedIsolation != value)
             {
                 _selectedIsolation = value;
+                RefreshPerfomanceModsVisibility();
                 OnPropertyChanged(nameof(SelectedIsolation));
             }
         }
@@ -503,6 +553,7 @@ public class InstanceVM: INotifyPropertyChanged
                 OnPropertyChanged(nameof(SelectedModLoader));
                 _ = RefreshGameVersions();
                 _ = RefreshLoaderVersions();
+                RefreshPerfomanceModsVisibility();
                 OnPropertyChanged(nameof(SuggestedName));
             }
         }

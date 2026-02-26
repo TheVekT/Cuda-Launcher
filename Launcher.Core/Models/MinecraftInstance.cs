@@ -25,6 +25,8 @@ namespace Launcher.Core.Models
         public PartialIsolationSettings PartialSettings { get; set; } = new();
         
         public BackupSettings BackupSettings { get; set; } = new();
+        
+        public bool RequestPerformanceMods { get; set; } = false;
         public MinecraftInstance() { }
     }
 

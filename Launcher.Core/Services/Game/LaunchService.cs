@@ -20,11 +20,13 @@ namespace Launcher.Core.Services.Game
     public class LaunchService : ILaunchService
     {
         private readonly IInstanceFileSystemService _fileService;
+        private readonly IModrinthService _modrinthService;
         private readonly HttpClient _httpClient;
 
-        public LaunchService(IInstanceFileSystemService fileService)
+        public LaunchService(IInstanceFileSystemService fileService, IModrinthService modrinthService)
         {
             _fileService = fileService;
+            _modrinthService = modrinthService;
             _httpClient = new HttpClient(); 
         }
 
@@ -36,7 +38,31 @@ namespace Launcher.Core.Services.Game
 
             // 1. Получаем путь (БЕЗ АДМИН ПРАВ)
             var instancePath = _fileService.PrepareForLaunch(instance); 
-            
+            // === УСТАНОВКА МОДОВ (ТОЛЬКО ПРИ ПЕРВОМ ЗАПУСКЕ) ===
+            if (instance.LastPlayedDate == null && instance.IsolationType != IsolationType.Global)
+            {
+                string modsFolder = Path.Combine(instancePath, "mods");
+
+                // 1. Обязательные API (тихие, без исключений)
+                await _modrinthService.InstallEssentialApisAsync(instance, modsFolder);
+
+                // 2. Моды на оптимизацию (кидают исключение, если недоступны)
+                if (instance.RequestPerformanceMods)
+                {
+                    try
+                    {
+                        await _modrinthService.InstallPerformanceModsAsync(instance, modsFolder);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Здесь мы ловим то самое исключение.
+                        // Ты можешь либо прокинуть его выше во ViewModel, чтобы показать окно,
+                        // либо временно залогировать.
+                        Console.WriteLine($"[WARNING] {ex.Message}");
+                        throw; // Прокидываем в UI
+                    }
+                }
+            }
             // 2. Настраиваем логику путей
             var globalPath = _fileService.GetGlobalMinecraftPath();
             var globalMcPath = new MinecraftPath(globalPath);

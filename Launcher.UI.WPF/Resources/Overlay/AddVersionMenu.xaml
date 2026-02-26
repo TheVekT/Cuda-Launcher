@@ -387,24 +387,12 @@
                             <StackPanel Grid.Row="1">
                                 <CheckBox
                                     FontSize="14"
-                                    IsChecked="False"
+                                    IsChecked="{Binding InstallPerformanceMods}"
                                     Margin="0,10,0,5"
+                                    Style="{StaticResource DefaultToggleSwitchStyle}"
                                     VerticalAlignment="Top"
+                                    Visibility="{Binding IrisAndSodiumVisible, Converter={StaticResource BoolToVis}}"
                                     helpers:ScaleHelper.ScaleFactor="0.8">
-
-                                    <CheckBox.Style>
-                                        <Style BasedOn="{StaticResource DefaultToggleSwitchStyle}" TargetType="CheckBox">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedModLoader}" Value="Fabric">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding SelectedModLoader}" Value="NeoForge">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </CheckBox.Style>
 
                                     <CheckBox.Content>
                                         <StackPanel VerticalAlignment="Center">

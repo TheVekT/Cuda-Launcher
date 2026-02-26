@@ -28,7 +28,8 @@ public partial class App : Application
         var versionService = new GameVersionService();
         var instanceService = new InstanceService();
         var instanceFileSystemService = new InstanceFileSystemService();
-        var launchService = new LaunchService(instanceFileSystemService);
+        var modrinthService = new ModrinthService();
+        var launchService = new LaunchService(instanceFileSystemService, modrinthService);
         var sysInfoService = new SysInfoService();
         //Stores
         var loginStore = new LoginStore(accountStorageService);
