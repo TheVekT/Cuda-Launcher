@@ -8,6 +8,7 @@ using Launcher.UI.WPF.Stores;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.Game;
+using Launcher.Core.Services.System;
 
 namespace Launcher.UI.WPF;
 
@@ -28,9 +29,10 @@ public partial class App : Application
         var instanceService = new InstanceService();
         var instanceFileSystemService = new InstanceFileSystemService();
         var launchService = new LaunchService(instanceFileSystemService);
+        var sysInfoService = new SysInfoService();
         //Stores
         var loginStore = new LoginStore(accountStorageService);
-        var settingsStore = new SettingsStore(themeService);
+        var settingsStore = new SettingsStore(themeService, sysInfoService);
         var launchStore = new LaunchStore(launchService);
         var instancesStore = new InstancesStore(instanceFileSystemService, instanceService);
         var appStore = new AppStore();
@@ -64,6 +66,7 @@ public partial class App : Application
             instanceService, 
             instanceFileSystemService, 
             launchService,
+            sysInfoService,
             loginStore,
             settingsStore,
             launchStore,

@@ -18,8 +18,10 @@ public class InstanceVM: INotifyPropertyChanged
     private readonly IGameVersionService _versionService;
     private readonly IInstanceService _instanceService;
     private readonly IInstanceFileSystemService _instanceFileSystemService;
+    
     //Stores
     private readonly InstancesStore _instancesStore;
+    private readonly SettingsStore _settingsStore;
     
     public bool CreatingPage1Visible { get; set; } = false;
     public bool CreatingPage2Visible { get; set; } = true;
@@ -29,9 +31,18 @@ public class InstanceVM: INotifyPropertyChanged
     private string _installationName;
     private string _selectedModLoader;
     private string _selectedLoaderVersion;
+    private bool _useGlobalGameSettings;
+    private bool _useGlobalBackupSettings;
     private bool _isCreatingInstance;
     private IsolationType _selectedIsolation = IsolationType.Global;
     
+    private int _selectedMaxRam;
+    private bool _isGameFullscreen;
+    private string _selectedResolution;
+    private bool _isEnableAutoBackups;
+    private BackupFrequency _selectedBackupFrequency;
+    private int _maxBackupCount;
+    private string _JVMArguments;
     
     //Commands
     public ICommand ToggleCreatingPageCommand { get; }
@@ -47,17 +58,35 @@ public class InstanceVM: INotifyPropertyChanged
     
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
+    public SettingsStore SettingsStore => _settingsStore;
     
-    public InstanceVM(IGameVersionService versionService, IInstanceService instanceService, IInstanceFileSystemService instanceFileSystemService,InstancesStore instancesStore)
+    public InstanceVM(IGameVersionService versionService, 
+        IInstanceService instanceService, 
+        IInstanceFileSystemService instanceFileSystemService,
+        InstancesStore instancesStore, 
+        SettingsStore settingsStore)
     {
         _versionService = versionService;
         _instanceService = instanceService;
         _instanceFileSystemService = instanceFileSystemService;
         
         _instancesStore = instancesStore;
+        _settingsStore = settingsStore;
         
         InstallationName = string.Empty;
         SelectedIsolation = IsolationType.Global;
+        
+        SelectedMaxRam = SettingsStore.SelectedMaxRam;
+        IsGameFullscreen = SettingsStore.IsGameFullScreen;
+        SelectedResolution = SettingsStore.SelectedResolution;
+        IsEnableAutoBackups = SettingsStore.IsEnableAutoBackups;
+        SelectedBackupFrequency = SettingsStore.SelectedBackupFrequency;
+        MaxBackupCount = SettingsStore.MaxBackupCount;
+        JVMArguments = SettingsStore.JVMArguments;
+
+        UseGlobalGameSettings = true;
+        UseGlobalBackupSettings = true;
+        
         
         bool typeChanged = _selectedModLoader != "Vanilla";
         _selectedModLoader = "Vanilla"; 
@@ -83,6 +112,21 @@ public class InstanceVM: INotifyPropertyChanged
     public async Task InitializeAsync()
     {
         await RefreshGameVersions();
+    }
+
+    private void RefreshGlobalGameSettings()
+    {
+        SelectedMaxRam = SettingsStore.SelectedMaxRam;
+        IsGameFullscreen = SettingsStore.IsGameFullScreen;
+        SelectedResolution = SettingsStore.SelectedResolution;
+        JVMArguments = SettingsStore.JVMArguments;
+    }
+    
+    private void RefreshGlobalBackupSettings()
+    {
+        IsEnableAutoBackups = SettingsStore.IsEnableAutoBackups;
+        SelectedBackupFrequency = SettingsStore.SelectedBackupFrequency;
+        MaxBackupCount = SettingsStore.MaxBackupCount;
     }
     
     private async Task RefreshLoaderVersions()
@@ -219,6 +263,123 @@ public class InstanceVM: INotifyPropertyChanged
     
     
     //Getters and Setters
+    public bool UseGlobalGameSettings
+    {
+        get => _useGlobalGameSettings;
+        set
+        {
+            if (_useGlobalGameSettings != value)
+            {
+                if (value) RefreshGlobalGameSettings();
+                _useGlobalGameSettings = value;
+                OnPropertyChanged(nameof(UseGlobalGameSettings));
+            }
+        }
+    }
+    public bool UseGlobalBackupSettings
+    {
+        get => _useGlobalBackupSettings;
+        set
+        {
+            if (_useGlobalBackupSettings != value) {
+                if (value) RefreshGlobalBackupSettings();
+                _useGlobalBackupSettings = value;
+                OnPropertyChanged(nameof(UseGlobalBackupSettings));
+            }
+        }
+    }
+    
+    public int SelectedMaxRam
+    {
+        get => _selectedMaxRam;
+        set
+        {
+            if (_selectedMaxRam != value)
+            {
+                _selectedMaxRam = value;
+                OnPropertyChanged(nameof(SelectedMaxRam));
+            }
+        }
+    }
+    
+    public bool IsGameFullscreen
+    {
+        get => _isGameFullscreen;
+        set
+        {
+            if (_isGameFullscreen != value)
+            {
+                _isGameFullscreen = value;
+                OnPropertyChanged(nameof(IsGameFullscreen));
+            }
+        }
+    }
+    
+    public string SelectedResolution
+    {
+        get => _selectedResolution;
+        set
+        {
+            if (_selectedResolution != value)
+            {
+                _selectedResolution = value;
+                OnPropertyChanged(nameof(SelectedResolution));
+            }
+        }
+    }
+
+    public bool IsEnableAutoBackups
+    {
+        get => _isEnableAutoBackups;
+        set
+        {
+            if (_isEnableAutoBackups != value)
+            {
+                _isEnableAutoBackups = value;
+                OnPropertyChanged(nameof(IsEnableAutoBackups));
+            }
+        }
+    }
+    
+    public BackupFrequency SelectedBackupFrequency
+    {
+        get => _selectedBackupFrequency;
+        set
+        {
+            if (_selectedBackupFrequency != value)
+            {
+                _selectedBackupFrequency = value;
+                OnPropertyChanged(nameof(SelectedBackupFrequency));
+            }
+        }
+    }
+    
+    public int MaxBackupCount
+    {
+        get => _maxBackupCount;
+        set
+        {
+            if (_maxBackupCount != value)
+            {
+                _maxBackupCount = value;
+                OnPropertyChanged(nameof(MaxBackupCount));
+            }
+        }
+    }
+
+    public string JVMArguments
+    {
+        get => _JVMArguments;
+        set
+        {
+            if (_JVMArguments != value)
+            {
+                _JVMArguments = value;
+                OnPropertyChanged(nameof(JVMArguments));
+            }
+        }
+    }
+    
     public bool IsCreatingInstance
     {
         get => _isCreatingInstance;

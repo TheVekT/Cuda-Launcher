@@ -422,7 +422,7 @@
                                         <CheckBox
                                             Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.InheritGameSettings]}"
                                             FontSize="13"
-                                            IsChecked="True"
+                                            IsChecked="{Binding UseGlobalGameSettings}"
                                             Margin="0,5,0,0"
                                             Style="{StaticResource DefaultToggleSwitchStyle}"
                                             VerticalAlignment="Top"
@@ -455,16 +455,17 @@
                                                     </TextBlock>
                                                     <Slider
                                                         IsSnapToTickEnabled="True"
-                                                        Maximum="16384"
+                                                        Maximum="{Binding SettingsStore.MaxPhysicalRam}"
                                                         Minimum="1024"
                                                         Style="{StaticResource DefaultSliderStyle}"
                                                         TickFrequency="512"
-                                                        Value="2048"
+                                                        Value="{Binding SelectedMaxRam}"
                                                         x:Name="AllocatedMemory" />
                                                 </StackPanel>
                                                 <CheckBox
                                                     Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.FullscreenModeLabel]}"
                                                     FontSize="13"
+                                                    IsChecked="{Binding IsGameFullscreen}"
                                                     Margin="0,5,0,0"
                                                     Style="{StaticResource DefaultToggleSwitchStyle}"
                                                     VerticalAlignment="Top"
@@ -482,13 +483,21 @@
                                                         Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.WindowResolutionLabel]}" />
                                                     <ComboBox
                                                         Height="30"
-                                                        SelectedIndex="0"
+                                                        ItemsSource="{Binding SettingsStore.AvailableResolutions}"
+                                                        SelectedItem="{Binding SelectedResolution}"
                                                         Style="{StaticResource OverlayComboBox}">
-                                                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.Resolution.Auto]}" />
-                                                        <ComboBoxItem Content="1920x1080" />
-                                                        <ComboBoxItem Content="1600x900" />
-                                                        <ComboBoxItem Content="1366x768" />
-                                                        <ComboBoxItem Content="1280x720" />
+
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding}" x:Name="ResolutionText" />
+
+                                                                <DataTemplate.Triggers>
+                                                                    <DataTrigger Binding="{Binding}" Value="Auto">
+                                                                        <Setter Property="Text" TargetName="ResolutionText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.Resolution.Auto]}" />
+                                                                    </DataTrigger>
+                                                                </DataTemplate.Triggers>
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
                                                     </ComboBox>
                                                 </StackPanel>
                                                 <TextBlock
@@ -501,14 +510,15 @@
                                                     FontSize="12"
                                                     Margin="0,5"
                                                     Style="{StaticResource DefaultTextInputStyle}"
-                                                    Tag="JVM Arguments" />
+                                                    Tag="JVM Arguments"
+                                                    Text="{Binding JVMArguments}" />
                                             </StackPanel>
                                         </StackPanel>
                                         <StackPanel Orientation="Vertical">
                                             <CheckBox
                                                 Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.InheritBackupSettings]}"
                                                 FontSize="13"
-                                                IsChecked="True"
+                                                IsChecked="{Binding UseGlobalBackupSettings}"
                                                 Margin="0,5"
                                                 Style="{StaticResource DefaultToggleSwitchStyle}"
                                                 VerticalAlignment="Top"
@@ -537,6 +547,7 @@
                                                         <CheckBox
                                                             Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.EnableBackups]}"
                                                             FontSize="12"
+                                                            IsChecked="{Binding IsEnableAutoBackups}"
                                                             Margin="0,0,0,5"
                                                             Style="{StaticResource DefaultToggleSwitchStyle}"
                                                             VerticalAlignment="Top"
@@ -549,12 +560,28 @@
                                                             Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreqLabel]}" />
                                                         <ComboBox
                                                             Height="30"
-                                                            SelectedIndex="2"
+                                                            ItemsSource="{Binding SettingsStore.BackupFrequencyValues}"
+                                                            SelectedItem="{Binding SelectedBackupFrequency}"
                                                             Style="{StaticResource OverlayComboBox}">
-                                                            <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Daily]}" />
-                                                            <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Weekly]}" />
-                                                            <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Biweekly]}" />
-                                                            <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Monthly]}" />
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock x:Name="FreqText" />
+                                                                    <DataTemplate.Triggers>
+                                                                        <DataTrigger Binding="{Binding}" Value="Daily">
+                                                                            <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Daily]}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding}" Value="Weekly">
+                                                                            <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Weekly]}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding}" Value="Biweekly">
+                                                                            <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Biweekly]}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding}" Value="Monthly">
+                                                                            <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Monthly]}" />
+                                                                        </DataTrigger>
+                                                                    </DataTemplate.Triggers>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
                                                         </ComboBox>
                                                         <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
                                                             <TextBlock
@@ -569,7 +596,7 @@
                                                                 MaxLength="1"
                                                                 Padding="4"
                                                                 Style="{StaticResource DefaultTextInputStyle}"
-                                                                Text="5"
+                                                                Text="{Binding MaxBackupCount}"
                                                                 TextAlignment="Center"
                                                                 VerticalAlignment="Center"
                                                                 Width="25" />
@@ -578,11 +605,8 @@
                                                 </Border>
                                             </StackPanel>
                                         </StackPanel>
-
                                     </StackPanel>
-
                                 </Expander>
-
                             </StackPanel>
                         </Grid>
                     </ScrollViewer>

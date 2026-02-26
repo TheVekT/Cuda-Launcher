@@ -7,6 +7,7 @@ using Launcher.Core.Models;
 using Launcher.Core.Services.Auth; 
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Game;
+using Launcher.Core.Services.System;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.Services;
@@ -24,6 +25,7 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly IInstanceService _instanceService; 
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly ILaunchService _launchService;
+    private readonly ISysInfoService _sysInfoService;
     
     //Stores
     private readonly LoginStore _loginStore;
@@ -79,6 +81,7 @@ public class MainViewModel : INotifyPropertyChanged
         InstanceService instanceService,
         IInstanceFileSystemService instanceFileSystemService,
         ILaunchService launchService,
+        ISysInfoService sysInfoService,
         LoginStore loginStore,
         SettingsStore settingsStore,
         LaunchStore launchStore,
@@ -92,6 +95,7 @@ public class MainViewModel : INotifyPropertyChanged
         _instanceService = instanceService;
         _instanceFileSystemService = instanceFileSystemService;
         _launchService = launchService;
+        _sysInfoService = sysInfoService;
         
         //Stores
         _loginStore = loginStore;
@@ -102,7 +106,7 @@ public class MainViewModel : INotifyPropertyChanged
         
         //ViewModels
         _playVM = new PlayViewModel();
-        _installationsVM = new InstallationsViewModel(versionService, instanceService, instanceFileSystemService, instancesStore, appStore);
+        _installationsVM = new InstallationsViewModel(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore, _appStore);
         _skinsVM = new SkinsViewModel();
         _loginVM = new LoginVM(_authService, _accountStorage,_loginStore);
         _settingsVM = new SettingsVM(_settingsStore, _themeService, _appStore);

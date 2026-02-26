@@ -196,17 +196,18 @@
                                 </TextBlock>
                                 <Slider
                                     IsSnapToTickEnabled="True"
-                                    Maximum="16384"
+                                    Maximum="{Binding SettingsStore.MaxPhysicalRam}"
                                     Minimum="1024"
                                     Style="{StaticResource DefaultSliderStyle}"
                                     TickFrequency="512"
-                                    Value="2048"
+                                    Value="{Binding SettingsStore.SelectedMaxRam}"
                                     x:Name="AllocatedMemory" />
                             </StackPanel>
                             <StackPanel Grid.Row="1" Orientation="Vertical">
                                 <CheckBox
                                     Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.EnableSnapshots]}"
                                     FontSize="14"
+                                    IsChecked="{Binding SettingsStore.IsEnableSnapshots}"
                                     Margin="0,5"
                                     Style="{StaticResource DefaultToggleSwitchStyle}"
                                     VerticalAlignment="Top"
@@ -214,6 +215,7 @@
                                 <CheckBox
                                     Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.FullscreenModeLabel]}"
                                     FontSize="14"
+                                    IsChecked="{Binding SettingsStore.IsGameFullScreen}"
                                     Margin="0,5"
                                     Style="{StaticResource DefaultToggleSwitchStyle}"
                                     VerticalAlignment="Top"
@@ -233,19 +235,28 @@
                                     Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.WindowResolutionLabel]}" />
                                 <ComboBox
                                     Height="35"
-                                    SelectedIndex="0"
+                                    ItemsSource="{Binding SettingsStore.AvailableResolutions}"
+                                    SelectedItem="{Binding SettingsStore.SelectedResolution}"
                                     Style="{StaticResource OverlayComboBox}">
-                                    <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.Resolution.Auto]}" />
-                                    <ComboBoxItem Content="1920x1080" />
-                                    <ComboBoxItem Content="1600x900" />
-                                    <ComboBoxItem Content="1366x768" />
-                                    <ComboBoxItem Content="1280x720" />
+
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" x:Name="ResolutionText" />
+
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding}" Value="Auto">
+                                                    <Setter Property="Text" TargetName="ResolutionText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.Resolution.Auto]}" />
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
                                 </ComboBox>
                             </StackPanel>
                             <StackPanel Grid.Row="3" Orientation="Vertical">
                                 <CheckBox
                                     Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.EnableBackups]}"
                                     FontSize="14"
+                                    IsChecked="{Binding SettingsStore.IsEnableAutoBackups}"
                                     Margin="0,5"
                                     Style="{StaticResource DefaultToggleSwitchStyle}"
                                     VerticalAlignment="Top"
@@ -270,12 +281,28 @@
                                                 Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreqLabel]}" />
                                             <ComboBox
                                                 Height="35"
-                                                SelectedIndex="2"
+                                                ItemsSource="{Binding SettingsStore.BackupFrequencyValues}"
+                                                SelectedItem="{Binding SettingsStore.SelectedBackupFrequency}"
                                                 Style="{StaticResource OverlayComboBox}">
-                                                <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Daily]}" />
-                                                <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Weekly]}" />
-                                                <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Biweekly]}" />
-                                                <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Monthly]}" />
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock x:Name="FreqText" />
+                                                        <DataTemplate.Triggers>
+                                                            <DataTrigger Binding="{Binding}" Value="Daily">
+                                                                <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Daily]}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding}" Value="Weekly">
+                                                                <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Weekly]}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding}" Value="Biweekly">
+                                                                <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Biweekly]}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding}" Value="Monthly">
+                                                                <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Monthly]}" />
+                                                            </DataTrigger>
+                                                        </DataTemplate.Triggers>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
                                             </ComboBox>
                                             <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
                                                 <TextBlock
@@ -290,7 +317,7 @@
                                                     MaxLength="1"
                                                     Padding="4"
                                                     Style="{StaticResource DefaultTextInputStyle}"
-                                                    Text="5"
+                                                    Text="{Binding SettingsStore.MaxBackupCount}"
                                                     TextAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Width="25" />
@@ -309,7 +336,8 @@
                                 <TextBox
                                     Margin="0,5"
                                     Style="{StaticResource DefaultTextInputStyle}"
-                                    Tag="JVM Arguments" />
+                                    Tag="JVM Arguments"
+                                    Text="{Binding SettingsStore.JVMArguments}" />
                             </StackPanel>
                             <StackPanel
                                 Background="Transparent"
@@ -390,7 +418,7 @@
                             DisplayMemberPath="Name"
                             Height="35"
                             ItemsSource="{Binding SettingsStore.AvailableLanguages}"
-                            SelectedItem="{Binding SelectedLanguage}"
+                            SelectedItem="{Binding SettingsStore.SelectedLanguage}"
                             Style="{StaticResource OverlayComboBox}" />
                     </StackPanel>
                     <StackPanel
