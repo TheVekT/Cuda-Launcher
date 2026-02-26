@@ -32,6 +32,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
     //Commands
     public ICommand DeleteInstanceCommand { get; }
     public ICommand OpenAddVersionCommand { get; }
+    public ICommand OpenInstanceFolderCommand { get; }
     
     //Attributes
     
@@ -71,6 +72,13 @@ public class InstallationsViewModel : INotifyPropertyChanged
             };
             _appStore.CurrentOverlayView = menu;
         });
+        
+        OpenInstanceFolderCommand = new RelayCommand(o =>
+        {
+            if (_instancesStore.SelectedInstance == null) return;
+            _instanceFileSystemService.OpenInstanceFolder(_instancesStore.SelectedInstance);
+        });
+        
     }
     
     private async Task DeleteInstance(MinecraftInstance instance)

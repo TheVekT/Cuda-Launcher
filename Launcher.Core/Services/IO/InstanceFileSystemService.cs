@@ -15,6 +15,10 @@ namespace Launcher.Core.Services.IO
         
         string GetGlobalMinecraftPath();
         void DeleteInstance(MinecraftInstance instance);
+        
+        void OpenInstanceFolder(MinecraftInstance instance);
+        void OpenInstanceModsFolder(MinecraftInstance instance);
+        void OpenRootMinecraftFolder();
     }
 
     public class InstanceFileSystemService : IInstanceFileSystemService
@@ -161,5 +165,65 @@ namespace Launcher.Core.Services.IO
         {
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
         }
+        public void OpenRootMinecraftFolder()
+        {
+            var path = GetExternalMinecraftPath();
+            CreateDir(path); // Безопасно: если там симлинк или папка есть - ничего не сломает
+            OpenFolderInExplorer(path);
+        }
+
+        public void OpenInstanceFolder(MinecraftInstance instance)
+        {
+            if (instance == null) return;
+
+            if (instance.IsolationType == IsolationType.Global)
+            {
+                OpenRootMinecraftFolder();
+                return;
+            }
+
+            var instancePath = Path.Combine(_instancesBasePath, instance.Id);
+            CreateDir(instancePath);
+            OpenFolderInExplorer(instancePath);
+        }
+
+        public void OpenInstanceModsFolder(MinecraftInstance instance)
+        {
+            if (instance == null) return;
+
+            string modsPath;
+
+            if (instance.IsolationType == IsolationType.Global)
+            {
+                modsPath = Path.Combine(GetExternalMinecraftPath(), "mods");
+            }
+            else
+            {
+                var instancePath = Path.Combine(_instancesBasePath, instance.Id);
+                modsPath = Path.Combine(instancePath, "mods");
+            }
+
+            CreateDir(modsPath);
+            OpenFolderInExplorer(modsPath);
+        }
+
+        private void OpenFolderInExplorer(string path)
+        {
+            try
+            {
+                // Правильный способ открыть папку в стандартном проводнике Windows
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = path,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to open folder {path}: {ex.Message}");
+            }
+        }
     }
+    
 }

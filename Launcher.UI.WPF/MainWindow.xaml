@@ -281,6 +281,7 @@
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <Button
                                             BorderThickness="{DynamicResource DefaultBorderThickness}"
+                                            Command="{Binding InstallationsVM.OpenInstanceFolderCommand}"
                                             Height="35"
                                             Padding="0"
                                             Style="{StaticResource DefaultButtonStyle}"
