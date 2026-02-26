@@ -8,6 +8,18 @@ using System.Windows.Media;
 
 namespace Launcher.UI.WPF.Helpers
 {
+    public static class VisibilityHelper
+    {
+        public static readonly DependencyProperty IsVisibleProperty =
+            DependencyProperty.RegisterAttached(
+                "IsVisible", 
+                typeof(bool), 
+                typeof(VisibilityHelper), 
+                new PropertyMetadata(false));
+
+        public static bool GetIsVisible(DependencyObject obj) => (bool)obj.GetValue(IsVisibleProperty);
+        public static void SetIsVisible(DependencyObject obj, bool value) => obj.SetValue(IsVisibleProperty, value);
+    }
     
 
     

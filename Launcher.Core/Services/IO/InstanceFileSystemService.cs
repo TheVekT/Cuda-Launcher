@@ -1,4 +1,5 @@
 
+using System.Diagnostics;
 using Launcher.Core.Helpers;
 using Launcher.Core.Models;
 
@@ -102,7 +103,7 @@ namespace Launcher.Core.Services.IO
             if (Directory.Exists(instancePath))
             {
                 try { Directory.Delete(instancePath, true); }
-                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Error deleting instance: {ex.Message}"); }
+                catch (Exception ex) { Debug.WriteLine($"Error deleting instance: {ex.Message}"); }
             }
         }
 

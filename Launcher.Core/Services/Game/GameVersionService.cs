@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -55,7 +56,7 @@ namespace Launcher.Core.Services.Game
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error fetching vanilla versions: {ex.Message}");
+                Debug.WriteLine($"Error fetching vanilla versions: {ex.Message}");
                 return new List<string>();
             }
         }
@@ -90,7 +91,7 @@ namespace Launcher.Core.Services.Game
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error fetching loader versions for {type}: {ex.Message}");
+                Debug.WriteLine($"Error fetching loader versions for {type}: {ex.Message}");
                 return new List<string>();
             }
         }
@@ -160,7 +161,7 @@ namespace Launcher.Core.Services.Game
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error finding recommended version for {type}: {ex.Message}");
+                Debug.WriteLine($"Error finding recommended version for {type}: {ex.Message}");
                 return null;
             }
         }

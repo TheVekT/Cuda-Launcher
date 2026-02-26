@@ -12,6 +12,7 @@
       <PackageReference Include="CmlLib.Core.Installer.Forge" Version="1.1.0" />
       <PackageReference Include="CmlLib.Core.Installer.NeoForge" Version="4.0.0" />
       <PackageReference Include="Microsoft.Identity.Client" Version="4.79.2" />
+      <PackageReference Include="System.Management" Version="11.0.0-preview.1.26104.118" />
     </ItemGroup>
 
 </Project>

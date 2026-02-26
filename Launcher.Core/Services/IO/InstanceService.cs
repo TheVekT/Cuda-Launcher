@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -42,7 +43,7 @@ namespace Launcher.Core.Services.IO
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка сохранения: {ex.Message}");
+                Debug.WriteLine($"Ошибка сохранения: {ex.Message}");
             }
         }
 
@@ -61,7 +62,7 @@ namespace Launcher.Core.Services.IO
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка загрузки: {ex.Message}");
+                Debug.WriteLine($"Ошибка загрузки: {ex.Message}");
                 return new List<MinecraftInstance>();
             }
         }

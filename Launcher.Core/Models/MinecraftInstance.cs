@@ -38,14 +38,15 @@ namespace Launcher.Core.Models
     public class BackupSettings
     {
         public BackupPolicy SavesBackupSettings { get; set; } = BackupPolicy.Inherit;
-        public BackupFrequency SavesBackupFrequency { get; set; } = BackupFrequency.Weekly;
-        public int SavesMaxBackups { get; set; } = 7;
+        public BackupFrequency? SavesBackupFrequency { get; set; } = null;
+        public int? SavesMaxBackups { get; set; } = null;
         public DateTime? LastBackupDate { get; set; }
     }
     public class GameSettings
     {
         public int? AllocatedMemory { get; set; } = null;
         public string? JvmArgs { get; set; } = null;
+        public bool? Fullscreen { get; set; } = null;
         public string? GameResolution { get; set; } = null; // e.g. "1920x1080"
     }
 }

@@ -21,6 +21,8 @@
                 <ResourceDictionary Source="Resources/Styles/ThemePreviewStyles.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
+            <helpers:EqualConverter x:Key="EqualConverter" />
+            <helpers:NotEqualConverter x:Key="NotEqualConverter" />
             <x:Static Member="services:LocalizationService.Instance" x:Key="Loc" />
             <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis" />
             <BooleanToVisibilityConverter x:Key="BoolToVis" />

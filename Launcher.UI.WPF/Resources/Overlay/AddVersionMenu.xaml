@@ -216,7 +216,7 @@
                                 <!--  DragEnter="UploadButton_DragEnter"  -->
                                 <!--  Drop="UploadButton_Drop"  -->
                                 <Button
-                                    Content="Upload custom icon"
+                                    Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.InstallationIconUpload]}"
                                     Height="50"
                                     Margin="0,5,0,0"
                                     Style="{StaticResource UploadDropZoneStyle}" />
@@ -319,7 +319,10 @@
                                             </Style>
                                         </RadioButton.Style>
                                     </RadioButton>
-                                    <Grid Margin="0,10,0,0">
+                                    <Grid
+                                        Margin="0,10,0,0"
+                                        Style="{StaticResource AnimatedVisibilityStyle}"
+                                        helpers:VisibilityHelper.IsVisible="{Binding SelectedModLoader, Converter={StaticResource NotEqualConverter}, ConverterParameter=Vanilla}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
@@ -329,18 +332,8 @@
                                             Grid.Column="0"
                                             GroupName="IsolationGroup"
                                             IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Partial}"
-                                            Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}">
-                                            <RadioButton.Style>
-                                                <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </RadioButton.Style>
-                                        </RadioButton>
+                                            Style="{StaticResource PointOptionRadioStyle}"
+                                            Tag="{Binding Source={StaticResource Loc}, Path=[AddInstallation.OptionPartialIsolationDesc]}" />
                                         <Border
                                             Background="{DynamicResource AlertBackgroundBrush}"
                                             BorderBrush="{DynamicResource AlertBorderBrush}"
@@ -350,16 +343,6 @@
                                             Margin="10,0,0,0"
                                             Padding="8"
                                             VerticalAlignment="Center">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
                                             <StackPanel Orientation="Horizontal">
                                                 <Viewbox
                                                     Height="18"
@@ -436,51 +419,165 @@
                                     Style="{StaticResource MoreContentExpanderStyle}">
 
                                     <StackPanel Orientation="Vertical">
-                                        <StackPanel Margin="0,5" Orientation="Vertical">
-                                            <TextBlock FontSize="14" Foreground="{DynamicResource ForegroundPrimaryBrush}">
-                                                <TextBlock FontSize="14" Foreground="{DynamicResource ForegroundPrimaryBrush}">
-                                                    <TextBlock.Text>
-                                                        <MultiBinding Converter="{StaticResource StringFormatConverter}">
-                                                            <Binding Path="[SettingsMenu.Game.AllocatedMemoryLabel]" Source="{StaticResource Loc}" />
-
-                                                            <Binding ElementName="AllocatedMemory" Path="Value" />
-                                                        </MultiBinding>
-                                                    </TextBlock.Text>
-                                                </TextBlock>
-                                            </TextBlock>
-                                            <Slider
-                                                IsSnapToTickEnabled="True"
-                                                Maximum="16384"
-                                                Minimum="1024"
-                                                Style="{StaticResource DefaultSliderStyle}"
-                                                TickFrequency="512"
-                                                Value="2048"
-                                                x:Name="AllocatedMemory" />
-                                        </StackPanel>
-                                        <TextBlock
-                                            FontSize="14"
-                                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                            Margin="0,5,0,5"
-                                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.WindowResolutionLabel]}" />
-                                        <ComboBox
-                                            Height="35"
-                                            SelectedIndex="0"
-                                            Style="{StaticResource OverlayComboBox}">
-                                            <ComboBoxItem Content="1920x1080" />
-                                            <ComboBoxItem Content="1600x900" />
-                                            <ComboBoxItem Content="1366x768" />
-                                            <ComboBoxItem Content="1280x720" />
-                                        </ComboBox>
-                                        <TextBlock
+                                        <CheckBox
+                                            Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.InheritGameSettings]}"
                                             FontSize="13"
-                                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                            IsChecked="True"
                                             Margin="0,5,0,0"
-                                            Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.EditJVMArgumentsLabel]}"
-                                            TextWrapping="Wrap" />
-                                        <TextBox
-                                            Margin="0,5"
-                                            Style="{StaticResource DefaultTextInputStyle}"
-                                            Tag="JVM Arguments" />
+                                            Style="{StaticResource DefaultToggleSwitchStyle}"
+                                            VerticalAlignment="Top"
+                                            helpers:ScaleHelper.ScaleFactor="0.8"
+                                            x:Name="InheritGameSettings" />
+                                        <StackPanel IsEnabled="{Binding IsChecked, ElementName=InheritGameSettings, Converter={StaticResource EqualConverter}, ConverterParameter=False}" Orientation="Vertical">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="IsEnabled" Value="{Binding IsChecked, ElementName=EnableBackupInherit, Converter={StaticResource EqualConverter}, ConverterParameter=False}" />
+                                                    <Setter Property="Opacity" Value="1" />
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter Property="Opacity" Value="0.5" />
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <StackPanel Orientation="Vertical">
+                                                <StackPanel Margin="0,5" Orientation="Vertical">
+                                                    <TextBlock FontSize="13" Foreground="{DynamicResource ForegroundPrimaryBrush}">
+                                                        <TextBlock FontSize="13" Foreground="{DynamicResource ForegroundPrimaryBrush}">
+                                                            <TextBlock.Text>
+                                                                <MultiBinding Converter="{StaticResource StringFormatConverter}">
+                                                                    <Binding Path="[SettingsMenu.Game.AllocatedMemoryLabel]" Source="{StaticResource Loc}" />
+
+                                                                    <Binding ElementName="AllocatedMemory" Path="Value" />
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+                                                    </TextBlock>
+                                                    <Slider
+                                                        IsSnapToTickEnabled="True"
+                                                        Maximum="16384"
+                                                        Minimum="1024"
+                                                        Style="{StaticResource DefaultSliderStyle}"
+                                                        TickFrequency="512"
+                                                        Value="2048"
+                                                        x:Name="AllocatedMemory" />
+                                                </StackPanel>
+                                                <CheckBox
+                                                    Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.FullscreenModeLabel]}"
+                                                    FontSize="13"
+                                                    Margin="0,5,0,0"
+                                                    Style="{StaticResource DefaultToggleSwitchStyle}"
+                                                    VerticalAlignment="Top"
+                                                    helpers:ScaleHelper.ScaleFactor="0.8"
+                                                    x:Name="FullscreenModeCheckbox" />
+                                                <StackPanel
+                                                    Margin="0,5"
+                                                    Orientation="Vertical"
+                                                    Style="{StaticResource AnimatedVisibilityStyle}"
+                                                    helpers:VisibilityHelper.IsVisible="{Binding Path=IsChecked, ElementName=FullscreenModeCheckbox, Converter={StaticResource EqualConverter}, ConverterParameter=False}">
+                                                    <TextBlock
+                                                        FontSize="13"
+                                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                                        Margin="0,0,0,5"
+                                                        Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.WindowResolutionLabel]}" />
+                                                    <ComboBox
+                                                        Height="30"
+                                                        SelectedIndex="0"
+                                                        Style="{StaticResource OverlayComboBox}">
+                                                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.Resolution.Auto]}" />
+                                                        <ComboBoxItem Content="1920x1080" />
+                                                        <ComboBoxItem Content="1600x900" />
+                                                        <ComboBoxItem Content="1366x768" />
+                                                        <ComboBoxItem Content="1280x720" />
+                                                    </ComboBox>
+                                                </StackPanel>
+                                                <TextBlock
+                                                    FontSize="13"
+                                                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                                    Margin="0,5,0,0"
+                                                    Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.EditJVMArgumentsLabel]}"
+                                                    TextWrapping="Wrap" />
+                                                <TextBox
+                                                    FontSize="12"
+                                                    Margin="0,5"
+                                                    Style="{StaticResource DefaultTextInputStyle}"
+                                                    Tag="JVM Arguments" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox
+                                                Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.InheritBackupSettings]}"
+                                                FontSize="13"
+                                                IsChecked="True"
+                                                Margin="0,5"
+                                                Style="{StaticResource DefaultToggleSwitchStyle}"
+                                                VerticalAlignment="Top"
+                                                helpers:ScaleHelper.ScaleFactor="0.8"
+                                                x:Name="EnableBackupInherit" />
+
+                                            <StackPanel IsEnabled="{Binding IsChecked, ElementName=EnableBackupInherit, Converter={StaticResource EqualConverter}, ConverterParameter=False}" Orientation="Vertical">
+                                                <StackPanel.Style>
+                                                    <Style TargetType="StackPanel">
+                                                        <Setter Property="IsEnabled" Value="{Binding IsChecked, ElementName=EnableBackupInherit, Converter={StaticResource EqualConverter}, ConverterParameter=False}" />
+                                                        <Setter Property="Opacity" Value="1" />
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Opacity" Value="0.5" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </StackPanel.Style>
+                                                <Border
+                                                    Background="{DynamicResource OverlayButtonBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource OverlayBorderPrimaryBrush}"
+                                                    BorderThickness="{DynamicResource DefaultBorderThickness}"
+                                                    CornerRadius="{DynamicResource DefaultCorner}"
+                                                    Padding="10,10">
+                                                    <StackPanel>
+                                                        <CheckBox
+                                                            Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.EnableBackups]}"
+                                                            FontSize="12"
+                                                            Margin="0,0,0,5"
+                                                            Style="{StaticResource DefaultToggleSwitchStyle}"
+                                                            VerticalAlignment="Top"
+                                                            helpers:ScaleHelper.ScaleFactor="0.8"
+                                                            x:Name="EnableBackupsCheckbox" />
+                                                        <TextBlock
+                                                            FontSize="12"
+                                                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                                            Margin="0,0,0,6"
+                                                            Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreqLabel]}" />
+                                                        <ComboBox
+                                                            Height="30"
+                                                            SelectedIndex="2"
+                                                            Style="{StaticResource OverlayComboBox}">
+                                                            <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Daily]}" />
+                                                            <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Weekly]}" />
+                                                            <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Biweekly]}" />
+                                                            <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Monthly]}" />
+                                                        </ComboBox>
+                                                        <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
+                                                            <TextBlock
+                                                                FontSize="12"
+                                                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                                                Margin="0,0,10,0"
+                                                                Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupsLimitLabel]}"
+                                                                VerticalAlignment="Center" />
+                                                            <TextBox
+                                                                Background="Transparent"
+                                                                FontSize="12"
+                                                                MaxLength="1"
+                                                                Padding="4"
+                                                                Style="{StaticResource DefaultTextInputStyle}"
+                                                                Text="5"
+                                                                TextAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Width="25" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
 
                                     </StackPanel>
 
