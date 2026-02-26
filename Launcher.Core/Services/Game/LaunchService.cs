@@ -10,12 +10,11 @@ using CmlLib.Core.Version;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
 
-
 namespace Launcher.Core.Services.Game
 {
     public interface ILaunchService
     {
-        Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, IProgress<double> progress = null);
+        Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings, IProgress<double> progress = null);
     }
 
     public class LaunchService : ILaunchService
@@ -29,21 +28,20 @@ namespace Launcher.Core.Services.Game
             _httpClient = new HttpClient(); 
         }
 
-        public async Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, IProgress<double> progress = null)
+        public async Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings, IProgress<double> progress = null)
         {
             if (instance == null) throw new ArgumentNullException(nameof(instance));
             if (account == null) throw new ArgumentNullException(nameof(account));
+            if (globalSettings == null) throw new ArgumentNullException(nameof(globalSettings));
 
             // 1. Получаем путь (БЕЗ АДМИН ПРАВ)
             var instancePath = _fileService.PrepareForLaunch(instance); 
             
             // 2. Настраиваем логику путей
-            // Global Path - это где лежат версии, библиотеки, ассеты.
-            // Instance Path - это где игра запустится (mods, configs, saves).
             var globalPath = _fileService.GetGlobalMinecraftPath();
             var globalMcPath = new MinecraftPath(globalPath);
 
-            // 3. Лаунчер инициализируем с ГЛОБАЛЬНЫМ путем (для загрузки версий)
+            // 3. Лаунчер инициализируем с ГЛОБАЛЬНЫМ путем
             var launcher = new MinecraftLauncher(globalMcPath);
 
             launcher.FileProgressChanged += (sender, args) =>
@@ -62,16 +60,43 @@ namespace Launcher.Core.Services.Game
             else
                 versionToLaunch = await InstallLoaderAsync(launcher, instance);
 
-            // 5. Опции запуска
+            // === 5. Умное определение параметров запуска ===
+            // Защита от NullReference, если вдруг GameSettings не инициализирован
+            var safeGameSettings = instance.GameSettings ?? new GameSettings();
+
+            // Определяем финальные значения (Если в инстансе null -> берем глобальные)
+            int finalRam = safeGameSettings.AllocatedMemory ?? globalSettings.MaxRamMb;
+            bool finalFullscreen = safeGameSettings.Fullscreen ?? globalSettings.IsFullscreen;
+            string finalResolutionStr = safeGameSettings.GameResolution ?? globalSettings.Resolution;
+
+            // Парсинг разрешения экрана
+            int screenWidth = 854;  // Стандартная ширина Minecraft
+            int screenHeight = 480; // Стандартная высота Minecraft
+
+            if (!string.IsNullOrEmpty(finalResolutionStr) && !finalResolutionStr.Equals("Auto", StringComparison.OrdinalIgnoreCase))
+            {
+                var parts = finalResolutionStr.Split('x', 'X'); // Учитываем 'x' и 'X'
+                if (parts.Length == 2 && 
+                    int.TryParse(parts[0], out int w) && 
+                    int.TryParse(parts[1], out int h))
+                {
+                    screenWidth = w;
+                    screenHeight = h;
+                }
+            }
+
+            // 6. Опции запуска
             var launchOption = new MLaunchOption
             {
-                MaximumRamMb = 4096, 
+                MaximumRamMb = finalRam, 
+                FullScreen = finalFullscreen,
+                ScreenWidth = screenWidth,
+                ScreenHeight = screenHeight,
                 Session = new MSession(account.Username, account.AccessToken, account.UUID),
                 
-                // ВАЖНО: Тут мы говорим CmlLib "Используй instancePath как рабочую папку"
+                // ВАЖНО: Рабочая папка - папка инстанса
                 Path = new MinecraftPath(instancePath) 
                 {
-                    // Но ресурсы и версии бери из общего хранилища!
                     Assets = globalMcPath.Assets,
                     Library = globalMcPath.Library,
                     Runtime = globalMcPath.Runtime,
@@ -79,13 +104,12 @@ namespace Launcher.Core.Services.Game
                 },
                 
                 VersionType = instance.LoaderType.ToString(),
-                GameLauncherName = "Launcher"
+                GameLauncherName = "Launcher" // Название твоего лаунчера в игре
             };
 
-            // 6. Создание процесса
+            // 7. Создание процесса
             var process = await launcher.InstallAndBuildProcessAsync(versionToLaunch.Id, launchOption);
 
-            // ... Настройка потоков вывода (как у тебя было) ...
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
@@ -98,14 +122,15 @@ namespace Launcher.Core.Services.Game
             process.BeginErrorReadLine();
             
             instance.LastPlayedDate = DateTime.Now;
-            Console.WriteLine($"Launched instance at time: {instance.LastPlayedDate}");
+            Console.WriteLine($"Launched instance at time: {instance.LastPlayedDate} | RAM: {finalRam}MB | Fullscreen: {finalFullscreen} | Resolution: {screenWidth}x{screenHeight}");
+            
             return process;
         }
 
         private async Task<IVersion> InstallLoaderAsync(MinecraftLauncher launcher, MinecraftInstance instance)
         {
             var mcVersion = instance.GameVersion;
-            var loaderVersion = instance.LoaderVersion; // Теперь он гарантированно есть
+            var loaderVersion = instance.LoaderVersion;
 
             Console.WriteLine($"Installing {instance.LoaderType} (Version: {loaderVersion}) for Minecraft {mcVersion}...");
 
@@ -113,7 +138,6 @@ namespace Launcher.Core.Services.Game
             {
                 case GameLoaderType.Forge:
                     var forge = new ForgeInstaller(launcher); 
-                    // Передаем конкретную версию лоадера вторым параметром
                     var installedForgeId = await forge.Install(mcVersion, loaderVersion);
                     return await launcher.GetVersionAsync(installedForgeId);
 
@@ -124,7 +148,6 @@ namespace Launcher.Core.Services.Game
 
                 case GameLoaderType.NeoForge:
                     var neo = new NeoForgeInstaller(launcher);
-                    // Вся огромная логика поиска и сортировок удалена! Просто просим установить нужную.
                     var installedNeoId = await neo.Install(mcVersion, loaderVersion);
                     return await launcher.GetVersionAsync(installedNeoId);
 

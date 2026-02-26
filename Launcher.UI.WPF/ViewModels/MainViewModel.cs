@@ -216,9 +216,16 @@ public class MainViewModel : INotifyPropertyChanged
                 if (p < 100) _playVM.DownloadStatusText = "Downloading files...";
                 else _playVM.DownloadStatusText = "Finalizing..."; 
             });
+            
+            var globalSettings = new GlobalLaunchSettings
+            {
+                MaxRamMb = _settingsStore.SelectedMaxRam,
+                IsFullscreen = _settingsStore.IsGameFullScreen,
+                Resolution = _settingsStore.IsGameFullScreen ? "Auto" : _settingsStore.SelectedResolution
+            };
 
             _currentGameProcess = await _launchService.LaunchGameAsync(_instancesStore.SelectedInstance,
-                _loginStore.CurrentAccount, progress);
+                _loginStore.CurrentAccount, globalSettings, progress);
 
             Console.WriteLine("Game started!");
 
@@ -228,6 +235,7 @@ public class MainViewModel : INotifyPropertyChanged
         
             // Меняем текст кнопки на "Close"
             _playVM.CurrentPlayButtonText.Update("Play.PlayButton.Close"); 
+            _playVM.ChangeToPlayIcon("Icon.Close"); // Устанавливаем иконку крестика (предварительно добавив её в ресурсы)
         
             OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); 
             _instanceService.SaveInstances(_instancesStore.Instances);
@@ -247,6 +255,7 @@ public class MainViewModel : INotifyPropertyChanged
         
             // Возвращаем текст кнопки на "PLAY"
             _playVM.CurrentPlayButtonText.Update("Play.PlayButton");
+            _playVM.ChangeToPlayIcon("Icon.Play"); // И возвращаем иконку "Play"
         
             _currentGameProcess = null;
         }

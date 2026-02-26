@@ -244,7 +244,7 @@ public class InstanceVM: INotifyPropertyChanged
             {
                 AllocatedMemory = UseGlobalGameSettings ? null : (int?)SelectedMaxRam,
                 Fullscreen = UseGlobalGameSettings ? null : (bool?)IsGameFullscreen,
-                GameResolution = UseGlobalGameSettings ? null : SelectedResolution,
+                GameResolution = UseGlobalGameSettings ? null : (IsGameFullscreen ? "Auto" : SelectedResolution),
                 JvmArgs = UseGlobalGameSettings ? null : JVMArguments
             },
             BackupSettings = new BackupSettings
