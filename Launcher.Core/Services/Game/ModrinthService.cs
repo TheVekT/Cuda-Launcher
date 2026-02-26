@@ -11,8 +11,8 @@ namespace Launcher.Core.Services.Game
 {
     public interface IModrinthService
     {
-        Task InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder);
-        Task InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder);
+        Task InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null);
+        Task InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null);
     }
 
     public class ModrinthService : IModrinthService
@@ -25,19 +25,20 @@ namespace Launcher.Core.Services.Game
             // ВАЖНО: Modrinth требует понятный User-Agent, иначе забанит
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("MineLauncher/dev (vviktor2007@gmail.com)");
         }
-
-        public async Task InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder)
+        
+        public async Task InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null)
         {
             if (instance.IsolationType == IsolationType.Global) return;
 
             string slug = null;
             if (instance.LoaderType == GameLoaderType.Fabric) slug = "fabric-api";
-            else if (instance.LoaderType == GameLoaderType.Quilt) slug = "qsl"; // Quilted Fabric API
+            else if (instance.LoaderType == GameLoaderType.Quilt) slug = "qsl";
 
             if (slug == null) return;
 
             try
             {
+                progress?.Report(new LaunchState { Progress = 5, StatusText = $"Downloading {slug}..." });
                 var downloadUrl = await GetLatestModDownloadUrlAsync(slug, instance.GameVersion, instance.LoaderType.ToString().ToLower());
                 if (downloadUrl != null)
                 {
@@ -46,28 +47,27 @@ namespace Launcher.Core.Services.Game
             }
             catch (Exception ex)
             {
-                // API-моды критичны, но если не скачались - просто логируем (или можешь прокинуть ошибку дальше)
                 Console.WriteLine($"[Modrinth] Failed to install {slug}: {ex.Message}");
             }
         }
-
-        public async Task InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder)
+        
+        public async Task InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null)
         {
             if (instance.IsolationType == IsolationType.Global) return;
-            if (!instance.RequestPerformanceMods) return; // Проверяем ту самую галочку
+            if (!instance.RequestPerformanceMods) return;
 
             string[] targets = { "sodium", "iris" };
             string loaderStr = instance.LoaderType.ToString().ToLower();
 
+            progress?.Report(new LaunchState { Progress = 10, StatusText = "Downloading performance mods..." });
+
             foreach (var slug in targets)
             {
+                progress?.Report(new LaunchState { Progress = 10, StatusText = $"Downloading {slug}..." });
                 var downloadUrl = await GetLatestModDownloadUrlAsync(slug, instance.GameVersion, loaderStr);
                 
-                // Если ссылки нет, значит мода под эту версию/лоадер не существует
                 if (downloadUrl == null)
-                {
                     throw new InvalidOperationException($"Мод {slug} недоступен для Minecraft {instance.GameVersion} на лоадере {instance.LoaderType}.");
-                }
 
                 await DownloadModAsync(downloadUrl, modsFolder, $"{slug}-{instance.GameVersion}.jar");
             }

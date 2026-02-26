@@ -194,8 +194,7 @@ public class MainViewModel : INotifyPropertyChanged
     {
         if (_playVM.IsDownloading) return;
         if (_playVM.IsGameRunning) return;
-    
-        Console.WriteLine("Launching instance...");
+
         if (_instancesStore.SelectedInstance == null) return;
         if (_loginStore.CurrentAccount == null) 
         { 
@@ -210,13 +209,13 @@ public class MainViewModel : INotifyPropertyChanged
             _playVM.DownloadStatusText = "Preparing...";
             _playVM.DownloadProgress = 0;
 
-            var progress = new Progress<double>(p =>
+            // Полностью перешли на LaunchState
+            var progress = new Progress<LaunchState>(state =>
             {
-                _playVM.DownloadProgress = p;
-                if (p < 100) _playVM.DownloadStatusText = "Downloading files...";
-                else _playVM.DownloadStatusText = "Finalizing..."; 
+                _playVM.DownloadProgress = state.Progress;
+                _playVM.DownloadStatusText = state.StatusText; 
             });
-            
+        
             var globalSettings = new GlobalLaunchSettings
             {
                 MaxRamMb = _settingsStore.SelectedMaxRam,

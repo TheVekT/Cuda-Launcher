@@ -1,4 +1,8 @@
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.Installer.Forge;
@@ -14,7 +18,7 @@ namespace Launcher.Core.Services.Game
 {
     public interface ILaunchService
     {
-        Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings, IProgress<double> progress = null);
+        Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings, IProgress<LaunchState> progress = null);
     }
 
     public class LaunchService : ILaunchService
@@ -30,88 +34,98 @@ namespace Launcher.Core.Services.Game
             _httpClient = new HttpClient(); 
         }
 
-        public async Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings, IProgress<double> progress = null)
+        public async Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings, IProgress<LaunchState> progress = null)
         {
-            if (instance == null) throw new ArgumentNullException(nameof(instance));
-            if (account == null) throw new ArgumentNullException(nameof(account));
-            if (globalSettings == null) throw new ArgumentNullException(nameof(globalSettings));
+            if (instance == null || account == null || globalSettings == null) throw new ArgumentNullException();
 
-            // 1. Получаем путь (БЕЗ АДМИН ПРАВ)
+            progress?.Report(new LaunchState { Progress = 0, StatusText = "Preparing launch environment..." });
             var instancePath = _fileService.PrepareForLaunch(instance); 
-            // === УСТАНОВКА МОДОВ (ТОЛЬКО ПРИ ПЕРВОМ ЗАПУСКЕ) ===
+
+            // === 1. УСТАНОВКА МОДОВ ===
             if (instance.LastPlayedDate == null && instance.IsolationType != IsolationType.Global)
             {
                 string modsFolder = Path.Combine(instancePath, "mods");
+                await _modrinthService.InstallEssentialApisAsync(instance, modsFolder, progress);
 
-                // 1. Обязательные API (тихие, без исключений)
-                await _modrinthService.InstallEssentialApisAsync(instance, modsFolder);
-
-                // 2. Моды на оптимизацию (кидают исключение, если недоступны)
                 if (instance.RequestPerformanceMods)
                 {
-                    try
-                    {
-                        await _modrinthService.InstallPerformanceModsAsync(instance, modsFolder);
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        // Здесь мы ловим то самое исключение.
-                        // Ты можешь либо прокинуть его выше во ViewModel, чтобы показать окно,
-                        // либо временно залогировать.
-                        Console.WriteLine($"[WARNING] {ex.Message}");
-                        throw; // Прокидываем в UI
-                    }
+                    try { await _modrinthService.InstallPerformanceModsAsync(instance, modsFolder, progress); }
+                    catch (InvalidOperationException ex) { Console.WriteLine($"[WARNING] {ex.Message}"); throw; }
                 }
             }
-            // 2. Настраиваем логику путей
+
+            progress?.Report(new LaunchState { Progress = 5, StatusText = "Initializing engine..." });
+
             var globalPath = _fileService.GetGlobalMinecraftPath();
             var globalMcPath = new MinecraftPath(globalPath);
-
-            // 3. Лаунчер инициализируем с ГЛОБАЛЬНЫМ путем
             var launcher = new MinecraftLauncher(globalMcPath);
+
+            var instanceMcPath = new MinecraftPath(instancePath) 
+            {
+                Assets = globalMcPath.Assets,
+                Library = globalMcPath.Library,
+                Runtime = globalMcPath.Runtime,
+                Versions = globalMcPath.Versions
+            };
+
+            // === 2. ТАЙМЕР ЗАГРУЗКИ (Плавный прогресс от 15% до 90%) ===
+            Stopwatch networkTimer = new Stopwatch();
+            networkTimer.Start();
+            string currentAction = "Verifying files...";
+
+            launcher.ByteProgressChanged += (sender, args) =>
+            {
+                networkTimer.Restart();
+                currentAction = "Downloading...";
+            };
 
             launcher.FileProgressChanged += (sender, args) =>
             {
                 if (args.TotalTasks > 0)
                 {
-                    double percent = (double)args.ProgressedTasks / args.TotalTasks * 100;
-                    progress?.Report(percent);
+                    // Если сеть молчит полсекунды - значит мы просто проверяем локальные файлы
+                    if (networkTimer.ElapsedMilliseconds > 500) currentAction = "Verifying files...";
+                    
+                    // Масштабируем прогресс CmlLib (0-100%) в наш отрезок (15-90%)
+                    double percent = 10 + ((double)args.ProgressedTasks / args.TotalTasks * 75);
+                    progress?.Report(new LaunchState { Progress = percent, StatusText = currentAction });
                 }
             };
 
-            // 4. Получаем версию
+            // === 3. ПОЛУЧЕНИЕ ВЕРСИИ И УСТАНОВКА ЛОАДЕРОВ ===
+            progress?.Report(new LaunchState { Progress = 15, StatusText = $"Preparing base Minecraft {instance.GameVersion}..." });
+            var baseVersion = await launcher.GetVersionAsync(instance.GameVersion);
+
             IVersion versionToLaunch;
             if (instance.LoaderType == GameLoaderType.Vanilla)
-                versionToLaunch = await launcher.GetVersionAsync(instance.GameVersion);
+            {
+                versionToLaunch = baseVersion;
+            }
             else
+            {
+                progress?.Report(new LaunchState { Progress = 20, StatusText = $"Installing {instance.LoaderType}..." });
                 versionToLaunch = await InstallLoaderAsync(launcher, instance);
+            }
 
-            // === 5. Умное определение параметров запуска ===
-            // Защита от NullReference, если вдруг GameSettings не инициализирован
+            progress?.Report(new LaunchState { Progress = 90, StatusText = "Finalizing settings..." });
+
+            // === 4. ОПЦИИ ЗАПУСКА ===
             var safeGameSettings = instance.GameSettings ?? new GameSettings();
-
-            // Определяем финальные значения (Если в инстансе null -> берем глобальные)
             int finalRam = safeGameSettings.AllocatedMemory ?? globalSettings.MaxRamMb;
             bool finalFullscreen = safeGameSettings.Fullscreen ?? globalSettings.IsFullscreen;
             string finalResolutionStr = safeGameSettings.GameResolution ?? globalSettings.Resolution;
 
-            // Парсинг разрешения экрана
-            int screenWidth = 854;  // Стандартная ширина Minecraft
-            int screenHeight = 480; // Стандартная высота Minecraft
-
+            int screenWidth = 854;  
+            int screenHeight = 480; 
             if (!string.IsNullOrEmpty(finalResolutionStr) && !finalResolutionStr.Equals("Auto", StringComparison.OrdinalIgnoreCase))
             {
-                var parts = finalResolutionStr.Split('x', 'X'); // Учитываем 'x' и 'X'
-                if (parts.Length == 2 && 
-                    int.TryParse(parts[0], out int w) && 
-                    int.TryParse(parts[1], out int h))
+                var parts = finalResolutionStr.Split('x', 'X'); 
+                if (parts.Length == 2 && int.TryParse(parts[0], out int w) && int.TryParse(parts[1], out int h))
                 {
-                    screenWidth = w;
-                    screenHeight = h;
+                    screenWidth = w; screenHeight = h;
                 }
             }
 
-            // 6. Опции запуска
             var launchOption = new MLaunchOption
             {
                 MaximumRamMb = finalRam, 
@@ -119,21 +133,13 @@ namespace Launcher.Core.Services.Game
                 ScreenWidth = screenWidth,
                 ScreenHeight = screenHeight,
                 Session = new MSession(account.Username, account.AccessToken, account.UUID),
-                
-                // ВАЖНО: Рабочая папка - папка инстанса
-                Path = new MinecraftPath(instancePath) 
-                {
-                    Assets = globalMcPath.Assets,
-                    Library = globalMcPath.Library,
-                    Runtime = globalMcPath.Runtime,
-                    Versions = globalMcPath.Versions
-                },
-                
+                Path = instanceMcPath, 
                 VersionType = instance.LoaderType.ToString(),
-                GameLauncherName = "Launcher" // Название твоего лаунчера в игре
+                GameLauncherName = "Launcher" 
             };
 
-            // 7. Создание процесса
+            progress?.Report(new LaunchState { Progress = 95, StatusText = "Starting game process..." });
+            
             var process = await launcher.InstallAndBuildProcessAsync(versionToLaunch.Id, launchOption);
 
             process.StartInfo.UseShellExecute = false;
@@ -148,8 +154,7 @@ namespace Launcher.Core.Services.Game
             process.BeginErrorReadLine();
             
             instance.LastPlayedDate = DateTime.Now;
-            Console.WriteLine($"Launched instance at time: {instance.LastPlayedDate} | RAM: {finalRam}MB | Fullscreen: {finalFullscreen} | Resolution: {screenWidth}x{screenHeight}");
-            
+            progress?.Report(new LaunchState { Progress = 100, StatusText = "Game started!" });
             return process;
         }
 
@@ -158,12 +163,10 @@ namespace Launcher.Core.Services.Game
             var mcVersion = instance.GameVersion;
             var loaderVersion = instance.LoaderVersion;
 
-            Console.WriteLine($"Installing {instance.LoaderType} (Version: {loaderVersion}) for Minecraft {mcVersion}...");
-
             switch (instance.LoaderType)
             {
                 case GameLoaderType.Forge:
-                    var forge = new ForgeInstaller(launcher); 
+                    var forge = new ForgeInstaller(launcher);
                     var installedForgeId = await forge.Install(mcVersion, loaderVersion);
                     return await launcher.GetVersionAsync(installedForgeId);
 
