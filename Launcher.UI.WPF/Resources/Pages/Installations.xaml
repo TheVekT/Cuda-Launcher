@@ -89,7 +89,7 @@
                     </Border>
                     <ComboBox
                         Grid.Column="1"
-                        SelectedIndex="{Binding SelectedSortIndex}"
+                        SelectedIndex="{Binding InstancesStore.SelectedSortIndex}"
                         Style="{StaticResource DefaultComboBox}"
                         Width="180">
 

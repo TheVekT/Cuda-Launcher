@@ -237,6 +237,7 @@ public class MainViewModel : INotifyPropertyChanged
             _playVM.IsGameRunning = true;
             _playVM.UpdateDiscordPresence();
             _playVM.IsDownloading = false;
+            _instancesStore.ApplySort();
         
             // hide main window when game is launched
             if (!_settingsStore.IsKeepLauncherOpen) Application.Current.MainWindow.Hide();
