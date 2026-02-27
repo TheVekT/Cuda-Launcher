@@ -155,7 +155,10 @@
                                             helpers:AccountCardHelper.AccountName="{Binding Username}"
                                             helpers:AccountCardHelper.AccountType="{Binding AccountTypeString}"
                                             helpers:AccountCardHelper.CommandParameter="{Binding}"
+                                            helpers:AccountCardHelper.LogOutCommand="{Binding DataContext.LogOutCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            helpers:AccountCardHelper.RenameAccountCommand="{Binding DataContext.RenameAccountCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             helpers:AccountCardHelper.UseCommand="{Binding DataContext.SelectAccountCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
 

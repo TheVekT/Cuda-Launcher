@@ -27,6 +27,8 @@ namespace Launcher.UI.WPF.ViewModels{
         public ICommand SelectAccountCommand { get; }
         public ICommand CloseSelfCommand { get; }
         public ICommand AddNewAccountCommand { get; }
+        public ICommand RenameAccountCommand { get; }
+        public ICommand LogOutCommand { get; }
 
         public int _accountCount = 0;
 
@@ -56,10 +58,37 @@ namespace Launcher.UI.WPF.ViewModels{
                 }
             });
             
+            LogOutCommand = new RelayCommand(o => HandleLogout(o as UserAccount));
+            
+            RenameAccountCommand = new RelayCommand(o => HandleRenameAccount(o as UserAccount));
+            
             _loginStore.Accounts.CollectionChanged += (s, e) => 
             {
                 AccountCount = _loginStore.Accounts.Count;
             };
+        }
+        
+        private void HandleRenameAccount(UserAccount account)
+        {
+            return;
+        }
+        
+        private void HandleLogout(UserAccount account)
+        {
+            Console.WriteLine($"Logout {account.Username}");
+            var isSelectedAccountToDelete = _loginStore.CurrentAccount == account;
+            _loginStore.Accounts.Remove(account);
+            _accountStorage.SaveAccounts(_loginStore.Accounts);
+            
+            if (isSelectedAccountToDelete && _loginStore.Accounts.Count > 0)
+            {
+                _loginStore.CurrentAccount = _loginStore.Accounts.FirstOrDefault();;
+            }
+            else
+            {
+                IsAddAccPageOpen = true;
+                _loginStore.CurrentAccount = null;
+            }
         }
         
 

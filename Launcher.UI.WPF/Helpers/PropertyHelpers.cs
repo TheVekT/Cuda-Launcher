@@ -327,6 +327,24 @@ namespace Launcher.UI.WPF.Helpers
 
         public static void SetCommandParameter(DependencyObject element, object value) => element.SetValue(CommandParameterProperty, value);
         public static object GetCommandParameter(DependencyObject element) => element.GetValue(CommandParameterProperty);
+        
+        public static readonly DependencyProperty LogOutCommandProperty =
+            DependencyProperty.RegisterAttached("LogOutCommand", typeof(ICommand), typeof(AccountCardHelper), new PropertyMetadata(null));
+        
+        public static ICommand GetLogOutCommand(DependencyObject obj) => (ICommand)obj.GetValue(LogOutCommandProperty);
+        public static void SetLogOutCommand(DependencyObject obj, ICommand value) => obj.SetValue(LogOutCommandProperty, value);
+        
+        public static readonly DependencyProperty RenameAccountCommandProperty =
+            DependencyProperty.RegisterAttached("RenameAccountCommand", typeof(ICommand), typeof(AccountCardHelper), new PropertyMetadata(null));
+        
+        public static ICommand GetRenameAccountCommand(DependencyObject obj) => (ICommand)obj.GetValue(RenameAccountCommandProperty);
+        public static void SetRenameAccountCommand(DependencyObject obj, ICommand value) => obj.SetValue(RenameAccountCommandProperty, value);
+        
+        public static readonly DependencyProperty MenuContextProperty =
+            DependencyProperty.RegisterAttached("MenuContext", typeof(object), typeof(AccountCardHelper), new PropertyMetadata(null));
+
+        public static object GetMenuContext(DependencyObject obj) => obj.GetValue(MenuContextProperty);
+        public static void SetMenuContext(DependencyObject obj, object value) => obj.SetValue(MenuContextProperty, value);
     }
     
     public static class RadioButtonHelper

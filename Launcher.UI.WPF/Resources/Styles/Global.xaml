@@ -240,7 +240,7 @@
                             <Setter Property="Visibility" TargetName="ContentView" Value="Collapsed" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource HoverBackgroundDefaultBtnBrush}" />
+                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource HoverBackgroundDefaultBtnBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -314,7 +314,7 @@
                             <Setter Property="Visibility" TargetName="ContentView" Value="Collapsed" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
+                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

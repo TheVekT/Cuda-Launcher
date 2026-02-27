@@ -22,7 +22,7 @@
                 <ControlTemplate TargetType="MenuItem">
                     <Border
                         Background="{TemplateBinding Background}"
-                        CornerRadius="4"
+                        CornerRadius="{DynamicResource DefaultCorner}"
                         SnapsToDevicePixels="True"
                         x:Name="Border">
                         <Grid>
@@ -61,7 +61,7 @@
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="6"
+                        CornerRadius="{DynamicResource DefaultCorner}"
                         Padding="{TemplateBinding Padding}"
                         SnapsToDevicePixels="True">
 

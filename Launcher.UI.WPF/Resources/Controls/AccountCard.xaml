@@ -101,23 +101,29 @@
                 <Button
                     Background="Transparent"
                     BorderThickness="0"
+                    Click="OpenContextMenu"
                     Grid.Column="3"
-                    Width="25">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                    <Path
-                        Data="{StaticResource Icon.Dots}"
-                        Height="14"
-                        Stretch="Uniform"
-                        Stroke="{DynamicResource ForegroundPrimaryBrush}"
-                        StrokeEndLineCap="Round"
-                        StrokeStartLineCap="Round"
-                        Width="14" />
+                    Style="{StaticResource OverlayDefaultButtonStyle}"
+                    Tag="{StaticResource Icon.Dots}"
+                    Width="25"
+                    helpers:AccountCardHelper.MenuContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    helpers:ButtonHelper.IconSize="12">
+
+                    <Button.ContextMenu>
+                        <ContextMenu Style="{StaticResource ContextMenuStyle}">
+
+                            <MenuItem
+                                Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.RenameAccountCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                CommandParameter="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                Header="{Binding Source={StaticResource Loc}, Path=[AccountCard.ContextMenu.Rename]}" />
+
+                            <MenuItem
+                                Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.LogOutCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                CommandParameter="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                Header="{Binding Source={StaticResource Loc}, Path=[AccountCard.ContextMenu.Logout]}" />
+
+                        </ContextMenu>
+                    </Button.ContextMenu>
                 </Button>
             </Grid>
         </Border>

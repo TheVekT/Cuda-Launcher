@@ -290,12 +290,12 @@
                                             x:Name="OpenFolderButton">
                                             <Button.ContextMenu>
                                                 <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                                                    <MenuItem Command="{Binding InstallationsVM.OpenInstanceFolderCommand}" Header="Open Instance Folder" />
+                                                    <MenuItem Command="{Binding InstallationsVM.OpenInstanceFolderCommand}" Header="{Binding Source={StaticResource Loc}, Path=[MainWindow.Footer.OpenFolder.ContextMenu.OpenInstanceFolder]}" />
 
-                                                    <MenuItem Command="{Binding InstallationsVM.OpenModsFolderCommand}" Header="Open Mods Folder" />
+                                                    <MenuItem Command="{Binding InstallationsVM.OpenModsFolderCommand}" Header="{Binding Source={StaticResource Loc}, Path=[MainWindow.Footer.OpenFolder.ContextMenu.OpenInstanceModsFolder]}" />
 
                                                     <Separator />
-                                                    <MenuItem Command="{Binding InstallationsVM.OpenRootFolderCommand}" Header="Open Root .minecraft" />
+                                                    <MenuItem Command="{Binding InstallationsVM.OpenRootFolderCommand}" Header="{Binding Source={StaticResource Loc}, Path=[MainWindow.Footer.OpenFolder.ContextMenu.OpenRootMinecraftFolder]}" />
                                                 </ContextMenu>
                                             </Button.ContextMenu>
                                         </Button>
