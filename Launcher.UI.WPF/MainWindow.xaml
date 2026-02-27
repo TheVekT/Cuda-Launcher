@@ -287,7 +287,18 @@
                                             Style="{StaticResource DefaultButtonStyle}"
                                             Tag="{StaticResource Icon.Folder}"
                                             Width="35"
-                                            x:Name="OpenFolderButton" />
+                                            x:Name="OpenFolderButton">
+                                            <Button.ContextMenu>
+                                                <ContextMenu Style="{StaticResource ContextMenuStyle}">
+                                                    <MenuItem Command="{Binding InstallationsVM.OpenInstanceFolderCommand}" Header="Open Instance Folder" />
+
+                                                    <MenuItem Command="{Binding InstallationsVM.OpenModsFolderCommand}" Header="Open Mods Folder" />
+
+                                                    <Separator />
+                                                    <MenuItem Command="{Binding InstallationsVM.OpenRootFolderCommand}" Header="Open Root .minecraft" />
+                                                </ContextMenu>
+                                            </Button.ContextMenu>
+                                        </Button>
                                         <Button
                                             BorderThickness="{DynamicResource DefaultBorderThickness}"
                                             Command="{Binding OpenSettingsCommand}"

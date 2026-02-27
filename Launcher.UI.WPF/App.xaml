@@ -15,6 +15,7 @@
 
                 <!--  Core styles (логика стилей, использует brushes из Theme)  -->
                 <ResourceDictionary Source="Resources/Styles/Global.xaml" />
+                <ResourceDictionary Source="Resources/Styles/ContextMenu.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Icons.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Brushes.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Slider.xaml" />

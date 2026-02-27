@@ -33,7 +33,8 @@ public class InstallationsViewModel : INotifyPropertyChanged
     public ICommand DeleteInstanceCommand { get; }
     public ICommand OpenAddVersionCommand { get; }
     public ICommand OpenInstanceFolderCommand { get; }
-    
+    public ICommand OpenModsFolderCommand { get; }
+    public ICommand OpenRootFolderCommand { get; }
     //Attributes
     
     
@@ -73,12 +74,24 @@ public class InstallationsViewModel : INotifyPropertyChanged
             _appStore.CurrentOverlayView = menu;
         });
         
-        OpenInstanceFolderCommand = new RelayCommand(o =>
+        OpenInstanceFolderCommand = new RelayCommand(o => ExecuteOpenInstanceFolder());
+
+        OpenModsFolderCommand = new RelayCommand(o =>
         {
-            if (_instancesStore.SelectedInstance == null) return;
-            _instanceFileSystemService.OpenInstanceFolder(_instancesStore.SelectedInstance);
+            if (_instancesStore.SelectedInstance != null)
+                _instanceFileSystemService.OpenInstanceModsFolder(_instancesStore.SelectedInstance);
         });
+        OpenRootFolderCommand = new RelayCommand(o => _instanceFileSystemService.OpenRootMinecraftFolder());
         
+    }
+    
+    private void ExecuteOpenInstanceFolder()
+    {
+        if (_instancesStore.SelectedInstance == null) return;
+        if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
+            _instanceFileSystemService.OpenInstanceModsFolder(_instancesStore.SelectedInstance);
+        else
+            _instanceFileSystemService.OpenInstanceFolder(_instancesStore.SelectedInstance);
     }
     
     private async Task DeleteInstance(MinecraftInstance instance)
