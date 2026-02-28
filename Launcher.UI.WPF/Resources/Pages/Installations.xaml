@@ -119,6 +119,7 @@
                                 helpers:VersionElementHelper.Instance="{Binding}"
                                 helpers:VersionElementHelper.LastPlayed="{Binding LastPlayedDate, Converter={StaticResource TimeAgoConverter}}"
                                 helpers:VersionElementHelper.ModLoader="{Binding LoaderType}"
+                                helpers:VersionElementHelper.OpenSettingsCommand="{Binding DataContext.OpenSettingsCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                 helpers:VersionElementHelper.VersionName="{Binding Name}" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

@@ -434,7 +434,7 @@
                                                         <TextBlock FontSize="13" Foreground="{DynamicResource ForegroundPrimaryBrush}">
                                                             <TextBlock.Text>
                                                                 <MultiBinding Converter="{StaticResource StringFormatConverter}">
-                                                                    <Binding Path="[SettingsMenu.Game.AllocatedMemoryLabel]" Source="{StaticResource Loc}" />
+                                                                    <Binding Path="[AddInstallation.AllocatedMemoryLabel]" Source="{StaticResource Loc}" />
 
                                                                     <Binding ElementName="AllocatedMemory" Path="Value" />
                                                                 </MultiBinding>
@@ -525,12 +525,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </StackPanel.Style>
-                                                <Border
-                                                    Background="{DynamicResource OverlayButtonBackgroundBrush}"
-                                                    BorderBrush="{DynamicResource OverlayBorderPrimaryBrush}"
-                                                    BorderThickness="{DynamicResource DefaultBorderThickness}"
-                                                    CornerRadius="{DynamicResource DefaultCorner}"
-                                                    Padding="10,10">
+                                                <Border Padding="0,5">
                                                     <StackPanel>
                                                         <CheckBox
                                                             Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.EnableBackups]}"

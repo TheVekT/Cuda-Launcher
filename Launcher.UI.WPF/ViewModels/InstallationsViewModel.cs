@@ -31,6 +31,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
     
     //Commands
     public ICommand DeleteInstanceCommand { get; }
+    public ICommand OpenSettingsCommand { get; }
     public ICommand OpenAddVersionCommand { get; }
     public ICommand OpenInstanceFolderCommand { get; }
     public ICommand OpenModsFolderCommand { get; }
@@ -60,18 +61,19 @@ public class InstallationsViewModel : INotifyPropertyChanged
         
         
         DeleteInstanceCommand = new RelayCommand(async o => await DeleteInstance(o as MinecraftInstance));
+        OpenSettingsCommand = new RelayCommand(async o => await OpenSettings(o as MinecraftInstance));
 
         OpenAddVersionCommand = new RelayCommand(async o => 
         {
             var menu = new AddVersionMenu();
             var InstanceVM = new InstanceVM(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore);
-            await InstanceVM.InitializeAsync();
             menu.DataContext = InstanceVM; 
             InstanceVM.RequestClose += () => 
             {
                 _appStore.CurrentOverlayView = null;
             };
             _appStore.CurrentOverlayView = menu;
+            await InstanceVM.InitializeAsync();
         });
         
         OpenInstanceFolderCommand = new RelayCommand(o => ExecuteOpenInstanceFolder());
@@ -93,7 +95,20 @@ public class InstallationsViewModel : INotifyPropertyChanged
         else
             _instanceFileSystemService.OpenInstanceFolder(_instancesStore.SelectedInstance);
     }
-    
+
+    private async Task OpenSettings(MinecraftInstance instance)
+    {
+        var menu = new VersionSettingsMenu();
+        var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore);
+        menu.DataContext = InstanceSettingsVM; 
+        InstanceSettingsVM.RequestClose += () => 
+        {
+            _appStore.CurrentOverlayView = null;
+        };
+        _appStore.CurrentOverlayView = menu;
+        await InstanceSettingsVM.InitializeAsync();
+    }
+
     private async Task DeleteInstance(MinecraftInstance instance)
     {
         var confirmVm = new ConfirmVM(

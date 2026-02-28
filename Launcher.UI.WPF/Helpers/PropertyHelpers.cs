@@ -153,6 +153,13 @@ namespace Launcher.UI.WPF.Helpers
         public static void SetDeleteCommand(DependencyObject element, ICommand value) => element.SetValue(DeleteCommandProperty, value);
         public static ICommand GetDeleteCommand(DependencyObject element) => (ICommand)element.GetValue(DeleteCommandProperty);
         
+        public static readonly DependencyProperty OpenSettingsCommandProperty =
+            DependencyProperty.RegisterAttached("OpenSettingsCommand", typeof(ICommand), typeof(VersionElementHelper), new PropertyMetadata(null));
+
+        public static void SetOpenSettingsCommand(DependencyObject element, ICommand value) => element.SetValue(OpenSettingsCommandProperty, value);
+        public static ICommand GetOpenSettingsCommand(DependencyObject element) => (ICommand)element.GetValue(OpenSettingsCommandProperty);
+
+        
         public static readonly DependencyProperty InstanceProperty =
             DependencyProperty.RegisterAttached("Instance", typeof(MinecraftInstance), typeof(VersionElementHelper), new PropertyMetadata(null));
 

@@ -70,6 +70,16 @@ namespace Launcher.UI.WPF.ViewModels{
         
         private void HandleRenameAccount(UserAccount account)
         {
+            if (account.AccountTypeString == "Microsoft")
+            {
+                //Open URL https://www.minecraft.net/en-us/msaprofile/mygames/editprofile
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "https://www.minecraft.net/en-us/msaprofile/mygames/editprofile",
+                    UseShellExecute = true
+                });
+            }
+            
             return;
         }
         

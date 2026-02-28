@@ -267,63 +267,64 @@
                                     Orientation="Vertical"
                                     Style="{StaticResource AnimatedVisibilityStyle}"
                                     helpers:VisibilityHelper.IsVisible="{Binding IsChecked, ElementName=EnableBackupsCheckbox}">
-                                    <Border
-                                        Background="{DynamicResource OverlayButtonBackgroundBrush}"
-                                        BorderBrush="{DynamicResource OverlayBorderPrimaryBrush}"
-                                        BorderThickness="{DynamicResource DefaultBorderThickness}"
-                                        CornerRadius="{DynamicResource DefaultCorner}"
-                                        Padding="10,10">
-                                        <StackPanel>
-                                            <TextBlock
-                                                FontSize="13"
-                                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                                Margin="0,0,0,6"
-                                                Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreqLabel]}" />
-                                            <ComboBox
-                                                Height="35"
-                                                ItemsSource="{Binding SettingsStore.BackupFrequencyValues}"
-                                                SelectedItem="{Binding SettingsStore.SelectedBackupFrequency}"
-                                                Style="{StaticResource OverlayComboBox}">
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock x:Name="FreqText" />
-                                                        <DataTemplate.Triggers>
-                                                            <DataTrigger Binding="{Binding}" Value="Daily">
-                                                                <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Daily]}" />
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding}" Value="Weekly">
-                                                                <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Weekly]}" />
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding}" Value="Biweekly">
-                                                                <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Biweekly]}" />
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding}" Value="Monthly">
-                                                                <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Monthly]}" />
-                                                            </DataTrigger>
-                                                        </DataTemplate.Triggers>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                            <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
+                                    <Expander
+                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                        Header="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupSettingsLabel]}"
+                                        Margin="10,0"
+                                        Style="{StaticResource MoreContentExpanderStyle}">
+                                        <Border Padding="0,10">
+                                            <StackPanel>
                                                 <TextBlock
                                                     FontSize="13"
                                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                                    Margin="0,0,10,0"
-                                                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupsLimitLabel]}"
-                                                    VerticalAlignment="Center" />
-                                                <TextBox
-                                                    Background="Transparent"
-                                                    FontSize="13"
-                                                    MaxLength="1"
-                                                    Padding="4"
-                                                    Style="{StaticResource DefaultTextInputStyle}"
-                                                    Text="{Binding SettingsStore.MaxBackupCount}"
-                                                    TextAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Width="25" />
+                                                    Margin="0,0,0,6"
+                                                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreqLabel]}" />
+                                                <ComboBox
+                                                    Height="35"
+                                                    ItemsSource="{Binding SettingsStore.BackupFrequencyValues}"
+                                                    SelectedItem="{Binding SettingsStore.SelectedBackupFrequency}"
+                                                    Style="{StaticResource OverlayComboBox}">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock x:Name="FreqText" />
+                                                            <DataTemplate.Triggers>
+                                                                <DataTrigger Binding="{Binding}" Value="Daily">
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Daily]}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding}" Value="Weekly">
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Weekly]}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding}" Value="Biweekly">
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Biweekly]}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding}" Value="Monthly">
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Monthly]}" />
+                                                                </DataTrigger>
+                                                            </DataTemplate.Triggers>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                                <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
+                                                    <TextBlock
+                                                        FontSize="13"
+                                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                                        Margin="0,0,10,0"
+                                                        Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupsLimitLabel]}"
+                                                        VerticalAlignment="Center" />
+                                                    <TextBox
+                                                        Background="Transparent"
+                                                        FontSize="13"
+                                                        MaxLength="1"
+                                                        Padding="4"
+                                                        Style="{StaticResource DefaultTextInputStyle}"
+                                                        Text="{Binding SettingsStore.MaxBackupCount}"
+                                                        TextAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Width="25" />
+                                                </StackPanel>
                                             </StackPanel>
-                                        </StackPanel>
-                                    </Border>
+                                        </Border>
+                                    </Expander>
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel Grid.Row="4">
