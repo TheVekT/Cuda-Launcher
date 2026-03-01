@@ -93,6 +93,7 @@
                             Content="{Binding Source={StaticResource Loc}, Path=[Confirmation.ConfirmButtonText]}"
                             Grid.Column="2"
                             Height="35"
+                            IsDefault="True"
                             Margin="8,0,0,0"
                             Style="{StaticResource AccentButtonStyle}"
                             Tag="{StaticResource Icon.Accept}"

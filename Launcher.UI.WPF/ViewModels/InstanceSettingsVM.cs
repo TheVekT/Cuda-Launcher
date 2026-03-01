@@ -165,29 +165,26 @@ public class InstanceSettingsVM : INotifyPropertyChanged
         SelectedBackupFrequency = SettingsStore.SelectedBackupFrequency;
         MaxBackupCount = SettingsStore.MaxBackupCount;
     }
-    
+
     private async Task RefreshLoaderVersions()
     {
         try
         {
-            LoaderVersions.Clear();
-            System.Windows.Application.Current.Dispatcher.Invoke(() => SelectedLoaderVersion = null);
-
             var type = GetLoaderType(_selectedModLoader);
 
-            // Если это Vanilla или версия игры еще не выбрана — очищаем список и выходим
+            // Если это Vanilla — список пуст
             if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
             {
                 System.Windows.Application.Current.Dispatcher.Invoke(() => LoaderVersions.Clear());
                 return;
             }
 
-            // Запрашиваем все версии лоадера для выбранной версии игры
+            // Запрашиваем все версии лоадера для заблокированной версии игры
             var loadedVersions = await _versionService.GetLoaderVersionsAsync(type, SelectedGameVersion);
             var versionList = loadedVersions.ToList();
 
-            // Запрашиваем рекомендуемую (стабильную) версию
-            var recommendedVersion = await _versionService.GetRecommendedLoaderVersionAsync(type, SelectedGameVersion);
+            // 1. Запоминаем версию, которая уже установлена в инстансе (мы передали её в конструкторе)
+            string currentSavedVersion = _selectedLoaderVersion;
 
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
             {
@@ -196,16 +193,11 @@ public class InstanceSettingsVM : INotifyPropertyChanged
                 {
                     LoaderVersions.Add(version);
                 }
-            });
 
-            await Task.Delay(50); // Небольшая задержка для UI
-
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
-            {
-                if (LoaderVersions.Count > 0)
+                // 2. Просто возвращаем текущую версию на место, чтобы ComboBox показал её
+                if (!string.IsNullOrEmpty(currentSavedVersion) && LoaderVersions.Contains(currentSavedVersion))
                 {
-                    // Ставим стабильную версию по умолчанию. Если ее нет - первую в списке.
-                    SelectedLoaderVersion = recommendedVersion ?? LoaderVersions.FirstOrDefault();
+                    SelectedLoaderVersion = currentSavedVersion;
                 }
             });
         }
@@ -384,8 +376,6 @@ public class InstanceSettingsVM : INotifyPropertyChanged
                 _selectedGameVersion = value;
                 OnPropertyChanged(nameof(SelectedGameVersion));
                 OnPropertyChanged(nameof(SuggestedName));
-                
-                _ = RefreshLoaderVersions(); 
             }
         }
     }
@@ -418,7 +408,6 @@ public class InstanceSettingsVM : INotifyPropertyChanged
             {
                 _selectedModLoader = value;
                 OnPropertyChanged(nameof(SelectedModLoader));
-                _ = RefreshLoaderVersions();
                 OnPropertyChanged(nameof(SuggestedName));
             }
         }

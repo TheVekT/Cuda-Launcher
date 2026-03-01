@@ -459,6 +459,7 @@
                         FontSize="13"
                         Grid.Column="1"
                         Height="30"
+                        IsDefault="True"
                         Margin="4,0,0,0"
                         Style="{StaticResource AccentButtonStyle}"
                         Tag="{StaticResource Icon.Accept}"

@@ -94,6 +94,10 @@ namespace Launcher.UI.WPF.ViewModels{
             {
                 _loginStore.CurrentAccount = _loginStore.Accounts.FirstOrDefault();;
             }
+            else if (_loginStore.Accounts.Count > 0)
+            {
+                _loginStore.CurrentAccount = _loginStore.CurrentAccount; 
+            }
             else
             {
                 IsAddAccPageOpen = true;
