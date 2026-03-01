@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Windows;
 
 namespace Launcher.UI.WPF.Stores;
 
@@ -7,6 +8,11 @@ public class AppStore: INotifyPropertyChanged
     private object _currentOverlayView;
     private bool _isOverlayVisible;
     private string _currentBannerPath = "Assets/Images/banner-default.jpg";
+    
+    private bool _isDownloading;
+    private bool _isGameRunning;
+    
+    public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
 
     public AppStore()
     {
@@ -15,6 +21,42 @@ public class AppStore: INotifyPropertyChanged
     
     
     //Getters and Setters
+    public bool IsCurrentInstanceInProcess
+    {
+        get
+        {
+            if (IsGameRunning || IsDownloading) return true;
+            return false;
+        }
+    }
+    
+    public bool IsGameRunning
+    {
+        get => _isGameRunning;
+        set
+        {
+            if (_isGameRunning != value)
+            {
+                _isGameRunning = value;
+                OnPropertyChanged(nameof(IsGameRunning));
+            }
+        }
+    }
+    
+    public bool IsDownloading
+    {
+        get => _isDownloading;
+        set
+        {
+            if (_isDownloading != value)
+            {
+                _isDownloading = value;
+                OnPropertyChanged(nameof(IsDownloading));
+                OnPropertyChanged(nameof(DownloadPanelVisibility)); 
+            }
+        }
+    }
+
     public string CurrentBannerPath
     {
         get => _currentBannerPath;

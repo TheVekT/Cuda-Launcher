@@ -257,6 +257,7 @@
                                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                                         <ComboBox
                                             Height="35"
+                                            IsEnabled="{Binding IsEnabledInstancesComboBox}"
                                             ItemContainerStyle="{StaticResource InstanceItemContainerStyle}"
                                             ItemTemplate="{StaticResource InstanceDataTemplate}"
                                             ItemsSource="{Binding InstallationsVM.InstancesStore.Instances}"
@@ -274,7 +275,7 @@
                                             Tag="{Binding PlayVM.CurrentPlayButtonIcon}"
                                             Visibility="{Binding ShowCompactPlayButton, Converter={StaticResource BoolToVis}}"
                                             Width="35"
-                                            helpers:ButtonHelper.IsLoading="{Binding PlayVM.IsDownloading}"
+                                            helpers:ButtonHelper.IsLoading="{Binding AppStore.IsDownloading}"
                                             x:Name="PlayButtonCompact" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" />

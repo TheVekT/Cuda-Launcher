@@ -22,6 +22,7 @@ public class InstanceVM: INotifyPropertyChanged
     //Stores
     private readonly InstancesStore _instancesStore;
     private readonly SettingsStore _settingsStore;
+    private readonly AppStore _appStore;
     
     public bool CreatingPage1Visible { get; set; } = false;
     public bool CreatingPage2Visible { get; set; } = true;
@@ -68,7 +69,8 @@ public class InstanceVM: INotifyPropertyChanged
         IInstanceService instanceService, 
         IInstanceFileSystemService instanceFileSystemService,
         InstancesStore instancesStore, 
-        SettingsStore settingsStore)
+        SettingsStore settingsStore,
+        AppStore appStore)
     {
         _versionService = versionService;
         _instanceService = instanceService;
@@ -76,6 +78,7 @@ public class InstanceVM: INotifyPropertyChanged
         
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
+        _appStore = appStore;
         
         InstallationName = string.Empty;
         SelectedIsolation = IsolationType.Global;
@@ -274,7 +277,7 @@ public class InstanceVM: INotifyPropertyChanged
             RequestClose?.Invoke();
             Debug.WriteLine($"Created instance: {finalName}");
             _instancesStore.InvokeAddedInstance();
-            _instancesStore.SelectedInstance = newInstance;
+            if (!_appStore.IsCurrentInstanceInProcess) _instancesStore.SelectedInstance = newInstance;
         }
         catch (Exception ex)
         {

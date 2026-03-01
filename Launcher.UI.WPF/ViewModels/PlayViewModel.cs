@@ -17,17 +17,16 @@ namespace Launcher.UI.WPF.ViewModels
         //Stores
         private readonly SettingsStore _settingsStore;
         private readonly InstancesStore _instancesStore;
+        private readonly AppStore _appStore;
         
         private double _downloadProgress;
         private string _downloadStatusText = "Initiating...";
         private string _downloadPercentText = "0%";
-        private bool _isDownloading;
-        private bool _isGameRunning;
         
         private object _currentPlayButtonIcon;
         public DynamicTranslation CurrentPlayButtonText { get; } = new DynamicTranslation("Play.PlayButton");
         
-        public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
+        public AppStore AppStore => _appStore;
         
         //Commands
         public ICommand LaunchCommand => new RelayCommand(o => RequestLaunch?.Invoke());
@@ -35,12 +34,13 @@ namespace Launcher.UI.WPF.ViewModels
         //Events
         public event Action RequestLaunch;
 
-        public PlayViewModel(IDiscordService discordService, SettingsStore settingsStore, InstancesStore instancesStore)
+        public PlayViewModel(IDiscordService discordService, SettingsStore settingsStore, InstancesStore instancesStore, AppStore appStore)
         {
             _discordService = discordService;
             
             _settingsStore = settingsStore;
             _instancesStore = instancesStore;
+            _appStore = appStore;
             
             _settingsStore.PropertyChanged += OnSettingsStorePropertyChanged;
             
@@ -60,7 +60,7 @@ namespace Launcher.UI.WPF.ViewModels
         {
             if (_settingsStore.IsEnableDiscordRichPresence)
             {
-                if(IsGameRunning) _discordService.SetPlayingPresence(_instancesStore.SelectedInstance);
+                if(_appStore.IsGameRunning) _discordService.SetPlayingPresence(_instancesStore.SelectedInstance);
                 else _discordService.SetMenuPresence();
             }
             else
@@ -88,18 +88,7 @@ namespace Launcher.UI.WPF.ViewModels
             }
         }
         
-        public bool IsGameRunning
-        {
-            get => _isGameRunning;
-            set
-            {
-                if (_isGameRunning != value)
-                {
-                    _isGameRunning = value;
-                    OnPropertyChanged(nameof(IsGameRunning));
-                }
-            }
-        }
+
         
         public double DownloadProgress
         {
@@ -114,19 +103,7 @@ namespace Launcher.UI.WPF.ViewModels
                 }
             }
         }
-        public bool IsDownloading
-        {
-            get => _isDownloading;
-            set
-            {
-                if (_isDownloading != value)
-                {
-                    _isDownloading = value;
-                    OnPropertyChanged(nameof(IsDownloading));
-                    OnPropertyChanged(nameof(DownloadPanelVisibility)); 
-                }
-            }
-        }
+        
         // 3. Текст статуса (например "DOWNLOADING ASSETS")
         public string DownloadStatusText
         {

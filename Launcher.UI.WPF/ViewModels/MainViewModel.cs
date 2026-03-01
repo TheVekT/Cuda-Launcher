@@ -56,6 +56,7 @@ public class MainViewModel : INotifyPropertyChanged
     private object _currentView;
     private bool _showCompactPlayButton;
     private Process? _currentGameProcess;
+    private bool _isEnabledInstancesComboBox = true;
     
     //Overlays
     private SettingsMenu _settingsMenu;
@@ -72,8 +73,8 @@ public class MainViewModel : INotifyPropertyChanged
 
     public async Task InitializeAsync()
     {
+        await _installationsVM.InitializeAsync();
         _ = Task.Run(async () => await _versionService.GetGameVersionsByTypeAsync(GameLoaderType.Vanilla));
-        // async initialization logic here (e.g. load accounts, instances, etc.)
     }
 
     public MainViewModel(
@@ -110,7 +111,7 @@ public class MainViewModel : INotifyPropertyChanged
         _appStore = appStore;
         
         //ViewModels
-        _playVM = new PlayViewModel(_discordService, _settingsStore, _instancesStore);
+        _playVM = new PlayViewModel(_discordService, _settingsStore, _instancesStore, _appStore);
         _installationsVM = new InstallationsViewModel(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore, _appStore);
         _skinsVM = new SkinsViewModel();
         _loginVM = new LoginVM(_authService, _accountStorage,_loginStore);
@@ -163,12 +164,12 @@ public class MainViewModel : INotifyPropertyChanged
     private async Task HandlePlayButtonPress()
     {
         // Если игра уже запущена - закрываем её
-        if (_playVM.IsGameRunning)
+        if (_appStore.IsGameRunning)
         {
             await CloseGameProcess();
         }
         // Если идет загрузка - просто игнорируем нажатие (так как отмену мы убрали)
-        else if (_playVM.IsDownloading)
+        else if (_appStore.IsDownloading)
         {
             return; 
         }
@@ -197,8 +198,8 @@ public class MainViewModel : INotifyPropertyChanged
     
     private async Task LaunchCurrentInstance()
     {
-        if (_playVM.IsDownloading) return;
-        if (_playVM.IsGameRunning) return;
+        if (_appStore.IsDownloading) return;
+        if (_appStore.IsGameRunning) return;
 
         if (_instancesStore.SelectedInstance == null) return;
         if (_loginStore.CurrentAccount == null) 
@@ -209,8 +210,9 @@ public class MainViewModel : INotifyPropertyChanged
 
         try
         {
-            _playVM.IsDownloading = true;
-            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility));
+            IsEnabledInstancesComboBox = false;
+            _appStore.IsDownloading = true;
+            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility));
             _playVM.DownloadStatusText = "Preparing...";
             _playVM.DownloadProgress = 0;
 
@@ -234,9 +236,9 @@ public class MainViewModel : INotifyPropertyChanged
             Console.WriteLine("Game started!");
 
             // === ИГРА ЗАПУЩЕНА ===
-            _playVM.IsGameRunning = true;
+            _appStore.IsGameRunning = true;
             _playVM.UpdateDiscordPresence();
-            _playVM.IsDownloading = false;
+            _appStore.IsDownloading = false;
             _instancesStore.ApplySort();
         
             // hide main window when game is launched
@@ -246,7 +248,7 @@ public class MainViewModel : INotifyPropertyChanged
             _playVM.CurrentPlayButtonText.Update("Play.PlayButton.Close"); 
             _playVM.ChangeToPlayIcon("Icon.Close"); // Устанавливаем иконку крестика (предварительно добавив её в ресурсы)
         
-            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); 
+            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility)); 
             _instanceService.SaveInstances(_instancesStore.Instances);
 
             await _currentGameProcess.WaitForExitAsync();
@@ -255,15 +257,16 @@ public class MainViewModel : INotifyPropertyChanged
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex);
-            OnPropertyChanged(nameof(_playVM.DownloadPanelVisibility)); 
+            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility)); 
         }
         finally
         {
             // === СБРОС СОСТОЯНИЯ (игра закрыта сама или убита кнопкой) ===
-            _playVM.IsDownloading = false;
-            _playVM.IsGameRunning = false;
+            _appStore.IsDownloading = false;
+            _appStore.IsGameRunning = false;
+            IsEnabledInstancesComboBox = true;
             Application.Current.MainWindow.Show();
-        
+            
             // Возвращаем текст кнопки на "PLAY"
             _playVM.CurrentPlayButtonText.Update("Play.PlayButton");
             _playVM.UpdateDiscordPresence();
@@ -274,6 +277,19 @@ public class MainViewModel : INotifyPropertyChanged
     }
 
     //Getters & Setters
+
+    public bool IsEnabledInstancesComboBox
+    {
+        get => _isEnabledInstancesComboBox;
+        set
+        {
+            if (_isEnabledInstancesComboBox != value)
+            {
+                _isEnabledInstancesComboBox = value;
+                OnPropertyChanged(nameof(IsEnabledInstancesComboBox));
+            }
+        }
+    }
     
     public object CurrentView
     {

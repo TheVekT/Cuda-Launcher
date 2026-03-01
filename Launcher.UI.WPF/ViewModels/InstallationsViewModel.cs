@@ -66,7 +66,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
         OpenAddVersionCommand = new RelayCommand(async o => 
         {
             var menu = new AddVersionMenu();
-            var InstanceVM = new InstanceVM(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore);
+            var InstanceVM = new InstanceVM(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore, _appStore);
             menu.DataContext = InstanceVM; 
             InstanceVM.RequestClose += () => 
             {
@@ -87,6 +87,73 @@ public class InstallationsViewModel : INotifyPropertyChanged
         
     }
     
+    public async Task InitializeAsync()
+    {
+        await HandleLatestReleaseAsync();
+    }
+    
+    private async Task HandleLatestReleaseAsync()
+    {
+        try
+        {
+            var vanillaVersions = await _versionService.GetVanillaVersionsAsync();
+            var latestVersion = vanillaVersions.FirstOrDefault();
+
+            if (string.IsNullOrEmpty(latestVersion)) return;
+            
+            string instancesFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Instances", "instances.json");
+            bool isFirstLaunch = !File.Exists(instancesFilePath);
+
+            if (isFirstLaunch) CreateLatestRelease(latestVersion);
+            else UpdateLatestRelease(latestVersion);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[InstallationsVM] Ошибка обработки Latest Release: {ex.Message}");
+        }
+    }
+
+    private void CreateLatestRelease(string latestVersion)
+    {
+        var latestInstance = new MinecraftInstance
+        {
+            Id = "LatestRelease",
+            Name = "Latest Release",
+            GameVersion = latestVersion,
+            LoaderType = GameLoaderType.Vanilla,
+            IsolationType = IsolationType.Full, 
+            IconPath = "logo.png",
+            GameSettings = new GameSettings
+            {
+                GameResolution = null,
+                AllocatedMemory = null,
+                Fullscreen = null,
+                JvmArgs = null
+            },
+            BackupSettings = new BackupSettings
+            {
+                SavesBackupSettings = BackupPolicy.Inherit,
+                SavesBackupFrequency = null,
+                SavesMaxBackups = null,
+                LastBackupDate = null
+            }
+        };
+        _instancesStore.Instances.Add(latestInstance);
+        _instancesStore.SelectedInstance = latestInstance;
+        _instanceService.SaveInstances(_instancesStore.Instances);
+    }
+
+    private void UpdateLatestRelease(string latestVersion)
+    {
+        var latestInstance = _instancesStore.Instances.FirstOrDefault(i => i.Id == "LatestRelease");
+        
+        if (latestInstance != null && latestInstance.GameVersion != latestVersion)
+        {
+            latestInstance.GameVersion = latestVersion;
+            _instanceService.SaveInstances(_instancesStore.Instances);
+        }
+    }
+    
     private void ExecuteOpenInstanceFolder()
     {
         if (_instancesStore.SelectedInstance == null) return;
@@ -98,6 +165,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
 
     private async Task OpenSettings(MinecraftInstance instance)
     {
+        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceInProcess) return;
         var menu = new VersionSettingsMenu();
         var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore);
         menu.DataContext = InstanceSettingsVM; 
@@ -111,6 +179,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
 
     private async Task DeleteInstance(MinecraftInstance instance)
     {
+        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceInProcess) return;
         var confirmVm = new ConfirmVM(
             string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceTitle"], instance.Name), 
             string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceMessage"], instance.Name),

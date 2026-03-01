@@ -36,7 +36,7 @@
                 <Border Padding="0">
                     <Grid
                         Margin="0,0,0,5"
-                        Visibility="{Binding DownloadPanelVisibility}"
+                        Visibility="{Binding AppStore.DownloadPanelVisibility}"
                         x:Name="DownloadInfoPanel">
 
                         <Grid.RowDefinitions>
@@ -90,7 +90,7 @@
                     Tag="{Binding CurrentPlayButtonIcon}"
                     Width="200"
                     helpers:ButtonHelper.BalanceText="True"
-                    helpers:ButtonHelper.IsLoading="{Binding IsDownloading}"
+                    helpers:ButtonHelper.IsLoading="{Binding AppStore.IsDownloading}"
                     x:Name="PlayButton" />
                 <!--  Click="PlayButton_Click"  -->
 
