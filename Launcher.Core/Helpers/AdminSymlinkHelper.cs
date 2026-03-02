@@ -10,33 +10,32 @@ namespace Launcher.Core.Helpers
     {
         public string SourcePath { get; set; }
         public string DestPath { get; set; }
-        public HashSet<string> Exclusions { get; set; }
+        public HashSet<string> Inclusions { get; set; } // Теперь это белый список
     }
+
     public static class AdminSymlinkHelper
     {
-        public static void CreateSymlinksElevated(string sourceBase, string destBase, HashSet<string> exclusions)
+        public static void CreateSymlinksElevated(string sourceBase, string destBase, HashSet<string> inclusions)
         {
             // 1. Ищем наш exe-спутник
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             
             // ВАЖНО: Имя файла должно совпадать с именем твоего нового проекта UAC!
-            // Если проект называется Launcher.UAC, то и exe будет Launcher.UAC.exe
             string toolName = "Launcher Helper.exe"; 
             string toolPath = Path.Combine(baseDir, toolName);
 
             // Если не нашли рядом - возможно мы в Debug режиме и он лежит в папке сборки
             if (!File.Exists(toolPath))
             {
-
-                 throw new FileNotFoundException($"UAC Helper tool not found at {toolPath}. Make sure Launcher.UAC is built.");
+                 throw new FileNotFoundException($"UAC Helper tool not found at {toolPath}. Make sure Launcher Helper is built.");
             }
 
-            // 2. Создаем объект задачи (теперь класс SymlinkJob доступен)
+            // 2. Создаем объект задачи (передаем Inclusions)
             var job = new SymlinkJob 
             { 
                 SourcePath = sourceBase, 
                 DestPath = destBase, 
-                Exclusions = exclusions 
+                Inclusions = inclusions 
             };
             
             // Сохраняем во временный JSON

@@ -121,26 +121,45 @@ namespace Launcher.Core.Services.IO
             CreateDir(instancePath);
             CreateDir(Path.Combine(instancePath, "mods")); // Своя папка модов
 
-            if (!Directory.Exists(sourcePath)) return;
-    
-            var exclusionList = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            // 1. Создаем глобальный "каркас" (чтобы линкам было на что ссылаться)
+            CreateDir(sourcePath);
+            
+            var whitelistFolders = new[] { "config", "resourcepacks", "saves", "schematics", "screenshots", "shaderpacks" };
+            var whitelistFiles = new[] { "options.txt", "optionsof.txt" };
+
+            // Создаем папки
+            foreach (var folder in whitelistFolders)
             {
-                "assets", "libraries", "versions", "runtime", "runtimes",
-                "bin", "cache", "webcache", "crash-reports", "logs", 
-                "mods", "launcher_profiles.json", "launcher_accounts.json",
-            };
+                CreateDir(Path.Combine(sourcePath, folder));
+            }
+
+            // Создаем файлы
+            foreach (var file in whitelistFiles)
+            {
+                var filePath = Path.Combine(sourcePath, file);
+                if (!File.Exists(filePath))
+                {
+                    File.WriteAllText(filePath, ""); // Пустой файл как заглушка
+                }
+            }
+
+            // Формируем единый белый список для хелпера
+            var inclusionList = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in whitelistFolders) inclusionList.Add(item);
+            foreach (var item in whitelistFiles) inclusionList.Add(item);
     
             try 
             {
-                // Уводим тяжелую работу (создание процессов и ожидание UAC) в фоновый поток
                 await Task.Run(() => 
                 {
-                    AdminSymlinkHelper.CreateSymlinksElevated(sourcePath, instancePath, exclusionList);
+                    // Передаем inclusionList. 
+                    // Важно: в самом AdminSymlinkHelper нужно будет инвертировать логику проверок!
+                    AdminSymlinkHelper.CreateSymlinksElevated(sourcePath, instancePath, inclusionList);
                 });
             }
             catch (Exception ex)
             {
-                // Удаляем папку, чтобы не оставлять мусор
+                // Удаляем папку инстанса, чтобы не оставлять мусор при отмене UAC
                 if (Directory.Exists(instancePath)) Directory.Delete(instancePath, true);
                 throw new Exception("Administrator rights are required to create Partial Isolation links!", ex);
             }
