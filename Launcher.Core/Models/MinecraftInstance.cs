@@ -1,5 +1,6 @@
 using System;
 using System.Text.Json.Serialization;
+using Launcher.Core.Enums;
 using Launcher.Core.Models;
 
 namespace Launcher.Core.Models

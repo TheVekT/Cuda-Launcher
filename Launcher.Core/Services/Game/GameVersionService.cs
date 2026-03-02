@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using CmlLib.Core;
 using CmlLib.Core.VersionMetadata; 
 using CmlLib.Core.Installer.Forge; 
-using CmlLib.Core.Installer.NeoForge; 
+using CmlLib.Core.Installer.NeoForge;
+using Launcher.Core.Enums;
 using Launcher.Core.Models;
 
 namespace Launcher.Core.Services.Game

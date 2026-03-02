@@ -1,5 +1,6 @@
 
 using System.Diagnostics;
+using Launcher.Core.Enums;
 using Launcher.Core.Helpers;
 using Launcher.Core.Models;
 

@@ -11,6 +11,7 @@ using CmlLib.Core.ModLoaders.FabricMC;
 using CmlLib.Core.ModLoaders.QuiltMC;
 using CmlLib.Core.ProcessBuilder;
 using CmlLib.Core.Version;
+using Launcher.Core.Enums;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
 

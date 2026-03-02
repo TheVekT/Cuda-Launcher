@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Launcher.Core.Models
+namespace Launcher.Core.Enums
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum BackupPolicy

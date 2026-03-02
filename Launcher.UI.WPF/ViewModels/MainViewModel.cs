@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using Launcher.Core.Enums;
 using Launcher.Core.Models;
 using Launcher.Core.Services;
 using Launcher.Core.Services.Auth; 

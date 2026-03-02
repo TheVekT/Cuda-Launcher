@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Launcher.Core.Enums;
 using Launcher.Core.Models;
 
 namespace Launcher.Core.Services.Game
