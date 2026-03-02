@@ -5,12 +5,13 @@ namespace Launcher.UI.WPF.Stores;
 
 public class AppStore: INotifyPropertyChanged
 {
-    private object _currentOverlayView;
+    private object? _currentOverlayView;
     private bool _isOverlayVisible;
     private string _currentBannerPath = "Assets/Images/banner-default.jpg";
     
     private bool _isDownloading;
     private bool _isGameRunning;
+    private bool _isDragDropActive;
     
     public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
 
@@ -57,6 +58,19 @@ public class AppStore: INotifyPropertyChanged
         }
     }
 
+    public bool IsDragDropActive
+    {
+        get => _isDragDropActive;
+        set
+        {
+            if (_isDragDropActive != value)
+            {
+                _isDragDropActive = value;
+                OnPropertyChanged(nameof(IsDragDropActive));
+            }
+        }
+    }
+
     public string CurrentBannerPath
     {
         get => _currentBannerPath;
@@ -79,7 +93,7 @@ public class AppStore: INotifyPropertyChanged
         get => _isOverlayVisible;
         set { _isOverlayVisible = value; OnPropertyChanged(nameof(IsOverlayVisible)); }
     }
-    public object CurrentOverlayView
+    public object? CurrentOverlayView
     {
         get => _currentOverlayView;
         set { _currentOverlayView = value; OnPropertyChanged(nameof(CurrentOverlayView)); IsOverlayVisible = _currentOverlayView != null; }

@@ -14,6 +14,8 @@
     "MainWindow.Footer.OpenFolder.ContextMenu.OpenInstanceFolder": "Відкрити папку збірки",
     "MainWindow.Footer.OpenFolder.ContextMenu.OpenInstanceModsFolder": "Відкрити моди збірки",
     "MainWindow.Footer.OpenFolder.ContextMenu.OpenRootMinecraftFolder": "Відкрити кореневу .minecraft",
+    "MainWindow.DragDropOverlay.Title": "Перетягніть файли сюди",
+    "MainWindow.DragDropOverlay.Subtitle": "Моди, ресурспаки, шейдери та інші сумісні файли",
     "Installations.Title": "Збірки",
     "Installations.Header.Title": "Ваші збірки",
     "Installations.Header.NewInstallationButton": "Нова збірка",

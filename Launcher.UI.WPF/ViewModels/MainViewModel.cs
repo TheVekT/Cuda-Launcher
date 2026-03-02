@@ -30,6 +30,7 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly ILaunchService _launchService;
     private readonly ISysInfoService _sysInfoService;
     private readonly IDiscordService _discordService;
+    private readonly IDragDropParserService _dragDropParserService;
     
     //Stores
     private readonly LoginStore _loginStore;
@@ -68,6 +69,9 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand OpenSettingsCommand { get; }
     public ICommand OpenLoginCommand { get; }
     public ICommand NavigateCommand { get; }
+    public ICommand DragEnterCommand { get; }
+    public ICommand DragLeaveCommand { get; }
+    public ICommand DropCommand { get; }
     
     //public attributes
     public AppStore AppStore => _appStore;
@@ -89,6 +93,7 @@ public class MainViewModel : INotifyPropertyChanged
         ILaunchService launchService,
         ISysInfoService sysInfoService,
         IDiscordService discordService,
+        IDragDropParserService dragDropParserService,
         LoginStore loginStore,
         SettingsStore settingsStore,
         LaunchStore launchStore,
@@ -104,6 +109,7 @@ public class MainViewModel : INotifyPropertyChanged
         _launchService = launchService;
         _sysInfoService = sysInfoService;
         _discordService = discordService;
+        _dragDropParserService = dragDropParserService;
         
         //Stores
         _loginStore = loginStore;
@@ -153,6 +159,10 @@ public class MainViewModel : INotifyPropertyChanged
         });
 
         CloseOverlayCommand = new RelayCommand(o => _appStore.CurrentOverlayView = null);
+        
+        DragEnterCommand = new RelayCommand(o => HandleDragEnter(o));
+        DragLeaveCommand = new RelayCommand(o => HandleDragLeave(o));
+        DropCommand = new RelayCommand(async o => await HandleDropAsync(o));
         
         _loginVM.RequestClose += () =>
         {
@@ -313,6 +323,59 @@ public class MainViewModel : INotifyPropertyChanged
             _playVM.ChangeToPlayIcon("Icon.Play"); // И возвращаем иконку "Play"
         
             _currentGameProcess = null;
+        }
+    }
+
+    private void HandleDragEnter(object parameter)
+    {
+        if (_appStore.CurrentOverlayView != null) return; 
+        if (parameter is DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                _appStore.IsDragDropActive = true;
+                e.Effects = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = true;
+        }
+    }
+
+    private void HandleDragLeave(object parameter)
+    {
+        _appStore.IsDragDropActive = false;
+    }
+
+    private async Task HandleDropAsync(object parameter)
+    {
+        _appStore.IsDragDropActive = false;
+        
+        if (parameter is DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0)
+                {
+                    // Здесь можно добавить логику обработки файлов
+                    // Например, импорт модов, скинов, или других ресурсов
+                    Debug.WriteLine($"Files dropped: {string.Join(", ", files)}");
+                    foreach (var file in files)
+                    {
+                        var fileType = await _dragDropParserService.ParseFileAsync(file);
+                        Debug.WriteLine($"Parsed file '{file}' as type: {fileType}");
+                    }
+                    // Пример: передать файлы в соответствующую ViewModel в зависимости от текущей страницы
+                    // if (CurrentView is SkinsViewModel)
+                    // {
+                    //     await _skinsVM.HandleDroppedFilesAsync(files);
+                    // }
+                }
+            }
+            e.Handled = true;
         }
     }
 

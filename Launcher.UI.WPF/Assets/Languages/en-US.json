@@ -14,6 +14,8 @@
     "MainWindow.Footer.OpenFolder.ContextMenu.OpenInstanceFolder": "Open Installation Folder",
     "MainWindow.Footer.OpenFolder.ContextMenu.OpenInstanceModsFolder": "Open Mods Folder",
     "MainWindow.Footer.OpenFolder.ContextMenu.OpenRootMinecraftFolder": "Open Root .minecraft",
+    "MainWindow.DragDropOverlay.Title": "Drop to Import",
+    "MainWindow.DragDropOverlay.Subtitle": "Mods, resourcepacks, shaders, worlds, localizations or themes",
     "Installations.Title": "Installations",
     "Installations.Header.Title": "Installations",
     "Installations.Header.NewInstallationButton": "New Installation",

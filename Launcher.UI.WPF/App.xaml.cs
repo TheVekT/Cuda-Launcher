@@ -36,6 +36,7 @@ public partial class App : Application
         var sysInfoService = new SysInfoService();
         var discordService = new DiscordService();
         var settingsService = new SettingsService();
+        var dragDropParserService = new DragDropParserService();
         //Stores
         var loginStore = new LoginStore(accountStorageService, settingsService, authService);
         var settingsStore = new SettingsStore(themeService, sysInfoService, settingsService);
@@ -54,6 +55,7 @@ public partial class App : Application
             launchService,
             sysInfoService,
             discordService,
+            dragDropParserService,
             loginStore,
             settingsStore,
             launchStore,
