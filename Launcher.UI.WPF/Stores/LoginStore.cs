@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using Launcher.Core.Models;
+using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
 
 namespace Launcher.UI.WPF.Stores
@@ -10,6 +11,7 @@ namespace Launcher.UI.WPF.Stores
     {
         private readonly IAccountStorageService _accountStorage;
         private readonly ISettingsService _settingsService;
+        private readonly IAuthService _authService;
         
         private bool _isLoggingIn;
         private UserAccount _currentAccount;
@@ -20,10 +22,11 @@ namespace Launcher.UI.WPF.Stores
         public ObservableCollection<UserAccount> Accounts { get; set; } = new();
 
         // Добавили ISettingsService в конструктор
-        public LoginStore(IAccountStorageService accountStorage, ISettingsService settingsService)
+        public LoginStore(IAccountStorageService accountStorage, ISettingsService settingsService, IAuthService authService)
         {
             _accountStorage = accountStorage;
             _settingsService = settingsService;
+            _authService = authService;
             
             // Загружаем настройки (это восстановит LastSelectedAccountUUID, если он есть)
             _settingsService.Initialize(this);
@@ -31,20 +34,7 @@ namespace Launcher.UI.WPF.Stores
             LoadSavedAccounts();
         }
 
-        // Это свойство теперь автоматически сохраняется умным сервисом!
-        [SettingProperty]
-        public string LastSelectedAccountUUID
-        {
-            get => _lastSelectedAccountUUID;
-            set
-            {
-                if (_lastSelectedAccountUUID != value)
-                {
-                    _lastSelectedAccountUUID = value;
-                    OnPropertyChanged(nameof(LastSelectedAccountUUID));
-                }
-            }
-        }
+
 
         public void RegisterLogin(UserAccount newAccount)
         {
@@ -87,11 +77,21 @@ namespace Launcher.UI.WPF.Stores
         }
         
         //Getters and Setters
-        public string UserName
+        
+        [SettingProperty]
+        public string LastSelectedAccountUUID
         {
-            get => _userName;
-            set { _userName = value; OnPropertyChanged(nameof(UserName)); }
+            get => _lastSelectedAccountUUID;
+            set
+            {
+                if (_lastSelectedAccountUUID != value)
+                {
+                    _lastSelectedAccountUUID = value;
+                    OnPropertyChanged(nameof(LastSelectedAccountUUID));
+                }
+            }
         }
+        
 
         public bool IsLoggingIn
         {
@@ -112,7 +112,6 @@ namespace Launcher.UI.WPF.Stores
                     
                     if (_currentAccount != null)
                     {
-                        UserName = _currentAccount.Username;
                         
                         // Сохраняем выбранный UUID. Умный сервис сам запишет это в settings.json!
                         LastSelectedAccountUUID = _currentAccount.UUID;

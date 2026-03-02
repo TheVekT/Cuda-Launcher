@@ -12,7 +12,7 @@ using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels;
 
-public class InstanceVM: INotifyPropertyChanged
+public class InstanceCreationVM: INotifyPropertyChanged
 {
     //Services
     private readonly IGameVersionService _versionService;
@@ -65,7 +65,7 @@ public class InstanceVM: INotifyPropertyChanged
     public InstancesStore InstancesStore => _instancesStore;
     public SettingsStore SettingsStore => _settingsStore;
     
-    public InstanceVM(IGameVersionService versionService, 
+    public InstanceCreationVM(IGameVersionService versionService, 
         IInstanceService instanceService, 
         IInstanceFileSystemService instanceFileSystemService,
         InstancesStore instancesStore, 

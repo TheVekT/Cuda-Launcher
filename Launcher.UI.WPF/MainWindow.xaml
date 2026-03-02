@@ -201,7 +201,7 @@
                                             <Style.Triggers>
 
                                                 <DataTrigger Binding="{Binding LoginVM.LoginStore.IsLoggedIn}" Value="True">
-                                                    <Setter Property="Content" Value="{Binding LoginVM.LoginStore.UserName}" />
+                                                    <Setter Property="Content" Value="{Binding LoginVM.LoginStore.CurrentAccount.Username}" />
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding LoginVM.LoginStore.IsLoggedIn}" Value="False">
                                                     <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />

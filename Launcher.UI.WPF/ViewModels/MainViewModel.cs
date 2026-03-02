@@ -74,6 +74,7 @@ public class MainViewModel : INotifyPropertyChanged
     public async Task InitializeAsync()
     {
         await _installationsVM.InitializeAsync();
+        await RefreshAllAccountsAsync();
         _ = Task.Run(async () => await _versionService.GetGameVersionsByTypeAsync(GameLoaderType.Vanilla));
     }
 
@@ -159,6 +160,44 @@ public class MainViewModel : INotifyPropertyChanged
         _settingsVM.RequestClose += () => _appStore.CurrentOverlayView = null;
         _playVM.RequestLaunch += async () => await HandlePlayButtonPress();
         _discordService.Initialize(Core.Constants.DiscordAppId);
+    }
+    
+    public async Task RefreshAllAccountsAsync()
+    {
+        bool isChanged = false;
+            
+        var accountsList = _loginStore.Accounts.ToList(); 
+
+        foreach (var acc in accountsList)
+        {
+            if (acc.IsOffline) continue;
+
+            try
+            {
+                await _authService.ValidateAndRefreshAccountAsync(acc);
+                isChanged = true; 
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Auth] Account {acc.Username} validation failed: {ex.Message}");
+                    
+                _loginStore.Accounts.Remove(acc);
+                isChanged = true;
+                    
+                if (_loginStore.CurrentAccount == acc && _loginStore.Accounts.Count > 0)
+                {
+                    _loginStore.CurrentAccount = _loginStore.Accounts.FirstOrDefault();
+                }
+                else if (_loginStore.Accounts.Count == 0)
+                {
+                    _loginStore.CurrentAccount = null;
+                }
+            }
+        }
+        if (isChanged)
+        {
+            _accountStorage.SaveAccounts(_loginStore.Accounts);
+        }
     }
     
     private async Task HandlePlayButtonPress()

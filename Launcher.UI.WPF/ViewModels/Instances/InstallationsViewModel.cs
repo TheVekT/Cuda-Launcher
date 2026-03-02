@@ -66,7 +66,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
         OpenAddVersionCommand = new RelayCommand(async o => 
         {
             var menu = new AddVersionMenu();
-            var InstanceVM = new InstanceVM(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore, _appStore);
+            var InstanceVM = new InstanceCreationVM(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore, _appStore);
             menu.DataContext = InstanceVM; 
             InstanceVM.RequestClose += () => 
             {

@@ -37,7 +37,7 @@ public partial class App : Application
         var discordService = new DiscordService();
         var settingsService = new SettingsService();
         //Stores
-        var loginStore = new LoginStore(accountStorageService, settingsService);
+        var loginStore = new LoginStore(accountStorageService, settingsService, authService);
         var settingsStore = new SettingsStore(themeService, sysInfoService, settingsService);
         var launchStore = new LaunchStore(launchService);
         var instancesStore = new InstancesStore(instanceFileSystemService, instanceService, settingsService);
