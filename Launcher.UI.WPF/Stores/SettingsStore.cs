@@ -190,7 +190,7 @@ public SettingsStore(ThemeService themeService, ISysInfoService sysInfoService, 
         {
             if (value == null) return;
             
-            var actualLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == value.Code) ?? value;
+            var actualLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == value.Code) ?? AvailableLanguages.FirstOrDefault();
 
             if (_selectedLanguage != actualLanguage)
             {

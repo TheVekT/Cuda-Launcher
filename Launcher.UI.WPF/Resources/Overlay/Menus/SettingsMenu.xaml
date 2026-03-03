@@ -432,6 +432,7 @@
                             Margin="0,0,0,5"
                             Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Language.UploadCustomLanguageLabel]}" />
                         <Button
+                            Command="{Binding ImportLanguageCommand}"
                             Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Language.UploadCustomLanguageButton]}"
                             FontSize="14"
                             Height="35"
@@ -496,6 +497,7 @@
                             Margin="0,0,0,5"
                             Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.UploadThemeFileLabel]}" />
                         <Button
+                            Command="{Binding ImportThemeCommand}"
                             Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.UploadThemeFileButton]}"
                             FontSize="14"
                             Height="35"

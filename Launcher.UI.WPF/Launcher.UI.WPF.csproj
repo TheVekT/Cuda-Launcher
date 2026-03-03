@@ -280,4 +280,8 @@
     <EmbeddedResource Include="Resources\Embedded\Themes\default-light.zip" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
+  </ItemGroup>
+
 </Project>

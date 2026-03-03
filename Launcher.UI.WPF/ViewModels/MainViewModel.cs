@@ -469,13 +469,13 @@ public class MainViewModel : INotifyPropertyChanged
 
                         if (isLocalizationLoaded)
                         {
-                            var lastLang = _settingsStore.SelectedLanguage;
+                            var lastLangCode = _settingsStore.SelectedLanguage.Code;
                             
                             _settingsStore.AvailableLanguages.Clear(); 
                             
                             var langs = LocalizationService.Instance.GetAvailableLanguages();
                             foreach (var lang in langs) _settingsStore.AvailableLanguages.Add(lang);
-                            _settingsStore.SelectedLanguage = lastLang;
+                            _settingsStore.SelectedLanguage = _settingsStore.AvailableLanguages.FirstOrDefault(l => l.Code == lastLangCode);
                         }
 
                         if (successCount > 0)
@@ -493,7 +493,6 @@ public class MainViewModel : INotifyPropertyChanged
                     }
                     finally
                     {
-                        await Task.Delay(200); 
                         _appStore.CurrentOverlayView = null;
                     }
                 }

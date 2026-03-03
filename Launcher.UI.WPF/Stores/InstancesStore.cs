@@ -1,8 +1,12 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Windows;
+using System.Windows.Input;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
+using Launcher.UI.WPF.Helpers;
+using Microsoft.Win32;
 
 namespace Launcher.UI.WPF.Stores;
 
@@ -26,6 +30,10 @@ public class InstancesStore: INotifyPropertyChanged
     
     //Events
     public event Action AddedInstance;
+    
+    //Commands
+    public ICommand SelectIconCommand { get; }
+    public ICommand DropIconCommand { get; }
 
     
     public InstancesStore(IInstanceFileSystemService instanceFileSystemService, IInstanceService instanceService, SettingsService settingsService)
@@ -53,6 +61,66 @@ public class InstancesStore: INotifyPropertyChanged
         }
         AddedInstance += () => ApplySort();
         ApplySort();
+        
+        SelectIconCommand = new RelayCommand(_ => SelectIconFromFileDialog());
+        DropIconCommand = new RelayCommand(HandleIconDrop);
+    }
+    
+    private void SelectIconFromFileDialog()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Filter = "Image Files|*.png;*.jpg;*.jpeg;*.ico;*.gif",
+            Title = "Выберите иконку"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            ProcessIconFile(dialog.FileName);
+        }
+    }
+
+    private void HandleIconDrop(object parameter)
+    {
+        if (parameter is DragEventArgs e && e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files != null && files.Length > 0)
+            {
+                // Берем только первый файл, так как иконка может быть только одна
+                string file = files[0];
+                string ext = Path.GetExtension(file).ToLowerInvariant();
+
+                if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".ico" || ext == ".gif")
+                {
+                    ProcessIconFile(file);
+                }
+                else
+                {
+                    // Тут можно вызвать твой NotificationService.Instance.ShowWarning(...)
+                    // чтобы сообщить, что формат файла не поддерживается
+                }
+            }
+            e.Handled = true;
+        }
+    }
+
+    private void ProcessIconFile(string filePath)
+    {
+        //Copy the selected file to the icons directory
+        var iconsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Icons");
+        var destPath = Path.Combine(iconsDir, Path.GetFileName(filePath));
+        try        {
+            File.Copy(filePath, destPath, overwrite: true);
+        }
+        catch (Exception ex)        {
+            // Тут можно вызвать твой NotificationService.Instance.ShowError(...)
+            Console.WriteLine($"[Error] Не удалось скопировать файл иконки: {ex.Message}");
+            return;
+        }
+        
+        LoadIcons();
+        OnPropertyChanged(nameof(IconList));
     }
     
     public void InvokeAddedInstance() => AddedInstance?.Invoke();
@@ -87,19 +155,23 @@ public class InstancesStore: INotifyPropertyChanged
     
     private void LoadIcons()
     {
-        // Используем AppDomain.CurrentDomain.BaseDirectory для портативности
         var iconsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Icons");
-    
+
         if (Directory.Exists(iconsPath))
         {
-            var files = Directory.GetFiles(iconsPath, "*.png"); 
+            // Указываем все форматы, которые хотим поддерживать
+            var supportedExtensions = new[] { ".png", ".jpg", ".jpeg", ".ico", ".gif" };
+
+            // Перебираем все файлы в папке и оставляем только те, чье расширение есть в нашем массиве
+            var files = Directory.EnumerateFiles(iconsPath)
+                .Where(f => supportedExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
+        
             IconList.Clear();
             foreach (var file in files)
             {
                 var fileName = Path.GetFileName(file);
                 if (!_ignoredIcons.Contains(fileName)) 
                 {
-                    // Для UI списка выбора храним полные пути
                     IconList.Add(file); 
                 }
             }

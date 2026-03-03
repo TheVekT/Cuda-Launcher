@@ -117,7 +117,6 @@ public class InstanceCreationVM: INotifyPropertyChanged
             OnPropertyChanged(nameof(CreatingPage2Visible));
         });
         CloseSelfCommand = new RelayCommand(o => RequestClose?.Invoke());
-        
     }
     public async Task InitializeAsync()
     {

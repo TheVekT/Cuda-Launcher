@@ -31,6 +31,9 @@ public class SettingsVM: INotifyPropertyChanged
     public event Action RequestClose;
     
     //Commands
+    
+    public ICommand ImportThemeCommand { get; }
+    public ICommand ImportLanguageCommand { get; }
     public ICommand CloseSelfCommand { get; }
     public ICommand RefreshThemesCommand { get; }
     public ICommand SelectThemeCommand { get; }
@@ -53,8 +56,46 @@ public class SettingsVM: INotifyPropertyChanged
                 _appStore.CurrentBannerPath = theme.BannerPath;
             }
         });
-
+        ImportThemeCommand = new RelayCommand(async o => await ExecuteImportTheme(o));
+        ImportLanguageCommand = new RelayCommand(async o => await ExecuteImportLanguage(o));
+            
         LoadThemes();
+    }
+
+    private async Task ExecuteImportTheme(object o)
+    {
+        var openFileDialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = "Zip files (*.zip)|*.zip",
+            Title = "Select a theme zip file"
+        };
+        if (openFileDialog.ShowDialog() == true)        {
+            var selectedFile = openFileDialog.FileName;
+            await _themeService.ImportTheme(selectedFile);
+            var lastThemePath = _settingsStore.CurrentThemePath;
+            LoadThemes();
+            _settingsStore.CurrentThemePath = lastThemePath;
+        }   
+    }
+
+    private async Task ExecuteImportLanguage(object o)
+    {
+        var openFileDialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = "JSON files (*.json)|*.json",
+            Title = "Select a localization json file"
+        };
+        if (openFileDialog.ShowDialog() == true)
+        {
+            var selectedFile = openFileDialog.FileName;
+            var localizationService = new LocalizationService();
+            await localizationService.ImportLocalization(selectedFile);
+            var lastLangCode = _settingsStore.SelectedLanguage.Code;
+            _settingsStore.AvailableLanguages.Clear(); 
+            var langs = LocalizationService.Instance.GetAvailableLanguages();
+            foreach (var lang in langs) _settingsStore.AvailableLanguages.Add(lang);
+            _settingsStore.SelectedLanguage = _settingsStore.AvailableLanguages.FirstOrDefault(l => l.Code == lastLangCode);
+        }
     }
     
     public void LoadThemes()

@@ -1,5 +1,6 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:gif="http://wpfanimatedgif.codeplex.com"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <helpers:EdgeAdornerConverter x:Key="EdgeConverter" />
@@ -642,9 +643,9 @@
                                         Grid.Column="0"
                                         Height="24"
                                         Margin="0,0,8,0"
-                                        Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SelectedItem.(FrameworkElement.Tag)}"
                                         VerticalAlignment="Center"
                                         Width="24"
+                                        gif:ImageBehavior.AnimatedSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SelectedItem.(FrameworkElement.Tag)}"
                                         x:Name="SelectedImage" />
 
                                     <ContentPresenter
@@ -803,9 +804,9 @@
                                 Grid.Column="0"
                                 Height="24"
                                 Margin="0,0,8,0"
-                                Source="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
                                 VerticalAlignment="Center"
-                                Width="24" />
+                                Width="24"
+                                gif:ImageBehavior.AnimatedSource="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
 
                             <ContentPresenter
                                 Grid.Column="1"
@@ -842,9 +843,9 @@
                 Grid.Column="0"
                 Height="24"
                 Margin="0,0,8,0"
-                Source="{Binding Tag, RelativeSource={RelativeSource AncestorType=ComboBoxItem}}"
                 VerticalAlignment="Center"
-                Width="24" />
+                Width="24"
+                gif:ImageBehavior.AnimatedSource="{Binding Tag, RelativeSource={RelativeSource AncestorType=ComboBoxItem}}" />
             <TextBlock
                 Foreground="{DynamicResource ForegroundPrimaryBrush}"
                 Grid.Column="1"
@@ -1293,9 +1294,9 @@
                 Height="24"
                 Margin="0,0,8,0"
                 RenderOptions.BitmapScalingMode="HighQuality"
-                Source="{Binding IconPath, Converter={StaticResource ImagePathConverter}}"
                 VerticalAlignment="Center"
-                Width="24" />
+                Width="24"
+                gif:ImageBehavior.AnimatedSource="{Binding IconPath, Converter={StaticResource ImagePathConverter}}" />
 
             <TextBlock
                 Foreground="{Binding RelativeSource={RelativeSource AncestorType=Control}, Path=Foreground}"
