@@ -14,6 +14,7 @@ using CmlLib.Core.Version;
 using Launcher.Core.Enums;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
+using Launcher.Core.Services.UI;
 
 namespace Launcher.Core.Services.Game
 {
@@ -26,12 +27,19 @@ namespace Launcher.Core.Services.Game
     {
         private readonly IInstanceFileSystemService _fileService;
         private readonly IModrinthService _modrinthService;
+        private readonly INotificationService _notificationService;
+        private readonly ILocalizationService _localizationService;
         private readonly HttpClient _httpClient;
 
-        public LaunchService(IInstanceFileSystemService fileService, IModrinthService modrinthService)
+        public LaunchService(IInstanceFileSystemService fileService, 
+            IModrinthService modrinthService, 
+            INotificationService notificationService, 
+            ILocalizationService localizationService)
         {
             _fileService = fileService;
             _modrinthService = modrinthService;
+            _notificationService = notificationService;
+            _localizationService = localizationService;
             _httpClient = new HttpClient(); 
         }
 
@@ -50,8 +58,20 @@ namespace Launcher.Core.Services.Game
 
                 if (instance.RequestPerformanceMods)
                 {
-                    try { await _modrinthService.InstallPerformanceModsAsync(instance, modsFolder, progress); }
-                    catch (InvalidOperationException ex) { Console.WriteLine($"[WARNING] {ex.Message}"); throw; }
+                    try
+                    {
+                        await _modrinthService.InstallPerformanceModsAsync(instance, modsFolder, progress);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        var title = _localizationService["Errors.Iris&SodiumNotSupportedTitle"];
+                        var desc = string.Format(_localizationService["Errors.Iris&SodiumNotSupportedDesc"], instance.GameVersion, instance.LoaderType);
+                        _notificationService.ShowError(
+                            title,
+                            desc);
+                        instance.RequestPerformanceMods = false;
+                        Console.WriteLine($"[WARNING] {ex.Message}");
+                    }
                 }
             }
 

@@ -1,4 +1,4 @@
-namespace Launcher.UI.WPF.Models
+namespace Launcher.Core.Models
 {
     public class LanguageModel
     {

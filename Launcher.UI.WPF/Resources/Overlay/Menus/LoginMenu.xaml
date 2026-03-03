@@ -107,12 +107,13 @@
                                 Width="22">
                                 <Path
                                     Data="{StaticResource Icon.Accept}"
-                                    Height="12"
+                                    Height="13"
+                                    HorizontalAlignment="Center"
                                     Stretch="Uniform"
                                     Stroke="{DynamicResource OverlayBackgroundSurfaceBrush}"
-                                    StrokeThickness="1"
+                                    StrokeThickness="2"
                                     VerticalAlignment="Center"
-                                    Width="12" />
+                                    Width="13" />
                             </Border>
 
                         </Grid>

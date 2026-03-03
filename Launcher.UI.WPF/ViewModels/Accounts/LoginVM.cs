@@ -4,6 +4,7 @@ using Launcher.Core.Models;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels{
@@ -129,11 +130,15 @@ namespace Launcher.UI.WPF.ViewModels{
                 var newAccount = await _authService.LoginWithMicrosoftAsync();
                 
                 _loginStore.RegisterLogin(newAccount);
-                
+                var title = LocalizationService.Instance["Success.LoginMicrosoftTitle"];
+                var desc = LocalizationService.Instance["Success.LoginMicrosoftDesc"];
+                NotificationService.Instance.ShowSuccess(title, desc);
                 RequestClose?.Invoke();
             }
             catch (Exception ex) 
             { 
+                var title = LocalizationService.Instance["Errors.LoginMicrosoftTitle"];
+                var desc = LocalizationService.Instance["Errors.LoginMicrosoftDesc"];
                 Console.WriteLine(ex.Message); 
             }
             finally 

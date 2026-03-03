@@ -32,7 +32,7 @@ public partial class App : Application
         var instanceService = new InstanceService();
         var instanceFileSystemService = new InstanceFileSystemService();
         var modrinthService = new ModrinthService();
-        var launchService = new LaunchService(instanceFileSystemService, modrinthService);
+        var launchService = new LaunchService(instanceFileSystemService, modrinthService, NotificationService.Instance, LocalizationService.Instance);
         var sysInfoService = new SysInfoService();
         var discordService = new DiscordService();
         var settingsService = new SettingsService();

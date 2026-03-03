@@ -7,11 +7,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using Launcher.Core.Models;
+using Launcher.Core.Services.UI;
 using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Services
 {
-    public class LocalizationService : INotifyPropertyChanged
+    public class LocalizationService : ILocalizationService
     {
         public static LocalizationService Instance { get; } = new LocalizationService();
 

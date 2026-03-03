@@ -17,8 +17,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:enums="clr-namespace:Launcher.Core.Enums;assembly=Launcher.Core"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:notifications="clr-namespace:Launcher.UI.WPF.Resources.Overlay.Notifications"
     xmlns:pages="clr-namespace:Launcher.UI.WPF.Resources.Pages"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
@@ -51,7 +53,7 @@
         </Grid.RowDefinitions>
         <controls:CustomTitleBar Grid.Row="0" />
         <Grid
-            AllowDrop="True"
+            AllowDrop="{Binding AppStore.IsOverlayVisible, Converter={StaticResource NotEqualConverter}, ConverterParameter=True}"
             Grid.Row="1"
             helpers:DragDropBehavior.DragEnterCommand="{Binding DragEnterCommand}"
             helpers:DragDropBehavior.DragLeaveCommand="{Binding DragLeaveCommand}">
@@ -355,6 +357,67 @@
                 </Grid>
 
             </Grid>
+
+            <!--  Notifications overlay slot  -->
+            <ItemsControl
+                HorizontalAlignment="Right"
+                ItemsSource="{Binding Source={StaticResource Notif}, Path=Notifications}"
+                Margin="0,55,20,55"
+                Panel.ZIndex="9999"
+                VerticalAlignment="Top">
+
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ContentControl>
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Style.Triggers>
+
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Info}">
+                                            <Setter Property="Content">
+                                                <Setter.Value>
+                                                    <notifications:InfoNotify />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Success}">
+                                            <Setter Property="Content">
+                                                <Setter.Value>
+                                                    <notifications:SuccessNotify />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Warning}">
+                                            <Setter Property="Content">
+                                                <Setter.Value>
+                                                    <notifications:WarnNotify />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Error}">
+                                            <Setter Property="Content">
+                                                <Setter.Value>
+                                                    <notifications:ErrorNotify />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                        </ContentControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
             <!--  Drag & Drop Overlay  -->
             <Grid
