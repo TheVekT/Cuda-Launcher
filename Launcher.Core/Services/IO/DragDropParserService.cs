@@ -66,41 +66,35 @@ namespace Launcher.Core.Services.IO
             return ParsedFileType.Unknown;
         }
 
-        private ParsedFileType ParseZipSignature(string filePath)
+private ParsedFileType ParseZipSignature(string filePath)
         {
             try
             {
-                // Открываем ZIP только для чтения оглавления (без распаковки самих файлов!)
+                // Открываем ZIP только для чтения оглавления
                 using var archive = ZipFile.OpenRead(filePath);
 
-                bool hasThemeXaml = false;
-                bool hasLevelDat = false;
-                bool hasPackMcmeta = false;
-                bool hasShadersFolder = false;
+                bool isResourcepack = false;
+                bool isShaderpack = false;
 
                 foreach (var entry in archive.Entries)
                 {
-                    // FullName содержит путь внутри архива (например "folder/level.dat")
                     var entryName = entry.FullName.ToLowerInvariant();
-
-                    // 1. Тема лаунчера (ищем Theme.xaml)
-                    if (entryName.EndsWith("theme.xaml")) hasThemeXaml = true;
-
-                    // 3. Сохранение мира (ищем level.dat)
-                    if (entryName.EndsWith("level.dat")) hasLevelDat = true;
-
-                    // 6. Ресурспак (ищем pack.mcmeta)
-                    if (entryName.EndsWith("pack.mcmeta")) hasPackMcmeta = true;
-
-                    // 5. Шейдеры (обычно содержат папку shaders/ внутри архива)
-                    if (entryName.StartsWith("shaders/") || entryName.Contains("/shaders/")) hasShadersFolder = true;
+                    
+                    if (entryName.EndsWith("theme.xaml")) 
+                        return ParsedFileType.LauncherTheme;
+                    
+                    if (entryName.EndsWith("level.dat")) 
+                        return ParsedFileType.MinecraftWorldSave;
+                    
+                    if (entryName.EndsWith("pack.mcmeta")) 
+                        isResourcepack = true;
+                    
+                    if (entryName.StartsWith("shaders/") || entryName.Contains("/shaders/")) 
+                        isShaderpack = true;
                 }
-
-                // Расставляем приоритеты (если вдруг в архиве какая-то каша)
-                if (hasThemeXaml) return ParsedFileType.LauncherTheme;
-                if (hasLevelDat) return ParsedFileType.MinecraftWorldSave;
-                if (hasPackMcmeta) return ParsedFileType.MinecraftResourcepack;
-                if (hasShadersFolder) return ParsedFileType.MinecraftShaderpack;
+                
+                if (isResourcepack) return ParsedFileType.MinecraftResourcepack;
+                if (isShaderpack) return ParsedFileType.MinecraftShaderpack;
             }
             catch (Exception ex)
             {

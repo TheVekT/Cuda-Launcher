@@ -34,6 +34,14 @@ namespace Launcher.UI.WPF.Services
             // 1. Восстанавливаем дефолтные темы из Embedded Resources
             RestoreEmbeddedThemes();
         }
+        
+        public async Task ImportTheme(string themeFilePath)
+        {
+            if (string.IsNullOrEmpty(themeFilePath) || !File.Exists(themeFilePath)) return;
+
+            var destPath = Path.Combine(_themesRoot, Path.GetFileName(themeFilePath));
+            File.Copy(themeFilePath, destPath, true);
+        }
 
         private void RestoreEmbeddedThemes()
         {

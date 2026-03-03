@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using Launcher.Core.Enums;
@@ -12,6 +13,7 @@ using Launcher.Core.Services.Game;
 using Launcher.Core.Services.System;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Resources.Overlay;
+using Launcher.UI.WPF.Resources.Overlay.Notifications;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 using Microsoft.VisualBasic;
@@ -360,19 +362,140 @@ public class MainViewModel : INotifyPropertyChanged
                 var files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 if (files != null && files.Length > 0)
                 {
-                    // Здесь можно добавить логику обработки файлов
-                    // Например, импорт модов, скинов, или других ресурсов
-                    Debug.WriteLine($"Files dropped: {string.Join(", ", files)}");
-                    foreach (var file in files)
+                    using var cts = new CancellationTokenSource();
+                    
+                    var progressVM = new ProgressVM(
+                        onHide: () => _appStore.IsOverlayVisible = false, 
+                        onCancel: () => cts.Cancel()                      
+                    )
                     {
-                        var fileType = await _dragDropParserService.ParseFileAsync(file);
-                        Debug.WriteLine($"Parsed file '{file}' as type: {fileType}");
+                        Title = LocalizationService.Instance["ProgressMenu.ImportingFiles.Title"],
+                        Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.DescriptionPreparing"], files.Count()),
+                        IsIndeterminate = false,
+                        ProgressValue = 0,
+                        ProgressText = "0%"
+                    };
+
+                    var progressView = new ProgressMenu { DataContext = progressVM };
+                    _appStore.CurrentOverlayView = progressView;
+                    
+                    
+                    int totalFiles = files.Length;
+                    int processedFiles = 0;
+                    int successCount = 0;
+                    
+                    bool isThemeLoaded = false;
+                    bool isLocalizationLoaded = false;
+                    var currentInstance = _instancesStore.SelectedInstance; 
+
+                    try
+                    {
+                        foreach (var file in files)
+                        {
+                            cts.Token.ThrowIfCancellationRequested();
+
+                            string fileName = Path.GetFileName(file);
+                            
+                            fileName = fileName.Length > 32 ? fileName.Remove(32) : fileName;
+                            progressVM.Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.Description"], fileName);
+
+                            try
+                            {
+                                var fileType = await _dragDropParserService.ParseFileAsync(file);
+                                
+                                switch (fileType)
+                                {
+                                    case ParsedFileType.MinecraftMod:
+                                        if (currentInstance == null) throw new InvalidOperationException("Select an instance to install the mod.");
+                                        await _instanceFileSystemService.ImportModAsync(currentInstance, file);
+                                        break;
+                                    
+                                    case ParsedFileType.MinecraftResourcepack:
+                                        if (currentInstance == null) throw new InvalidOperationException("Select an instance to install the resource pack.");
+                                        await _instanceFileSystemService.ImportResourcePackAsync(currentInstance, file);
+                                        break;
+                                        
+                                    case ParsedFileType.MinecraftShaderpack:
+                                        if (currentInstance == null) throw new InvalidOperationException("Select an instance to install the shader pack.");
+                                        await _instanceFileSystemService.ImportShaderPackAsync(currentInstance, file);
+                                        break;
+                                        
+                                    case ParsedFileType.MinecraftWorldSave:
+                                        if (currentInstance == null) throw new InvalidOperationException("Select an instance to import the world save.");
+                                        await _instanceFileSystemService.ImportSaveAsync(currentInstance, file);
+                                        break;
+                                        
+                                    case ParsedFileType.LauncherTheme:
+                                        await _themeService.ImportTheme(file);
+                                        isThemeLoaded = true;
+                                        break;
+                                        
+                                    case ParsedFileType.LauncherLocalization:
+                                        await LocalizationService.Instance.ImportLocalization(file);
+                                        isLocalizationLoaded = true;
+                                        break;
+                                        
+                                    case ParsedFileType.Unknown:
+                                    default:
+                                        continue;
+                                }
+                                
+                                successCount++;
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                throw; 
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error importing file '{file}': {ex}");
+                            }
+                            finally
+                            {
+                                processedFiles++;
+                                double currentProgress = ((double)processedFiles / totalFiles) * 100;
+                                progressVM.Report(currentProgress);
+                            }
+                        }
+
+                        if (isThemeLoaded) 
+                        {
+                            var lastThemePath = _settingsStore.CurrentThemePath;
+                            _settingsStore.AvailableThemes.Clear();
+                            var themes = _themeService.ReloadThemes();
+                            foreach (var theme in themes) _settingsStore.AvailableThemes.Add(theme);
+                            _settingsStore.CurrentThemePath = lastThemePath;
+                        }
+
+                        if (isLocalizationLoaded)
+                        {
+                            var lastLang = _settingsStore.SelectedLanguage;
+                            
+                            _settingsStore.AvailableLanguages.Clear(); 
+                            
+                            var langs = LocalizationService.Instance.GetAvailableLanguages();
+                            foreach (var lang in langs) _settingsStore.AvailableLanguages.Add(lang);
+                            _settingsStore.SelectedLanguage = lastLang;
+                        }
+
+                        if (successCount > 0)
+                        {
+                            var title = LocalizationService.Instance["Success.SuccessImport"];
+                            var desc = String.Format(LocalizationService.Instance["Success.SuccessImportDesc"], successCount, totalFiles);
+                            NotificationService.Instance.ShowSuccess(title, desc);
+                        }
                     }
-                    // Пример: передать файлы в соответствующую ViewModel в зависимости от текущей страницы
-                    // if (CurrentView is SkinsViewModel)
-                    // {
-                    //     await _skinsVM.HandleDroppedFilesAsync(files);
-                    // }
+                    catch (OperationCanceledException)
+                    {
+                        var title = LocalizationService.Instance["Info.ImportCanceledTitle"];
+                        var desc = LocalizationService.Instance["Info.ImportCanceledDesc"];
+                        NotificationService.Instance.ShowInfo(title, desc);
+                    }
+                    finally
+                    {
+                        await Task.Delay(200); 
+                        _appStore.CurrentOverlayView = null;
+                    }
                 }
             }
             e.Handled = true;

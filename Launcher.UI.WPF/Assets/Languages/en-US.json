@@ -175,12 +175,19 @@
     "Confirmation.DeleteButtonText": "Delete",
     "Confirmation.CancelButtonText": "Cancel",
     "Confirmation.ConfirmButtonText": "Confirm",
+    "ProgressMenu.ImportingFiles.Title": "Importing Files",
+    "ProgressMenu.ImportingFiles.DescriptionPreparing": "Preparing to import {0} files...",
+    "ProgressMenu.ImportingFiles.Description": "Processing: {0}...",
+    "ProgressMenu.CancelButton": "Cancel",
     "Success.LoginMicrosoftTitle": "Microsoft Login Successful",
     "Success.LoginMicrosoftDesc": "You have successfully logged in with your Microsoft account.",
+    "Success.SuccessImport": "Successfully imported",
+    "Success.SuccessImportDesc": "{0} of {1} has been successfully imported.",
+    "Info.ImportCanceledTitle": "Import Canceled",
+    "Info.ImportCanceledDesc": "The import process has been canceled.\nSome files may have already been imported.",
     "Errors.Iris&SodiumNotSupportedTitle": "Iris & Sodium Not Supported",
     "Errors.Iris&SodiumNotSupportedDesc": "Iris and Sodium are not supported for minecraft version {0} with {1} loader.\nThis mods will not be added to the installation.",
     "Errors.LoginMicrosoftTitle": "Microsoft Login Failed",
     "Errors.LoginMicrosoftDesc": "An error occurred while trying to log in with your Microsoft account. Please try again."
-    
   }
 }
