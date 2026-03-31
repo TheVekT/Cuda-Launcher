@@ -1,12 +1,11 @@
 using System.Text.Json.Serialization;
 
-namespace Launcher.Core.Enums
+namespace Launcher.Core.Enums;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum IsolationType
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum IsolationType
-    {
-        Global,
-        Full,
-        Partial
-    }
+    Global,
+    Full,
+    Partial
 }

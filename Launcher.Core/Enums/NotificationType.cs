@@ -1,10 +1,9 @@
-namespace Launcher.Core.Enums
+namespace Launcher.Core.Enums;
+
+public enum NotificationType
 {
-    public enum NotificationType
-    {
-        Info,
-        Success,
-        Warning,
-        Error
-    }
+    Info,
+    Success,
+    Warning,
+    Error
 }

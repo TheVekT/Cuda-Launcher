@@ -4,7 +4,7 @@
     d:DataContext="{d:DesignInstance Type=viewModels:InstanceSettingsVM,
                                      IsDesignTimeCreatable=False}"
     mc:Ignorable="d"
-    x:Class="Launcher.UI.WPF.Resources.Overlay.VersionSettingsMenu"
+    x:Class="Launcher.UI.WPF.Resources.Overlay.Menus.VersionSettingsMenu"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:gif="http://wpfanimatedgif.codeplex.com"

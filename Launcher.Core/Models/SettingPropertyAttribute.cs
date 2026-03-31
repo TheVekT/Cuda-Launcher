@@ -1,8 +1,7 @@
 
-namespace Launcher.Core.Models
+namespace Launcher.Core.Models;
+
+[AttributeUsage(AttributeTargets.Property)]
+public class SettingPropertyAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class SettingPropertyAttribute : Attribute
-    {
-    }
 }

@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using Launcher.UI.WPF.Services;
 
+namespace Launcher.UI.WPF.Helpers;
+
 public class DynamicTranslation : INotifyPropertyChanged
 {
     private string _key;

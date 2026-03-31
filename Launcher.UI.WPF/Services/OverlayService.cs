@@ -1,4 +1,3 @@
 
-namespace Launcher.UI.WPF.Services{
+namespace Launcher.UI.WPF.Services;
 
-}

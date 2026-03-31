@@ -13,10 +13,12 @@ using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Resources.Overlay;
+using Launcher.UI.WPF.Resources.Overlay.Menus;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
+using Launcher.UI.WPF.ViewModels.Settings;
 
-namespace Launcher.UI.WPF.ViewModels;
+namespace Launcher.UI.WPF.ViewModels.Instances;
 
 public class InstallationsViewModel : INotifyPropertyChanged
 {
@@ -166,7 +168,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
 
     private async Task OpenSettings(MinecraftInstance instance)
     {
-        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceInProcess) return;
+        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
         var menu = new VersionSettingsMenu();
         var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore);
         menu.DataContext = InstanceSettingsVM; 
@@ -180,7 +182,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
 
     private async Task DeleteInstance(MinecraftInstance instance)
     {
-        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceInProcess) return;
+        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
         var confirmVm = new ConfirmVM(
             string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceTitle"], instance.Name), 
             string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceMessage"], instance.Name),

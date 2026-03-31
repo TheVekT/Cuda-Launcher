@@ -2,80 +2,79 @@ using System;
 using DiscordRPC;
 using Launcher.Core.Models;
 
-namespace Launcher.Core.Services
+namespace Launcher.Core.Services.Integrations;
+
+public interface IDiscordService
 {
-    public interface IDiscordService
+    void Initialize(string clientId);
+    void SetMenuPresence();
+    void SetPlayingPresence(MinecraftInstance instance);
+    void ClearPresence();
+}
+
+public class DiscordService : IDiscordService, IDisposable
+{
+    private DiscordRpcClient _client;
+    private bool _isInitialized;
+
+    public void Initialize(string clientId)
     {
-        void Initialize(string clientId);
-        void SetMenuPresence();
-        void SetPlayingPresence(MinecraftInstance instance);
-        void ClearPresence();
+        if (_isInitialized) return;
+
+        _client = new DiscordRpcClient(clientId);
+        
+        _client.Initialize();
+        _isInitialized = true;
+        
+        SetMenuPresence(); // Сразу ставим статус меню при запуске
     }
 
-    public class DiscordService : IDiscordService, IDisposable
+    public void SetMenuPresence()
     {
-        private DiscordRpcClient _client;
-        private bool _isInitialized;
+        if (!_isInitialized) return;
 
-        public void Initialize(string clientId)
+        _client.SetPresence(new RichPresence()
         {
-            if (_isInitialized) return;
-
-            _client = new DiscordRpcClient(clientId);
-            
-            _client.Initialize();
-            _isInitialized = true;
-            
-            SetMenuPresence(); // Сразу ставим статус меню при запуске
-        }
-
-        public void SetMenuPresence()
-        {
-            if (!_isInitialized) return;
-
-            _client.SetPresence(new RichPresence()
+            Details = "Main Menu",
+            Assets = new Assets()
             {
-                Details = "Main Menu",
-                Assets = new Assets()
-                {
-                    LargeImageKey = "logo",
-                    LargeImageText = "MineLauncher"
-                },
-                Timestamps = Timestamps.Now // Запускает счетчик времени ("Прошло: 00:01")
-            });
-        }
+                LargeImageKey = "logo",
+                LargeImageText = "MineLauncher"
+            },
+            Timestamps = Timestamps.Now // Запускает счетчик времени ("Прошло: 00:01")
+        });
+    }
 
-        public void SetPlayingPresence(MinecraftInstance instance)
+    public void SetPlayingPresence(MinecraftInstance instance)
+    {
+        if (!_isInitialized || instance == null) return;
+
+        _client.SetPresence(new RichPresence()
         {
-            if (!_isInitialized || instance == null) return;
-
-            _client.SetPresence(new RichPresence()
+            Details = $"Playing: {instance.Name}",
+            State = $"Version: {instance.GameVersion}  |  {instance.LoaderType}",
+            Assets = new Assets()
             {
-                Details = $"Playing: {instance.Name}",
-                State = $"Version: {instance.GameVersion}  |  {instance.LoaderType}",
-                Assets = new Assets()
-                {
-                    LargeImageKey = "logo", 
-                    LargeImageText = "MineLauncher",
-                    SmallImageKey = "playing", // Маленькая иконка (например, геймпад)
-                    SmallImageText = "In Game"
-                },
-                Timestamps = Timestamps.Now
-            });
-        }
+                LargeImageKey = "logo", 
+                LargeImageText = "MineLauncher",
+                SmallImageKey = "playing", // Маленькая иконка (например, геймпад)
+                SmallImageText = "In Game"
+            },
+            Timestamps = Timestamps.Now
+        });
+    }
 
-        public void ClearPresence()
-        {
-            if (_isInitialized) _client.ClearPresence();
-        }
+    public void ClearPresence()
+    {
+        if (_isInitialized) _client.ClearPresence();
+    }
 
-        public void Dispose()
+    public void Dispose()
+    {
+        if (_client != null)
         {
-            if (_client != null)
-            {
-                _client.Dispose();
-                _isInitialized = false;
-            }
+            _client.Dispose();
+            _isInitialized = false;
         }
     }
 }

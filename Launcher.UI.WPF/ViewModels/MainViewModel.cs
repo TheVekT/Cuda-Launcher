@@ -10,12 +10,18 @@ using Launcher.Core.Services;
 using Launcher.Core.Services.Auth; 
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Game;
+using Launcher.Core.Services.Integrations;
 using Launcher.Core.Services.System;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Resources.Overlay;
+using Launcher.UI.WPF.Resources.Overlay.Menus;
 using Launcher.UI.WPF.Resources.Overlay.Notifications;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
+using Launcher.UI.WPF.ViewModels.Accounts;
+using Launcher.UI.WPF.ViewModels.Game;
+using Launcher.UI.WPF.ViewModels.Instances;
+using Launcher.UI.WPF.ViewModels.Settings;
 using Microsoft.VisualBasic;
 
 namespace Launcher.UI.WPF.ViewModels;

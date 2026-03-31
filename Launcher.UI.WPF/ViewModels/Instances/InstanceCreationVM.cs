@@ -11,7 +11,7 @@ using Launcher.Core.Services.IO;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Stores;
 
-namespace Launcher.UI.WPF.ViewModels;
+namespace Launcher.UI.WPF.ViewModels.Instances;
 
 public class InstanceCreationVM: INotifyPropertyChanged
 {
@@ -277,7 +277,7 @@ public class InstanceCreationVM: INotifyPropertyChanged
             RequestClose?.Invoke();
             Debug.WriteLine($"Created instance: {finalName}");
             _instancesStore.InvokeAddedInstance();
-            if (!_appStore.IsCurrentInstanceInProcess) _instancesStore.SelectedInstance = newInstance;
+            if (!_appStore.IsCurrentInstanceProcessing) _instancesStore.SelectedInstance = newInstance;
         }
         catch (Exception ex)
         {

@@ -6,77 +6,76 @@ using System.Text.Json;
 using Launcher.Core.Helpers; 
 using Launcher.Core.Models;
 
-namespace Launcher.Core.Services.IO
+namespace Launcher.Core.Services.IO;
+
+public interface IAccountStorageService
 {
-    public interface IAccountStorageService
+    void SaveAccounts(IEnumerable<UserAccount> accounts);
+    List<UserAccount> LoadAccounts();
+}
+
+public class AccountStorageService : IAccountStorageService
+{
+    private readonly string _userDataPath;
+    private readonly string _filePath;
+
+    public AccountStorageService()
     {
-        void SaveAccounts(IEnumerable<UserAccount> accounts);
-        List<UserAccount> LoadAccounts();
+        _userDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "UserData");
+        _filePath = Path.Combine(_userDataPath, "accounts.json");
     }
 
-    public class AccountStorageService : IAccountStorageService
+    public void SaveAccounts(IEnumerable<UserAccount> accounts)
     {
-        private readonly string _userDataPath;
-        private readonly string _filePath;
+        if (!Directory.Exists(_userDataPath)) Directory.CreateDirectory(_userDataPath);
 
-        public AccountStorageService()
+        try 
         {
-            _userDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "UserData");
-            _filePath = Path.Combine(_userDataPath, "accounts.json");
+            var accountsToSave = accounts.Select(acc => new UserAccount
+            {
+                Username = acc.Username,
+                UUID = acc.UUID,
+                IsOffline = acc.IsOffline,
+                
+                AccessToken = !acc.IsOffline 
+                    ? SecurityHelper.Protect(acc.AccessToken) 
+                    : acc.AccessToken
+            }).ToList();
+
+            var json = JsonSerializer.Serialize(accountsToSave, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(_filePath, json);
         }
-
-        public void SaveAccounts(IEnumerable<UserAccount> accounts)
+        catch (Exception ex)
         {
-            if (!Directory.Exists(_userDataPath)) Directory.CreateDirectory(_userDataPath);
-
-            try 
-            {
-                var accountsToSave = accounts.Select(acc => new UserAccount
-                {
-                    Username = acc.Username,
-                    UUID = acc.UUID,
-                    IsOffline = acc.IsOffline,
-                    
-                    AccessToken = !acc.IsOffline 
-                        ? SecurityHelper.Protect(acc.AccessToken) 
-                        : acc.AccessToken
-                }).ToList();
-
-                var json = JsonSerializer.Serialize(accountsToSave, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_filePath, json);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error saving accounts: {ex.Message}");
-            }
+            Console.WriteLine($"Error saving accounts: {ex.Message}");
         }
+    }
 
-        public List<UserAccount> LoadAccounts()
+    public List<UserAccount> LoadAccounts()
+    {
+        if (!File.Exists(_filePath)) return new List<UserAccount>();
+
+        try
         {
-            if (!File.Exists(_filePath)) return new List<UserAccount>();
+            var json = File.ReadAllText(_filePath);
+            var loadedAccounts = JsonSerializer.Deserialize<List<UserAccount>>(json);
 
-            try
+            if (loadedAccounts == null) return new List<UserAccount>();
+
+            foreach (var acc in loadedAccounts)
             {
-                var json = File.ReadAllText(_filePath);
-                var loadedAccounts = JsonSerializer.Deserialize<List<UserAccount>>(json);
-
-                if (loadedAccounts == null) return new List<UserAccount>();
-
-                foreach (var acc in loadedAccounts)
+                if (!acc.IsOffline)
                 {
-                    if (!acc.IsOffline)
-                    {
-                        var decryptedToken = SecurityHelper.Unprotect(acc.AccessToken);
-                        acc.AccessToken = decryptedToken;
-                    }
+                    var decryptedToken = SecurityHelper.Unprotect(acc.AccessToken);
+                    acc.AccessToken = decryptedToken;
                 }
-                return loadedAccounts;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading accounts: {ex.Message}");
-                return new List<UserAccount>();
-            }
+            return loadedAccounts;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading accounts: {ex.Message}");
+            return new List<UserAccount>();
         }
     }
 }

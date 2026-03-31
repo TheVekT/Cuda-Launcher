@@ -1,14 +1,13 @@
 using System.Text.Json.Serialization;
 
-namespace Launcher.Core.Enums
+namespace Launcher.Core.Enums;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum GameLoaderType
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum GameLoaderType
-    {
-        Vanilla,
-        Forge,
-        NeoForge,
-        Fabric,
-        Quilt
-    }
+    Vanilla,
+    Forge,
+    NeoForge,
+    Fabric,
+    Quilt
 }

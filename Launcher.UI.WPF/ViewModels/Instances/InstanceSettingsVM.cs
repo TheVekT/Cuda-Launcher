@@ -10,7 +10,7 @@ using Launcher.Core.Services.IO;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Stores;
 
-namespace Launcher.UI.WPF.ViewModels;
+namespace Launcher.UI.WPF.ViewModels.Instances;
 
 public class InstanceSettingsVM : INotifyPropertyChanged
 {

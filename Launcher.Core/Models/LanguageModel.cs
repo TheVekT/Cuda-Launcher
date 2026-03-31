@@ -1,13 +1,12 @@
-namespace Launcher.Core.Models
+namespace Launcher.Core.Models;
+
+public class LanguageModel
 {
-    public class LanguageModel
+    public string Name { get; set; } 
+    public string Code { get; set; } 
+    
+    public override string ToString()
     {
-        public string Name { get; set; } 
-        public string Code { get; set; } 
-        
-        public override string ToString()
-        {
-            return Name;
-        }
+        return Name;
     }
 }

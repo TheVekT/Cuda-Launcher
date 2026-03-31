@@ -7,7 +7,7 @@ using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
-namespace Launcher.UI.WPF.ViewModels;
+namespace Launcher.UI.WPF.ViewModels.Settings;
 
 public class SettingsVM: INotifyPropertyChanged
 {
@@ -53,7 +53,7 @@ public class SettingsVM: INotifyPropertyChanged
             if (param is ThemeModel theme)
             {
                 _settingsStore.CurrentThemePath = theme.ZipPath;
-                _appStore.CurrentBannerPath = theme.BannerPath;
+                _appStore.ThemeBannerPath = theme.BannerPath;
             }
         });
         ImportThemeCommand = new RelayCommand(async o => await ExecuteImportTheme(o));

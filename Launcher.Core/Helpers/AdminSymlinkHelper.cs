@@ -4,78 +4,77 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
-namespace Launcher.Core.Helpers
+namespace Launcher.Core.Helpers;
+
+public class SymlinkJob
 {
-    public class SymlinkJob
-    {
-        public string SourcePath { get; set; }
-        public string DestPath { get; set; }
-        public HashSet<string> Inclusions { get; set; } // Теперь это белый список
-    }
+    public string SourcePath { get; set; }
+    public string DestPath { get; set; }
+    public HashSet<string> Inclusions { get; set; } // Теперь это белый список
+}
 
-    public static class AdminSymlinkHelper
+public static class AdminSymlinkHelper
+{
+    public static void CreateSymlinksElevated(string sourceBase, string destBase, HashSet<string> inclusions)
     {
-        public static void CreateSymlinksElevated(string sourceBase, string destBase, HashSet<string> inclusions)
+        // 1. Ищем наш exe-спутник
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        
+        // ВАЖНО: Имя файла должно совпадать с именем твоего нового проекта UAC!
+        string toolName = "Launcher Helper.exe"; 
+        string toolPath = Path.Combine(baseDir, toolName);
+
+        // Если не нашли рядом - возможно мы в Debug режиме и он лежит в папке сборки
+        if (!File.Exists(toolPath))
         {
-            // 1. Ищем наш exe-спутник
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            
-            // ВАЖНО: Имя файла должно совпадать с именем твоего нового проекта UAC!
-            string toolName = "Launcher Helper.exe"; 
-            string toolPath = Path.Combine(baseDir, toolName);
+             throw new FileNotFoundException($"UAC Helper tool not found at {toolPath}. Make sure Launcher Helper is built.");
+        }
 
-            // Если не нашли рядом - возможно мы в Debug режиме и он лежит в папке сборки
-            if (!File.Exists(toolPath))
+        // 2. Создаем объект задачи (передаем Inclusions)
+        var job = new SymlinkJob 
+        { 
+            SourcePath = sourceBase, 
+            DestPath = destBase, 
+            Inclusions = inclusions 
+        };
+        
+        // Сохраняем во временный JSON
+        string tempJobFile = Path.Combine(Path.GetTempPath(), $"job_{Guid.NewGuid()}.json");
+        string json = JsonSerializer.Serialize(job);
+        File.WriteAllText(tempJobFile, json);
+
+        // 3. Запускаем спутник с правами Админа
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = toolPath,
+            Arguments = $"\"{tempJobFile}\"",
+            UseShellExecute = true,
+            Verb = "runas", 
+            WindowStyle = ProcessWindowStyle.Hidden,
+            CreateNoWindow = true
+        };
+
+        try
+        {
+            var process = Process.Start(startInfo);
+            process.WaitForExit(); 
+
+            if (process.ExitCode != 0)
             {
-                 throw new FileNotFoundException($"UAC Helper tool not found at {toolPath}. Make sure Launcher Helper is built.");
+                throw new Exception($"Symlink helper exited with code {process.ExitCode}. Check log file near exe.");
             }
-
-            // 2. Создаем объект задачи (передаем Inclusions)
-            var job = new SymlinkJob 
-            { 
-                SourcePath = sourceBase, 
-                DestPath = destBase, 
-                Inclusions = inclusions 
-            };
-            
-            // Сохраняем во временный JSON
-            string tempJobFile = Path.Combine(Path.GetTempPath(), $"job_{Guid.NewGuid()}.json");
-            string json = JsonSerializer.Serialize(job);
-            File.WriteAllText(tempJobFile, json);
-
-            // 3. Запускаем спутник с правами Админа
-            var startInfo = new ProcessStartInfo
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            // Это исключение вылетает, если пользователь нажал "Нет" в окне UAC
+            throw new Exception("Administrator rights denied by user.");
+        }
+        finally
+        {
+            // Удаляем временный файл задачи
+            if (File.Exists(tempJobFile)) 
             {
-                FileName = toolPath,
-                Arguments = $"\"{tempJobFile}\"",
-                UseShellExecute = true,
-                Verb = "runas", 
-                WindowStyle = ProcessWindowStyle.Hidden,
-                CreateNoWindow = true
-            };
-
-            try
-            {
-                var process = Process.Start(startInfo);
-                process.WaitForExit(); 
-
-                if (process.ExitCode != 0)
-                {
-                    throw new Exception($"Symlink helper exited with code {process.ExitCode}. Check log file near exe.");
-                }
-            }
-            catch (System.ComponentModel.Win32Exception)
-            {
-                // Это исключение вылетает, если пользователь нажал "Нет" в окне UAC
-                throw new Exception("Administrator rights denied by user.");
-            }
-            finally
-            {
-                // Удаляем временный файл задачи
-                if (File.Exists(tempJobFile)) 
-                {
-                    try { File.Delete(tempJobFile); } catch { }
-                }
+                try { File.Delete(tempJobFile); } catch { }
             }
         }
     }

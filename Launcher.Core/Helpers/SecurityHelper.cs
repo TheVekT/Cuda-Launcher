@@ -2,42 +2,41 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Launcher.Core.Helpers
+namespace Launcher.Core.Helpers;
+
+public static class SecurityHelper
 {
-    public static class SecurityHelper
+    public static string Protect(string plainText)
     {
-        public static string Protect(string plainText)
-        {
-            if (string.IsNullOrEmpty(plainText)) return plainText;
+        if (string.IsNullOrEmpty(plainText)) return plainText;
 
-            try
-            {
-                byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
-                byte[] cipherBytes = ProtectedData.Protect(plainBytes, null, DataProtectionScope.CurrentUser);
-                return Convert.ToBase64String(cipherBytes);
-            }
-            catch
-            {
-                return null;
-            }
+        try
+        {
+            byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
+            byte[] cipherBytes = ProtectedData.Protect(plainBytes, null, DataProtectionScope.CurrentUser);
+            return Convert.ToBase64String(cipherBytes);
         }
-
-        // Расшифровываем строку
-        public static string Unprotect(string cipherText)
+        catch
         {
-            if (string.IsNullOrEmpty(cipherText)) return cipherText;
+            return null;
+        }
+    }
 
-            try
-            {
-                byte[] cipherBytes = Convert.FromBase64String(cipherText);
-                byte[] plainBytes = ProtectedData.Unprotect(cipherBytes, null, DataProtectionScope.CurrentUser);
-                return Encoding.UTF8.GetString(plainBytes);
-            }
-            catch
-            {
+    // Расшифровываем строку
+    public static string Unprotect(string cipherText)
+    {
+        if (string.IsNullOrEmpty(cipherText)) return cipherText;
 
-                return null; 
-            }
+        try
+        {
+            byte[] cipherBytes = Convert.FromBase64String(cipherText);
+            byte[] plainBytes = ProtectedData.Unprotect(cipherBytes, null, DataProtectionScope.CurrentUser);
+            return Encoding.UTF8.GetString(plainBytes);
+        }
+        catch
+        {
+
+            return null; 
         }
     }
 }

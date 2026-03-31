@@ -7,7 +7,7 @@ public class AppStore: INotifyPropertyChanged
 {
     private object? _currentOverlayView;
     private bool _isOverlayVisible;
-    private string _currentBannerPath = "Assets/Images/banner-default.jpg";
+    private string _themeBannerPath = "Assets/Images/banner-default.jpg";
     
     private bool _isDownloading;
     private bool _isGameRunning;
@@ -22,7 +22,7 @@ public class AppStore: INotifyPropertyChanged
     
     
     //Getters and Setters
-    public bool IsCurrentInstanceInProcess
+    public bool IsCurrentInstanceProcessing
     {
         get
         {
@@ -71,23 +71,33 @@ public class AppStore: INotifyPropertyChanged
         }
     }
 
-    public string CurrentBannerPath
+    public string ThemeBannerPath
     {
-        get => _currentBannerPath;
+        get => _themeBannerPath;
         set
         {
-            if (_currentBannerPath == value) return;
+            if (_themeBannerPath == value) return;
             if (value is null)
             {
-                _currentBannerPath = "Assets/Images/banner-default.jpg";
+                _themeBannerPath = "Assets/Images/banner-default.jpg";
             }
             else
             {
-                _currentBannerPath = value; 
+                _themeBannerPath = value; 
             }
             OnPropertyChanged(nameof(CurrentBannerPath));
+            OnPropertyChanged(nameof(ThemeBannerPath));
         }
     }
+
+    public string CurrentBannerPath
+    {
+        get
+        {
+            return ThemeBannerPath;
+        }
+    }
+
     public bool IsOverlayVisible
     {
         get => _isOverlayVisible;

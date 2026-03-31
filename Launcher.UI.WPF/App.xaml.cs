@@ -9,6 +9,7 @@ using Launcher.UI.WPF.Stores;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.Game;
+using Launcher.Core.Services.Integrations;
 using Launcher.Core.Services.System;
 
 namespace Launcher.UI.WPF;
