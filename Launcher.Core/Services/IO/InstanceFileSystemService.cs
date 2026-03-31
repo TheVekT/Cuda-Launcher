@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Launcher.Core.Enums;
 using Launcher.Core.Helpers;
 using Launcher.Core.Models;
+using Launcher.Core.Services.System;
 
 namespace Launcher.Core.Services.IO;
 
@@ -39,9 +40,8 @@ public class InstanceFileSystemService : IInstanceFileSystemService
 
     public InstanceFileSystemService()
     {
-        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        _instancesBasePath = Path.Combine(baseDir, "Data", "Instances");
-        _portableGlobalPath = Path.Combine(baseDir, "Data", "Global");
+        _instancesBasePath = LauncherPathsService.InstancesDirectory;
+        _portableGlobalPath = Path.Combine(LauncherPathsService.DataDirectory, "Global");
     }
 
     public string GetGlobalMinecraftPath()

@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Launcher.Core.Models;
+using Launcher.Core.Services.System;
 
 namespace Launcher.Core.Services.IO;
 
@@ -29,10 +30,8 @@ public class SettingsService : ISettingsService
 
     public SettingsService()
     {
-        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        string userDataDir = Path.Combine(baseDir, "Data", "UserData");
-        Directory.CreateDirectory(userDataDir);
-        _settingsFilePath = Path.Combine(userDataDir, "settings.json");
+        Directory.CreateDirectory(LauncherPathsService.UserDataDirectory);
+        _settingsFilePath = Path.Combine(LauncherPathsService.UserDataDirectory, "settings.json");
 
         // Читаем файл один раз при запуске сервиса
         LoadRawJson();

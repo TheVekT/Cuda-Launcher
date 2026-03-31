@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media.Imaging;
+using Launcher.Core.Services.System;
 using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Services;
@@ -22,10 +23,8 @@ public class ThemeService
 
     public ThemeService()
     {
-        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        
         // Настраиваем пути
-        _themesRoot = Path.Combine(baseDir, "Assets", "Themes");
+        _themesRoot = Path.Combine(LauncherPathsService.AssetsDirectory, "Themes");
         _cacheRoot = Path.Combine(_themesRoot, "Cache");
 
         Directory.CreateDirectory(_themesRoot);

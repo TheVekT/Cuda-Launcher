@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
+using Launcher.Core.Services.System;
 using Launcher.UI.WPF.Helpers;
 using Microsoft.Win32;
 
@@ -16,8 +17,9 @@ public class InstancesStore: INotifyPropertyChanged
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly IInstanceService _instanceService;
     private readonly SettingsService _settingsService;
-    
+
     //Attributes
+    private readonly string _iconsDirectory;
     private MinecraftInstance? _selectedInstance;
     private readonly List<string> _ignoredIcons = new() { "example.png" };
     private string? _lastSelectedInstanceId;
@@ -36,12 +38,16 @@ public class InstancesStore: INotifyPropertyChanged
     public ICommand DropIconCommand { get; }
 
     
-    public InstancesStore(IInstanceFileSystemService instanceFileSystemService, IInstanceService instanceService, SettingsService settingsService)
+    public InstancesStore(
+        IInstanceFileSystemService instanceFileSystemService,
+        IInstanceService instanceService,
+        SettingsService settingsService)
     {
         _instanceFileSystemService = instanceFileSystemService;
         _instanceService = instanceService;
         _settingsService = settingsService;
-        
+        _iconsDirectory = Path.Combine(LauncherPathsService.AssetsDirectory, "Icons");
+
         LoadIcons();
         LoadSavedInstances();
         
@@ -108,8 +114,8 @@ public class InstancesStore: INotifyPropertyChanged
     private void ProcessIconFile(string filePath)
     {
         //Copy the selected file to the icons directory
-        var iconsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Icons");
-        var destPath = Path.Combine(iconsDir, Path.GetFileName(filePath));
+        
+        var destPath = Path.Combine(_iconsDirectory, Path.GetFileName(filePath));
         try        {
             File.Copy(filePath, destPath, overwrite: true);
         }
@@ -155,15 +161,13 @@ public class InstancesStore: INotifyPropertyChanged
     
     private void LoadIcons()
     {
-        var iconsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Icons");
-
-        if (Directory.Exists(iconsPath))
+        if (Directory.Exists(_iconsDirectory))
         {
             // Указываем все форматы, которые хотим поддерживать
             var supportedExtensions = new[] { ".png", ".jpg", ".jpeg", ".ico", ".gif" };
 
             // Перебираем все файлы в папке и оставляем только те, чье расширение есть в нашем массиве
-            var files = Directory.EnumerateFiles(iconsPath)
+            var files = Directory.EnumerateFiles(_iconsDirectory)
                 .Where(f => supportedExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
         
             IconList.Clear();

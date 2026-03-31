@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using Launcher.Core.Models;
+using Launcher.Core.Services.System;
 using Launcher.Core.Services.UI;
 using Launcher.UI.WPF.Models;
 
@@ -23,8 +24,8 @@ public class LocalizationService : ILocalizationService
 
     public LocalizationService()
     {
-        _languagesRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Languages");
-        
+        _languagesRoot = Path.Combine(LauncherPathsService.AssetsDirectory, "Languages");
+
         if (!Directory.Exists(_languagesRoot))
         {
             Directory.CreateDirectory(_languagesRoot);
@@ -81,7 +82,7 @@ public class LocalizationService : ILocalizationService
 
                 if (langData?.Meta != null)
                 {
-                    // Достаем имя и код из метадаты
+                    // Достаем имя и код из метадата
                     langData.Meta.TryGetValue("Name", out var name);
                     langData.Meta.TryGetValue("LanguageCode", out var code);
 

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Launcher.Core.Models;
+using Launcher.Core.Services.System;
 
 namespace Launcher.Core.Services.IO;
 
@@ -17,13 +18,12 @@ public interface IInstanceService
 
 public class InstanceService : IInstanceService
 {
-    private readonly string _instancesFolderPath; 
-    private readonly string _jsonFilePath;        
+    private readonly string _instancesFolderPath;
+    private readonly string _jsonFilePath;
 
     public InstanceService()
     {
-        // Формируем путь: .../Data/Instances
-        _instancesFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Instances");
+        _instancesFolderPath = LauncherPathsService.InstancesDirectory;
         _jsonFilePath = Path.Combine(_instancesFolderPath, "instances.json");
     }
 

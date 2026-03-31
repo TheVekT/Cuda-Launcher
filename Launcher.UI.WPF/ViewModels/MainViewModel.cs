@@ -39,7 +39,7 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly ISysInfoService _sysInfoService;
     private readonly IDiscordService _discordService;
     private readonly IDragDropParserService _dragDropParserService;
-    
+
     //Stores
     private readonly LoginStore _loginStore;
     private readonly SettingsStore _settingsStore;
@@ -118,7 +118,7 @@ public class MainViewModel : INotifyPropertyChanged
         _sysInfoService = sysInfoService;
         _discordService = discordService;
         _dragDropParserService = dragDropParserService;
-        
+
         //Stores
         _loginStore = loginStore;
         _settingsStore = settingsStore;

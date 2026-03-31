@@ -11,6 +11,7 @@ using Launcher.Core.Enums;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
+using Launcher.Core.Services.System;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.Resources.Overlay.Menus;
@@ -23,15 +24,18 @@ namespace Launcher.UI.WPF.ViewModels.Instances;
 public class InstallationsViewModel : INotifyPropertyChanged
 {
     //Services
-    private readonly IGameVersionService _versionService; 
+    private readonly IGameVersionService _versionService;
     private readonly IInstanceService _instanceService;
     private readonly IInstanceFileSystemService _instanceFileSystemService;
-    
+
     //Stores
     private readonly InstancesStore _instancesStore;
     private readonly SettingsStore _settingsStore;
     private readonly AppStore _appStore;
-    
+
+    //Attributes
+    private readonly string _instancesFilePath;
+
     //Commands
     public ICommand DeleteInstanceCommand { get; }
     public ICommand OpenSettingsCommand { get; }
@@ -47,7 +51,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
   
     
     public InstallationsViewModel(
-        IGameVersionService versionService, 
+        IGameVersionService versionService,
         IInstanceService instanceService,
         IInstanceFileSystemService instanceFileSystemService,
         InstancesStore instancesStore,
@@ -57,12 +61,12 @@ public class InstallationsViewModel : INotifyPropertyChanged
         _versionService = versionService;
         _instanceService = instanceService;
         _instanceFileSystemService = instanceFileSystemService;
-        
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
         _appStore = appStore;
-        
-        
+        _instancesFilePath = Path.Combine(LauncherPathsService.InstancesDirectory, "instances.json");
+
+
         DeleteInstanceCommand = new RelayCommand(async o => await DeleteInstance(o as MinecraftInstance));
         OpenSettingsCommand = new RelayCommand(async o => await OpenSettings(o as MinecraftInstance));
 
@@ -103,9 +107,8 @@ public class InstallationsViewModel : INotifyPropertyChanged
             var latestVersion = vanillaVersions.FirstOrDefault();
 
             if (string.IsNullOrEmpty(latestVersion)) return;
-            
-            string instancesFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Instances", "instances.json");
-            bool isFirstLaunch = !File.Exists(instancesFilePath);
+
+            bool isFirstLaunch = !File.Exists(_instancesFilePath);
 
             if (isFirstLaunch) CreateLatestRelease(latestVersion);
             else UpdateLatestRelease(latestVersion);

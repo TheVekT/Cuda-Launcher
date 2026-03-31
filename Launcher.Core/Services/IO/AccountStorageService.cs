@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using Launcher.Core.Helpers; 
 using Launcher.Core.Models;
+using Launcher.Core.Services.System;
 
 namespace Launcher.Core.Services.IO;
 
@@ -21,7 +22,7 @@ public class AccountStorageService : IAccountStorageService
 
     public AccountStorageService()
     {
-        _userDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "UserData");
+        _userDataPath = LauncherPathsService.UserDataDirectory;
         _filePath = Path.Combine(_userDataPath, "accounts.json");
     }
 

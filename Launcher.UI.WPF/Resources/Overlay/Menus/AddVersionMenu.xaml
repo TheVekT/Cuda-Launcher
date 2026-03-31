@@ -1,7 +1,7 @@
 <UserControl
     Background="Transparent"
     FontFamily="{DynamicResource GlobalFont}"
-    d:DataContext="{d:DesignInstance Type=viewModels:InstanceCreationVM,
+    d:DataContext="{d:DesignInstance Type=instances:InstanceCreationVM,
                                      IsDesignTimeCreatable=False}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Overlay.Menus.AddVersionMenu"
@@ -9,6 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:gif="http://wpfanimatedgif.codeplex.com"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:instances="clr-namespace:Launcher.UI.WPF.ViewModels.Instances"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">

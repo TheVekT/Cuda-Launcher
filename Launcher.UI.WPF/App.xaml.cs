@@ -22,9 +22,7 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        
-        
-        
+
         //Services
         var themeService = new ThemeService();
         var authService = new AuthService();
@@ -44,15 +42,15 @@ public partial class App : Application
         var launchStore = new LaunchStore(launchService);
         var instancesStore = new InstancesStore(instanceFileSystemService, instanceService, settingsService);
         var appStore = new AppStore();
-        
+
         //MainViewModel
         var mainViewModel = new MainViewModel(
-            themeService, 
-            authService, 
-            accountStorageService, 
-            versionService, 
-            instanceService, 
-            instanceFileSystemService, 
+            themeService,
+            authService,
+            accountStorageService,
+            versionService,
+            instanceService,
+            instanceFileSystemService,
             launchService,
             sysInfoService,
             discordService,
@@ -63,11 +61,11 @@ public partial class App : Application
             instancesStore,
             appStore);
         await mainViewModel.InitializeAsync();
-        
+
         var mainWindow = new MainWindow();
-        
+
         mainWindow.DataContext = mainViewModel;
-        
+
         mainWindow.Show();
     }
 }

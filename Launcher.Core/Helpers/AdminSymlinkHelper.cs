@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using Launcher.Core.Services.System;
 
 namespace Launcher.Core.Helpers;
 
@@ -15,19 +16,14 @@ public class SymlinkJob
 
 public static class AdminSymlinkHelper
 {
+    private static readonly string ToolPath = Path.Combine(LauncherPathsService.BaseDirectory, "Launcher Helper.exe");
+
     public static void CreateSymlinksElevated(string sourceBase, string destBase, HashSet<string> inclusions)
     {
-        // 1. Ищем наш exe-спутник
-        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        
-        // ВАЖНО: Имя файла должно совпадать с именем твоего нового проекта UAC!
-        string toolName = "Launcher Helper.exe"; 
-        string toolPath = Path.Combine(baseDir, toolName);
-
         // Если не нашли рядом - возможно мы в Debug режиме и он лежит в папке сборки
-        if (!File.Exists(toolPath))
+        if (!File.Exists(ToolPath))
         {
-             throw new FileNotFoundException($"UAC Helper tool not found at {toolPath}. Make sure Launcher Helper is built.");
+             throw new FileNotFoundException($"UAC Helper tool not found at {ToolPath}. Make sure Launcher Helper is built.");
         }
 
         // 2. Создаем объект задачи (передаем Inclusions)
@@ -46,7 +42,7 @@ public static class AdminSymlinkHelper
         // 3. Запускаем спутник с правами Админа
         var startInfo = new ProcessStartInfo
         {
-            FileName = toolPath,
+            FileName = ToolPath,
             Arguments = $"\"{tempJobFile}\"",
             UseShellExecute = true,
             Verb = "runas", 
