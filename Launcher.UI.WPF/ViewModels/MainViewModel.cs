@@ -39,6 +39,7 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly ISysInfoService _sysInfoService;
     private readonly IDiscordService _discordService;
     private readonly IDragDropParserService _dragDropParserService;
+    private readonly ILauncherPathsService _pathsService;
 
     //Stores
     private readonly LoginStore _loginStore;
@@ -96,12 +97,13 @@ public class MainViewModel : INotifyPropertyChanged
         IAuthService authService, 
         IAccountStorageService accountStorage,
         IGameVersionService versionService,
-        InstanceService instanceService,
+        IInstanceService instanceService,
         IInstanceFileSystemService instanceFileSystemService,
         ILaunchService launchService,
         ISysInfoService sysInfoService,
         IDiscordService discordService,
         IDragDropParserService dragDropParserService,
+        ILauncherPathsService pathsService,
         LoginStore loginStore,
         SettingsStore settingsStore,
         LaunchStore launchStore,
@@ -118,6 +120,7 @@ public class MainViewModel : INotifyPropertyChanged
         _sysInfoService = sysInfoService;
         _discordService = discordService;
         _dragDropParserService = dragDropParserService;
+        _pathsService = pathsService;
 
         //Stores
         _loginStore = loginStore;
@@ -128,7 +131,7 @@ public class MainViewModel : INotifyPropertyChanged
         
         //ViewModels
         _playVM = new PlayViewModel(_discordService, _settingsStore, _instancesStore, _appStore);
-        _installationsVM = new InstallationsViewModel(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore, _appStore);
+        _installationsVM = new InstallationsViewModel(_versionService, _instanceService, _instanceFileSystemService, _pathsService, _instancesStore, _settingsStore, _appStore);
         _skinsVM = new SkinsViewModel();
         _loginVM = new LoginVM(_authService, _accountStorage,_loginStore);
         _settingsVM = new SettingsVM(_settingsStore, _themeService, _appStore);

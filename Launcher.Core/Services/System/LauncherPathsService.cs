@@ -1,14 +1,26 @@
+using System;
+using System.IO;
+
 namespace Launcher.Core.Services.System;
 
-public static class LauncherPathsService
+public interface ILauncherPathsService
 {
-    public static string BaseDirectory { get; }
-    public static string DataDirectory { get; }
-    public static string UserDataDirectory { get; }
-    public static string InstancesDirectory { get; }
-    public static string AssetsDirectory { get; }
+    string BaseDirectory { get; }
+    string DataDirectory { get; }
+    string UserDataDirectory { get; }
+    string InstancesDirectory { get; }
+    string AssetsDirectory { get; }
+}
 
-    static LauncherPathsService()
+public class LauncherPathsService : ILauncherPathsService
+{
+    public string BaseDirectory { get; }
+    public string DataDirectory { get; }
+    public string UserDataDirectory { get; }
+    public string InstancesDirectory { get; }
+    public string AssetsDirectory { get; }
+
+    public LauncherPathsService()
     {
         BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         DataDirectory = Path.Combine(BaseDirectory, "Data");
@@ -23,7 +35,7 @@ public static class LauncherPathsService
         CreateDir(AssetsDirectory);
     }
 
-    private static void CreateDir(string path)
+    private void CreateDir(string path)
     {
         if (!Directory.Exists(path))
         {

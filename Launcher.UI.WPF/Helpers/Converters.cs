@@ -5,6 +5,7 @@ using System.Windows.Data;
 using System.Windows;
 using Launcher.UI.WPF.Services;
 using Launcher.Core.Services.System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Launcher.UI.WPF.Helpers;
 
@@ -394,16 +395,20 @@ public class EqualConverter : IValueConverter
 
 public class ImagePathConverter : IValueConverter
 {
-    private static readonly string IconsDirectory = Path.Combine(LauncherPathsService.AssetsDirectory, "Icons");
+    private readonly ILauncherPathsService _pathsService;
 
+    public ImagePathConverter()
+    {
+        _pathsService = App.Services.GetRequiredService<ILauncherPathsService>();
+    }
+    
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is string fileName && !string.IsNullOrEmpty(fileName))
         {
-            // Если путь уже полный (например, при выборе из списка), возвращаем как есть
             if (Path.IsPathRooted(fileName)) return fileName;
 
-            return Path.Combine(IconsDirectory, fileName);
+            return Path.Combine(Path.Combine(_pathsService.AssetsDirectory, "Icons"), fileName);
         }
         return null;
     }

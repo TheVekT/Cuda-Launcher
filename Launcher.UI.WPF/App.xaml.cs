@@ -1,6 +1,6 @@
-﻿using System.Configuration;
-using System.Data;
+﻿using System;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using Launcher.Core.Services;
 using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.ViewModels;
@@ -14,58 +14,59 @@ using Launcher.Core.Services.System;
 
 namespace Launcher.UI.WPF;
 
-/// <summary>
-/// Interaction logic for App.xaml
-/// </summary>
 public partial class App : Application
 {
+    public static IServiceProvider Services { get; private set; }
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
-        //Services
-        var themeService = new ThemeService();
-        var authService = new AuthService();
-        var accountStorageService = new AccountStorageService();
-        var versionService = new GameVersionService();
-        var instanceService = new InstanceService();
-        var instanceFileSystemService = new InstanceFileSystemService();
-        var modrinthService = new ModrinthService();
-        var launchService = new LaunchService(instanceFileSystemService, modrinthService, NotificationService.Instance, LocalizationService.Instance);
-        var sysInfoService = new SysInfoService();
-        var discordService = new DiscordService();
-        var settingsService = new SettingsService();
-        var dragDropParserService = new DragDropParserService();
-        //Stores
-        var loginStore = new LoginStore(accountStorageService, settingsService, authService);
-        var settingsStore = new SettingsStore(themeService, sysInfoService, settingsService);
-        var launchStore = new LaunchStore(launchService);
-        var instancesStore = new InstancesStore(instanceFileSystemService, instanceService, settingsService);
-        var appStore = new AppStore();
-
-        //MainViewModel
-        var mainViewModel = new MainViewModel(
-            themeService,
-            authService,
-            accountStorageService,
-            versionService,
-            instanceService,
-            instanceFileSystemService,
-            launchService,
-            sysInfoService,
-            discordService,
-            dragDropParserService,
-            loginStore,
-            settingsStore,
-            launchStore,
-            instancesStore,
-            appStore);
+        var services = new ServiceCollection();
+        
+        services.AddSingleton<ILauncherPathsService, LauncherPathsService>();
+        services.AddSingleton<LocalizationService>();
+        services.AddSingleton<NotificationService>();
+        services.AddSingleton<ThemeService>();
+        services.AddSingleton<IAuthService, AuthService>();
+        services.AddSingleton<IAccountStorageService, AccountStorageService>();
+        services.AddSingleton<IGameVersionService, GameVersionService>();
+        services.AddSingleton<IInstanceService, InstanceService>();
+        services.AddSingleton<IInstanceFileSystemService, InstanceFileSystemService>();
+        services.AddSingleton<IModrinthService, ModrinthService>();
+        services.AddSingleton<ISysInfoService, SysInfoService>();
+        services.AddSingleton<IDiscordService, DiscordService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IDragDropParserService, DragDropParserService>();
+        services.AddSingleton<ISymlinkService, SymlinkService>();
+        
+        services.AddSingleton<ILaunchService>(provider => new LaunchService(
+            provider.GetRequiredService<IInstanceFileSystemService>(),
+            provider.GetRequiredService<IModrinthService>(),
+            NotificationService.Instance, 
+            LocalizationService.Instance
+        ));
+        
+        services.AddSingleton<LoginStore>();
+        services.AddSingleton<SettingsStore>();
+        services.AddSingleton<LaunchStore>();
+        services.AddSingleton<InstancesStore>();
+        services.AddSingleton<AppStore>();
+        
+        services.AddTransient<MainViewModel>(); 
+        services.AddTransient<MainWindow>();
+        
+        Services = services.BuildServiceProvider();
+        
+        LocalizationService.Instance = Services.GetRequiredService<LocalizationService>();
+        NotificationService.Instance = Services.GetRequiredService<NotificationService>();
+        
+        var mainViewModel = Services.GetRequiredService<MainViewModel>();
         await mainViewModel.InitializeAsync();
 
-        var mainWindow = new MainWindow();
-
+        var mainWindow = Services.GetRequiredService<MainWindow>();
         mainWindow.DataContext = mainViewModel;
-
+        
         mainWindow.Show();
     }
 }

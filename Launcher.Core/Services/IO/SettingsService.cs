@@ -20,6 +20,8 @@ public class SettingsService : ISettingsService
 {
     private readonly string _settingsFilePath;
     
+    private readonly ILauncherPathsService _pathsService;
+    
     // Храним ссылки на все сторы, которые попросили их сохранять
     private readonly HashSet<INotifyPropertyChanged> _registeredStores = new HashSet<INotifyPropertyChanged>();
     
@@ -28,10 +30,12 @@ public class SettingsService : ISettingsService
     
     private CancellationTokenSource _debounceCts;
 
-    public SettingsService()
+    public SettingsService(ILauncherPathsService pathsService)
     {
-        Directory.CreateDirectory(LauncherPathsService.UserDataDirectory);
-        _settingsFilePath = Path.Combine(LauncherPathsService.UserDataDirectory, "settings.json");
+        _pathsService = pathsService;
+        
+        Directory.CreateDirectory(_pathsService.UserDataDirectory);
+        _settingsFilePath = Path.Combine(_pathsService.UserDataDirectory, "settings.json");
 
         // Читаем файл один раз при запуске сервиса
         LoadRawJson();

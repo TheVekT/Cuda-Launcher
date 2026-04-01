@@ -27,6 +27,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
     private readonly IGameVersionService _versionService;
     private readonly IInstanceService _instanceService;
     private readonly IInstanceFileSystemService _instanceFileSystemService;
+    private readonly ILauncherPathsService _pathsService;
 
     //Stores
     private readonly InstancesStore _instancesStore;
@@ -54,6 +55,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
         IGameVersionService versionService,
         IInstanceService instanceService,
         IInstanceFileSystemService instanceFileSystemService,
+        ILauncherPathsService pathsService,
         InstancesStore instancesStore,
         SettingsStore settingsStore,
         AppStore appStore)
@@ -61,10 +63,11 @@ public class InstallationsViewModel : INotifyPropertyChanged
         _versionService = versionService;
         _instanceService = instanceService;
         _instanceFileSystemService = instanceFileSystemService;
+        _pathsService = pathsService;
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
         _appStore = appStore;
-        _instancesFilePath = Path.Combine(LauncherPathsService.InstancesDirectory, "instances.json");
+        _instancesFilePath = Path.Combine(_pathsService.InstancesDirectory, "instances.json");
 
 
         DeleteInstanceCommand = new RelayCommand(async o => await DeleteInstance(o as MinecraftInstance));

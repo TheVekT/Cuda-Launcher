@@ -12,8 +12,7 @@ public class NotificationService : INotificationService
 {
     public ObservableCollection<NotificationMessage> Notifications { get; } = new();
     
-    private static NotificationService _instance;
-    public static NotificationService Instance => _instance ??= new NotificationService();
+    public static NotificationService Instance  { get; internal set; }
 
     public void Show(string title, string message, NotificationType type, double durationSeconds = 5)
     {

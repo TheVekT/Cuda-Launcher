@@ -14,17 +14,21 @@ namespace Launcher.UI.WPF.Services;
 
 public class LocalizationService : ILocalizationService
 {
-    public static LocalizationService Instance { get; } = new LocalizationService();
+    public static LocalizationService Instance { get; internal set; }
 
     private Dictionary<string, string> _translations = new Dictionary<string, string>();
     
     private readonly string _languagesRoot;
+    
+    private readonly ILauncherPathsService _pathsService;
 
     public LocalizationService Current => this;
 
-    public LocalizationService()
+    public LocalizationService(ILauncherPathsService pathsService)
     {
-        _languagesRoot = Path.Combine(LauncherPathsService.AssetsDirectory, "Languages");
+        _pathsService = pathsService;
+        
+        _languagesRoot = Path.Combine(_pathsService.AssetsDirectory, "Languages");
 
         if (!Directory.Exists(_languagesRoot))
         {

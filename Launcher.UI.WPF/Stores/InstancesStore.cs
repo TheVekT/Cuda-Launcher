@@ -16,7 +16,8 @@ public class InstancesStore: INotifyPropertyChanged
     //Services
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly IInstanceService _instanceService;
-    private readonly SettingsService _settingsService;
+    private readonly ISettingsService _settingsService;
+    private readonly ILauncherPathsService _pathsService;
 
     //Attributes
     private readonly string _iconsDirectory;
@@ -41,12 +42,14 @@ public class InstancesStore: INotifyPropertyChanged
     public InstancesStore(
         IInstanceFileSystemService instanceFileSystemService,
         IInstanceService instanceService,
-        SettingsService settingsService)
+        ISettingsService settingsService,
+        ILauncherPathsService pathsService)
     {
         _instanceFileSystemService = instanceFileSystemService;
         _instanceService = instanceService;
         _settingsService = settingsService;
-        _iconsDirectory = Path.Combine(LauncherPathsService.AssetsDirectory, "Icons");
+        _pathsService = pathsService;
+        _iconsDirectory = Path.Combine(_pathsService.AssetsDirectory, "Icons");
 
         LoadIcons();
         LoadSavedInstances();

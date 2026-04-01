@@ -17,14 +17,16 @@ public class ThemeService
 {
     private readonly string _themesRoot;  // Рабочая папка: Assets/Themes (рядом с exe)
     private readonly string _cacheRoot;   // Кэш: Assets/Themes/Cache
+    private readonly ILauncherPathsService _pathsService;
 
     // Имена файлов, которые мы ищем ВНУТРИ ресурсов и создаем НА ДИСКЕ
     private readonly string[] _defaultThemeFiles = { "default-dark.zip", "default-light.zip" };
 
-    public ThemeService()
+    public ThemeService(ILauncherPathsService pathsService)
     {
+        _pathsService = pathsService;
         // Настраиваем пути
-        _themesRoot = Path.Combine(LauncherPathsService.AssetsDirectory, "Themes");
+        _themesRoot = Path.Combine(_pathsService.AssetsDirectory, "Themes");
         _cacheRoot = Path.Combine(_themesRoot, "Cache");
 
         Directory.CreateDirectory(_themesRoot);

@@ -19,10 +19,13 @@ public class AccountStorageService : IAccountStorageService
 {
     private readonly string _userDataPath;
     private readonly string _filePath;
+    private readonly ILauncherPathsService _pathsService;
 
-    public AccountStorageService()
+    public AccountStorageService(ILauncherPathsService pathsService)
     {
-        _userDataPath = LauncherPathsService.UserDataDirectory;
+        _pathsService = pathsService;
+        
+        _userDataPath = _pathsService.UserDataDirectory;
         _filePath = Path.Combine(_userDataPath, "accounts.json");
     }
 

@@ -6,6 +6,7 @@ using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
 
@@ -88,8 +89,8 @@ public class SettingsVM: INotifyPropertyChanged
         if (openFileDialog.ShowDialog() == true)
         {
             var selectedFile = openFileDialog.FileName;
-            var localizationService = new LocalizationService();
-            await localizationService.ImportLocalization(selectedFile);
+            
+            await LocalizationService.Instance.ImportLocalization(selectedFile);
             var lastLangCode = _settingsStore.SelectedLanguage.Code;
             _settingsStore.AvailableLanguages.Clear(); 
             var langs = LocalizationService.Instance.GetAvailableLanguages();

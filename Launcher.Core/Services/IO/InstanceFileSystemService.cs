@@ -37,11 +37,16 @@ public class InstanceFileSystemService : IInstanceFileSystemService
 {
     private readonly string _instancesBasePath;
     private readonly string _portableGlobalPath;
+    private readonly ILauncherPathsService _pathsService;
+    private readonly ISymlinkService _symlinkService;
 
-    public InstanceFileSystemService()
+    public InstanceFileSystemService(ILauncherPathsService pathsService, ISymlinkService symlinkService)
     {
-        _instancesBasePath = LauncherPathsService.InstancesDirectory;
-        _portableGlobalPath = Path.Combine(LauncherPathsService.DataDirectory, "Global");
+        _pathsService = pathsService;
+        _symlinkService = symlinkService;
+        
+        _instancesBasePath = _pathsService.InstancesDirectory;
+        _portableGlobalPath = Path.Combine(_pathsService.DataDirectory, "Global");
     }
 
     public string GetGlobalMinecraftPath()
@@ -237,7 +242,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
         {
             await Task.Run(() => 
             {
-                AdminSymlinkHelper.CreateSymlinksElevated(sourcePath, instancePath, inclusionList);
+                _symlinkService.CreateSymlinksElevated(sourcePath, instancePath, inclusionList);
             });
         }
         catch (Exception ex)

@@ -20,10 +20,13 @@ public class InstanceService : IInstanceService
 {
     private readonly string _instancesFolderPath;
     private readonly string _jsonFilePath;
+    private readonly ILauncherPathsService _pathsService;
 
-    public InstanceService()
+    public InstanceService(ILauncherPathsService pathsService)
     {
-        _instancesFolderPath = LauncherPathsService.InstancesDirectory;
+        _pathsService = pathsService;
+        
+        _instancesFolderPath = _pathsService.InstancesDirectory;
         _jsonFilePath = Path.Combine(_instancesFolderPath, "instances.json");
     }
 
