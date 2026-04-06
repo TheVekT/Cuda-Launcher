@@ -258,14 +258,14 @@ public class ThemeService
     private void ReplaceApplicationResources(ResourceDictionary newDict)
     {
         var dicts = Application.Current.Resources.MergedDictionaries;
-        
         var oldTheme = dicts.FirstOrDefault(d => d.Contains("ThemeInfo"));
-        if (oldTheme != null) dicts.Remove(oldTheme);
-
-        var brushes = dicts.FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Brushes.xaml"));
-        if (brushes != null) dicts.Remove(brushes);
-
-        dicts.Add(newDict);
-        dicts.Add(new ResourceDictionary { Source = new Uri("Resources/Styles/Brushes.xaml", UriKind.Relative) });
+        var oldBrushes = dicts.FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Brushes.xaml"));
+        
+        if (oldTheme != null)
+            dicts[dicts.IndexOf(oldTheme)] = newDict;
+        else
+            dicts.Add(newDict);
+        if (oldBrushes != null)
+            dicts[dicts.IndexOf(oldBrushes)] = new ResourceDictionary { Source = new Uri("Resources/Styles/Brushes.xaml", UriKind.Relative) };
     }
 }

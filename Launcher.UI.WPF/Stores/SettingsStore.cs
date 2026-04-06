@@ -46,7 +46,7 @@ public class SettingsStore: INotifyPropertyChanged
     
     public IEnumerable<BackupFrequency> BackupFrequencyValues => Enum.GetValues(typeof(BackupFrequency)).Cast<BackupFrequency>();
     
-public SettingsStore(ThemeService themeService, ISysInfoService sysInfoService, ISettingsService settingsService)
+    public SettingsStore(ThemeService themeService, ISysInfoService sysInfoService, ISettingsService settingsService)
     {
         _themeService = themeService;
         _sysInfoService = sysInfoService;
