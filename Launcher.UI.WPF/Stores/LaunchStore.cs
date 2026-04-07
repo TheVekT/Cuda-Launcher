@@ -3,7 +3,7 @@ using Launcher.Core.Services.Game;
 
 namespace Launcher.UI.WPF.Stores;
 
-public class LaunchStore: INotifyPropertyChanged
+public class LaunchStore
 {
     //Services
     private readonly ILaunchService _launchService;
@@ -12,7 +12,4 @@ public class LaunchStore: INotifyPropertyChanged
     {
         _launchService = launchService;
     }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

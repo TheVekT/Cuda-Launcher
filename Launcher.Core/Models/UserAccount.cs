@@ -9,7 +9,6 @@ public class UserAccount
     public string AccessToken { get; set; }
     public bool IsOffline { get; set; }
     
-    public bool IsSelected { get; set; }
     public string AccountTypeString => IsOffline ? "Offline" : "Microsoft";
     
     public UserAccount() 

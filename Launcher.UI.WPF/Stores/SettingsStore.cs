@@ -1,15 +1,20 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.System;
+using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.Stores;
 
-public class SettingsStore: INotifyPropertyChanged
+public partial class SettingsStore: ObservableObject, 
+    IRecipient<ThemeImportedMessage>, 
+    IRecipient<LanguageImportedMessage>
 {
     //Services
     private readonly ThemeService _themeService;
@@ -17,26 +22,50 @@ public class SettingsStore: INotifyPropertyChanged
     private readonly ISettingsService _settingsService;
     
     //Attributes
+    [ObservableProperty]
+    [property: SettingProperty]
     private string _currentThemePath;
     private LanguageModel _selectedLanguage;
     
     //General settings
     
+    [ObservableProperty]
+    [property: SettingProperty]
     private bool _isKeepLauncherOpen;
+    [ObservableProperty]
+    [property: SettingProperty]
     private bool _isEnableAutoUpdates;
+    [ObservableProperty]
+    [property: SettingProperty]
     private bool _isEnableDiscordRichPresence;
     private double _uiScale;
     
     //Game settings
-    
+    [ObservableProperty]
     private long _maxPhysicalRam;
+    [ObservableProperty]
+    [property: SettingProperty]
     private int _selectedMaxRam;
+    [ObservableProperty]
+    [property: SettingProperty]
     private bool _isEnableSnapshots;
+    [ObservableProperty]
+    [property: SettingProperty]
     private bool _isGameFullScreen;
+    [ObservableProperty]
+    [property: SettingProperty]
     private string _selectedResolution;
+    [ObservableProperty]
+    [property: SettingProperty]
     private bool _isEnableAutoBackups;
+    [ObservableProperty]
+    [property: SettingProperty]
     private BackupFrequency _selectedBackupFrequency;
+    [ObservableProperty]
+    [property: SettingProperty]
     private int _maxBackupCount;
+    [ObservableProperty]
+    [property: SettingProperty]
     private string _JVMArguments;
     
     //Collections
@@ -96,91 +125,30 @@ public class SettingsStore: INotifyPropertyChanged
         _settingsService.Initialize(this);
         
         _themeService.ChangeTheme(_currentThemePath);
+        
+        WeakReferenceMessenger.Default.RegisterAll(this);
+    }
+    
+    public void Receive(ThemeImportedMessage message)
+    {
+        var lastThemePath = CurrentThemePath;
+        AvailableThemes.Clear();
+        var themes = _themeService.ReloadThemes();
+        foreach (var theme in themes) AvailableThemes.Add(theme);
+        CurrentThemePath = lastThemePath;
+    }
+    
+    public void Receive(LanguageImportedMessage message)
+    {
+        var lastLangCode = SelectedLanguage.Code;
+        AvailableLanguages.Clear(); 
+        var langs = LocalizationService.Instance.GetAvailableLanguages();
+        foreach (var lang in langs) AvailableLanguages.Add(lang);
+        SelectedLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == lastLangCode);
     }
     
     
     //Getters and Setters
-    [SettingProperty]
-    public bool IsKeepLauncherOpen
-    {
-        get => _isKeepLauncherOpen;
-        set
-        {
-            if (_isKeepLauncherOpen != value)
-            {
-                _isKeepLauncherOpen = value;
-                OnPropertyChanged(nameof(IsKeepLauncherOpen));
-            }
-        }
-    }
-    [SettingProperty]
-    public bool IsEnableAutoUpdates
-    {
-        get => _isEnableAutoUpdates;
-        set
-        {
-            if (_isEnableAutoUpdates != value)
-            {
-                _isEnableAutoUpdates = value;
-                OnPropertyChanged(nameof(IsEnableAutoUpdates));
-            }
-        }
-    }
-    [SettingProperty]
-    public bool IsEnableDiscordRichPresence
-    {
-        get => _isEnableDiscordRichPresence;
-        set
-        {
-            if (_isEnableDiscordRichPresence != value)
-            {
-                _isEnableDiscordRichPresence = value;
-                OnPropertyChanged(nameof(IsEnableDiscordRichPresence));
-            }
-        }
-    }
-    [SettingProperty]
-    public long MaxPhysicalRam { get => _maxPhysicalRam; set => _maxPhysicalRam = value; }
-    [SettingProperty]
-    public int SelectedMaxRam
-    {
-        get => _selectedMaxRam;
-        set
-        {
-            if (_selectedMaxRam != value)
-            {
-                _selectedMaxRam = value;
-                OnPropertyChanged(nameof(SelectedMaxRam));
-            }
-        }
-    }
-    [SettingProperty]
-    public bool IsEnableSnapshots
-    {
-        get => _isEnableSnapshots;
-        set
-        {
-            if (_isEnableSnapshots != value)
-            {
-                _isEnableSnapshots = value;
-                OnPropertyChanged(nameof(IsEnableSnapshots));
-            }
-        }
-    }
-    [SettingProperty]
-     public bool IsGameFullScreen
-    {
-        get => _isGameFullScreen;
-        set
-        {
-            if (_isGameFullScreen != value)
-            {
-                _isGameFullScreen = value;
-                OnPropertyChanged(nameof(IsGameFullScreen));
-            }
-        }
-    }
-     
 
     [SettingProperty]
     public LanguageModel SelectedLanguage
@@ -201,95 +169,23 @@ public class SettingsStore: INotifyPropertyChanged
             }
         }
     }
-    [SettingProperty]
-    public string SelectedResolution
+    
+    partial void OnCurrentThemePathChanged(string value)
     {
-        get => _selectedResolution;
-        set
-        {
-            if (_selectedResolution != value)
-            {
-                _selectedResolution = value;
-                OnPropertyChanged(nameof(SelectedResolution));
-            }
-        }
+        _themeService.ChangeTheme(_currentThemePath);
     }
-    [SettingProperty]
-    public bool IsEnableAutoBackups
-    {
-        get => _isEnableAutoBackups;
-        set
-        {
-            if (_isEnableAutoBackups != value)
-            {
-                _isEnableAutoBackups = value;
-                OnPropertyChanged(nameof(IsEnableAutoBackups));
-            }
-        }
-    }
-    [SettingProperty]
-    public BackupFrequency SelectedBackupFrequency
-    {
-        get => _selectedBackupFrequency;
-        set
-        {
-            if (_selectedBackupFrequency != value)
-            {
-                _selectedBackupFrequency = value;
-                OnPropertyChanged(nameof(SelectedBackupFrequency));
-            }
-        }
-    }
-    [SettingProperty]
-    public int MaxBackupCount
-    {
-        get => _maxBackupCount;
-        set
-        {
-            if (_maxBackupCount != value)
-            { 
-                _maxBackupCount = value; 
-                OnPropertyChanged(nameof(MaxBackupCount)); 
-            } 
-        }
-    }
-    [SettingProperty]
-    public string JVMArguments
-    { 
-        get => _JVMArguments;
-        set
-        {
-            if (_JVMArguments != value)
-            {
-                _JVMArguments = value;
-                OnPropertyChanged(nameof(JVMArguments));
-            }
-        }
-    }
-    [SettingProperty]
-    public string CurrentThemePath
-    {
-        get => _currentThemePath;
-        set
-        {
-            if (_currentThemePath != value)
-            {
-                _currentThemePath = value;
-                OnPropertyChanged(nameof(CurrentThemePath));
-                    
-                // Сразу применяем тему
-                _themeService.ChangeTheme(_currentThemePath);
-            }
-        }
-    }
+    
     [SettingProperty]
     public double UiScale
     {
         get => _uiScale;
-        set { if (Math.Abs(_uiScale - value) > 0.001) { _uiScale = value; OnPropertyChanged(nameof(UiScale)); } }
+        set
+        {
+            if (Math.Abs(_uiScale - value) >= 0.01)
+            {
+                _uiScale = value; 
+                OnPropertyChanged(nameof(UiScale));
+            }
+        }
     }
-    
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

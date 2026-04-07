@@ -4,7 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
+using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services;
 using Launcher.Core.Services.Auth; 
@@ -26,25 +29,21 @@ using Microsoft.VisualBasic;
 
 namespace Launcher.UI.WPF.ViewModels;
 
-public class MainViewModel : INotifyPropertyChanged
+public partial class MainViewModel : ObservableObject,
+    IRecipient<GameLaunchStateMessage>,
+    IRecipient<GameLaunchProgressMessage>
 {
     //Services
-    private readonly ThemeService _themeService;
-    private readonly IAuthService _authService; 
-    private readonly IAccountStorageService _accountStorage;
     private readonly IGameVersionService _versionService;
-    private readonly IInstanceService _instanceService; 
-    private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly ILaunchService _launchService;
-    private readonly ISysInfoService _sysInfoService;
     private readonly IDiscordService _discordService;
-    private readonly IDragDropParserService _dragDropParserService;
-    private readonly ILauncherPathsService _pathsService;
+    private readonly ImportOrchestratorService _importOrchestratorService;
+    private readonly IOverlayService _overlayService;
+    private readonly NavigationService _navigationService;
 
     //Stores
     private readonly LoginStore _loginStore;
     private readonly SettingsStore _settingsStore;
-    private readonly LaunchStore _launchStore;
     private readonly InstancesStore _instancesStore;
     private readonly AppStore _appStore;
     
@@ -64,9 +63,8 @@ public class MainViewModel : INotifyPropertyChanged
     public SkinsViewModel SkinsVM => _skinsVM;
     
     //Atributes
-    private object _currentView;
-    private bool _showCompactPlayButton;
     private Process? _currentGameProcess;
+    [ObservableProperty]
     private bool _isEnabledInstancesComboBox = true;
     
     //Overlays
@@ -88,53 +86,46 @@ public class MainViewModel : INotifyPropertyChanged
     public async Task InitializeAsync()
     {
         await _installationsVM.InitializeAsync();
-        await RefreshAllAccountsAsync();
+        await _loginStore.RefreshAllAccountsAsync();
         _ = Task.Run(async () => await _versionService.GetGameVersionsByTypeAsync(GameLoaderType.Vanilla));
     }
 
     public MainViewModel(
-        ThemeService themeService, 
-        IAuthService authService, 
-        IAccountStorageService accountStorage,
         IGameVersionService versionService,
-        IInstanceService instanceService,
-        IInstanceFileSystemService instanceFileSystemService,
         ILaunchService launchService,
-        ISysInfoService sysInfoService,
         IDiscordService discordService,
-        IDragDropParserService dragDropParserService,
-        ILauncherPathsService pathsService,
+        ImportOrchestratorService importOrchestratorService,
+        IOverlayService overlayService,
+        NavigationService navigationService,
         LoginStore loginStore,
         SettingsStore settingsStore,
-        LaunchStore launchStore,
         InstancesStore instancesStore,
-        AppStore appStore)
+        AppStore appStore,
+        PlayViewModel playVM, 
+        InstallationsViewModel installationsVM, 
+        SkinsViewModel skinsVM,
+        LoginVM loginVM,
+        SettingsVM settingsVM)
     {
-        _themeService = themeService;
-        _authService = authService;
-        _accountStorage = accountStorage;
         _versionService = versionService;
-        _instanceService = instanceService;
-        _instanceFileSystemService = instanceFileSystemService;
         _launchService = launchService;
-        _sysInfoService = sysInfoService;
         _discordService = discordService;
-        _dragDropParserService = dragDropParserService;
-        _pathsService = pathsService;
+        _importOrchestratorService = importOrchestratorService;
+        _overlayService = overlayService;
+        _navigationService = navigationService;
 
         //Stores
         _loginStore = loginStore;
         _settingsStore = settingsStore;
-        _launchStore = launchStore;
         _instancesStore = instancesStore;
         _appStore = appStore;
         
         //ViewModels
-        _playVM = new PlayViewModel(_discordService, _settingsStore, _instancesStore, _appStore);
-        _installationsVM = new InstallationsViewModel(_versionService, _instanceService, _instanceFileSystemService, _pathsService, _instancesStore, _settingsStore, _appStore);
-        _skinsVM = new SkinsViewModel();
-        _loginVM = new LoginVM(_authService, _accountStorage,_loginStore);
-        _settingsVM = new SettingsVM(_settingsStore, _themeService, _appStore);
+        _playVM = playVM;
+        _installationsVM = installationsVM;
+        _skinsVM = skinsVM;
+        _loginVM = loginVM;
+        _settingsVM = settingsVM;
         
         //Overlays
         _settingsMenu = new SettingsMenu();
@@ -150,91 +141,52 @@ public class MainViewModel : INotifyPropertyChanged
             {
                 switch (pageName)
                 {
-                    case "Play": CurrentView = PlayVM; break;
-                    case "Installations": CurrentView = InstallationsVM; break;
-                    case "Skins": CurrentView = SkinsVM; break;
+                    case "Play": _navigationService.Navigate(_playVM); break;
+                    case "Installations": _navigationService.Navigate(_installationsVM); break;
+                    case "Skins": _navigationService.Navigate(_skinsVM); break;
                 }
             }
         });
-        CurrentView = PlayVM;
         
-        OpenSettingsCommand = new RelayCommand(o => _appStore.CurrentOverlayView = _settingsMenu);
+        OpenSettingsCommand = new RelayCommand(o => _overlayService.Show(settingsVM));
         
         OpenLoginCommand = new RelayCommand(o => 
         {
            
             _loginVM.IsAddAccPageOpen = !_loginStore.IsLoggedIn; 
-            var loginMenu = new LoginMenu();
-            loginMenu.DataContext = _loginVM; 
-            _appStore.CurrentOverlayView = loginMenu;
+            _overlayService.Show(_loginVM);
         });
 
-        CloseOverlayCommand = new RelayCommand(o => _appStore.CurrentOverlayView = null);
+        CloseOverlayCommand = new RelayCommand(o => _overlayService.Close());
         
         DragEnterCommand = new RelayCommand(o => HandleDragEnter(o));
         DragLeaveCommand = new RelayCommand(o => HandleDragLeave(o));
         DropCommand = new RelayCommand(async o => await HandleDropAsync(o));
         
-        _loginVM.RequestClose += () =>
-        {
-            _appStore.CurrentOverlayView = null;
-        };
-        _settingsVM.RequestClose += () => _appStore.CurrentOverlayView = null;
+        _loginVM.RequestClose += () => _overlayService.Close();
+        _settingsVM.RequestClose += () => _overlayService.Close();
+        
         _playVM.RequestLaunch += async () => await HandlePlayButtonPress();
+        
         _discordService.Initialize(Core.Constants.DiscordAppId);
-    }
-    
-    public async Task RefreshAllAccountsAsync()
-    {
-        bool isChanged = false;
-            
-        var accountsList = _loginStore.Accounts.ToList(); 
-
-        foreach (var acc in accountsList)
-        {
-            if (acc.IsOffline) continue;
-
-            try
-            {
-                await _authService.ValidateAndRefreshAccountAsync(acc);
-                isChanged = true; 
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Auth] Account {acc.Username} validation failed: {ex.Message}");
-                    
-                _loginStore.Accounts.Remove(acc);
-                isChanged = true;
-                    
-                if (_loginStore.CurrentAccount == acc && _loginStore.Accounts.Count > 0)
-                {
-                    _loginStore.CurrentAccount = _loginStore.Accounts.FirstOrDefault();
-                }
-                else if (_loginStore.Accounts.Count == 0)
-                {
-                    _loginStore.CurrentAccount = null;
-                }
-            }
-        }
-        if (isChanged)
-        {
-            _accountStorage.SaveAccounts(_loginStore.Accounts);
-        }
+        _overlayService.RegisterOverlaySetter(view => _appStore.CurrentOverlayView = view);
+        _navigationService.RegisterNavigationHandler(view => AppStore.CurrentView = view);
+        
+        _navigationService.Navigate(_playVM);
+        
+        WeakReferenceMessenger.Default.RegisterAll(this);
     }
     
     private async Task HandlePlayButtonPress()
     {
-        // Если игра уже запущена - закрываем её
         if (_appStore.IsGameRunning)
         {
             await CloseGameProcess();
         }
-        // Если идет загрузка - просто игнорируем нажатие (так как отмену мы убрали)
         else if (_appStore.IsDownloading)
         {
             return; 
         }
-        // Иначе - запускаем
         else
         {
             await LaunchCurrentInstance(); 
@@ -247,7 +199,7 @@ public class MainViewModel : INotifyPropertyChanged
         {
             try
             {
-                _currentGameProcess.Kill(); // Заменили Close() на Kill()
+                _currentGameProcess.Kill(); 
                 await _currentGameProcess.WaitForExitAsync();
             }
             catch (Exception ex)
@@ -271,18 +223,8 @@ public class MainViewModel : INotifyPropertyChanged
 
         try
         {
+            Console.WriteLine("Launching game...");
             IsEnabledInstancesComboBox = false;
-            _appStore.IsDownloading = true;
-            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility));
-            _playVM.DownloadStatusText = "Preparing...";
-            _playVM.DownloadProgress = 0;
-
-            // Полностью перешли на LaunchState
-            var progress = new Progress<LaunchState>(state =>
-            {
-                _playVM.DownloadProgress = state.Progress;
-                _playVM.DownloadStatusText = state.StatusText; 
-            });
         
             var globalSettings = new GlobalLaunchSettings
             {
@@ -292,48 +234,13 @@ public class MainViewModel : INotifyPropertyChanged
             };
 
             _currentGameProcess = await _launchService.LaunchGameAsync(_instancesStore.SelectedInstance,
-                _loginStore.CurrentAccount, globalSettings, progress);
-
-            Console.WriteLine("Game started!");
-
-            // === ИГРА ЗАПУЩЕНА ===
-            _appStore.IsGameRunning = true;
-            _playVM.UpdateDiscordPresence();
-            _appStore.IsDownloading = false;
-            _instancesStore.ApplySort();
-        
-            // hide main window when game is launched
-            if (!_settingsStore.IsKeepLauncherOpen) Application.Current.MainWindow.Hide();
-            
-            // Меняем текст кнопки на "Close"
-            _playVM.CurrentPlayButtonText.Update("Play.PlayButton.Close"); 
-            _playVM.ChangeToPlayIcon("Icon.Close"); // Устанавливаем иконку крестика (предварительно добавив её в ресурсы)
-        
-            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility)); 
-            _instanceService.SaveInstances(_instancesStore.Instances);
+                _loginStore.CurrentAccount, globalSettings);
 
             await _currentGameProcess.WaitForExitAsync();
-            
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine(ex);
-            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility)); 
-        }
-        finally
-        {
-            // === СБРОС СОСТОЯНИЯ (игра закрыта сама или убита кнопкой) ===
-            _appStore.IsDownloading = false;
-            _appStore.IsGameRunning = false;
-            IsEnabledInstancesComboBox = true;
-            Application.Current.MainWindow.Show();
-            
-            // Возвращаем текст кнопки на "PLAY"
-            _playVM.CurrentPlayButtonText.Update("Play.PlayButton");
-            _playVM.UpdateDiscordPresence();
-            _playVM.ChangeToPlayIcon("Icon.Play"); // И возвращаем иконку "Play"
-        
-            _currentGameProcess = null;
+            Debug.WriteLine(ex);
         }
     }
 
@@ -364,195 +271,90 @@ public class MainViewModel : INotifyPropertyChanged
     {
         _appStore.IsDragDropActive = false;
         
-        if (parameter is DragEventArgs e)
+        if (parameter is DragEventArgs e && e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files != null && files.Length > 0)
             {
-                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files != null && files.Length > 0)
+                using var cts = new CancellationTokenSource();
+                
+                var progressVM = new ProgressVM(
+                    onHide: () => _appStore.IsOverlayVisible = false, 
+                    onCancel: () => cts.Cancel()                      
+                )
                 {
-                    using var cts = new CancellationTokenSource();
-                    
-                    var progressVM = new ProgressVM(
-                        onHide: () => _appStore.IsOverlayVisible = false, 
-                        onCancel: () => cts.Cancel()                      
-                    )
+                    Title = LocalizationService.Instance["ProgressMenu.ImportingFiles.Title"],
+                    Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.DescriptionPreparing"], files.Length),
+                    IsIndeterminate = false,
+                    ProgressValue = 0,
+                    ProgressText = "0%"
+                };
+
+                _overlayService.Show(progressVM);
+
+                try
+                {
+                    var progressHandler = new Progress<(double Percent, string FileName)>(data => 
                     {
-                        Title = LocalizationService.Instance["ProgressMenu.ImportingFiles.Title"],
-                        Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.DescriptionPreparing"], files.Count()),
-                        IsIndeterminate = false,
-                        ProgressValue = 0,
-                        ProgressText = "0%"
-                    };
+                        progressVM.Report(data.Percent);
+                        progressVM.Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.Description"], data.FileName);
+                    });
+                    
+                    int successCount = await _importOrchestratorService.ProcessDroppedFilesAsync(
+                        files, 
+                        _instancesStore.SelectedInstance, 
+                        progressHandler, 
+                        cts.Token);
 
-                    var progressView = new ProgressMenu { DataContext = progressVM };
-                    _appStore.CurrentOverlayView = progressView;
-                    
-                    
-                    int totalFiles = files.Length;
-                    int processedFiles = 0;
-                    int successCount = 0;
-                    
-                    bool isThemeLoaded = false;
-                    bool isLocalizationLoaded = false;
-                    var currentInstance = _instancesStore.SelectedInstance; 
-
-                    try
+                    if (successCount > 0)
                     {
-                        foreach (var file in files)
-                        {
-                            cts.Token.ThrowIfCancellationRequested();
-
-                            string fileName = Path.GetFileName(file);
-                            
-                            fileName = fileName.Length > 32 ? fileName.Remove(32) : fileName;
-                            progressVM.Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.Description"], fileName);
-
-                            try
-                            {
-                                var fileType = await _dragDropParserService.ParseFileAsync(file);
-                                
-                                switch (fileType)
-                                {
-                                    case ParsedFileType.MinecraftMod:
-                                        if (currentInstance == null) throw new InvalidOperationException("Select an instance to install the mod.");
-                                        await _instanceFileSystemService.ImportModAsync(currentInstance, file);
-                                        break;
-                                    
-                                    case ParsedFileType.MinecraftResourcepack:
-                                        if (currentInstance == null) throw new InvalidOperationException("Select an instance to install the resource pack.");
-                                        await _instanceFileSystemService.ImportResourcePackAsync(currentInstance, file);
-                                        break;
-                                        
-                                    case ParsedFileType.MinecraftShaderpack:
-                                        if (currentInstance == null) throw new InvalidOperationException("Select an instance to install the shader pack.");
-                                        await _instanceFileSystemService.ImportShaderPackAsync(currentInstance, file);
-                                        break;
-                                        
-                                    case ParsedFileType.MinecraftWorldSave:
-                                        if (currentInstance == null) throw new InvalidOperationException("Select an instance to import the world save.");
-                                        await _instanceFileSystemService.ImportSaveAsync(currentInstance, file);
-                                        break;
-                                        
-                                    case ParsedFileType.LauncherTheme:
-                                        await _themeService.ImportTheme(file);
-                                        isThemeLoaded = true;
-                                        break;
-                                        
-                                    case ParsedFileType.LauncherLocalization:
-                                        await LocalizationService.Instance.ImportLocalization(file);
-                                        isLocalizationLoaded = true;
-                                        break;
-                                        
-                                    case ParsedFileType.Unknown:
-                                    default:
-                                        continue;
-                                }
-                                
-                                successCount++;
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                throw; 
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine($"Error importing file '{file}': {ex}");
-                            }
-                            finally
-                            {
-                                processedFiles++;
-                                double currentProgress = ((double)processedFiles / totalFiles) * 100;
-                                progressVM.Report(currentProgress);
-                            }
-                        }
-
-                        if (isThemeLoaded) 
-                        {
-                            var lastThemePath = _settingsStore.CurrentThemePath;
-                            _settingsStore.AvailableThemes.Clear();
-                            var themes = _themeService.ReloadThemes();
-                            foreach (var theme in themes) _settingsStore.AvailableThemes.Add(theme);
-                            _settingsStore.CurrentThemePath = lastThemePath;
-                        }
-
-                        if (isLocalizationLoaded)
-                        {
-                            var lastLangCode = _settingsStore.SelectedLanguage.Code;
-                            
-                            _settingsStore.AvailableLanguages.Clear(); 
-                            
-                            var langs = LocalizationService.Instance.GetAvailableLanguages();
-                            foreach (var lang in langs) _settingsStore.AvailableLanguages.Add(lang);
-                            _settingsStore.SelectedLanguage = _settingsStore.AvailableLanguages.FirstOrDefault(l => l.Code == lastLangCode);
-                        }
-
-                        if (successCount > 0)
-                        {
-                            var title = LocalizationService.Instance["Success.SuccessImport"];
-                            var desc = String.Format(LocalizationService.Instance["Success.SuccessImportDesc"], successCount, totalFiles);
-                            NotificationService.Instance.ShowSuccess(title, desc);
-                        }
+                        var title = LocalizationService.Instance["Success.SuccessImport"];
+                        var desc = String.Format(LocalizationService.Instance["Success.SuccessImportDesc"], successCount, files.Length);
+                        NotificationService.Instance.ShowSuccess(title, desc);
                     }
-                    catch (OperationCanceledException)
-                    {
-                        var title = LocalizationService.Instance["Info.ImportCanceledTitle"];
-                        var desc = LocalizationService.Instance["Info.ImportCanceledDesc"];
-                        NotificationService.Instance.ShowInfo(title, desc);
-                    }
-                    finally
-                    {
-                        _appStore.CurrentOverlayView = null;
-                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    var title = LocalizationService.Instance["Info.ImportCanceledTitle"];
+                    var desc = LocalizationService.Instance["Info.ImportCanceledDesc"];
+                    NotificationService.Instance.ShowInfo(title, desc);
+                }
+                finally
+                {
+                    _overlayService.Close();
                 }
             }
             e.Handled = true;
         }
     }
 
-    //Getters & Setters
-
-    public bool IsEnabledInstancesComboBox
+    public void Receive(GameLaunchProgressMessage message)
     {
-        get => _isEnabledInstancesComboBox;
-        set
+        // nothing there :D
+    }
+
+    public void Receive(GameLaunchStateMessage message)
+    {
+        var app = Application.Current;
+        var dispatcher = app?.Dispatcher;
+
+        if (dispatcher != null && !dispatcher.CheckAccess())
         {
-            if (_isEnabledInstancesComboBox != value)
-            {
-                _isEnabledInstancesComboBox = value;
-                OnPropertyChanged(nameof(IsEnabledInstancesComboBox));
-            }
+            _ = dispatcher.InvokeAsync(() => Receive(message));
+            return;
+        }
+
+        if (message.IsRunning)
+        {
+            Console.WriteLine("Game started!");
+            if (!_settingsStore.IsKeepLauncherOpen)
+                app?.MainWindow?.Hide();
+        }
+        else {
+            IsEnabledInstancesComboBox = true;
+            app?.MainWindow?.Show();
+            _currentGameProcess = null;
         }
     }
     
-    public object CurrentView
-    {
-        get => _currentView;
-        set
-        {
-            if (_currentView != value)
-            {
-                _currentView = value;
-                OnPropertyChanged(nameof(CurrentView));
-                
-                ShowCompactPlayButton = !(_currentView is PlayViewModel);
-            }
-        }
-    }
-
-    public bool ShowCompactPlayButton
-    {
-        get => _showCompactPlayButton;
-        set
-        {
-            if (_showCompactPlayButton != value)
-            {
-                _showCompactPlayButton = value;
-                OnPropertyChanged(nameof(ShowCompactPlayButton));
-            }
-        }
-    }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.System;
@@ -11,7 +12,7 @@ using Microsoft.Win32;
 
 namespace Launcher.UI.WPF.Stores;
 
-public class InstancesStore: INotifyPropertyChanged
+public partial class InstancesStore: ObservableObject
 {
     //Services
     private readonly IInstanceFileSystemService _instanceFileSystemService;
@@ -21,9 +22,14 @@ public class InstancesStore: INotifyPropertyChanged
 
     //Attributes
     private readonly string _iconsDirectory;
+    [ObservableProperty]
     private MinecraftInstance? _selectedInstance;
     private readonly List<string> _ignoredIcons = new() { "example.png" };
+    [ObservableProperty]
+    [property: SettingProperty]
     private string? _lastSelectedInstanceId;
+    [ObservableProperty]
+    [property: SettingProperty]
     private int _selectedSortIndex;
     
     //Collections
@@ -31,8 +37,6 @@ public class InstancesStore: INotifyPropertyChanged
     
     public ObservableCollection<string> IconList { get; } = new();
     
-    //Events
-    public event Action AddedInstance;
     
     //Commands
     public ICommand SelectIconCommand { get; }
@@ -68,7 +72,6 @@ public class InstancesStore: INotifyPropertyChanged
                 SelectedInstance = Instances.FirstOrDefault();
             }
         }
-        AddedInstance += () => ApplySort();
         ApplySort();
         
         SelectIconCommand = new RelayCommand(_ => SelectIconFromFileDialog());
@@ -80,7 +83,7 @@ public class InstancesStore: INotifyPropertyChanged
         var dialog = new OpenFileDialog
         {
             Filter = "Image Files|*.png;*.jpg;*.jpeg;*.ico;*.gif",
-            Title = "Выберите иконку"
+            Title = "Select icon"
         };
 
         if (dialog.ShowDialog() == true)
@@ -132,7 +135,6 @@ public class InstancesStore: INotifyPropertyChanged
         OnPropertyChanged(nameof(IconList));
     }
     
-    public void InvokeAddedInstance() => AddedInstance?.Invoke();
     
     private void LoadSavedInstances()
     {
@@ -231,52 +233,15 @@ public class InstancesStore: INotifyPropertyChanged
     }
     
     //Getters and Setters
-    [SettingProperty]
-    public string? LastSelectedInstanceId
+    
+    partial void OnSelectedInstanceChanged(MinecraftInstance? value)
     {
-        get => _lastSelectedInstanceId;
-        set
-        {
-            if (_lastSelectedInstanceId != value)
-            {
-                _lastSelectedInstanceId = value;
-                OnPropertyChanged(nameof(LastSelectedInstanceId));
-            }
-        }
+        if (value != null) LastSelectedInstanceId = value.Id;
+        else LastSelectedInstanceId = null;
     }
     
-    public MinecraftInstance? SelectedInstance
+    partial void OnSelectedSortIndexChanged(int value)
     {
-        get => _selectedInstance;
-        set
-        {
-            if (_selectedInstance != value)
-            {
-                _selectedInstance = value;
-                if (value != null) LastSelectedInstanceId = value.Id;
-                else LastSelectedInstanceId = null;
-                OnPropertyChanged(nameof(SelectedInstance));
-            }
-        }
+        ApplySort();
     }
-    
-    [SettingProperty]
-    public int SelectedSortIndex
-    {
-        get => _selectedSortIndex;
-        set
-        {
-            if (_selectedSortIndex != value)
-            {
-                _selectedSortIndex = value;
-                OnPropertyChanged(nameof(SelectedSortIndex));
-                // Как только меняется выбор в ComboBox, запускаем сортировку
-                ApplySort();
-            }
-        }
-    }
-    
-   
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

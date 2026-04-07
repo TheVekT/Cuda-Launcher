@@ -4,7 +4,7 @@ using Launcher.Core.Models;
 
 namespace Launcher.Core.Services.UI;
 
-public interface ILocalizationService : INotifyPropertyChanged
+public interface ILocalizationService
 {
     string this[string key] { get; }
 

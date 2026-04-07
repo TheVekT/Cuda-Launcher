@@ -8,7 +8,9 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media.Imaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Services.System;
+using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Services;
@@ -18,7 +20,11 @@ public class ThemeService
     private readonly string _themesRoot;  // Рабочая папка: Assets/Themes (рядом с exe)
     private readonly string _cacheRoot;   // Кэш: Assets/Themes/Cache
     private readonly ILauncherPathsService _pathsService;
-
+    private List<ThemeModel> _availableThemes = new List<ThemeModel>();
+    private ThemeModel _currentTheme;
+    
+    public ThemeModel CurrentTheme => _currentTheme;
+    
     // Имена файлов, которые мы ищем ВНУТРИ ресурсов и создаем НА ДИСКЕ
     private readonly string[] _defaultThemeFiles = { "default-dark.zip", "default-light.zip" };
 
@@ -36,12 +42,18 @@ public class ThemeService
         RestoreEmbeddedThemes();
     }
     
+    public ThemeModel GetThemeByFileName(string fileName)
+    {
+        return _availableThemes.FirstOrDefault(t => t.ZipPath.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+    }
+    
     public async Task ImportTheme(string themeFilePath)
     {
         if (string.IsNullOrEmpty(themeFilePath) || !File.Exists(themeFilePath)) return;
 
         var destPath = Path.Combine(_themesRoot, Path.GetFileName(themeFilePath));
         File.Copy(themeFilePath, destPath, true);
+        WeakReferenceMessenger.Default.Send(new ThemeImportedMessage());
     }
 
     private void RestoreEmbeddedThemes()
@@ -120,14 +132,16 @@ public class ThemeService
         }
 
         // Сортировка: Сначала дефолтные (в порядке массива), потом остальные
-        return list.OrderBy(t => 
-        {
-            var fName = Path.GetFileName(t.ZipPath);
-            int index = Array.IndexOf(_defaultThemeFiles, fName);
-            return index >= 0 ? index : int.MaxValue;
-        })
-        .ThenBy(t => t.Name)
-        .ToList();
+        var res = list.OrderBy(t => 
+            {
+                var fName = Path.GetFileName(t.ZipPath);
+                int index = Array.IndexOf(_defaultThemeFiles, fName);
+                return index >= 0 ? index : int.MaxValue;
+            })
+            .ThenBy(t => t.Name)
+            .ToList();
+        _availableThemes = res;
+        return res;
     }
 
     // === 3. Распаковка и обработка одной темы ===
@@ -233,6 +247,8 @@ public class ThemeService
                 var newDict = (ResourceDictionary)XamlReader.Load(stream, parserContext);
                 ReplaceApplicationResources(newDict);
             }
+            _currentTheme = GetThemeByFileName(themeFileName);
+            WeakReferenceMessenger.Default.Send(new ThemeChangedMessage(themeFileName));
         }
         catch (Exception ex)
         {

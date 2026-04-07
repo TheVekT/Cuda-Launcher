@@ -1,6 +1,9 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using Launcher.Core.Messages;
 using Launcher.Core.Services;
 using Launcher.Core.Services.Integrations;
 using Launcher.UI.WPF.Helpers;
@@ -9,7 +12,9 @@ using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Game;
 
-public class PlayViewModel: INotifyPropertyChanged
+public partial class PlayViewModel: ObservableObject,
+    IRecipient<GameLaunchProgressMessage>,
+    IRecipient<GameLaunchStateMessage>
 {
     //Services
     private readonly IDiscordService _discordService;
@@ -19,10 +24,13 @@ public class PlayViewModel: INotifyPropertyChanged
     private readonly InstancesStore _instancesStore;
     private readonly AppStore _appStore;
     
+
     private double _downloadProgress;
+    [ObservableProperty]
     private string _downloadStatusText = "Initiating...";
+    [ObservableProperty]
     private string _downloadPercentText = "0%";
-    
+    [ObservableProperty]
     private object _currentPlayButtonIcon;
     public DynamicTranslation CurrentPlayButtonText { get; } = new DynamicTranslation("Play.PlayButton");
     
@@ -46,6 +54,7 @@ public class PlayViewModel: INotifyPropertyChanged
         
         
         ChangeToPlayIcon("Icon.Play");
+        WeakReferenceMessenger.Default.RegisterAll(this);
     }
     
     private void OnSettingsStorePropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -73,22 +82,37 @@ public class PlayViewModel: INotifyPropertyChanged
     {
         CurrentPlayButtonIcon = Application.Current.TryFindResource(path);
     }
-    
-    //Getters and Setters
-    public object CurrentPlayButtonIcon
+
+    public void Receive(GameLaunchProgressMessage message)
     {
-        get => _currentPlayButtonIcon;
-        set
+        _appStore.IsDownloading = true;
+        OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility));
+        DownloadStatusText = message.Status;
+        DownloadProgress = message.Percent;
+    }
+
+    public void Receive(GameLaunchStateMessage message)
+    {
+        if (message.IsRunning) {
+            _appStore.IsGameRunning = true;
+            UpdateDiscordPresence();
+            _appStore.IsDownloading = false;
+            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility)); 
+            CurrentPlayButtonText.Update("Play.PlayButton.Close"); 
+            ChangeToPlayIcon("Icon.Close");
+        }
+        else
         {
-            if (_currentPlayButtonIcon != value)
-            {
-                _currentPlayButtonIcon = value;
-                OnPropertyChanged(nameof(CurrentPlayButtonIcon));
-            }
+            _appStore.IsDownloading = false;
+            _appStore.IsGameRunning = false;
+            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility)); 
+            CurrentPlayButtonText.Update("Play.PlayButton");
+            UpdateDiscordPresence();
+            ChangeToPlayIcon("Icon.Play");
         }
     }
-    
 
+    //Getters and Setters
     
     public double DownloadProgress
     {
@@ -99,40 +123,8 @@ public class PlayViewModel: INotifyPropertyChanged
             {
                 _downloadProgress = value;
                 OnPropertyChanged(nameof(DownloadProgress));
-                DownloadPercentText = $"{value:0}%";
+                DownloadPercentText = $"{value:0}%"; 
             }
         }
     }
-    
-    // 3. Текст статуса (например "DOWNLOADING ASSETS")
-    public string DownloadStatusText
-    {
-        get => _downloadStatusText;
-        set
-        {
-            if (_downloadStatusText != value)
-            {
-                _downloadStatusText = value;
-                OnPropertyChanged(nameof(DownloadStatusText));
-            }
-        }
-    }
-
-    // 4. Текст процентов (отдельно для правого TextBlock)
-    public string DownloadPercentText
-    {
-        get => _downloadPercentText;
-        set
-        {
-            if (_downloadPercentText != value)
-            {
-                _downloadPercentText = value;
-                OnPropertyChanged(nameof(DownloadPercentText));
-            }
-        }
-    }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    
 }

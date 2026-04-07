@@ -3,7 +3,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
+using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
@@ -12,12 +15,10 @@ using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
 
-public class InstanceSettingsVM : INotifyPropertyChanged
+public partial class InstanceSettingsVM : ObservableObject
 {
-        //Services
+    //Services
     private readonly IGameVersionService _versionService;
-    private readonly IInstanceService _instanceService;
-    private readonly IInstanceFileSystemService _instanceFileSystemService;
     
     //Stores
     private readonly InstancesStore _instancesStore;
@@ -26,20 +27,35 @@ public class InstanceSettingsVM : INotifyPropertyChanged
     //Attributes
     private MinecraftInstance _instance;
     
+    [ObservableProperty]
     private string _selectedIcon;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SuggestedName))]
     private string _selectedGameVersion;
+    [ObservableProperty]
     private string _installationName;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SuggestedName))]
     private string _selectedModLoader;
+    [ObservableProperty]
     private string _selectedLoaderVersion;
+    [ObservableProperty]
     private bool _useGlobalGameSettings;
+    [ObservableProperty]
     private bool _useGlobalBackupSettings;
-    
+    [ObservableProperty]
     private int _selectedMaxRam;
+    [ObservableProperty]
     private bool _isGameFullscreen;
+    [ObservableProperty]
     private string _selectedResolution;
+    [ObservableProperty]
     private bool _isEnableAutoBackups;
+    [ObservableProperty]
     private BackupFrequency _selectedBackupFrequency;
+    [ObservableProperty]
     private int _maxBackupCount;
+    [ObservableProperty]
     private string _JVMArguments;
     
     //Commands
@@ -58,16 +74,12 @@ public class InstanceSettingsVM : INotifyPropertyChanged
     
     public InstanceSettingsVM(MinecraftInstance instance,
         IGameVersionService versionService, 
-        IInstanceService instanceService, 
-        IInstanceFileSystemService instanceFileSystemService,
         InstancesStore instancesStore, 
         SettingsStore settingsStore)
     {
         _instance = instance;
         
         _versionService = versionService;
-        _instanceService = instanceService;
-        _instanceFileSystemService = instanceFileSystemService;
         
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
@@ -137,19 +149,8 @@ public class InstanceSettingsVM : INotifyPropertyChanged
             UseGlobalBackupSettings ? null : (BackupFrequency?)SelectedBackupFrequency;
         _instance.BackupSettings.SavesMaxBackups = UseGlobalBackupSettings ? null : (int?)MaxBackupCount;
         
-        try
-        {
-            _instanceService.SaveInstances(_instancesStore.Instances);
-
-            RequestClose?.Invoke();
-            Debug.WriteLine($"Modified Instance: {finalName}");
-            _instancesStore.InvokeAddedInstance();
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show($"Error saving instance settings: {ex.Message}", "Ошибка",
-                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-        }
+        WeakReferenceMessenger.Default.Send(new InstanceUpdatedMessage(_instance)); 
+        RequestClose?.Invoke();
     }
 
     private void RefreshGlobalGameSettings()
@@ -222,176 +223,16 @@ public class InstanceSettingsVM : INotifyPropertyChanged
     
     
     //Getters and Setters
-    
-    
-    public bool UseGlobalGameSettings
+    partial void OnUseGlobalGameSettingsChanged(bool value)
     {
-        get => _useGlobalGameSettings;
-        set
-        {
-            if (_useGlobalGameSettings != value)
-            {
-                if (value) RefreshGlobalGameSettings();
-                _useGlobalGameSettings = value;
-                OnPropertyChanged(nameof(UseGlobalGameSettings));
-            }
-        }
-    }
-    public bool UseGlobalBackupSettings
-    {
-        get => _useGlobalBackupSettings;
-        set
-        {
-            if (_useGlobalBackupSettings != value) {
-                if (value) RefreshGlobalBackupSettings();
-                _useGlobalBackupSettings = value;
-                OnPropertyChanged(nameof(UseGlobalBackupSettings));
-            }
-        }
+        if (value) RefreshGlobalGameSettings();
     }
     
-    public int SelectedMaxRam
+    partial void OnUseGlobalBackupSettingsChanged(bool value)
     {
-        get => _selectedMaxRam;
-        set
-        {
-            if (_selectedMaxRam != value)
-            {
-                _selectedMaxRam = value;
-                OnPropertyChanged(nameof(SelectedMaxRam));
-            }
-        }
-    }
-    
-    public bool IsGameFullscreen
-    {
-        get => _isGameFullscreen;
-        set
-        {
-            if (_isGameFullscreen != value)
-            {
-                _isGameFullscreen = value;
-                OnPropertyChanged(nameof(IsGameFullscreen));
-            }
-        }
-    }
-    
-    public string SelectedResolution
-    {
-        get => _selectedResolution;
-        set
-        {
-            if (_selectedResolution != value)
-            {
-                _selectedResolution = value;
-                OnPropertyChanged(nameof(SelectedResolution));
-            }
-        }
+        if (value) RefreshGlobalBackupSettings();
     }
 
-    public bool IsEnableAutoBackups
-    {
-        get => _isEnableAutoBackups;
-        set
-        {
-            if (_isEnableAutoBackups != value)
-            {
-                _isEnableAutoBackups = value;
-                OnPropertyChanged(nameof(IsEnableAutoBackups));
-            }
-        }
-    }
-    
-    public BackupFrequency SelectedBackupFrequency
-    {
-        get => _selectedBackupFrequency;
-        set
-        {
-            if (_selectedBackupFrequency != value)
-            {
-                _selectedBackupFrequency = value;
-                OnPropertyChanged(nameof(SelectedBackupFrequency));
-            }
-        }
-    }
-    
-    public int MaxBackupCount
-    {
-        get => _maxBackupCount;
-        set
-        {
-            if (_maxBackupCount != value)
-            {
-                _maxBackupCount = value;
-                OnPropertyChanged(nameof(MaxBackupCount));
-            }
-        }
-    }
-
-    public string JVMArguments
-    {
-        get => _JVMArguments;
-        set
-        {
-            if (_JVMArguments != value)
-            {
-                _JVMArguments = value;
-                OnPropertyChanged(nameof(JVMArguments));
-            }
-        }
-    }
-    
-
-    public string SelectedLoaderVersion
-    {
-        get => _selectedLoaderVersion;
-        set
-        {
-            if (_selectedLoaderVersion != value)
-            {
-                _selectedLoaderVersion = value;
-                OnPropertyChanged(nameof(SelectedLoaderVersion));
-            }
-        }
-    }
-    
-    public string SelectedIcon
-    {
-        get => _selectedIcon;
-        set
-        {
-            if (_selectedIcon != value)
-            {
-                _selectedIcon = value;
-                OnPropertyChanged(nameof(SelectedIcon));
-            }
-        }
-    }
-    public string SelectedGameVersion
-    {
-        get => _selectedGameVersion;
-        set
-        {
-            if (_selectedGameVersion != value)
-            {
-                _selectedGameVersion = value;
-                OnPropertyChanged(nameof(SelectedGameVersion));
-                OnPropertyChanged(nameof(SuggestedName));
-            }
-        }
-    }
-    public string InstallationName
-    {
-        get => _installationName;
-        set
-        {
-            if (_installationName != value)
-            {
-                _installationName = value;
-                OnPropertyChanged(nameof(InstallationName));
-            }
-        }
-    }
     public string SuggestedName
     {
         get
@@ -400,20 +241,4 @@ public class InstanceSettingsVM : INotifyPropertyChanged
             return $"{SelectedModLoader} {SelectedGameVersion}";
         }
     }
-    public string SelectedModLoader
-    {
-        get => _selectedModLoader;
-        set
-        {
-            if (_selectedModLoader != value)
-            {
-                _selectedModLoader = value;
-                OnPropertyChanged(nameof(SelectedModLoader));
-                OnPropertyChanged(nameof(SuggestedName));
-            }
-        }
-    }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
 
-public class SettingsVM: INotifyPropertyChanged
+public class SettingsVM
 {
     private readonly SettingsStore _settingsStore;
     private readonly ThemeService _themeService;
@@ -20,14 +20,6 @@ public class SettingsVM: INotifyPropertyChanged
     public SettingsStore SettingsStore => _settingsStore;
     public AppStore AppStore => _appStore;
     
-    //Collections
-    
-    
-    //Attributes
-    
-
-    
-    
     //Events
     public event Action RequestClose;
     
@@ -36,7 +28,6 @@ public class SettingsVM: INotifyPropertyChanged
     public ICommand ImportThemeCommand { get; }
     public ICommand ImportLanguageCommand { get; }
     public ICommand CloseSelfCommand { get; }
-    public ICommand RefreshThemesCommand { get; }
     public ICommand SelectThemeCommand { get; }
     
     public SettingsVM(SettingsStore settingsStore, ThemeService themeService, AppStore appStore)
@@ -48,19 +39,15 @@ public class SettingsVM: INotifyPropertyChanged
         
             
         CloseSelfCommand = new RelayCommand(o => RequestClose?.Invoke());
-        RefreshThemesCommand = new RelayCommand(o => LoadThemes());
         SelectThemeCommand = new RelayCommand(param => 
         {
             if (param is ThemeModel theme)
             {
                 _settingsStore.CurrentThemePath = theme.ZipPath;
-                _appStore.ThemeBannerPath = theme.BannerPath;
             }
         });
         ImportThemeCommand = new RelayCommand(async o => await ExecuteImportTheme(o));
         ImportLanguageCommand = new RelayCommand(async o => await ExecuteImportLanguage(o));
-            
-        LoadThemes();
     }
 
     private async Task ExecuteImportTheme(object o)
@@ -73,9 +60,6 @@ public class SettingsVM: INotifyPropertyChanged
         if (openFileDialog.ShowDialog() == true)        {
             var selectedFile = openFileDialog.FileName;
             await _themeService.ImportTheme(selectedFile);
-            var lastThemePath = _settingsStore.CurrentThemePath;
-            LoadThemes();
-            _settingsStore.CurrentThemePath = lastThemePath;
         }   
     }
 
@@ -91,28 +75,6 @@ public class SettingsVM: INotifyPropertyChanged
             var selectedFile = openFileDialog.FileName;
             
             await LocalizationService.Instance.ImportLocalization(selectedFile);
-            var lastLangCode = _settingsStore.SelectedLanguage.Code;
-            _settingsStore.AvailableLanguages.Clear(); 
-            var langs = LocalizationService.Instance.GetAvailableLanguages();
-            foreach (var lang in langs) _settingsStore.AvailableLanguages.Add(lang);
-            _settingsStore.SelectedLanguage = _settingsStore.AvailableLanguages.FirstOrDefault(l => l.Code == lastLangCode);
         }
     }
-    
-    public void LoadThemes()
-    {
-        var themes = _themeService.ReloadThemes(); // Это распакует все темы
-        _settingsStore.AvailableThemes.Clear();
-        foreach (var theme in themes)
-        {
-            _settingsStore.AvailableThemes.Add(theme);
-        }
-    }
-    
-    //Getters and Setters
-    
-
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

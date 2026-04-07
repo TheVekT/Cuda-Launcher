@@ -1,54 +1,25 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.UI.WPF.Helpers; // Путь к твоему RelayCommand
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
 
-public class ProgressVM : INotifyPropertyChanged, IProgress<double> // Предполагаю, что у тебя есть базовый класс с INotifyPropertyChanged
+public partial class ProgressVM : ObservableObject, IProgress<double>
 {
+    [ObservableProperty]
     private string _title;
-    
-    public string Title 
-    { 
-        get => _title; 
-        set { _title = value; OnPropertyChanged(nameof(Title)); } 
-    }
-
+    [ObservableProperty]
     private string _message;
-    public string Message 
-    { 
-        get => _message; 
-        set { _message = value; OnPropertyChanged(nameof(Message)); } 
-    }
-
+    [ObservableProperty]
     private double _progressValue;
-    public double ProgressValue 
-    { 
-        get => _progressValue; 
-        set { _progressValue = value; OnPropertyChanged(nameof(ProgressValue)); } 
-    }
-
+    [ObservableProperty]
     private string _progressText;
-    public string ProgressText 
-    { 
-        get => _progressText; 
-        set { _progressText = value; OnPropertyChanged(nameof(ProgressText)); } 
-    }
-
+    [ObservableProperty]
     private bool _isIndeterminate;
-    public bool IsIndeterminate 
-    { 
-        get => _isIndeterminate; 
-        set { _isIndeterminate = value; OnPropertyChanged(nameof(IsIndeterminate) ); } 
-    }
-
+    [ObservableProperty]
     private bool _isCancellable;
-    public bool IsCancellable 
-    { 
-        get => _isCancellable; 
-        set { _isCancellable = value; OnPropertyChanged(nameof(IsCancellable)); } 
-    }
 
     public ICommand CancelCommand { get; }
     public ICommand HideCommand { get; }
@@ -77,7 +48,4 @@ public class ProgressVM : INotifyPropertyChanged, IProgress<double> // Пред�
         ProgressValue = value;
         ProgressText = $"{Math.Round(value, 1)}%";
     }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

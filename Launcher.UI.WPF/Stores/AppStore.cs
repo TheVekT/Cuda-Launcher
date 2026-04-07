@@ -1,26 +1,52 @@
 using System.ComponentModel;
 using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.ViewModels.Game;
 
 namespace Launcher.UI.WPF.Stores;
 
-public class AppStore: INotifyPropertyChanged
+public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
 {
+    private readonly ThemeService _themeService;
+    
+    [ObservableProperty]
     private object? _currentOverlayView;
+    [ObservableProperty]
     private bool _isOverlayVisible;
     private string _themeBannerPath = "Assets/Images/banner-default.jpg";
-    
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DownloadPanelVisibility))]
     private bool _isDownloading;
+    [ObservableProperty]
     private bool _isGameRunning;
+    [ObservableProperty]
     private bool _isDragDropActive;
+    [ObservableProperty]
+    private object _currentView;
+    [ObservableProperty]
+    private bool _showCompactPlayButton;
     
     public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
 
-    public AppStore()
+    public AppStore(ThemeService themeService)
     {
-        //Initialize app state (not implemented yet)
+        _themeService = themeService;
+        
+        ThemeBannerPath = themeService.CurrentTheme.BannerPath;
+        
+        WeakReferenceMessenger.Default.RegisterAll(this);
     }
-    
-    
+
+    public void Receive(ThemeChangedMessage message)
+    {
+        var theme = _themeService.GetThemeByFileName(message.ThemeFileName);
+        Console.WriteLine($"Changing banner path: {theme.Name}");
+        ThemeBannerPath = theme.BannerPath;
+    }
+
     //Getters and Setters
     public bool IsCurrentInstanceProcessing
     {
@@ -28,46 +54,6 @@ public class AppStore: INotifyPropertyChanged
         {
             if (IsGameRunning || IsDownloading) return true;
             return false;
-        }
-    }
-    
-    public bool IsGameRunning
-    {
-        get => _isGameRunning;
-        set
-        {
-            if (_isGameRunning != value)
-            {
-                _isGameRunning = value;
-                OnPropertyChanged(nameof(IsGameRunning));
-            }
-        }
-    }
-    
-    public bool IsDownloading
-    {
-        get => _isDownloading;
-        set
-        {
-            if (_isDownloading != value)
-            {
-                _isDownloading = value;
-                OnPropertyChanged(nameof(IsDownloading));
-                OnPropertyChanged(nameof(DownloadPanelVisibility)); 
-            }
-        }
-    }
-
-    public bool IsDragDropActive
-    {
-        get => _isDragDropActive;
-        set
-        {
-            if (_isDragDropActive != value)
-            {
-                _isDragDropActive = value;
-                OnPropertyChanged(nameof(IsDragDropActive));
-            }
         }
     }
 
@@ -97,18 +83,13 @@ public class AppStore: INotifyPropertyChanged
             return ThemeBannerPath;
         }
     }
-
-    public bool IsOverlayVisible
+    partial void OnCurrentOverlayViewChanged(object? value)
     {
-        get => _isOverlayVisible;
-        set { _isOverlayVisible = value; OnPropertyChanged(nameof(IsOverlayVisible)); }
-    }
-    public object? CurrentOverlayView
-    {
-        get => _currentOverlayView;
-        set { _currentOverlayView = value; OnPropertyChanged(nameof(CurrentOverlayView)); IsOverlayVisible = _currentOverlayView != null; }
+        IsOverlayVisible = value != null;
     }
     
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    partial void OnCurrentViewChanged(object value)
+    {
+        ShowCompactPlayButton = !(value is PlayViewModel);
+    }
 }

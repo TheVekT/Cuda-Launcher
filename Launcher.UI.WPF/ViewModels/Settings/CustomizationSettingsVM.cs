@@ -1,9 +1,10 @@
 using System.ComponentModel;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
 
-public class CustomizationSettingsVM : INotifyPropertyChanged
+public partial class CustomizationSettingsVM : ObservableObject
 {
     
     public ICommand SelfCloseCommand { get; set; }
@@ -11,9 +12,4 @@ public class CustomizationSettingsVM : INotifyPropertyChanged
     public CustomizationSettingsVM (){
         
     }
-    
-    
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

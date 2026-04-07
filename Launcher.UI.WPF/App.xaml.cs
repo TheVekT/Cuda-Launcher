@@ -11,6 +11,10 @@ using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.Integrations;
 using Launcher.Core.Services.System;
+using Launcher.UI.WPF.ViewModels.Accounts;
+using Launcher.UI.WPF.ViewModels.Game;
+using Launcher.UI.WPF.ViewModels.Instances;
+using Launcher.UI.WPF.ViewModels.Settings;
 
 namespace Launcher.UI.WPF;
 
@@ -39,6 +43,9 @@ public partial class App : Application
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IDragDropParserService, DragDropParserService>();
         services.AddSingleton<ISymlinkService, SymlinkService>();
+        services.AddSingleton<ImportOrchestratorService>();
+        services.AddSingleton<IOverlayService, OverlayService>();
+        services.AddSingleton<NavigationService>();
         
         services.AddSingleton<ILaunchService>(provider => new LaunchService(
             provider.GetRequiredService<IInstanceFileSystemService>(),
@@ -47,13 +54,20 @@ public partial class App : Application
             LocalizationService.Instance
         ));
         
+        services.AddSingleton<AppStore>();
         services.AddSingleton<LoginStore>();
         services.AddSingleton<SettingsStore>();
         services.AddSingleton<LaunchStore>();
         services.AddSingleton<InstancesStore>();
-        services.AddSingleton<AppStore>();
+
         
-        services.AddTransient<MainViewModel>(); 
+        
+        services.AddTransient<PlayViewModel>();
+        services.AddTransient<InstallationsViewModel>();
+        services.AddTransient<SkinsViewModel>();
+        services.AddTransient<LoginVM>();
+        services.AddTransient<SettingsVM>();
+        services.AddTransient<MainViewModel>();
         services.AddTransient<MainWindow>();
         
         Services = services.BuildServiceProvider();

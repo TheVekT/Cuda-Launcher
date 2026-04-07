@@ -5,14 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Models;
 using Launcher.Core.Services.System;
 using Launcher.Core.Services.UI;
+using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Services;
 
-public class LocalizationService : ILocalizationService
+public class LocalizationService : ILocalizationService, INotifyPropertyChanged
 {
     public static LocalizationService Instance { get; internal set; }
 
@@ -56,6 +58,7 @@ public class LocalizationService : ILocalizationService
             var destPath = Path.Combine(_languagesRoot, fileName);
 
             File.Copy(filePath, destPath, overwrite: true);
+            WeakReferenceMessenger.Default.Send(new LanguageImportedMessage());
         }
         catch
         {

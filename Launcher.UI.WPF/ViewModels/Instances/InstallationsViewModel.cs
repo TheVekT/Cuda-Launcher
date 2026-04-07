@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
+using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
@@ -21,13 +23,16 @@ using Launcher.UI.WPF.ViewModels.Settings;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
 
-public class InstallationsViewModel : INotifyPropertyChanged
+public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
+    IRecipient<InstanceCreatedMessage>,
+    IRecipient<InstanceUpdatedMessage>
 {
     //Services
     private readonly IGameVersionService _versionService;
     private readonly IInstanceService _instanceService;
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly ILauncherPathsService _pathsService;
+    private readonly IOverlayService _overlayService;
 
     //Stores
     private readonly InstancesStore _instancesStore;
@@ -56,6 +61,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
         IInstanceService instanceService,
         IInstanceFileSystemService instanceFileSystemService,
         ILauncherPathsService pathsService,
+        IOverlayService overlayService,
         InstancesStore instancesStore,
         SettingsStore settingsStore,
         AppStore appStore)
@@ -64,6 +70,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
         _instanceService = instanceService;
         _instanceFileSystemService = instanceFileSystemService;
         _pathsService = pathsService;
+        _overlayService = overlayService;
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
         _appStore = appStore;
@@ -75,14 +82,12 @@ public class InstallationsViewModel : INotifyPropertyChanged
 
         OpenAddVersionCommand = new RelayCommand(async o => 
         {
-            var menu = new AddVersionMenu();
-            var InstanceVM = new InstanceCreationVM(_versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore, _appStore);
-            menu.DataContext = InstanceVM; 
+            var InstanceVM = new InstanceCreationVM(_versionService, _instancesStore, _settingsStore, _appStore);
             InstanceVM.RequestClose += () => 
             {
-                _appStore.CurrentOverlayView = null;
+                _overlayService.Close();
             };
-            _appStore.CurrentOverlayView = menu;
+            _overlayService.Show(InstanceVM);
             await InstanceVM.InitializeAsync();
         });
         
@@ -95,6 +100,7 @@ public class InstallationsViewModel : INotifyPropertyChanged
         });
         OpenRootFolderCommand = new RelayCommand(o => _instanceFileSystemService.OpenRootMinecraftFolder());
         
+        WeakReferenceMessenger.Default.RegisterAll(this);
     }
     
     public async Task InitializeAsync()
@@ -175,14 +181,12 @@ public class InstallationsViewModel : INotifyPropertyChanged
     private async Task OpenSettings(MinecraftInstance instance)
     {
         if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
-        var menu = new VersionSettingsMenu();
-        var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _instanceService, _instanceFileSystemService, _instancesStore, _settingsStore);
-        menu.DataContext = InstanceSettingsVM; 
+        var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _instancesStore, _settingsStore);
         InstanceSettingsVM.RequestClose += () => 
         {
-            _appStore.CurrentOverlayView = null;
+            _overlayService.Close();
         };
-        _appStore.CurrentOverlayView = menu;
+        _overlayService.Show(InstanceSettingsVM);
         await InstanceSettingsVM.InitializeAsync();
     }
 
@@ -193,11 +197,12 @@ public class InstallationsViewModel : INotifyPropertyChanged
             string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceTitle"], instance.Name), 
             string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceMessage"], instance.Name),
             ConfirmButtons.Delete);
-        var view = new ConfirmMenu();
-        view.DataContext = confirmVm;
-        _appStore.CurrentOverlayView = view;
+
+        _overlayService.Show(confirmVm);
+        _overlayService.SetClosable(false);
         bool isConfirmed = await confirmVm.WaitAsync();
-        _appStore.CurrentOverlayView = null;
+        _overlayService.SetClosable(true);
+        _overlayService.Close();
         
         if (!isConfirmed)
         {
@@ -205,12 +210,62 @@ public class InstallationsViewModel : INotifyPropertyChanged
         }
         _instancesStore.DeleteInstance(instance);
     }
-
     
+
+    public void Receive(GameLaunchStateMessage message)
+    {
+        if (message.IsRunning)
+        {
+            _instancesStore.ApplySort();
+            _instanceService.SaveInstances(_instancesStore.Instances);
+        }
+    }
+
+    public async void Receive(InstanceCreatedMessage message)
+    {
+        if (message?.Instance == null)
+            return;
+        try
+        {
+            await _instanceFileSystemService.InitializeOnCreation(message.Instance);
+
+            void UpdateUiState()
+            {
+                _instancesStore.Instances.Add(message.Instance);
+                _instancesStore.ApplySort();
+
+                if (!_appStore.IsCurrentInstanceProcessing)
+                    _instancesStore.SelectedInstance = message.Instance;
+            }
+
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+
+            if (dispatcher != null && !dispatcher.CheckAccess())
+                await dispatcher.InvokeAsync(UpdateUiState);
+            else 
+                UpdateUiState();
+            
+            _instanceService.SaveInstances(_instancesStore.Instances);
+            Debug.WriteLine($"Created instance: {message.Instance.Name}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[InstallationsVM] Error creating new instance: {ex.Message}");
+        }
+    }
+
+    public void Receive(InstanceUpdatedMessage message)
+    {
+        try
+        {
+            _instanceService.SaveInstances(_instancesStore.Instances);
+            _instancesStore.ApplySort();
+            Debug.WriteLine($"Modified Instance: {message.Instance.Name}");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[InstallationsVM] Error updating instance: {e.Message}");
+        }
+    }
     
-    //Getters and setters
-
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

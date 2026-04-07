@@ -1,126 +1,143 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
 
-namespace Launcher.UI.WPF.Stores
+namespace Launcher.UI.WPF.Stores;
+
+public partial class LoginStore : ObservableObject
 {
-    public class LoginStore : INotifyPropertyChanged
+    private readonly IAccountStorageService _accountStorage;
+    private readonly ISettingsService _settingsService;
+    private readonly IAuthService _authService;
+    
+    private bool _isLoggingIn;
+    private UserAccount _currentAccount;
+    private string _userName = "Guest";
+    [ObservableProperty]
+    [property: SettingProperty]
+    private string _lastSelectedAccountUuid; // ID для сохранения в settings.json
+    
+    public bool IsLoggedIn => CurrentAccount != null;
+    public ObservableCollection<UserAccount> Accounts { get; set; } = new();
+
+    // Добавили ISettingsService в конструктор
+    public LoginStore(IAccountStorageService accountStorage, ISettingsService settingsService, IAuthService authService)
     {
-        private readonly IAccountStorageService _accountStorage;
-        private readonly ISettingsService _settingsService;
-        private readonly IAuthService _authService;
+        _accountStorage = accountStorage;
+        _settingsService = settingsService;
+        _authService = authService;
         
-        private bool _isLoggingIn;
-        private UserAccount _currentAccount;
-        private string _userName = "Guest";
-        private string _lastSelectedAccountUUID; // ID для сохранения в settings.json
+        _settingsService.Initialize(this);
         
-        public bool IsLoggedIn => CurrentAccount != null;
-        public ObservableCollection<UserAccount> Accounts { get; set; } = new();
+        LoadSavedAccounts();
+    }
 
-        // Добавили ISettingsService в конструктор
-        public LoginStore(IAccountStorageService accountStorage, ISettingsService settingsService, IAuthService authService)
+
+
+    public void RegisterLogin(UserAccount newAccount)
+    {
+        var existing = Accounts.FirstOrDefault(x => x.UUID == newAccount.UUID);
+    
+        if (existing == null)
         {
-            _accountStorage = accountStorage;
-            _settingsService = settingsService;
-            _authService = authService;
-            
-            // Загружаем настройки (это восстановит LastSelectedAccountUUID, если он есть)
-            _settingsService.Initialize(this);
-            
-            LoadSavedAccounts();
+            Accounts.Add(newAccount);
+            CurrentAccount = newAccount;
         }
-
-
-
-        public void RegisterLogin(UserAccount newAccount)
+        else
         {
-            var existing = Accounts.FirstOrDefault(x => x.UUID == newAccount.UUID);
+            existing.AccessToken = newAccount.AccessToken; 
+            existing.Username = newAccount.Username;
+            CurrentAccount = existing;
+        }
         
-            if (existing == null)
+        _accountStorage.SaveAccounts(Accounts);
+    }
+    
+    private void LoadSavedAccounts()
+    {
+        var savedAccounts = _accountStorage.LoadAccounts();
+        Accounts.Clear();
+        foreach (var acc in savedAccounts) Accounts.Add(acc);
+    
+        // Ищем по UUID, который загрузился из settings.json
+        if (!string.IsNullOrEmpty(LastSelectedAccountUuid))
+        {
+            var lastUsedAccount = Accounts.FirstOrDefault(x => x.UUID == LastSelectedAccountUuid);
+            if (lastUsedAccount != null)
             {
-                Accounts.Add(newAccount);
-                CurrentAccount = newAccount;
+                CurrentAccount = lastUsedAccount;
+                return;
             }
-            else
+        }
+        
+        if (Accounts.Count > 0) CurrentAccount = Accounts.First();
+    }
+    
+    public async Task RefreshAllAccountsAsync()
+    {
+        bool isChanged = false;
+        
+        var accountsList = Accounts.ToList(); 
+
+        foreach (var acc in accountsList)
+        {
+            if (acc.IsOffline) continue;
+
+            try
             {
-                existing.AccessToken = newAccount.AccessToken; 
-                existing.Username = newAccount.Username;
-                CurrentAccount = existing;
+                await _authService.ValidateAndRefreshAccountAsync(acc);
+                isChanged = true; 
             }
-            
-            // Сохраняем файл с токенами только при регистрации/обновлении
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Auth] Account {acc.Username} validation failed: {ex.Message}");
+                
+                Application.Current.Dispatcher.Invoke(() => 
+                {
+                    Accounts.Remove(acc);
+                    
+                    isChanged = true;
+                    
+                    if (CurrentAccount == acc && Accounts.Count > 0)
+                    {
+                        CurrentAccount = Accounts.FirstOrDefault();
+                    }
+                    else if (Accounts.Count == 0)
+                    {
+                        CurrentAccount = null;
+                    }
+                });
+            }
+        }
+        if (isChanged)
+        {
             _accountStorage.SaveAccounts(Accounts);
         }
-        
-        private void LoadSavedAccounts()
+    }
+    
+    //Getters and Setters
+    
+    public UserAccount CurrentAccount
+    {
+        get => _currentAccount;
+        set
         {
-            var savedAccounts = _accountStorage.LoadAccounts();
-            Accounts.Clear();
-            foreach (var acc in savedAccounts) Accounts.Add(acc);
-        
-            // Ищем по UUID, который загрузился из settings.json
-            if (!string.IsNullOrEmpty(LastSelectedAccountUUID))
+            if (_currentAccount != value)
             {
-                var lastUsedAccount = Accounts.FirstOrDefault(x => x.UUID == LastSelectedAccountUUID);
-                if (lastUsedAccount != null)
+                _currentAccount = value;
+                OnPropertyChanged(nameof(CurrentAccount));
+                OnPropertyChanged(nameof(IsLoggedIn)); 
+                if (_currentAccount != null)
                 {
-                    CurrentAccount = lastUsedAccount;
-                    return;
-                }
-            }
-            
-            if (Accounts.Count > 0) CurrentAccount = Accounts.First();
-        }
-        
-        //Getters and Setters
-        
-        [SettingProperty]
-        public string LastSelectedAccountUUID
-        {
-            get => _lastSelectedAccountUUID;
-            set
-            {
-                if (_lastSelectedAccountUUID != value)
-                {
-                    _lastSelectedAccountUUID = value;
-                    OnPropertyChanged(nameof(LastSelectedAccountUUID));
+                    LastSelectedAccountUuid = _currentAccount.UUID;
                 }
             }
         }
-        
-
-        public bool IsLoggingIn
-        {
-            get => _isLoggingIn;
-            set { _isLoggingIn = value; OnPropertyChanged(nameof(IsLoggingIn)); }
-        }
-        
-        public UserAccount CurrentAccount
-        {
-            get => _currentAccount;
-            set
-            {
-                if (_currentAccount != value)
-                {
-                    _currentAccount = value;
-                    OnPropertyChanged(nameof(CurrentAccount));
-                    OnPropertyChanged(nameof(IsLoggedIn)); 
-                    
-                    if (_currentAccount != null)
-                    {
-                        
-                        // Сохраняем выбранный UUID. Умный сервис сам запишет это в settings.json!
-                        LastSelectedAccountUUID = _currentAccount.UUID;
-                    }
-                }
-            }
-        }
-        
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

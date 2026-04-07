@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
@@ -8,7 +9,7 @@ using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Accounts;
-public class LoginVM: INotifyPropertyChanged
+public partial class LoginVM: ObservableObject
 { 
     //Services
     private readonly IAuthService _authService;
@@ -17,8 +18,13 @@ public class LoginVM: INotifyPropertyChanged
     private readonly LoginStore _loginStore;
     //Attributes
     public LoginStore LoginStore => _loginStore;
+    
+    [ObservableProperty]
     private bool _isAddAccPageOpen;
+    [ObservableProperty]
     private bool _isLoggingIn;
+    [ObservableProperty]
+    private int _accountCount = 0;
     //Events
     public event Action RequestClose;
         
@@ -30,8 +36,8 @@ public class LoginVM: INotifyPropertyChanged
     public ICommand AddNewAccountCommand { get; }
     public ICommand RenameAccountCommand { get; }
     public ICommand LogOutCommand { get; }
+    
 
-    public int _accountCount = 0;
 
 
     public LoginVM(IAuthService authService, IAccountStorageService accountStorage,LoginStore loginStore)
@@ -55,7 +61,6 @@ public class LoginVM: INotifyPropertyChanged
             if (o is UserAccount account)
             {
                 _loginStore.CurrentAccount = account;
-                _accountStorage.SaveAccounts(_loginStore.Accounts); 
             }
         });
             
@@ -145,32 +150,5 @@ public class LoginVM: INotifyPropertyChanged
             IsLoggingIn = false; 
         }
     }
-
-    //Getters & Setters
-        
-    public bool IsLoggingIn 
-    {
-        get => _isLoggingIn;
-        set { _isLoggingIn = value; OnPropertyChanged(nameof(IsLoggingIn)); }
-    }
-    public int AccountCount
-    {
-        get => _accountCount;
-        set {
-            if (_accountCount != value)
-            { 
-                _accountCount = value; 
-                OnPropertyChanged(nameof(AccountCount));
-            }
-        }
-    }
-        
-    public bool IsAddAccPageOpen
-    {
-        get => _isAddAccPageOpen;
-        set { _isAddAccPageOpen = value; OnPropertyChanged(nameof(IsAddAccPageOpen)); }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    
 }

@@ -1,8 +1,4 @@
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.Installer.Forge;
@@ -11,7 +7,9 @@ using CmlLib.Core.ModLoaders.FabricMC;
 using CmlLib.Core.ModLoaders.QuiltMC;
 using CmlLib.Core.ProcessBuilder;
 using CmlLib.Core.Version;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
+using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.UI;
@@ -20,7 +18,7 @@ namespace Launcher.Core.Services.Game;
 
 public interface ILaunchService
 {
-    Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings, IProgress<LaunchState> progress = null);
+    Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings);
 }
 
 public class LaunchService : ILaunchService
@@ -43,39 +41,47 @@ public class LaunchService : ILaunchService
         _httpClient = new HttpClient(); 
     }
 
-    public async Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings, IProgress<LaunchState> progress = null)
+    public async Task<Process> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings)
     {
         if (instance == null || account == null || globalSettings == null) throw new ArgumentNullException();
 
-        progress?.Report(new LaunchState { Progress = 0, StatusText = "Preparing launch environment..." });
+        // Отправляем первое сообщение напрямую в шину
+        WeakReferenceMessenger.Default.Send(new GameLaunchProgressMessage(0, "Preparing..."));
+        
         var instancePath = _fileService.PrepareForLaunch(instance); 
+
+        // АДАПТЕР: Создаем локальный IProgress для старых сервисов (Modrinth), 
+        // который будет перенаправлять их прогресс в наш Messenger
+        var localProgress = new Progress<LaunchState>(state => 
+        {
+            WeakReferenceMessenger.Default.Send(new GameLaunchProgressMessage(state.Progress, state.StatusText));
+        });
 
         // === 1. УСТАНОВКА МОДОВ ===
         if (instance.LastPlayedDate == null && instance.IsolationType != IsolationType.Global)
         {
             string modsFolder = Path.Combine(instancePath, "mods");
-            await _modrinthService.InstallEssentialApisAsync(instance, modsFolder, progress);
+            // Передаем адаптер
+            await _modrinthService.InstallEssentialApisAsync(instance, modsFolder, localProgress);
 
             if (instance.RequestPerformanceMods)
             {
                 try
                 {
-                    await _modrinthService.InstallPerformanceModsAsync(instance, modsFolder, progress);
+                    await _modrinthService.InstallPerformanceModsAsync(instance, modsFolder, localProgress);
                 }
                 catch (InvalidOperationException ex)
                 {
                     var title = _localizationService["Errors.Iris&SodiumNotSupportedTitle"];
                     var desc = string.Format(_localizationService["Errors.Iris&SodiumNotSupportedDesc"], instance.GameVersion, instance.LoaderType);
-                    _notificationService.ShowError(
-                        title,
-                        desc);
+                    _notificationService.ShowError(title, desc);
                     instance.RequestPerformanceMods = false;
                     Console.WriteLine($"[WARNING] {ex.Message}");
                 }
             }
         }
 
-        progress?.Report(new LaunchState { Progress = 5, StatusText = "Initializing engine..." });
+        WeakReferenceMessenger.Default.Send(new GameLaunchProgressMessage(5, "Initializing..."));
 
         var globalPath = _fileService.GetGlobalMinecraftPath();
         var globalMcPath = new MinecraftPath(globalPath);
@@ -89,7 +95,7 @@ public class LaunchService : ILaunchService
             Versions = globalMcPath.Versions
         };
 
-        // === 2. ТАЙМЕР ЗАГРУЗКИ (Плавный прогресс от 15% до 90%) ===
+        // === 2. ТАЙМЕР ЗАГРУЗКИ ===
         Stopwatch networkTimer = new Stopwatch();
         networkTimer.Start();
         string currentAction = "Verifying files...";
@@ -104,17 +110,15 @@ public class LaunchService : ILaunchService
         {
             if (args.TotalTasks > 0)
             {
-                // Если сеть молчит полсекунды - значит мы просто проверяем локальные файлы
                 if (networkTimer.ElapsedMilliseconds > 500) currentAction = "Verifying files...";
-                
-                // Масштабируем прогресс CmlLib (0-100%) в наш отрезок (15-90%)
                 double percent = 10 + ((double)args.ProgressedTasks / args.TotalTasks * 75);
-                progress?.Report(new LaunchState { Progress = percent, StatusText = currentAction });
+                
+                WeakReferenceMessenger.Default.Send(new GameLaunchProgressMessage(percent, currentAction));
             }
         };
 
         // === 3. ПОЛУЧЕНИЕ ВЕРСИИ И УСТАНОВКА ЛОАДЕРОВ ===
-        progress?.Report(new LaunchState { Progress = 15, StatusText = $"Preparing base Minecraft {instance.GameVersion}..." });
+        WeakReferenceMessenger.Default.Send(new GameLaunchProgressMessage(15, $"Preparing Minecraft {instance.GameVersion}..."));
         var baseVersion = await launcher.GetVersionAsync(instance.GameVersion);
 
         IVersion versionToLaunch;
@@ -124,11 +128,11 @@ public class LaunchService : ILaunchService
         }
         else
         {
-            progress?.Report(new LaunchState { Progress = 20, StatusText = $"Installing {instance.LoaderType}..." });
+            WeakReferenceMessenger.Default.Send(new GameLaunchProgressMessage(20, $"Installing {instance.LoaderType}..."));
             versionToLaunch = await InstallLoaderAsync(launcher, instance);
         }
 
-        progress?.Report(new LaunchState { Progress = 90, StatusText = "Finalizing settings..." });
+        WeakReferenceMessenger.Default.Send(new GameLaunchProgressMessage(90, "Finalizing..."));
 
         // === 4. ОПЦИИ ЗАПУСКА ===
         var safeGameSettings = instance.GameSettings ?? new GameSettings();
@@ -159,7 +163,7 @@ public class LaunchService : ILaunchService
             GameLauncherName = "Launcher" 
         };
 
-        progress?.Report(new LaunchState { Progress = 95, StatusText = "Starting game process..." });
+        WeakReferenceMessenger.Default.Send(new GameLaunchProgressMessage(95, "Starting game..."));
         
         var process = await launcher.InstallAndBuildProcessAsync(versionToLaunch.Id, launchOption);
 
@@ -169,13 +173,21 @@ public class LaunchService : ILaunchService
 
         process.OutputDataReceived += (s, e) => { if (!string.IsNullOrEmpty(e.Data)) Console.WriteLine($"[GAME OUT] {e.Data}"); };
         process.ErrorDataReceived += (s, e) => { if (!string.IsNullOrEmpty(e.Data)) Console.WriteLine($"[GAME ERR] {e.Data}"); };
+        
+        process.EnableRaisingEvents = true;
+        process.Exited += (s, e) => 
+        {
+            WeakReferenceMessenger.Default.Send(new GameLaunchStateMessage(false, null));
+        };
 
         process.Start();
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
         
         instance.LastPlayedDate = DateTime.Now;
-        progress?.Report(new LaunchState { Progress = 100, StatusText = "Game started!" });
+        WeakReferenceMessenger.Default.Send(new GameLaunchProgressMessage(100, "Game started!"));
+        
+        WeakReferenceMessenger.Default.Send(new GameLaunchStateMessage(true, process));
         return process;
     }
 

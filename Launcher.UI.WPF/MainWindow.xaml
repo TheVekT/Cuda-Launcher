@@ -15,6 +15,7 @@
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:accounts="clr-namespace:Launcher.UI.WPF.ViewModels.Accounts"
     xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:enums="clr-namespace:Launcher.Core.Enums;assembly=Launcher.Core"
@@ -22,8 +23,10 @@
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:instances="clr-namespace:Launcher.UI.WPF.ViewModels.Instances"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:menus="clr-namespace:Launcher.UI.WPF.Resources.Overlay.Menus"
     xmlns:notifications="clr-namespace:Launcher.UI.WPF.Resources.Overlay.Notifications"
     xmlns:pages="clr-namespace:Launcher.UI.WPF.Resources.Pages"
+    xmlns:settings="clr-namespace:Launcher.UI.WPF.ViewModels.Settings"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -38,6 +41,34 @@
 
         <DataTemplate DataType="{x:Type game:SkinsViewModel}">
             <pages:Skins />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type instances:InstanceCreationVM}">
+            <menus:AddVersionMenu />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type instances:InstanceSettingsVM}">
+            <menus:VersionSettingsMenu />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type settings:ConfirmVM}">
+            <menus:ConfirmMenu />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type settings:CustomizationSettingsVM}">
+            <menus:CustomizationSettingsMenu />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type settings:ProgressVM}">
+            <menus:ProgressMenu />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type accounts:LoginVM}">
+            <menus:LoginMenu />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type settings:SettingsVM}">
+            <menus:SettingsMenu />
         </DataTemplate>
     </Window.Resources>
     <shell:WindowChrome.WindowChrome>
@@ -280,7 +311,7 @@
                                             Margin="6,0,0,0"
                                             Style="{StaticResource AccentButtonStyle}"
                                             Tag="{Binding PlayVM.CurrentPlayButtonIcon}"
-                                            Visibility="{Binding ShowCompactPlayButton, Converter={StaticResource BoolToVis}}"
+                                            Visibility="{Binding AppStore.ShowCompactPlayButton, Converter={StaticResource BoolToVis}}"
                                             Width="35"
                                             helpers:ButtonHelper.IsLoading="{Binding AppStore.IsDownloading}"
                                             x:Name="PlayButtonCompact" />
@@ -322,7 +353,7 @@
                             </Border>
                         </Grid>
                         <Grid Grid.Row="0" x:Name="TabsContainer">
-                            <ContentControl Content="{Binding CurrentView}" />
+                            <ContentControl Content="{Binding AppStore.CurrentView}" />
                         </Grid>
                     </Grid>
                 </Grid>
@@ -341,7 +372,12 @@
                 <Grid
                     HorizontalAlignment="Center"
                     Margin="0,0,0,32"
-                    VerticalAlignment="Center">
+                    RenderTransformOrigin="0.5,0.5"
+                    VerticalAlignment="Center"
+                    x:Name="OverlayWrapper">
+                    <Grid.RenderTransform>
+                        <ScaleTransform ScaleX="1" ScaleY="1" x:Name="OverlayScale" />
+                    </Grid.RenderTransform>
 
                     <Border Background="{DynamicResource OverlayBackgroundSurfaceBrush}" CornerRadius="{DynamicResource DefaultCorner}">
                         <Border.Effect>
@@ -355,6 +391,13 @@
                     </Border>
 
                     <ContentControl Content="{Binding AppStore.CurrentOverlayView}" IsHitTestVisible="True" />
+
+                    <Border
+                        Background="White"
+                        CornerRadius="{DynamicResource DefaultCorner}"
+                        IsHitTestVisible="False"
+                        Opacity="0"
+                        x:Name="FlashOverlay" />
                 </Grid>
 
             </Grid>

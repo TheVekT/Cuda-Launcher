@@ -4,7 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
+using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
@@ -13,12 +16,10 @@ using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
 
-public class InstanceCreationVM: INotifyPropertyChanged
+public partial class InstanceCreationVM: ObservableObject
 {
     //Services
     private readonly IGameVersionService _versionService;
-    private readonly IInstanceService _instanceService;
-    private readonly IInstanceFileSystemService _instanceFileSystemService;
     
     //Stores
     private readonly InstancesStore _instancesStore;
@@ -29,25 +30,43 @@ public class InstanceCreationVM: INotifyPropertyChanged
     public bool CreatingPage2Visible { get; set; } = true;
     
     //Attributes
+    [ObservableProperty]
     private bool _irisAndSodiumVisible;
+    [ObservableProperty]
     private bool _InstallPerformanceMods;
-    
+    [ObservableProperty]
     private string _selectedIcon;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SuggestedName))]
     private string _selectedGameVersion;
+    [ObservableProperty]
     private string _installationName;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SuggestedName))]
     private string _selectedModLoader;
+    [ObservableProperty]
     private string _selectedLoaderVersion;
+    [ObservableProperty]
     private bool _useGlobalGameSettings;
+    [ObservableProperty]
     private bool _useGlobalBackupSettings;
+    [ObservableProperty]
     private bool _isCreatingInstance;
+    [ObservableProperty]
     private IsolationType _selectedIsolation = IsolationType.Global;
-    
+    [ObservableProperty]
     private int _selectedMaxRam;
+    [ObservableProperty]
     private bool _isGameFullscreen;
+    [ObservableProperty]
     private string _selectedResolution;
+    [ObservableProperty]
     private bool _isEnableAutoBackups;
+    [ObservableProperty]
     private BackupFrequency _selectedBackupFrequency;
+    [ObservableProperty]
     private int _maxBackupCount;
+    [ObservableProperty]
     private string _JVMArguments;
     
     //Commands
@@ -67,15 +86,11 @@ public class InstanceCreationVM: INotifyPropertyChanged
     public SettingsStore SettingsStore => _settingsStore;
     
     public InstanceCreationVM(IGameVersionService versionService, 
-        IInstanceService instanceService, 
-        IInstanceFileSystemService instanceFileSystemService,
         InstancesStore instancesStore, 
         SettingsStore settingsStore,
         AppStore appStore)
     {
         _versionService = versionService;
-        _instanceService = instanceService;
-        _instanceFileSystemService = instanceFileSystemService;
         
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
@@ -146,19 +161,16 @@ public class InstanceCreationVM: INotifyPropertyChanged
             System.Windows.Application.Current.Dispatcher.Invoke(() => SelectedLoaderVersion = null);
 
             var type = GetLoaderType(_selectedModLoader);
-
-            // Если это Vanilla или версия игры еще не выбрана — очищаем список и выходим
+            
             if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
             {
                 System.Windows.Application.Current.Dispatcher.Invoke(() => LoaderVersions.Clear());
                 return;
             }
-
-            // Запрашиваем все версии лоадера для выбранной версии игры
+            
             var loadedVersions = await _versionService.GetLoaderVersionsAsync(type, SelectedGameVersion);
             var versionList = loadedVersions.ToList();
-
-            // Запрашиваем рекомендуемую (стабильную) версию
+            
             var recommendedVersion = await _versionService.GetRecommendedLoaderVersionAsync(type, SelectedGameVersion);
 
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
@@ -176,7 +188,6 @@ public class InstanceCreationVM: INotifyPropertyChanged
             {
                 if (LoaderVersions.Count > 0)
                 {
-                    // Ставим стабильную версию по умолчанию. Если ее нет - первую в списке.
                     SelectedLoaderVersion = recommendedVersion ?? LoaderVersions.FirstOrDefault();
                 }
             });
@@ -239,7 +250,7 @@ public class InstanceCreationVM: INotifyPropertyChanged
 
         var newInstance = new MinecraftInstance
         {
-            Id = Guid.NewGuid().ToString(), // Обязательно генерируем ID тут
+            Id = Guid.NewGuid().ToString(),
             Name = finalName,
             IconPath = !string.IsNullOrEmpty(SelectedIcon) 
                 ? Path.GetFileName(SelectedIcon) 
@@ -267,27 +278,10 @@ public class InstanceCreationVM: INotifyPropertyChanged
             },
             RequestPerformanceMods = InstallPerformanceMods
         };
-
-        try
-        {
-            await _instanceFileSystemService.InitializeOnCreation(newInstance);
-            _instancesStore.Instances.Add(newInstance);
-            _instanceService.SaveInstances(_instancesStore.Instances);
-
-            RequestClose?.Invoke();
-            Debug.WriteLine($"Created instance: {finalName}");
-            _instancesStore.InvokeAddedInstance();
-            if (!_appStore.IsCurrentInstanceProcessing) _instancesStore.SelectedInstance = newInstance;
-        }
-        catch (Exception ex)
-        {
-            System.Windows.MessageBox.Show($"Ошибка создания инстанса: {ex.Message}", "Ошибка",
-                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-        }
-        finally
-        {
-            IsCreatingInstance = false;
-        }
+        
+        WeakReferenceMessenger.Default.Send(new InstanceCreatedMessage(newInstance));
+        RequestClose?.Invoke();
+        IsCreatingInstance = false;
     }
 
     private void RefreshPerfomanceModsVisibility()
@@ -308,227 +302,26 @@ public class InstanceCreationVM: INotifyPropertyChanged
     
     //Getters and Setters
     
-    public bool InstallPerformanceMods
+    partial void OnUseGlobalGameSettingsChanged(bool value)
     {
-        get => _InstallPerformanceMods;
-        set
-        {
-            if (_InstallPerformanceMods != value)
-            {
-                _InstallPerformanceMods = value;
-                OnPropertyChanged(nameof(InstallPerformanceMods));
-            }
-        }
+        if (value) RefreshGlobalGameSettings();
+    }
+    
+    partial void OnUseGlobalBackupSettingsChanged(bool value)
+    {
+        if (value) RefreshGlobalBackupSettings();
+    }
+    
+    partial void OnSelectedGameVersionChanged(string value)
+    {
+        _ = RefreshLoaderVersions(); 
     }
 
-    public bool IrisAndSodiumVisible
+    partial void OnSelectedIsolationChanged(IsolationType value)
     {
-        get => _irisAndSodiumVisible;
-        set
-        {
-            if (_irisAndSodiumVisible != value)
-            {
-                _irisAndSodiumVisible = value;
-                OnPropertyChanged(nameof(IrisAndSodiumVisible));
-            }
-        }
+        RefreshPerfomanceModsVisibility();
     }
     
-    public bool UseGlobalGameSettings
-    {
-        get => _useGlobalGameSettings;
-        set
-        {
-            if (_useGlobalGameSettings != value)
-            {
-                if (value) RefreshGlobalGameSettings();
-                _useGlobalGameSettings = value;
-                OnPropertyChanged(nameof(UseGlobalGameSettings));
-            }
-        }
-    }
-    public bool UseGlobalBackupSettings
-    {
-        get => _useGlobalBackupSettings;
-        set
-        {
-            if (_useGlobalBackupSettings != value) {
-                if (value) RefreshGlobalBackupSettings();
-                _useGlobalBackupSettings = value;
-                OnPropertyChanged(nameof(UseGlobalBackupSettings));
-            }
-        }
-    }
-    
-    public int SelectedMaxRam
-    {
-        get => _selectedMaxRam;
-        set
-        {
-            if (_selectedMaxRam != value)
-            {
-                _selectedMaxRam = value;
-                OnPropertyChanged(nameof(SelectedMaxRam));
-            }
-        }
-    }
-    
-    public bool IsGameFullscreen
-    {
-        get => _isGameFullscreen;
-        set
-        {
-            if (_isGameFullscreen != value)
-            {
-                _isGameFullscreen = value;
-                OnPropertyChanged(nameof(IsGameFullscreen));
-            }
-        }
-    }
-    
-    public string SelectedResolution
-    {
-        get => _selectedResolution;
-        set
-        {
-            if (_selectedResolution != value)
-            {
-                _selectedResolution = value;
-                OnPropertyChanged(nameof(SelectedResolution));
-            }
-        }
-    }
-
-    public bool IsEnableAutoBackups
-    {
-        get => _isEnableAutoBackups;
-        set
-        {
-            if (_isEnableAutoBackups != value)
-            {
-                _isEnableAutoBackups = value;
-                OnPropertyChanged(nameof(IsEnableAutoBackups));
-            }
-        }
-    }
-    
-    public BackupFrequency SelectedBackupFrequency
-    {
-        get => _selectedBackupFrequency;
-        set
-        {
-            if (_selectedBackupFrequency != value)
-            {
-                _selectedBackupFrequency = value;
-                OnPropertyChanged(nameof(SelectedBackupFrequency));
-            }
-        }
-    }
-    
-    public int MaxBackupCount
-    {
-        get => _maxBackupCount;
-        set
-        {
-            if (_maxBackupCount != value)
-            {
-                _maxBackupCount = value;
-                OnPropertyChanged(nameof(MaxBackupCount));
-            }
-        }
-    }
-
-    public string JVMArguments
-    {
-        get => _JVMArguments;
-        set
-        {
-            if (_JVMArguments != value)
-            {
-                _JVMArguments = value;
-                OnPropertyChanged(nameof(JVMArguments));
-            }
-        }
-    }
-    
-    public bool IsCreatingInstance
-    {
-        get => _isCreatingInstance;
-        set
-        {
-            if (_isCreatingInstance != value)
-            {
-                _isCreatingInstance = value;
-                OnPropertyChanged(nameof(IsCreatingInstance));
-            }
-        }
-    }
-
-    public string SelectedLoaderVersion
-    {
-        get => _selectedLoaderVersion;
-        set
-        {
-            if (_selectedLoaderVersion != value)
-            {
-                _selectedLoaderVersion = value;
-                OnPropertyChanged(nameof(SelectedLoaderVersion));
-            }
-        }
-    }
-    
-    public string SelectedIcon
-    {
-        get => _selectedIcon;
-        set
-        {
-            if (_selectedIcon != value)
-            {
-                _selectedIcon = value;
-                OnPropertyChanged(nameof(SelectedIcon));
-            }
-        }
-    }
-    public string SelectedGameVersion
-    {
-        get => _selectedGameVersion;
-        set
-        {
-            if (_selectedGameVersion != value)
-            {
-                _selectedGameVersion = value;
-                OnPropertyChanged(nameof(SelectedGameVersion));
-                OnPropertyChanged(nameof(SuggestedName));
-                
-                _ = RefreshLoaderVersions(); 
-            }
-        }
-    }
-    public string InstallationName
-    {
-        get => _installationName;
-        set
-        {
-            if (_installationName != value)
-            {
-                _installationName = value;
-                OnPropertyChanged(nameof(InstallationName));
-            }
-        }
-    }
-    public IsolationType SelectedIsolation
-    {
-        get => _selectedIsolation;
-        set
-        {
-            if (_selectedIsolation != value)
-            {
-                _selectedIsolation = value;
-                RefreshPerfomanceModsVisibility();
-                OnPropertyChanged(nameof(SelectedIsolation));
-            }
-        }
-    }
     public string SuggestedName
     {
         get
@@ -537,31 +330,19 @@ public class InstanceCreationVM: INotifyPropertyChanged
             return $"{SelectedModLoader} {SelectedGameVersion}";
         }
     }
-    public string SelectedModLoader
-    {
-        get => _selectedModLoader;
-        set
-        {
-            if (_selectedModLoader != value)
-            {
-                _selectedModLoader = value;
-                if (_selectedModLoader == "Vanilla")
-                {
-                    SelectedIsolation = IsolationType.Global;
-                }
-                else
-                {
-                    SelectedIsolation = IsolationType.Full;
-                }
-                OnPropertyChanged(nameof(SelectedModLoader));
-                _ = RefreshGameVersions();
-                _ = RefreshLoaderVersions();
-                RefreshPerfomanceModsVisibility();
-                OnPropertyChanged(nameof(SuggestedName));
-            }
-        }
-    }
     
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    partial void OnSelectedModLoaderChanged(string value)
+    {
+        if (value == "Vanilla")
+        {
+            SelectedIsolation = IsolationType.Global;
+        }
+        else
+        {
+            SelectedIsolation = IsolationType.Full;
+        }
+        _ = RefreshGameVersions();
+        _ = RefreshLoaderVersions();
+        RefreshPerfomanceModsVisibility();
+    }
 }

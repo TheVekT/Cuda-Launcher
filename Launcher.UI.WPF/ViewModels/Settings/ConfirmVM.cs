@@ -2,15 +2,19 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.UI.WPF.Helpers;
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
 
-public class ConfirmVM : INotifyPropertyChanged
+public partial class ConfirmVM : ObservableObject
 {
     private readonly TaskCompletionSource<bool> _tcs = new();
+    [ObservableProperty]
     private string _title;
+    [ObservableProperty]
     private string _message;
+    [ObservableProperty]
     private ConfirmButtons _buttons;
     
     public ICommand ConfirmCommand { get; }
@@ -29,40 +33,4 @@ public class ConfirmVM : INotifyPropertyChanged
         CancelCommand = new RelayCommand(o => _tcs.TrySetResult(false));
     }
     
-
-    
-    
-    //Getters and setters
-    public string Title
-    {
-        get => _title;
-        set
-        {
-            _title = value;
-            OnPropertyChanged(nameof(Title));
-        }
-    }
-    
-    public string Message
-    {
-        get => _message;
-        set
-        {
-            _message = value;
-            OnPropertyChanged(nameof(Message));
-        }
-    }
-    
-    public ConfirmButtons Buttons
-    {
-        get => _buttons;
-        set
-        {
-            _buttons = value;
-            OnPropertyChanged(nameof(Buttons));
-        }
-    }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
