@@ -37,9 +37,6 @@ public class ThemeService
 
         Directory.CreateDirectory(_themesRoot);
         Directory.CreateDirectory(_cacheRoot);
-
-        // 1. Восстанавливаем дефолтные темы из Embedded Resources
-        RestoreEmbeddedThemes();
     }
     
     public ThemeModel GetThemeByFileName(string fileName)
@@ -54,49 +51,6 @@ public class ThemeService
         var destPath = Path.Combine(_themesRoot, Path.GetFileName(themeFilePath));
         File.Copy(themeFilePath, destPath, true);
         WeakReferenceMessenger.Default.Send(new ThemeImportedMessage());
-    }
-
-    private void RestoreEmbeddedThemes()
-    {
-        try
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var allResources = assembly.GetManifestResourceNames();
-
-            foreach (var fileName in _defaultThemeFiles)
-            {
-                // Путь, куда файл должен лечь физически (Assets/Themes/...)
-                var destPath = Path.Combine(_themesRoot, fileName);
-
-                // Если файла нет или он 0 байт — восстанавливаем
-                if (!File.Exists(destPath) || new FileInfo(destPath).Length == 0)
-                {
-                    // Ищем ресурс по окончанию имени. 
-                    // Visual Studio обычно называет их: Launcher.UI.WPF.Resources.Embedded.Themes.default-dark.zip
-                    // EndsWith найдет его независимо от namespace.
-                    var resourceName = allResources.FirstOrDefault(r => r.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
-
-                    if (!string.IsNullOrEmpty(resourceName))
-                    {
-                        using (var stream = assembly.GetManifestResourceStream(resourceName))
-                        using (var fileStream = File.Create(destPath))
-                        {
-                            stream?.CopyTo(fileStream);
-                        }
-                        // Лог для проверки (можно убрать)
-                        System.Diagnostics.Debug.WriteLine($"[ThemeService] Restored embedded theme: {fileName}");
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[ThemeService] CRITICAL: Resource ending with '{fileName}' not found in assembly!");
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[ThemeService] RestoreEmbeddedThemes Error: {ex.Message}");
-        }
     }
 
     // === 2. Загрузка списка тем ===
@@ -130,8 +84,7 @@ public class ThemeService
                 System.Diagnostics.Debug.WriteLine($"Error loading theme {zipPath}: {ex.Message}");
             }
         }
-
-        // Сортировка: Сначала дефолтные (в порядке массива), потом остальные
+        
         var res = list.OrderBy(t => 
             {
                 var fName = Path.GetFileName(t.ZipPath);

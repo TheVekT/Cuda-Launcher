@@ -13,25 +13,7 @@
     <SelfContained>true</SelfContained>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Assets\Icons\fabric-default.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Icons\forge-default.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Icons\logo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Icons\neoforge-default.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Remove="Assets\Images\banner-default.jpg" />
-    <Content Include="Assets\Icons\optifine-default.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Images\banner-default.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Remove="Assets\Skins\sk1.png" />
     <Resource Include="Assets\Skins\sk1.png" />
     <None Remove="Assets\Skins\sk2.png" />
@@ -144,9 +126,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Remove="Assets\Icons\quilt-default.png" />
-    <Content Include="Assets\Icons\quilt-default.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Remove="Assets\Icons\150px-Grass_Block_JE7_BE6.png" />
     <Content Include="Assets\Icons\150px-Grass_Block_JE7_BE6.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -212,6 +191,12 @@
       <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
+    <Content Update="Resources\Embedded\Languages\en-US.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\Embedded\Images\banner-default.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -258,15 +243,13 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Remove="Assets\Languages\en.json" />
-    <Content Include="Assets\Languages\en-US.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Remove="Assets\Languages\ru.json" />
     <None Remove="Assets\Themes\Fonts\Rajdhani-Medium.ttf" />
     <!-- theme files must not be Content when they define CLR types; compiled as Page above -->
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Assets\Images\" />
     <Folder Include="Assets\Skins\" />
     <Folder Include="Assets\Themes\" />
     <Folder Include="Resources\Embedded\Themes\" />
@@ -280,9 +263,24 @@
     <None Remove="Resources\Embedded\default-light.zip" />
     <None Remove="Resources\Embedded\default-dark.zip" />
     <None Remove="Resources\Embedded\Themes\default-dark.zip" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\fabric-default.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\forge-default.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\logo.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\neoforge-default.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\optifine-default.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\quilt-default.png" />
     <EmbeddedResource Include="Resources\Embedded\Themes\default-dark.zip" />
     <None Remove="Resources\Embedded\Themes\default-light.zip" />
     <EmbeddedResource Include="Resources\Embedded\Themes\default-light.zip" />
+    <None Remove="Resources\Embedded\Images\banner-default.jpg" />
+    <EmbeddedResource Include="Resources\Embedded\Images\banner-default.jpg" />
+    <None Remove="Resources\Embedded\Languages\en-US.json" />
+    <EmbeddedResource Include="Resources\Embedded\Languages\en-US.json" />
+    <None Remove="Assets\Icons\fabric-default.png" />
+    <None Remove="Assets\Icons\forge-default.png" />
+    <None Remove="Assets\Icons\logo.png" />
+    <None Remove="Assets\Icons\neoforge-default.png" />
+    <None Remove="Assets\Icons\optifine-default.png" />
   </ItemGroup>
 
   <ItemGroup>

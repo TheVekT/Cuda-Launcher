@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.Messaging;
@@ -10,7 +7,6 @@ using Launcher.Core.Models;
 using Launcher.Core.Services.System;
 using Launcher.Core.Services.UI;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Services;
 
@@ -21,6 +17,7 @@ public class LocalizationService : ILocalizationService, INotifyPropertyChanged
     private Dictionary<string, string> _translations = new Dictionary<string, string>();
     
     private readonly string _languagesRoot;
+    private readonly string[] _builtInLanguageCodes = { "en-US" };
     
     private readonly ILauncherPathsService _pathsService;
 
@@ -106,7 +103,10 @@ public class LocalizationService : ILocalizationService, INotifyPropertyChanged
             }
         }
         
-        return languages.OrderBy(l => l.Name).ToList();
+        return languages
+            .OrderByDescending(l => _builtInLanguageCodes.Contains(l.Code))
+            .ThenBy(l => l.Name)
+            .ToList();
     }
 
     public string GetCodeByName(string name)

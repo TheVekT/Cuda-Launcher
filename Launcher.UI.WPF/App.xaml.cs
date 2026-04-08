@@ -47,6 +47,7 @@ public partial class App : Application
         services.AddSingleton<IInputService, InputService>();
         services.AddSingleton<IIconsService, IconsService>();
         services.AddSingleton<IFileDialogService, WpfFileDialogService>();
+        services.AddSingleton<IAssetExtractionService, AssetExtractionService>();
         
         services.AddSingleton<ILaunchService>(provider => new LaunchService(
             provider.GetRequiredService<IInstanceFileSystemService>(),
@@ -71,7 +72,8 @@ public partial class App : Application
         services.AddTransient<MainWindow>();
         
         Services = services.BuildServiceProvider();
-        
+
+        Services.GetRequiredService<IAssetExtractionService>().EnsureAllBaseAssetsExist();
         LocalizationService.Instance = Services.GetRequiredService<LocalizationService>();
         NotificationService.Instance = Services.GetRequiredService<NotificationService>();
         

@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+using System.Collections.ObjectModel; 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
@@ -20,11 +20,6 @@ public partial class SettingsStore: ObservableObject,
     private readonly ISysInfoService _sysInfoService;
     private readonly ISettingsService _settingsService;
     
-    //Attributes
-    [ObservableProperty]
-    [property: SettingProperty]
-    private string _currentThemePath;
-    private LanguageModel _selectedLanguage;
     
     //General settings
     
@@ -40,6 +35,7 @@ public partial class SettingsStore: ObservableObject,
     private double _uiScale;
     
     //Game settings
+    
     [ObservableProperty]
     private long _maxPhysicalRam;
     [ObservableProperty]
@@ -66,6 +62,16 @@ public partial class SettingsStore: ObservableObject,
     [ObservableProperty]
     [property: SettingProperty]
     private string _JVMArguments;
+    
+    //Localization Settings
+    
+    private LanguageModel _selectedLanguage;
+    
+    //Theme Settings
+    
+    [ObservableProperty]
+    [property: SettingProperty]
+    private string _currentThemePath;
     
     //Collections
     public ObservableCollection<ThemeModel> AvailableThemes { get; set; } = new ObservableCollection<ThemeModel>();
