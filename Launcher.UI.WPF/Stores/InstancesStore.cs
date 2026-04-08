@@ -1,14 +1,8 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
-using System.Windows;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.System;
-using Launcher.UI.WPF.Helpers;
-using Microsoft.Win32;
 
 namespace Launcher.UI.WPF.Stores;
 
@@ -18,10 +12,10 @@ public partial class InstancesStore: ObservableObject
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly IInstanceService _instanceService;
     private readonly ISettingsService _settingsService;
-    private readonly ILauncherPathsService _pathsService;
+    private readonly IIconsService _iconsService;
+    private readonly IFileDialogService _fileDialogService;
 
     //Attributes
-    private readonly string _iconsDirectory;
     [ObservableProperty]
     private MinecraftInstance? _selectedInstance;
     private readonly List<string> _ignoredIcons = new() { "example.png" };
@@ -37,23 +31,18 @@ public partial class InstancesStore: ObservableObject
     
     public ObservableCollection<string> IconList { get; } = new();
     
-    
-    //Commands
-    public ICommand SelectIconCommand { get; }
-    public ICommand DropIconCommand { get; }
-
-    
     public InstancesStore(
         IInstanceFileSystemService instanceFileSystemService,
         IInstanceService instanceService,
         ISettingsService settingsService,
-        ILauncherPathsService pathsService)
+        IIconsService iconsService,
+        IFileDialogService fileDialogService)
     {
         _instanceFileSystemService = instanceFileSystemService;
         _instanceService = instanceService;
         _settingsService = settingsService;
-        _pathsService = pathsService;
-        _iconsDirectory = Path.Combine(_pathsService.AssetsDirectory, "Icons");
+        _iconsService = iconsService;
+        _fileDialogService = fileDialogService;
 
         LoadIcons();
         LoadSavedInstances();
@@ -73,66 +62,40 @@ public partial class InstancesStore: ObservableObject
             }
         }
         ApplySort();
-        
-        SelectIconCommand = new RelayCommand(_ => SelectIconFromFileDialog());
-        DropIconCommand = new RelayCommand(HandleIconDrop);
     }
     
-    private void SelectIconFromFileDialog()
+    public void SelectIconFromFileDialog()
     {
-        var dialog = new OpenFileDialog
-        {
-            Filter = "Image Files|*.png;*.jpg;*.jpeg;*.ico;*.gif",
-            Title = "Select icon"
-        };
+        var filePath = _fileDialogService.OpenFile(
+            filter: "Image Files|*.png;*.jpg;*.jpeg;*.ico;*.gif", 
+            title: "Select icon");
 
-        if (dialog.ShowDialog() == true)
+        if (!string.IsNullOrEmpty(filePath))
         {
-            ProcessIconFile(dialog.FileName);
+            ProcessIconFile(filePath);
         }
     }
 
-    private void HandleIconDrop(object parameter)
+    public void HandleIconDrop(string[]? files)
     {
-        if (parameter is DragEventArgs e && e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (files != null && files.Length > 0)
         {
-            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (files != null && files.Length > 0)
-            {
-                // Берем только первый файл, так как иконка может быть только одна
-                string file = files[0];
-                string ext = Path.GetExtension(file).ToLowerInvariant();
-
-                if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".ico" || ext == ".gif")
-                {
-                    ProcessIconFile(file);
-                }
-                else
-                {
-                    // Тут можно вызвать твой NotificationService.Instance.ShowWarning(...)
-                    // чтобы сообщить, что формат файла не поддерживается
-                }
-            }
-            e.Handled = true;
+            ProcessIconFile(files[0]);
         }
     }
 
     private void ProcessIconFile(string filePath)
     {
-        //Copy the selected file to the icons directory
-        
-        var destPath = Path.Combine(_iconsDirectory, Path.GetFileName(filePath));
-        try        {
-            File.Copy(filePath, destPath, overwrite: true);
+        var destPath = _iconsService.ImportIcon(filePath);
+    
+        if (destPath != null)
+        {
+            LoadIcons();
         }
-        catch (Exception ex)        {
-            // Тут можно вызвать твой NotificationService.Instance.ShowError(...)
-            Console.WriteLine($"[Error] Не удалось скопировать файл иконки: {ex.Message}");
-            return;
+        else
+        {
+            Console.WriteLine("[Error] Не удалось импортировать иконку.");
         }
-        
-        LoadIcons();
-        OnPropertyChanged(nameof(IconList));
     }
     
     
@@ -166,25 +129,14 @@ public partial class InstancesStore: ObservableObject
     
     private void LoadIcons()
     {
-        if (Directory.Exists(_iconsDirectory))
+        var icons = _iconsService.GetAvailableIcons();
+    
+        IconList.Clear();
+        foreach (var icon in icons)
         {
-            // Указываем все форматы, которые хотим поддерживать
-            var supportedExtensions = new[] { ".png", ".jpg", ".jpeg", ".ico", ".gif" };
-
-            // Перебираем все файлы в папке и оставляем только те, чье расширение есть в нашем массиве
-            var files = Directory.EnumerateFiles(_iconsDirectory)
-                .Where(f => supportedExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
-        
-            IconList.Clear();
-            foreach (var file in files)
-            {
-                var fileName = Path.GetFileName(file);
-                if (!_ignoredIcons.Contains(fileName)) 
-                {
-                    IconList.Add(file); 
-                }
-            }
+            IconList.Add(icon);
         }
+        OnPropertyChanged(nameof(IconList));
     }
     
     public void ApplySort()

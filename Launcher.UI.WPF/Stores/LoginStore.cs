@@ -1,12 +1,10 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
+using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.Stores;
 
@@ -15,6 +13,7 @@ public partial class LoginStore : ObservableObject
     private readonly IAccountStorageService _accountStorage;
     private readonly ISettingsService _settingsService;
     private readonly IAuthService _authService;
+    private readonly IDispatcherService _dispatcherService;
     
     private bool _isLoggingIn;
     private UserAccount _currentAccount;
@@ -27,11 +26,15 @@ public partial class LoginStore : ObservableObject
     public ObservableCollection<UserAccount> Accounts { get; set; } = new();
 
     // Добавили ISettingsService в конструктор
-    public LoginStore(IAccountStorageService accountStorage, ISettingsService settingsService, IAuthService authService)
+    public LoginStore(IAccountStorageService accountStorage, 
+        ISettingsService settingsService, 
+        IAuthService authService,
+        IDispatcherService dispatcherService)
     {
         _accountStorage = accountStorage;
         _settingsService = settingsService;
         _authService = authService;
+        _dispatcherService = dispatcherService;
         
         _settingsService.Initialize(this);
         
@@ -98,12 +101,12 @@ public partial class LoginStore : ObservableObject
             {
                 Debug.WriteLine($"[Auth] Account {acc.Username} validation failed: {ex.Message}");
                 
-                Application.Current.Dispatcher.Invoke(() => 
+                _dispatcherService.Invoke(() => 
                 {
                     Accounts.Remove(acc);
-                    
+    
                     isChanged = true;
-                    
+    
                     if (CurrentAccount == acc && Accounts.Count > 0)
                     {
                         CurrentAccount = Accounts.FirstOrDefault();

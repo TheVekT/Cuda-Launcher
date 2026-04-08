@@ -1,8 +1,5 @@
-using System;
-using System.ComponentModel;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Launcher.UI.WPF.Helpers; // Путь к твоему RelayCommand
+using CommunityToolkit.Mvvm.Input;
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
 
@@ -20,27 +17,29 @@ public partial class ProgressVM : ObservableObject, IProgress<double>
     private bool _isIndeterminate;
     [ObservableProperty]
     private bool _isCancellable;
-
-    public ICommand CancelCommand { get; }
-    public ICommand HideCommand { get; }
-
-    public ProgressVM(Action onHide, Action onCancel = null)
+    
+    private readonly Action _onHide;
+    private readonly Action? _onCancel;
+    
+    public ProgressVM(Action onHide, Action? onCancel = null)
     {
-        HideCommand = new RelayCommand(_ => onHide?.Invoke());
-
-        if (onCancel != null)
-        {
-            IsCancellable = true;
-            CancelCommand = new RelayCommand(_ => 
-            {
-                onCancel();
-                onHide?.Invoke(); 
-            });
-        }
-        else
-        {
-            IsCancellable = false;
-        }
+        _onHide = onHide;
+        _onCancel = onCancel;
+        
+        IsCancellable = _onCancel != null;
+    }
+    
+    [RelayCommand]
+    private void Hide()
+    {
+        _onHide?.Invoke();
+    }
+    
+    [RelayCommand]
+    private void Cancel()
+    {
+        _onCancel?.Invoke();
+        _onHide?.Invoke(); 
     }
     
     public void Report(double value)

@@ -1,37 +1,27 @@
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Windows;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
 using Launcher.Core.Messages;
 using Launcher.Core.Models;
-using Launcher.Core.Services;
-using Launcher.Core.Services.Auth; 
-using Launcher.Core.Services.IO;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.Integrations;
-using Launcher.Core.Services.System;
-using Launcher.UI.WPF.Helpers;
-using Launcher.UI.WPF.Resources.Overlay;
-using Launcher.UI.WPF.Resources.Overlay.Menus;
-using Launcher.UI.WPF.Resources.Overlay.Notifications;
+using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels.Accounts;
 using Launcher.UI.WPF.ViewModels.Game;
 using Launcher.UI.WPF.ViewModels.Instances;
 using Launcher.UI.WPF.ViewModels.Settings;
-using Microsoft.VisualBasic;
 
 namespace Launcher.UI.WPF.ViewModels;
 
 public partial class MainViewModel : ObservableObject,
     IRecipient<GameLaunchStateMessage>,
-    IRecipient<GameLaunchProgressMessage>
+    IRecipient<GameLaunchProgressMessage>,
+    IRecipient<LaunchGameRequestMessage>,
+    IRecipient<CloseOverlayMessage>
 {
     //Services
     private readonly IGameVersionService _versionService;
@@ -40,6 +30,7 @@ public partial class MainViewModel : ObservableObject,
     private readonly ImportOrchestratorService _importOrchestratorService;
     private readonly IOverlayService _overlayService;
     private readonly NavigationService _navigationService;
+    private readonly IDispatcherService _dispatcherService;
 
     //Stores
     private readonly LoginStore _loginStore;
@@ -66,20 +57,6 @@ public partial class MainViewModel : ObservableObject,
     private Process? _currentGameProcess;
     [ObservableProperty]
     private bool _isEnabledInstancesComboBox = true;
-    
-    //Overlays
-    private SettingsMenu _settingsMenu;
-    
-    //Commands
-    public ICommand LaunchCommand { get; }
-    public ICommand CloseOverlayCommand { get; }
-    public ICommand OpenSettingsCommand { get; }
-    public ICommand OpenLoginCommand { get; }
-    public ICommand NavigateCommand { get; }
-    public ICommand DragEnterCommand { get; }
-    public ICommand DragLeaveCommand { get; }
-    public ICommand DropCommand { get; }
-    
     //public attributes
     public AppStore AppStore => _appStore;
 
@@ -97,6 +74,7 @@ public partial class MainViewModel : ObservableObject,
         ImportOrchestratorService importOrchestratorService,
         IOverlayService overlayService,
         NavigationService navigationService,
+        IDispatcherService dispatcherService,
         LoginStore loginStore,
         SettingsStore settingsStore,
         InstancesStore instancesStore,
@@ -113,6 +91,7 @@ public partial class MainViewModel : ObservableObject,
         _importOrchestratorService = importOrchestratorService;
         _overlayService = overlayService;
         _navigationService = navigationService;
+        _dispatcherService = dispatcherService;
 
         //Stores
         _loginStore = loginStore;
@@ -127,46 +106,6 @@ public partial class MainViewModel : ObservableObject,
         _loginVM = loginVM;
         _settingsVM = settingsVM;
         
-        //Overlays
-        _settingsMenu = new SettingsMenu();
-        _settingsMenu.DataContext = _settingsVM;
-        
-        //Commands
-        
-        LaunchCommand = new RelayCommand(async o => await HandlePlayButtonPress());
-        
-        NavigateCommand = new RelayCommand(parameter => 
-        {
-            if (parameter is string pageName)
-            {
-                switch (pageName)
-                {
-                    case "Play": _navigationService.Navigate(_playVM); break;
-                    case "Installations": _navigationService.Navigate(_installationsVM); break;
-                    case "Skins": _navigationService.Navigate(_skinsVM); break;
-                }
-            }
-        });
-        
-        OpenSettingsCommand = new RelayCommand(o => _overlayService.Show(settingsVM));
-        
-        OpenLoginCommand = new RelayCommand(o => 
-        {
-           
-            _loginVM.IsAddAccPageOpen = !_loginStore.IsLoggedIn; 
-            _overlayService.Show(_loginVM);
-        });
-
-        CloseOverlayCommand = new RelayCommand(o => _overlayService.Close());
-        
-        DragEnterCommand = new RelayCommand(o => HandleDragEnter(o));
-        DragLeaveCommand = new RelayCommand(o => HandleDragLeave(o));
-        DropCommand = new RelayCommand(async o => await HandleDropAsync(o));
-        
-        _loginVM.RequestClose += () => _overlayService.Close();
-        _settingsVM.RequestClose += () => _overlayService.Close();
-        
-        _playVM.RequestLaunch += async () => await HandlePlayButtonPress();
         
         _discordService.Initialize(Core.Constants.DiscordAppId);
         _overlayService.RegisterOverlaySetter(view => _appStore.CurrentOverlayView = view);
@@ -189,7 +128,7 @@ public partial class MainViewModel : ObservableObject,
         }
         else
         {
-            await LaunchCurrentInstance(); 
+            await LaunchGame(); 
         }
     }
     
@@ -209,7 +148,7 @@ public partial class MainViewModel : ObservableObject,
         }
     }
     
-    private async Task LaunchCurrentInstance()
+    private async Task LaunchGame()
     {
         if (_appStore.IsDownloading) return;
         if (_appStore.IsGameRunning) return;
@@ -217,7 +156,7 @@ public partial class MainViewModel : ObservableObject,
         if (_instancesStore.SelectedInstance == null) return;
         if (_loginStore.CurrentAccount == null) 
         { 
-            OpenLoginCommand.Execute(null); 
+            OpenLogin(); 
             return;
         }
 
@@ -244,87 +183,70 @@ public partial class MainViewModel : ObservableObject,
         }
     }
 
-    private void HandleDragEnter(object parameter)
+    private void HandleDragEnter()
     {
         if (_appStore.CurrentOverlayView != null) return; 
-        if (parameter is DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                _appStore.IsDragDropActive = true;
-                e.Effects = DragDropEffects.Copy;
-            }
-            else
-            {
-                e.Effects = DragDropEffects.None;
-            }
-            e.Handled = true;
-        }
+        _appStore.IsDragDropActive = true;
     }
 
-    private void HandleDragLeave(object parameter)
+    private void HandleDragLeave()
     {
         _appStore.IsDragDropActive = false;
     }
 
-    private async Task HandleDropAsync(object parameter)
+    private async Task HandleDropAsync(string[]? files)
     {
         _appStore.IsDragDropActive = false;
         
-        if (parameter is DragEventArgs e && e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (files != null && files.Length > 0)
         {
-            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (files != null && files.Length > 0)
+            using var cts = new CancellationTokenSource();
+            
+            var progressVM = new ProgressVM(
+                onHide: () => _appStore.IsOverlayVisible = false, 
+                onCancel: () => cts.Cancel()                      
+            )
             {
-                using var cts = new CancellationTokenSource();
+                Title = LocalizationService.Instance["ProgressMenu.ImportingFiles.Title"],
+                Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.DescriptionPreparing"], files.Length),
+                IsIndeterminate = false,
+                ProgressValue = 0,
+                ProgressText = "0%"
+            };
+
+            _overlayService.Show(progressVM);
+
+            try
+            {
+                var progressHandler = new Progress<(double Percent, string FileName)>(data => 
+                {
+                    progressVM.Report(data.Percent);
+                    progressVM.Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.Description"], data.FileName);
+                });
                 
-                var progressVM = new ProgressVM(
-                    onHide: () => _appStore.IsOverlayVisible = false, 
-                    onCancel: () => cts.Cancel()                      
-                )
-                {
-                    Title = LocalizationService.Instance["ProgressMenu.ImportingFiles.Title"],
-                    Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.DescriptionPreparing"], files.Length),
-                    IsIndeterminate = false,
-                    ProgressValue = 0,
-                    ProgressText = "0%"
-                };
+                int successCount = await _importOrchestratorService.ProcessDroppedFilesAsync(
+                    files, 
+                    _instancesStore.SelectedInstance, 
+                    progressHandler, 
+                    cts.Token);
 
-                _overlayService.Show(progressVM);
-
-                try
+                if (successCount > 0)
                 {
-                    var progressHandler = new Progress<(double Percent, string FileName)>(data => 
-                    {
-                        progressVM.Report(data.Percent);
-                        progressVM.Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.Description"], data.FileName);
-                    });
-                    
-                    int successCount = await _importOrchestratorService.ProcessDroppedFilesAsync(
-                        files, 
-                        _instancesStore.SelectedInstance, 
-                        progressHandler, 
-                        cts.Token);
-
-                    if (successCount > 0)
-                    {
-                        var title = LocalizationService.Instance["Success.SuccessImport"];
-                        var desc = String.Format(LocalizationService.Instance["Success.SuccessImportDesc"], successCount, files.Length);
-                        NotificationService.Instance.ShowSuccess(title, desc);
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    var title = LocalizationService.Instance["Info.ImportCanceledTitle"];
-                    var desc = LocalizationService.Instance["Info.ImportCanceledDesc"];
-                    NotificationService.Instance.ShowInfo(title, desc);
-                }
-                finally
-                {
-                    _overlayService.Close();
+                    var title = LocalizationService.Instance["Success.SuccessImport"];
+                    var desc = String.Format(LocalizationService.Instance["Success.SuccessImportDesc"], successCount, files.Length);
+                    NotificationService.Instance.ShowSuccess(title, desc);
                 }
             }
-            e.Handled = true;
+            catch (OperationCanceledException)
+            {
+                var title = LocalizationService.Instance["Info.ImportCanceledTitle"];
+                var desc = LocalizationService.Instance["Info.ImportCanceledDesc"];
+                NotificationService.Instance.ShowInfo(title, desc);
+            }
+            finally
+            {
+                _overlayService.Close();
+            }
         }
     }
 
@@ -335,26 +257,84 @@ public partial class MainViewModel : ObservableObject,
 
     public void Receive(GameLaunchStateMessage message)
     {
-        var app = Application.Current;
-        var dispatcher = app?.Dispatcher;
-
-        if (dispatcher != null && !dispatcher.CheckAccess())
+        _dispatcherService.Invoke(() =>
         {
-            _ = dispatcher.InvokeAsync(() => Receive(message));
-            return;
-        }
-
-        if (message.IsRunning)
-        {
-            Console.WriteLine("Game started!");
-            if (!_settingsStore.IsKeepLauncherOpen)
-                app?.MainWindow?.Hide();
-        }
-        else {
-            IsEnabledInstancesComboBox = true;
-            app?.MainWindow?.Show();
-            _currentGameProcess = null;
-        }
+            if (message.IsRunning)
+            {
+                Console.WriteLine("Game started!");
+                if (!_settingsStore.IsKeepLauncherOpen)
+                    WeakReferenceMessenger.Default.Send(new LauncherVisibilityMessage(false));
+            }
+            else 
+            {
+                IsEnabledInstancesComboBox = true;
+                _currentGameProcess = null;
+                WeakReferenceMessenger.Default.Send(new LauncherVisibilityMessage(true));
+            }
+        });
     }
     
+    public void Receive(LaunchGameRequestMessage message)
+    {
+        _dispatcherService.InvokeAsync(async () => 
+        {
+            await HandlePlayButtonPress();
+        });
+    }
+
+    public void Receive(CloseOverlayMessage message)
+    {
+        _overlayService.Close();
+    }
+    
+    //Commands
+    [RelayCommand]
+    private void Launch() =>
+        WeakReferenceMessenger.Default.Send(new LaunchGameRequestMessage());
+    
+    
+    [RelayCommand]
+    private void Navigate(string pageName)
+    {
+        switch (pageName)
+        {
+            case "Play": _navigationService.Navigate(_playVM); break;
+            case "Installations": _navigationService.Navigate(_installationsVM); break;
+            case "Skins": _navigationService.Navigate(_skinsVM); break;
+        }
+    }
+
+    [RelayCommand]
+    private void OpenSettings() => 
+        _overlayService.Show(_settingsVM);
+    
+    [RelayCommand]
+    private void CloseOverlay() => 
+        _overlayService.Close();
+    
+    
+    [RelayCommand]
+    private void OpenLogin()
+    {
+        _loginVM.IsAddAccPageOpen = !_loginStore.IsLoggedIn; 
+        _overlayService.Show(_loginVM);
+    }
+    
+    [RelayCommand]
+    private void DragEnter()
+    {
+        HandleDragEnter();
+    }
+    
+    [RelayCommand]
+    private void DragLeave()
+    {        
+        HandleDragLeave();
+    }
+    
+    [RelayCommand]
+    private async Task Drop(string[]? files)
+    {        
+        await HandleDropAsync(files);
+    }
 }

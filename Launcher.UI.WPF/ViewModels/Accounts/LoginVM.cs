@@ -1,10 +1,10 @@
-using System.ComponentModel;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
@@ -14,6 +14,7 @@ public partial class LoginVM: ObservableObject
     //Services
     private readonly IAuthService _authService;
     private readonly IAccountStorageService _accountStorage;
+    private readonly IOverlayService _overlayService;
     //Stores
     private readonly LoginStore _loginStore;
     //Attributes
@@ -25,48 +26,19 @@ public partial class LoginVM: ObservableObject
     private bool _isLoggingIn;
     [ObservableProperty]
     private int _accountCount = 0;
-    //Events
-    public event Action RequestClose;
-        
-    //Commands
-    public ICommand MicrosoftLoginCommand { get; }
-    public ICommand OfflineLoginCommand { get; }
-    public ICommand SelectAccountCommand { get; }
-    public ICommand CloseSelfCommand { get; }
-    public ICommand AddNewAccountCommand { get; }
-    public ICommand RenameAccountCommand { get; }
-    public ICommand LogOutCommand { get; }
-    
 
-
-
-    public LoginVM(IAuthService authService, IAccountStorageService accountStorage,LoginStore loginStore)
+    public LoginVM(IAuthService authService, 
+        IAccountStorageService accountStorage,
+        IOverlayService overlayService,
+        LoginStore loginStore)
     { 
         _authService = authService; 
-        _accountStorage = accountStorage; 
+        _accountStorage = accountStorage;
+        _overlayService = overlayService;
         _loginStore = loginStore;
             
         AccountCount = _loginStore.Accounts.Count;
-            
-        MicrosoftLoginCommand = new RelayCommand(async (o) => await ExecuteMicrosoftLogin());
-            
-        OfflineLoginCommand = new RelayCommand(o => { ExecuteOffileLogin(o); });
-            
-        CloseSelfCommand = new RelayCommand(o => RequestClose?.Invoke());
-            
-        AddNewAccountCommand = new RelayCommand(o => IsAddAccPageOpen = true); 
-            
-        SelectAccountCommand = new RelayCommand(o => 
-        {
-            if (o is UserAccount account)
-            {
-                _loginStore.CurrentAccount = account;
-            }
-        });
-            
-        LogOutCommand = new RelayCommand(o => HandleLogout(o as UserAccount));
-            
-        RenameAccountCommand = new RelayCommand(o => HandleRenameAccount(o as UserAccount));
+        
             
         _loginStore.Accounts.CollectionChanged += (s, e) => 
         {
@@ -119,7 +91,7 @@ public partial class LoginVM: ObservableObject
                 
             _loginStore.RegisterLogin(account); 
                 
-            RequestClose?.Invoke();
+            WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
         }
     }
 
@@ -131,24 +103,71 @@ public partial class LoginVM: ObservableObject
         IsLoggingIn = true;
         try
         {
+            _overlayService.SetClosable(false);
             var newAccount = await _authService.LoginWithMicrosoftAsync();
                 
             _loginStore.RegisterLogin(newAccount);
             var title = LocalizationService.Instance["Success.LoginMicrosoftTitle"];
             var desc = LocalizationService.Instance["Success.LoginMicrosoftDesc"];
             NotificationService.Instance.ShowSuccess(title, desc);
-            RequestClose?.Invoke();
+            WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
         }
         catch (Exception ex) 
         { 
             var title = LocalizationService.Instance["Errors.LoginMicrosoftTitle"];
             var desc = LocalizationService.Instance["Errors.LoginMicrosoftDesc"];
+            NotificationService.Instance.ShowError(title, desc);
             Console.WriteLine(ex.Message); 
         }
         finally 
         { 
+            _overlayService.SetClosable(true);
             IsLoggingIn = false; 
         }
     }
     
+    //Commands
+    [RelayCommand]
+    private void CloseSelf() =>
+        WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
+    
+    [RelayCommand]
+    private async Task MicrosoftLogin() =>
+        await ExecuteMicrosoftLogin();
+    
+    [RelayCommand]
+    private void OfflineLogin(object parameter) =>
+        ExecuteOffileLogin(parameter);
+    
+    [RelayCommand]
+    private void AddNewAccount() =>
+        IsAddAccPageOpen = true;
+
+    [RelayCommand]
+    private void SelectAccount(object parameter)
+    {
+        if (parameter is UserAccount account)
+        {
+            _loginStore.CurrentAccount = account;
+        }
+    }
+    
+    [RelayCommand]
+    private void LogOut(object parameter)
+    {
+        if (parameter is UserAccount account)
+        {
+            HandleLogout(account);
+        }
+    }
+
+    [RelayCommand]
+    private void RenameAccount(object parameter)
+    {
+        if (parameter is UserAccount account)
+        {
+            HandleRenameAccount(account);
+        }
+    }
+
 }

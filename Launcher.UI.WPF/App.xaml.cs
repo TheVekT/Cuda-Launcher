@@ -1,8 +1,5 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
-using Launcher.Core.Services;
-using Launcher.UI.WPF.Resources.Overlay;
 using Launcher.UI.WPF.ViewModels;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
@@ -46,6 +43,10 @@ public partial class App : Application
         services.AddSingleton<ImportOrchestratorService>();
         services.AddSingleton<IOverlayService, OverlayService>();
         services.AddSingleton<NavigationService>();
+        services.AddSingleton<IDispatcherService, WpfDispatcherService>();
+        services.AddSingleton<IInputService, InputService>();
+        services.AddSingleton<IIconsService, IconsService>();
+        services.AddSingleton<IFileDialogService, WpfFileDialogService>();
         
         services.AddSingleton<ILaunchService>(provider => new LaunchService(
             provider.GetRequiredService<IInstanceFileSystemService>(),
@@ -57,7 +58,6 @@ public partial class App : Application
         services.AddSingleton<AppStore>();
         services.AddSingleton<LoginStore>();
         services.AddSingleton<SettingsStore>();
-        services.AddSingleton<LaunchStore>();
         services.AddSingleton<InstancesStore>();
 
         

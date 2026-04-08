@@ -12,8 +12,10 @@
     xmlns:game="clr-namespace:Launcher.UI.WPF.ViewModels.Game"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <helpers:StringToResourceConverter x:Key="StringToResourceConverter" />
+    </UserControl.Resources>
 
     <Grid>
         <Button
@@ -37,7 +39,7 @@
                 <Border Padding="0">
                     <Grid
                         Margin="0,0,0,5"
-                        Visibility="{Binding AppStore.DownloadPanelVisibility}"
+                        Visibility="{Binding AppStore.IsDownloading, Converter={StaticResource BoolToVis}}"
                         x:Name="DownloadInfoPanel">
 
                         <Grid.RowDefinitions>
@@ -88,7 +90,7 @@
                     Height="50"
                     HorizontalAlignment="Center"
                     Style="{StaticResource AccentButtonStyle}"
-                    Tag="{Binding CurrentPlayButtonIcon}"
+                    Tag="{Binding CurrentPlayButtonIcon, Converter={StaticResource StringToResourceConverter}}"
                     Width="200"
                     helpers:ButtonHelper.BalanceText="True"
                     helpers:ButtonHelper.IsLoading="{Binding AppStore.IsDownloading}"

@@ -1,13 +1,11 @@
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Messages;
-using Launcher.Core.Services;
 using Launcher.Core.Services.Integrations;
 using Launcher.UI.WPF.Helpers;
-using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Game;
@@ -36,11 +34,6 @@ public partial class PlayViewModel: ObservableObject,
     
     public AppStore AppStore => _appStore;
     
-    //Commands
-    public ICommand LaunchCommand => new RelayCommand(o => RequestLaunch?.Invoke());
-    
-    //Events
-    public event Action RequestLaunch;
 
     public PlayViewModel(IDiscordService discordService, SettingsStore settingsStore, InstancesStore instancesStore, AppStore appStore)
     {
@@ -78,15 +71,14 @@ public partial class PlayViewModel: ObservableObject,
         }
     }
     
-    public void ChangeToPlayIcon(string path)
+    private void ChangeToPlayIcon(string iconName)
     {
-        CurrentPlayButtonIcon = Application.Current.TryFindResource(path);
+        CurrentPlayButtonIcon = iconName;
     }
 
     public void Receive(GameLaunchProgressMessage message)
     {
         _appStore.IsDownloading = true;
-        OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility));
         DownloadStatusText = message.Status;
         DownloadProgress = message.Percent;
     }
@@ -97,7 +89,6 @@ public partial class PlayViewModel: ObservableObject,
             _appStore.IsGameRunning = true;
             UpdateDiscordPresence();
             _appStore.IsDownloading = false;
-            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility)); 
             CurrentPlayButtonText.Update("Play.PlayButton.Close"); 
             ChangeToPlayIcon("Icon.Close");
         }
@@ -105,7 +96,6 @@ public partial class PlayViewModel: ObservableObject,
         {
             _appStore.IsDownloading = false;
             _appStore.IsGameRunning = false;
-            OnPropertyChanged(nameof(_appStore.DownloadPanelVisibility)); 
             CurrentPlayButtonText.Update("Play.PlayButton");
             UpdateDiscordPresence();
             ChangeToPlayIcon("Icon.Play");
@@ -126,5 +116,12 @@ public partial class PlayViewModel: ObservableObject,
                 DownloadPercentText = $"{value:0}%"; 
             }
         }
+    }
+    
+    //Commands
+    [RelayCommand]
+    private void Launch()
+    {
+        WeakReferenceMessenger.Default.Send(new LaunchGameRequestMessage());
     }
 }

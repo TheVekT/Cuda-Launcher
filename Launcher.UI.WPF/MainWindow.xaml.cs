@@ -24,12 +24,27 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-
-        // Подписываемся на запрос анимации
+        
         WeakReferenceMessenger.Default.Register<OverlayBlinkMessage>(this, (r, m) =>
         {
-            // Обязательно в UI-потоке
             Dispatcher.Invoke(() => PlayBlinkAnimation());
+        });
+        
+        WeakReferenceMessenger.Default.Register<LauncherVisibilityMessage>(this, (r, m) =>
+        {
+            Dispatcher.Invoke(() => 
+            {
+                if (m.IsVisible)
+                {
+                    Show();
+                    if (WindowState == WindowState.Minimized)
+                        WindowState = WindowState.Normal;
+                    
+                    Activate();
+                }
+                else
+                    Hide();
+            });
         });
     }
 

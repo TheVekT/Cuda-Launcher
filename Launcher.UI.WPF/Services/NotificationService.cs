@@ -1,18 +1,21 @@
-using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows;
 using Launcher.Core.Enums;
 using Launcher.Core.Models;
 using Launcher.Core.Services.UI;
-
 namespace Launcher.UI.WPF.Services;
 
 public class NotificationService : INotificationService
 {
+    private readonly IDispatcherService _dispatcherService;
+    
     public ObservableCollection<NotificationMessage> Notifications { get; } = new();
     
     public static NotificationService Instance  { get; internal set; }
+    
+    public NotificationService(IDispatcherService dispatcherService)
+    {
+        _dispatcherService = dispatcherService;
+    }
 
     public void Show(string title, string message, NotificationType type, double durationSeconds = 5)
     {
@@ -23,9 +26,8 @@ public class NotificationService : INotificationService
             Type = type,
             DurationSeconds = durationSeconds
         };
-
-        // Гарантируем, что добавление произойдет в главном UI-потоке
-        Application.Current.Dispatcher.InvokeAsync(() =>
+        
+        _dispatcherService.InvokeAsync(() =>
         {
             Notifications.Add(notification);
         });
@@ -45,8 +47,8 @@ public class NotificationService : INotificationService
         Show(title, message, NotificationType.Info, durationSeconds);
 
     public void Remove(Guid id)
-{
-        Application.Current.Dispatcher.InvokeAsync(() =>
+    {
+        _dispatcherService.InvokeAsync(() =>
         {
             var item = Notifications.FirstOrDefault(n => n.Id == id);
             if (item != null)

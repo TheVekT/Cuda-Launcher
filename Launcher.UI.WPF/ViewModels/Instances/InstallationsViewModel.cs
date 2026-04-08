@@ -1,29 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
 using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
-using Launcher.Core.Services.System;
 using Launcher.UI.WPF.Helpers;
-using Launcher.UI.WPF.Resources.Overlay;
-using Launcher.UI.WPF.Resources.Overlay.Menus;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels.Settings;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
 
-public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
+public partial class InstallationsViewModel : ObservableObject,
+    IRecipient<GameLaunchStateMessage>,
     IRecipient<InstanceCreatedMessage>,
     IRecipient<InstanceUpdatedMessage>
 {
@@ -31,8 +23,10 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
     private readonly IGameVersionService _versionService;
     private readonly IInstanceService _instanceService;
     private readonly IInstanceFileSystemService _instanceFileSystemService;
-    private readonly ILauncherPathsService _pathsService;
     private readonly IOverlayService _overlayService;
+    private readonly IDispatcherService _dispatcherService;
+    private readonly IInputService _inputService;
+    private readonly IIconsService _iconsService;
 
     //Stores
     private readonly InstancesStore _instancesStore;
@@ -41,16 +35,6 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
 
     //Attributes
     private readonly string _instancesFilePath;
-
-    //Commands
-    public ICommand DeleteInstanceCommand { get; }
-    public ICommand OpenSettingsCommand { get; }
-    public ICommand OpenAddVersionCommand { get; }
-    public ICommand OpenInstanceFolderCommand { get; }
-    public ICommand OpenModsFolderCommand { get; }
-    public ICommand OpenRootFolderCommand { get; }
-    //Attributes
-    
     
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
@@ -60,8 +44,10 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
         IGameVersionService versionService,
         IInstanceService instanceService,
         IInstanceFileSystemService instanceFileSystemService,
-        ILauncherPathsService pathsService,
         IOverlayService overlayService,
+        IDispatcherService dispatcherService,
+        IInputService inputService,
+        IIconsService iconsService,
         InstancesStore instancesStore,
         SettingsStore settingsStore,
         AppStore appStore)
@@ -69,36 +55,13 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
         _versionService = versionService;
         _instanceService = instanceService;
         _instanceFileSystemService = instanceFileSystemService;
-        _pathsService = pathsService;
         _overlayService = overlayService;
+        _dispatcherService = dispatcherService;
+        _inputService = inputService;
+        _iconsService = iconsService;
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
         _appStore = appStore;
-        _instancesFilePath = Path.Combine(_pathsService.InstancesDirectory, "instances.json");
-
-
-        DeleteInstanceCommand = new RelayCommand(async o => await DeleteInstance(o as MinecraftInstance));
-        OpenSettingsCommand = new RelayCommand(async o => await OpenSettings(o as MinecraftInstance));
-
-        OpenAddVersionCommand = new RelayCommand(async o => 
-        {
-            var InstanceVM = new InstanceCreationVM(_versionService, _instancesStore, _settingsStore, _appStore);
-            InstanceVM.RequestClose += () => 
-            {
-                _overlayService.Close();
-            };
-            _overlayService.Show(InstanceVM);
-            await InstanceVM.InitializeAsync();
-        });
-        
-        OpenInstanceFolderCommand = new RelayCommand(o => ExecuteOpenInstanceFolder());
-
-        OpenModsFolderCommand = new RelayCommand(o =>
-        {
-            if (_instancesStore.SelectedInstance != null)
-                _instanceFileSystemService.OpenInstanceModsFolder(_instancesStore.SelectedInstance);
-        });
-        OpenRootFolderCommand = new RelayCommand(o => _instanceFileSystemService.OpenRootMinecraftFolder());
         
         WeakReferenceMessenger.Default.RegisterAll(this);
     }
@@ -116,8 +79,7 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
             var latestVersion = vanillaVersions.FirstOrDefault();
 
             if (string.IsNullOrEmpty(latestVersion)) return;
-
-            bool isFirstLaunch = !File.Exists(_instancesFilePath);
+            bool isFirstLaunch = _instancesStore.Instances.Count == 0;
 
             if (isFirstLaunch) CreateLatestRelease(latestVersion);
             else UpdateLatestRelease(latestVersion);
@@ -172,7 +134,8 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
     private void ExecuteOpenInstanceFolder()
     {
         if (_instancesStore.SelectedInstance == null) return;
-        if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
+    
+        if (_inputService.IsShiftPressed)
             _instanceFileSystemService.OpenInstanceModsFolder(_instancesStore.SelectedInstance);
         else
             _instanceFileSystemService.OpenInstanceFolder(_instancesStore.SelectedInstance);
@@ -181,11 +144,7 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
     private async Task OpenSettings(MinecraftInstance instance)
     {
         if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
-        var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _instancesStore, _settingsStore);
-        InstanceSettingsVM.RequestClose += () => 
-        {
-            _overlayService.Close();
-        };
+        var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
         _overlayService.Show(InstanceSettingsVM);
         await InstanceSettingsVM.InitializeAsync();
     }
@@ -199,9 +158,7 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
             ConfirmButtons.Delete);
 
         _overlayService.Show(confirmVm);
-        _overlayService.SetClosable(false);
         bool isConfirmed = await confirmVm.WaitAsync();
-        _overlayService.SetClosable(true);
         _overlayService.Close();
         
         if (!isConfirmed)
@@ -227,6 +184,7 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
             return;
         try
         {
+            _overlayService.SetClosable(false);
             await _instanceFileSystemService.InitializeOnCreation(message.Instance);
 
             void UpdateUiState()
@@ -237,15 +195,10 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
                 if (!_appStore.IsCurrentInstanceProcessing)
                     _instancesStore.SelectedInstance = message.Instance;
             }
-
-            var dispatcher = System.Windows.Application.Current?.Dispatcher;
-
-            if (dispatcher != null && !dispatcher.CheckAccess())
-                await dispatcher.InvokeAsync(UpdateUiState);
-            else 
-                UpdateUiState();
-            
+            await _dispatcherService.InvokeAsync(UpdateUiState);
+        
             _instanceService.SaveInstances(_instancesStore.Instances);
+            _overlayService.SetClosable(true);
             Debug.WriteLine($"Created instance: {message.Instance.Name}");
         }
         catch (Exception ex)
@@ -268,4 +221,35 @@ public class InstallationsViewModel : IRecipient<GameLaunchStateMessage>,
         }
     }
     
+    //Commands
+    [RelayCommand]
+    private async Task DeleteInstance(object parameter) =>
+        await DeleteInstance(parameter as MinecraftInstance);
+    
+    [RelayCommand]
+    private async Task OpenSettings(object parameter) =>
+        await OpenSettings(parameter as MinecraftInstance);
+    
+    [RelayCommand]
+    private async Task OpenAddVersion()
+    {
+        var InstanceVM = new InstanceCreationVM(_versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        _overlayService.Show(InstanceVM);
+        await InstanceVM.InitializeAsync();
+    }
+    
+    [RelayCommand]
+    private void OpenInstanceFolder() =>
+        ExecuteOpenInstanceFolder();
+
+    [RelayCommand]
+    private void OpenModsFolder()
+    {
+        if (_instancesStore.SelectedInstance != null)
+            _instanceFileSystemService.OpenInstanceModsFolder(_instancesStore.SelectedInstance);
+    }
+
+    [RelayCommand]
+    private void OpenRootFolder() =>
+        _instanceFileSystemService.OpenRootMinecraftFolder();
 }

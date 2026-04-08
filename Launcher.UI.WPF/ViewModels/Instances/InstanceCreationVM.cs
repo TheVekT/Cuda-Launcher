@@ -1,17 +1,15 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Windows.Input;
-using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
 using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
@@ -20,11 +18,12 @@ public partial class InstanceCreationVM: ObservableObject
 {
     //Services
     private readonly IGameVersionService _versionService;
+    private readonly IDispatcherService _dispatcherService;
+    private readonly IIconsService _iconsService;
     
     //Stores
     private readonly InstancesStore _instancesStore;
     private readonly SettingsStore _settingsStore;
-    private readonly AppStore _appStore;
     
     public bool CreatingPage1Visible { get; set; } = false;
     public bool CreatingPage2Visible { get; set; } = true;
@@ -69,14 +68,6 @@ public partial class InstanceCreationVM: ObservableObject
     [ObservableProperty]
     private string _JVMArguments;
     
-    //Commands
-    public ICommand ToggleCreatingPageCommand { get; }
-    public ICommand CloseSelfCommand { get; }
-    public ICommand CreateInstanceCommand => new RelayCommand(async o => await CreateInstance());
-    
-    //Events
-    public event Action RequestClose;
-    
     //Collections
     public ObservableCollection<string> GameVersions { get; } = new(); 
     public ObservableCollection<string> LoaderVersions { get; } = new();
@@ -85,16 +76,18 @@ public partial class InstanceCreationVM: ObservableObject
     public InstancesStore InstancesStore => _instancesStore;
     public SettingsStore SettingsStore => _settingsStore;
     
-    public InstanceCreationVM(IGameVersionService versionService, 
+    public InstanceCreationVM(IGameVersionService versionService,
+        IDispatcherService dispatcherService,
+        IIconsService iconsService,
         InstancesStore instancesStore, 
-        SettingsStore settingsStore,
-        AppStore appStore)
+        SettingsStore settingsStore)
     {
         _versionService = versionService;
+        _dispatcherService = dispatcherService;
+        _iconsService = iconsService;
         
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
-        _appStore = appStore;
         
         InstallationName = string.Empty;
         SelectedIsolation = IsolationType.Global;
@@ -112,8 +105,6 @@ public partial class InstanceCreationVM: ObservableObject
         
         InstallPerformanceMods = false;
         
-        
-        bool typeChanged = _selectedModLoader != "Vanilla";
         _selectedModLoader = "Vanilla"; 
         
         OnPropertyChanged(nameof(SelectedModLoader)); 
@@ -124,14 +115,6 @@ public partial class InstanceCreationVM: ObservableObject
         if (_instancesStore.IconList.Count > 0){
             SelectedIcon = _instancesStore.IconList.FirstOrDefault();;
         }
-        ToggleCreatingPageCommand = new RelayCommand(o =>
-        {
-            CreatingPage1Visible = !CreatingPage1Visible;
-            CreatingPage2Visible = !CreatingPage2Visible;
-            OnPropertyChanged(nameof(CreatingPage1Visible));
-            OnPropertyChanged(nameof(CreatingPage2Visible));
-        });
-        CloseSelfCommand = new RelayCommand(o => RequestClose?.Invoke());
     }
     public async Task InitializeAsync()
     {
@@ -157,14 +140,17 @@ public partial class InstanceCreationVM: ObservableObject
     {
         try
         {
-            LoaderVersions.Clear();
-            System.Windows.Application.Current.Dispatcher.Invoke(() => SelectedLoaderVersion = null);
+            _dispatcherService.Invoke(() => 
+            {
+                LoaderVersions.Clear();
+                SelectedLoaderVersion = null;
+            });
 
             var type = GetLoaderType(_selectedModLoader);
             
             if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
             {
-                System.Windows.Application.Current.Dispatcher.Invoke(() => LoaderVersions.Clear());
+                _dispatcherService.Invoke(() => LoaderVersions.Clear());
                 return;
             }
             
@@ -173,7 +159,7 @@ public partial class InstanceCreationVM: ObservableObject
             
             var recommendedVersion = await _versionService.GetRecommendedLoaderVersionAsync(type, SelectedGameVersion);
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            _dispatcherService.Invoke(() => 
             {
                 LoaderVersions.Clear();
                 foreach (var version in versionList) 
@@ -182,9 +168,9 @@ public partial class InstanceCreationVM: ObservableObject
                 }
             });
 
-            await Task.Delay(50); // Небольшая задержка для UI
+            await Task.Delay(50);
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            _dispatcherService.Invoke(() => 
             {
                 if (LoaderVersions.Count > 0)
                 {
@@ -197,19 +183,19 @@ public partial class InstanceCreationVM: ObservableObject
             Debug.WriteLine($"[VM] Ошибка RefreshLoaderVersions: {ex.Message}");
         }
     }
-    
+
     private async Task RefreshGameVersions()
     {
         try 
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(() => SelectedGameVersion = null);
+            _dispatcherService.Invoke(() => SelectedGameVersion = null);
 
             GameLoaderType type = GetLoaderType(_selectedModLoader);
             
             var loadedVersions = await _versionService.GetGameVersionsByTypeAsync(type);
             var versionList = loadedVersions.ToList(); 
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            _dispatcherService.Invoke(() => 
             {
                 GameVersions.Clear();
                 if (versionList.Count == 0) return;
@@ -218,7 +204,7 @@ public partial class InstanceCreationVM: ObservableObject
             
             await Task.Delay(50);
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            _dispatcherService.Invoke(() => 
             {
                 if (GameVersions.Count > 0) SelectedGameVersion = GameVersions[0];
             });
@@ -228,6 +214,7 @@ public partial class InstanceCreationVM: ObservableObject
             Debug.WriteLine($"[VM] Ошибка RefreshGameVersions: {ex.Message}");
         }
     }
+    
     private GameLoaderType GetLoaderType(string uiName)
     {
         return uiName switch
@@ -240,7 +227,7 @@ public partial class InstanceCreationVM: ObservableObject
         };
     }
     
-    private async Task CreateInstance()
+    private async Task Create()
     {
         if (string.IsNullOrEmpty(SelectedGameVersion)) return;
         IsCreatingInstance = true;
@@ -253,8 +240,8 @@ public partial class InstanceCreationVM: ObservableObject
             Id = Guid.NewGuid().ToString(),
             Name = finalName,
             IconPath = !string.IsNullOrEmpty(SelectedIcon) 
-                ? Path.GetFileName(SelectedIcon) 
-                : Path.GetFileName(_instancesStore.IconList.FirstOrDefault()),
+                ? _iconsService.GetIconName(SelectedIcon) 
+                : _iconsService.GetIconName(_instancesStore.IconList.FirstOrDefault() ?? ""),
             GameVersion = SelectedGameVersion,
             LoaderVersion = (SelectedModLoader == "Vanilla") ? null : SelectedLoaderVersion,
             LoaderType = GetLoaderType(SelectedModLoader),
@@ -280,7 +267,7 @@ public partial class InstanceCreationVM: ObservableObject
         };
         
         WeakReferenceMessenger.Default.Send(new InstanceCreatedMessage(newInstance));
-        RequestClose?.Invoke();
+        WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
         IsCreatingInstance = false;
     }
 
@@ -345,4 +332,35 @@ public partial class InstanceCreationVM: ObservableObject
         _ = RefreshLoaderVersions();
         RefreshPerfomanceModsVisibility();
     }
+    
+    //Commands
+    [RelayCommand]
+    private void ToggleCreatingPage()
+    {
+        _dispatcherService.Invoke(() =>
+        {
+            CreatingPage1Visible = !CreatingPage1Visible;
+            CreatingPage2Visible = !CreatingPage2Visible;
+            OnPropertyChanged(nameof(CreatingPage1Visible));
+            OnPropertyChanged(nameof(CreatingPage2Visible));
+        });
+    }
+
+    [RelayCommand]
+    private void CloseSelf() =>
+        WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
+    
+    [RelayCommand]
+    private async Task CreateInstance() =>
+        await Create();
+
+    [RelayCommand]
+    private void SelectIcon()
+    {
+        _instancesStore.SelectIconFromFileDialog();
+    }
+    
+    [RelayCommand]
+    private void DropIcon(string[]? files) =>
+        _instancesStore.HandleIconDrop(files);
 }

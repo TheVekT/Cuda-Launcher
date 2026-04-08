@@ -1,16 +1,15 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Enums;
 using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
@@ -19,6 +18,8 @@ public partial class InstanceSettingsVM : ObservableObject
 {
     //Services
     private readonly IGameVersionService _versionService;
+    private readonly IDispatcherService _dispatcherService;
+    private readonly IIconsService _iconsService;
     
     //Stores
     private readonly InstancesStore _instancesStore;
@@ -58,13 +59,6 @@ public partial class InstanceSettingsVM : ObservableObject
     [ObservableProperty]
     private string _JVMArguments;
     
-    //Commands
-    public ICommand CloseSelfCommand { get; }
-    public ICommand SaveCommand { get; }
-
-    //Events
-    public event Action RequestClose;
-    
     //Collections
     public ObservableCollection<string> LoaderVersions { get; } = new();
     
@@ -73,13 +67,17 @@ public partial class InstanceSettingsVM : ObservableObject
     public SettingsStore SettingsStore => _settingsStore;
     
     public InstanceSettingsVM(MinecraftInstance instance,
-        IGameVersionService versionService, 
+        IGameVersionService versionService,
+        IDispatcherService dispatcherService,
+        IIconsService iconsService,
         InstancesStore instancesStore, 
         SettingsStore settingsStore)
     {
         _instance = instance;
         
         _versionService = versionService;
+        _dispatcherService = dispatcherService;
+        _iconsService = iconsService;
         
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
@@ -87,7 +85,8 @@ public partial class InstanceSettingsVM : ObservableObject
         InstallationName = _instance.Name;
         SelectedGameVersion = _instance.GameVersion;
         SelectedLoaderVersion = _instance.LoaderType == GameLoaderType.Vanilla ? null : _instance.LoaderVersion;
-        SelectedIcon = _instancesStore.IconList.FirstOrDefault(fullPath => Path.GetFileName(fullPath) == _instance.IconPath);
+        SelectedIcon = _instancesStore.IconList.FirstOrDefault(fullPath => 
+            _iconsService.GetIconName(fullPath) == _instance.IconPath);
         UseGlobalGameSettings = _instance.GameSettings.AllocatedMemory == null;
         if (UseGlobalGameSettings)
         {
@@ -115,10 +114,6 @@ public partial class InstanceSettingsVM : ObservableObject
         _selectedModLoader = _instance.LoaderType.ToString();; 
         
         OnPropertyChanged(nameof(SelectedModLoader)); 
-        
-        
-        CloseSelfCommand = new RelayCommand(o => RequestClose?.Invoke());
-        SaveCommand = new RelayCommand(o => SaveNewInstanceSettings());
     }
     public async Task InitializeAsync()
     {
@@ -134,8 +129,8 @@ public partial class InstanceSettingsVM : ObservableObject
 
         _instance.Name = finalName;
         _instance.IconPath = !string.IsNullOrEmpty(SelectedIcon) 
-            ? Path.GetFileName(SelectedIcon) 
-            : Path.GetFileName(_instancesStore.IconList.FirstOrDefault());
+            ? _iconsService.GetIconName(SelectedIcon) 
+            : _iconsService.GetIconName(_instancesStore.IconList.FirstOrDefault() ?? "");
         _instance.LoaderVersion = (SelectedModLoader == "Vanilla") ? null : SelectedLoaderVersion;
         _instance.GameSettings.AllocatedMemory = UseGlobalGameSettings ? null : (int?)SelectedMaxRam;
         _instance.GameSettings.Fullscreen = UseGlobalGameSettings ? null : (bool?)IsGameFullscreen;
@@ -150,7 +145,7 @@ public partial class InstanceSettingsVM : ObservableObject
         _instance.BackupSettings.SavesMaxBackups = UseGlobalBackupSettings ? null : (int?)MaxBackupCount;
         
         WeakReferenceMessenger.Default.Send(new InstanceUpdatedMessage(_instance)); 
-        RequestClose?.Invoke();
+        WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
     }
 
     private void RefreshGlobalGameSettings()
@@ -174,21 +169,17 @@ public partial class InstanceSettingsVM : ObservableObject
         {
             var type = GetLoaderType(_selectedModLoader);
 
-            // Если это Vanilla — список пуст
             if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
             {
-                System.Windows.Application.Current.Dispatcher.Invoke(() => LoaderVersions.Clear());
+                _dispatcherService.Invoke(() => LoaderVersions.Clear());
                 return;
             }
 
-            // Запрашиваем все версии лоадера для заблокированной версии игры
             var loadedVersions = await _versionService.GetLoaderVersionsAsync(type, SelectedGameVersion);
             var versionList = loadedVersions.ToList();
-
-            // 1. Запоминаем версию, которая уже установлена в инстансе (мы передали её в конструкторе)
             string currentSavedVersion = _selectedLoaderVersion;
-
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            
+            _dispatcherService.Invoke(() => 
             {
                 LoaderVersions.Clear();
                 foreach (var version in versionList) 
@@ -196,7 +187,6 @@ public partial class InstanceSettingsVM : ObservableObject
                     LoaderVersions.Add(version);
                 }
 
-                // 2. Просто возвращаем текущую версию на место, чтобы ComboBox показал её
                 if (!string.IsNullOrEmpty(currentSavedVersion) && LoaderVersions.Contains(currentSavedVersion))
                 {
                     SelectedLoaderVersion = currentSavedVersion;
@@ -241,4 +231,23 @@ public partial class InstanceSettingsVM : ObservableObject
             return $"{SelectedModLoader} {SelectedGameVersion}";
         }
     }
+    
+    //Commands
+    [RelayCommand]
+    private void CloseSelf() =>
+        WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
+
+    [RelayCommand]
+    private void Save() =>
+        SaveNewInstanceSettings();
+    
+    [RelayCommand]
+    private void SelectIcon()
+    {
+        _instancesStore.SelectIconFromFileDialog();
+    }
+    
+    [RelayCommand]
+    private void DropIcon(string[]? files) =>
+        _instancesStore.HandleIconDrop(files);
 }

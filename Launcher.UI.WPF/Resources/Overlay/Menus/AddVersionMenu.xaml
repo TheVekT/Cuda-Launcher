@@ -6,6 +6,7 @@
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Resources.Overlay.Menus.AddVersionMenu"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:behaviors="clr-namespace:Launcher.UI.WPF.Behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:gif="http://wpfanimatedgif.codeplex.com"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
@@ -218,12 +219,12 @@
                                 <!--  DragEnter="UploadButton_DragEnter"  -->
                                 <!--  Drop="UploadButton_Drop"  -->
                                 <Button
-                                    Command="{Binding InstancesStore.SelectIconCommand}"
+                                    Command="{Binding SelectIconCommand}"
                                     Content="{Binding Source={StaticResource Loc}, Path=[AddInstallation.InstallationIconUpload]}"
                                     Height="50"
                                     Margin="0,5,0,0"
                                     Style="{StaticResource UploadDropZoneStyle}"
-                                    helpers:DragDropBehavior.DropCommand="{Binding InstancesStore.DropIconCommand}" />
+                                    behaviors:FileDragDropBehavior.DropCommand="{Binding DropIconCommand}" />
                             </StackPanel>
                         </Grid>
                     </ScrollViewer>

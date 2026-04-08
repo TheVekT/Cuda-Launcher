@@ -9,6 +9,24 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Launcher.UI.WPF.Helpers;
 
+public class StringToResourceConverter : IValueConverter
+{
+    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is string resourceKey && !string.IsNullOrEmpty(resourceKey))
+        {
+            return Application.Current.TryFindResource(resourceKey);
+        }
+        
+        return null;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 public class RadioBoolConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

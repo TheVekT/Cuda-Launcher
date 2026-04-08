@@ -1,8 +1,5 @@
-
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Launcher.UI.WPF.Helpers;
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
@@ -17,9 +14,6 @@ public partial class ConfirmVM : ObservableObject
     [ObservableProperty]
     private ConfirmButtons _buttons;
     
-    public ICommand ConfirmCommand { get; }
-    public ICommand CancelCommand { get; }
-    
     public Task<bool> WaitAsync() => _tcs.Task;
     
 
@@ -28,9 +22,15 @@ public partial class ConfirmVM : ObservableObject
         Title = title;
         Message = message;
         Buttons = buttons;
-        
-        ConfirmCommand = new RelayCommand(o => _tcs.TrySetResult(true));
-        CancelCommand = new RelayCommand(o => _tcs.TrySetResult(false));
     }
+    
+    //Commands
+    [RelayCommand]
+    private void Confirm() => 
+        _tcs.TrySetResult(true);
+    
+    [RelayCommand]
+    private void Cancel() => 
+        _tcs.TrySetResult(false);
     
 }

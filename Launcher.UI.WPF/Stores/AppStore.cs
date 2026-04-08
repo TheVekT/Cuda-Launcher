@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.UI.WPF.Messages;
@@ -18,7 +16,6 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     private bool _isOverlayVisible;
     private string _themeBannerPath = "Assets/Images/banner-default.jpg";
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DownloadPanelVisibility))]
     private bool _isDownloading;
     [ObservableProperty]
     private bool _isGameRunning;
@@ -28,8 +25,6 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     private object _currentView;
     [ObservableProperty]
     private bool _showCompactPlayButton;
-    
-    public Visibility DownloadPanelVisibility => _isDownloading ? Visibility.Visible : Visibility.Collapsed;
 
     public AppStore(ThemeService themeService)
     {

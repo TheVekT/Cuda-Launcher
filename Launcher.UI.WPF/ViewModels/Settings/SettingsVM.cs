@@ -1,16 +1,14 @@
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows.Input;
-using Launcher.Core.Models;
-using Launcher.UI.WPF.Helpers;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
 
-public class SettingsVM
+public partial class SettingsVM: ObservableObject
 {
     private readonly SettingsStore _settingsStore;
     private readonly ThemeService _themeService;
@@ -20,34 +18,11 @@ public class SettingsVM
     public SettingsStore SettingsStore => _settingsStore;
     public AppStore AppStore => _appStore;
     
-    //Events
-    public event Action RequestClose;
-    
-    //Commands
-    
-    public ICommand ImportThemeCommand { get; }
-    public ICommand ImportLanguageCommand { get; }
-    public ICommand CloseSelfCommand { get; }
-    public ICommand SelectThemeCommand { get; }
-    
     public SettingsVM(SettingsStore settingsStore, ThemeService themeService, AppStore appStore)
     {
         _settingsStore = settingsStore;
         _themeService = themeService;
         _appStore = appStore;
-
-        
-            
-        CloseSelfCommand = new RelayCommand(o => RequestClose?.Invoke());
-        SelectThemeCommand = new RelayCommand(param => 
-        {
-            if (param is ThemeModel theme)
-            {
-                _settingsStore.CurrentThemePath = theme.ZipPath;
-            }
-        });
-        ImportThemeCommand = new RelayCommand(async o => await ExecuteImportTheme(o));
-        ImportLanguageCommand = new RelayCommand(async o => await ExecuteImportLanguage(o));
     }
 
     private async Task ExecuteImportTheme(object o)
@@ -77,4 +52,26 @@ public class SettingsVM
             await LocalizationService.Instance.ImportLocalization(selectedFile);
         }
     }
+    
+    //Commands
+    [RelayCommand]
+    private void CloseSelf() =>
+        WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
+    
+    [RelayCommand]
+    private void SelectTheme(object parameter)
+    {
+        if (parameter is ThemeModel theme)
+        {
+            _settingsStore.CurrentThemePath = theme.ZipPath;
+        }
+    }
+    
+    [RelayCommand]
+    private async Task ImportTheme(object parameter) =>
+        await ExecuteImportTheme(parameter);
+    
+    [RelayCommand]
+    private async Task ImportLanguage(object parameter) =>
+        await ExecuteImportLanguage(parameter);
 }
