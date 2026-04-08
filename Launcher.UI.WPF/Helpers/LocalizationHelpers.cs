@@ -7,16 +7,13 @@ public class DynamicTranslation : INotifyPropertyChanged
 {
     private string _key;
     private object[] _args;
-
-    // XAML будет биндиться именно к этому свойству
+    
     public string Value
     {
         get
         {
-            // Берём свежий перевод из сервиса
             string localizedString = LocalizationService.Instance[_key];
                 
-            // Если есть аргументы (например, версия игры), подставляем их
             if (_args != null && _args.Length > 0)
             {
                 try 
@@ -25,7 +22,7 @@ public class DynamicTranslation : INotifyPropertyChanged
                 }
                 catch 
                 { 
-                    return localizedString; // Защита от кривого формата в JSON
+                    return localizedString;
                 }
             }
                 
@@ -37,24 +34,26 @@ public class DynamicTranslation : INotifyPropertyChanged
     {
         _key = key;
         _args = args;
-
-        // Самая важная магия: подписываемся на смену языка навсегда
-        LocalizationService.Instance.PropertyChanged += (s, e) =>
+        
+        PropertyChangedEventManager.AddHandler(
+            LocalizationService.Instance, 
+            OnLocalizationChanged, 
+            string.Empty);
+    }
+    
+    private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == "Item[]")
         {
-            if (e.PropertyName == "Item[]")
-            {
-                // Говорим UI, что свойство Value изменилось, пусть перечитает
-                OnPropertyChanged(nameof(Value));
-            }
-        };
+            OnPropertyChanged(nameof(Value));
+        }
     }
 
-    // Метод для изменения текста на лету из ViewModel
     public void Update(string key, params object[] args)
     {
         _key = key;
         _args = args;
-        OnPropertyChanged(nameof(Value)); // Дергаем UI
+        OnPropertyChanged(nameof(Value)); 
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

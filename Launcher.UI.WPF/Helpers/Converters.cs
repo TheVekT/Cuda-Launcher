@@ -420,14 +420,28 @@ public class ImagePathConverter : IValueConverter
         _pathsService = App.Services.GetRequiredService<ILauncherPathsService>();
     }
     
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
+        string iconsDir = Path.Combine(_pathsService.AssetsDirectory, "Icons");
+        string defaultIconPath = Path.Combine(iconsDir, "logo.png");
+
         if (value is string fileName && !string.IsNullOrEmpty(fileName))
         {
-            if (Path.IsPathRooted(fileName)) return fileName;
+            string fullPath = Path.IsPathRooted(fileName) 
+                ? fileName 
+                : Path.Combine(iconsDir, fileName);
 
-            return Path.Combine(Path.Combine(_pathsService.AssetsDirectory, "Icons"), fileName);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
         }
+        
+        if (File.Exists(defaultIconPath))
+        {
+            return defaultIconPath;
+        }
+
         return null;
     }
 

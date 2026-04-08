@@ -62,7 +62,7 @@
     "SettingsMenu.Language.UploadCustomLanguageButton": "Upload language file (.json)",
     "SettingsMenu.Theme.SelectThemeLabel": "Select Theme",
     "SettingsMenu.Theme.UploadThemeFileLabel": "Custom Theme",
-    "SettingsMenu.Theme.UploadThemeFileButton": "Upload theme file (.xaml, .zip)",
+    "SettingsMenu.Theme.UploadThemeFileButton": "Upload theme file (.zip)",
     "ThemePreviewCard.ButtonLabel": "Play",
     "ThemePreviewCard.CreatedByLabel": "by {0}",
     "LoginMenu.Manager.Title": "Accounts",

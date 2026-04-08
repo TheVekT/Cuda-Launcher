@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.Stores;
@@ -23,7 +24,7 @@ public partial class LoginStore : ObservableObject
     private string _lastSelectedAccountUuid; // ID для сохранения в settings.json
     
     public bool IsLoggedIn => CurrentAccount != null;
-    public ObservableCollection<UserAccount> Accounts { get; set; } = new();
+    public ObservableRangeCollection<UserAccount> Accounts { get; set; } = new();
 
     // Добавили ISettingsService в конструктор
     public LoginStore(IAccountStorageService accountStorage, 
@@ -65,8 +66,7 @@ public partial class LoginStore : ObservableObject
     private void LoadSavedAccounts()
     {
         var savedAccounts = _accountStorage.LoadAccounts();
-        Accounts.Clear();
-        foreach (var acc in savedAccounts) Accounts.Add(acc);
+        Accounts.ReplaceRange(savedAccounts);
     
         // Ищем по UUID, который загрузился из settings.json
         if (!string.IsNullOrEmpty(LastSelectedAccountUuid))

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.System;
+using Launcher.UI.WPF.Helpers;
 
 namespace Launcher.UI.WPF.Stores;
 
@@ -18,7 +19,6 @@ public partial class InstancesStore: ObservableObject
     //Attributes
     [ObservableProperty]
     private MinecraftInstance? _selectedInstance;
-    private readonly List<string> _ignoredIcons = new() { "example.png" };
     [ObservableProperty]
     [property: SettingProperty]
     private string? _lastSelectedInstanceId;
@@ -27,9 +27,9 @@ public partial class InstancesStore: ObservableObject
     private int _selectedSortIndex;
     
     //Collections
-    public ObservableCollection<MinecraftInstance> Instances { get; set; } = new();
+    public ObservableRangeCollection<MinecraftInstance> Instances { get; } = new();
     
-    public ObservableCollection<string> IconList { get; } = new();
+    public ObservableRangeCollection<string> IconList { get; } = new();
     
     public InstancesStore(
         IInstanceFileSystemService instanceFileSystemService,
@@ -66,13 +66,13 @@ public partial class InstancesStore: ObservableObject
     
     public void SelectIconFromFileDialog()
     {
-        var filePath = _fileDialogService.OpenFile(
+        var filePaths = _fileDialogService.OpenMultipleFiles(
             filter: "Image Files|*.png;*.jpg;*.jpeg;*.ico;*.gif", 
             title: "Select icon");
 
-        if (!string.IsNullOrEmpty(filePath))
+        if (filePaths != null && filePaths.Length > 0)
         {
-            ProcessIconFile(filePath);
+            ProcessIconFile(filePaths);
         }
     }
 
@@ -80,15 +80,16 @@ public partial class InstancesStore: ObservableObject
     {
         if (files != null && files.Length > 0)
         {
-            ProcessIconFile(files[0]);
+            ProcessIconFile(files);
         }
     }
 
-    private void ProcessIconFile(string filePath)
+    private void ProcessIconFile(string[]? files)
     {
-        var destPath = _iconsService.ImportIcon(filePath);
+        foreach (var filePath in files ?? Array.Empty<string>())
+            _iconsService.ImportIcon(filePath);
     
-        if (destPath != null)
+        if (files?.Length > 0)
         {
             LoadIcons();
         }
@@ -102,11 +103,7 @@ public partial class InstancesStore: ObservableObject
     private void LoadSavedInstances()
     {
         var loaded = _instanceService.LoadInstances();
-        Instances.Clear();
-        foreach (var inst in loaded)
-        {
-            Instances.Add(inst);
-        }
+        Instances.ReplaceRange(loaded);
         
         if (Instances.Count > 0) SelectedInstance = Instances[0];
     }
@@ -131,11 +128,7 @@ public partial class InstancesStore: ObservableObject
     {
         var icons = _iconsService.GetAvailableIcons();
     
-        IconList.Clear();
-        foreach (var icon in icons)
-        {
-            IconList.Add(icon);
-        }
+        IconList.ReplaceRange(icons);
         OnPropertyChanged(nameof(IconList));
     }
     
@@ -175,11 +168,7 @@ public partial class InstancesStore: ObservableObject
             default:
                 return;
         }
-        Instances.Clear();
-        foreach (var item in sortedItems)
-        {
-            Instances.Add(item);
-        }
+        Instances.ReplaceRange(sortedItems);
 
         SelectedInstance = lastSelectedInstance;
     }

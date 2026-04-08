@@ -8,7 +8,28 @@ namespace Launcher.UI.WPF.Resources.Controls;
 
 public partial class VersionElement : UserControl
 {
-    private DispatcherTimer _timer;
+    private static readonly DispatcherTimer _sharedTimer;
+    
+    private static readonly HashSet<VersionElement> _activeElements = new();
+    
+    static VersionElement()
+    {
+        _sharedTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+        
+        _sharedTimer.Tick += SharedTimer_Tick;
+        _sharedTimer.Start();
+    }
+
+    private static void SharedTimer_Tick(object? sender, EventArgs e)
+    {
+        foreach (var element in _activeElements.ToList())
+        {
+            element.UpdateLastPlayedBinding();
+        }
+    }
 
     public VersionElement()
     {
@@ -19,24 +40,13 @@ public partial class VersionElement : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (_timer == null)
-        {
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromSeconds(5);
-            _timer.Tick += Timer_Tick;
-        }
-        _timer.Start();
+        _activeElements.Add(this);
         UpdateLastPlayedBinding();
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        _timer?.Stop();
-    }
-
-    private void Timer_Tick(object sender, EventArgs e)
-    {
-        UpdateLastPlayedBinding();
+        _activeElements.Remove(this);
     }
 
     private void UpdateLastPlayedBinding()

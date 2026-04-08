@@ -8,6 +8,7 @@ using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
@@ -60,7 +61,7 @@ public partial class InstanceSettingsVM : ObservableObject
     private string _JVMArguments;
     
     //Collections
-    public ObservableCollection<string> LoaderVersions { get; } = new();
+    public ObservableRangeCollection<string> LoaderVersions { get; } = new();
     
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
@@ -81,7 +82,10 @@ public partial class InstanceSettingsVM : ObservableObject
         
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
-        
+    }
+
+    public void Initialize()
+    {
         InstallationName = _instance.Name;
         SelectedGameVersion = _instance.GameVersion;
         SelectedLoaderVersion = _instance.LoaderType == GameLoaderType.Vanilla ? null : _instance.LoaderVersion;
@@ -181,11 +185,7 @@ public partial class InstanceSettingsVM : ObservableObject
             
             _dispatcherService.Invoke(() => 
             {
-                LoaderVersions.Clear();
-                foreach (var version in versionList) 
-                {
-                    LoaderVersions.Add(version);
-                }
+                LoaderVersions.ReplaceRange(versionList);
 
                 if (!string.IsNullOrEmpty(currentSavedVersion) && LoaderVersions.Contains(currentSavedVersion))
                 {

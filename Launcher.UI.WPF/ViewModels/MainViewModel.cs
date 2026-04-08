@@ -310,7 +310,7 @@ public partial class MainViewModel : ObservableObject,
     
     [RelayCommand]
     private void CloseOverlay() => 
-        _overlayService.Close();
+        WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
     
     
     [RelayCommand]

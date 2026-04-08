@@ -131,20 +131,31 @@ public class ScrollViewerHelper
 
     private static void OnEnableHorizontalScrollingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is ScrollViewer scrollViewer && (bool)e.NewValue)
+        if (d is ScrollViewer scrollViewer)
         {
-            scrollViewer.PreviewMouseWheel += (s, args) =>
+            scrollViewer.PreviewMouseWheel -= ScrollViewer_PreviewMouseWheel;
+            
+            if ((bool)e.NewValue)
             {
-                if (args.Delta > 0)
-                    scrollViewer.LineLeft(); 
-                else
-                    scrollViewer.LineRight();
-                
-                args.Handled = true;
-            };
+                scrollViewer.PreviewMouseWheel += ScrollViewer_PreviewMouseWheel;
+            }
+        }
+    }
+    
+    private static void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (sender is ScrollViewer scrollViewer)
+        {
+            if (e.Delta > 0)
+                scrollViewer.LineLeft(); 
+            else
+                scrollViewer.LineRight();
+            
+            e.Handled = true;
         }
     }
 }
+
 public class VersionElementHelper
 {
     public static readonly DependencyProperty DeleteCommandProperty =

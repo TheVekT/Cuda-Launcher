@@ -22,10 +22,8 @@ public class SettingsService : ISettingsService
     
     private readonly ILauncherPathsService _pathsService;
     
-    // Храним ссылки на все сторы, которые попросили их сохранять
     private readonly HashSet<INotifyPropertyChanged> _registeredStores = new HashSet<INotifyPropertyChanged>();
     
-    // Кэшируем сырой JSON при старте, чтобы раздавать данные сторам по мере их инициализации
     private Dictionary<string, Dictionary<string, JsonElement>> _cachedJsonData;
     
     private CancellationTokenSource _debounceCts;
@@ -52,36 +50,31 @@ public class SettingsService : ISettingsService
         try
         {
             string json = File.ReadAllText(_settingsFilePath);
-            // Десериализуем как Словарь(ИмяСтора -> Словарь(ИмяСвойства -> Значение))
             _cachedJsonData = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, JsonElement>>>(json) 
                               ?? new Dictionary<string, Dictionary<string, JsonElement>>();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SettingsService] Ошибка чтения глобального JSON: {ex.Message}");
+            Console.WriteLine($"[SettingsService] Error reading global json : {ex.Message}");
             _cachedJsonData = new Dictionary<string, Dictionary<string, JsonElement>>();
         }
     }
 
     public void Initialize(INotifyPropertyChanged store)
     {
-        // Защита от повторной инициализации одного и того же стора
         if (store == null || _registeredStores.Contains(store)) return;
 
         _registeredStores.Add(store);
         
-        // 1. Внедряем данные ИМЕННО для этого стора
         InjectStoreData(store);
-
-        // 2. Подписываемся на изменения
+        
         store.PropertyChanged += OnStorePropertyChanged;
     }
 
     private void InjectStoreData(INotifyPropertyChanged store)
     {
-        string storeName = store.GetType().Name; // Например "SettingsStore" или "LoginStore"
-
-        // Если в кэше нет секции для этого стора, значит файл пустой или стор новый
+        string storeName = store.GetType().Name;
+        
         if (!_cachedJsonData.TryGetValue(storeName, out var storeData)) return;
 
         try
@@ -101,7 +94,7 @@ public class SettingsService : ISettingsService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SettingsService] Ошибка инъекции в {storeName}: {ex.Message}");
+            Console.WriteLine($"[SettingsService] Error injecting in {storeName}: {ex.Message}");
         }
     }
 
@@ -112,7 +105,6 @@ public class SettingsService : ISettingsService
             var prop = store.GetType().GetProperty(e.PropertyName);
             if (prop != null && Attribute.IsDefined(prop, typeof(SettingPropertyAttribute)))
             {
-                // Любое изменение в ЛЮБОМ сторе триггерит глобальное сохранение
                 TriggerSave();
             }
         }
@@ -126,7 +118,7 @@ public class SettingsService : ISettingsService
 
         try
         {
-            await Task.Delay(500, token); // Единый кулдаун на все сторы
+            await Task.Delay(500, token); 
             
             if (!token.IsCancellationRequested)
             {
@@ -140,10 +132,8 @@ public class SettingsService : ISettingsService
     {
         try
         {
-            // Главный словарь, который станет JSON'ом
             var masterDict = new Dictionary<string, Dictionary<string, object>>();
-
-            // Пробегаемся по всем сторам, которые мы отслеживаем
+            
             foreach (var store in _registeredStores)
             {
                 string storeName = store.GetType().Name;
@@ -157,8 +147,7 @@ public class SettingsService : ISettingsService
                         storeSettings[prop.Name] = prop.GetValue(store);
                     }
                 }
-
-                // Если в сторе есть хотя бы одно свойство с атрибутом — добавляем его в файл
+                
                 if (storeSettings.Count > 0)
                 {
                     masterDict[storeName] = storeSettings;
@@ -168,11 +157,11 @@ public class SettingsService : ISettingsService
             var options = new JsonSerializerOptions { WriteIndented = true };
             string json = JsonSerializer.Serialize(masterDict, options);
             File.WriteAllText(_settingsFilePath, json);
-            Console.WriteLine("[SettingsService] Глобальные настройки успешно сохранены!");
+            Console.WriteLine("[SettingsService] Global settings successfully saved!");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SettingsService] Ошибка глобального сохранения: {ex.Message}");
+            Console.WriteLine($"[SettingsService] Saving error: {ex.Message}");
         }
     }
 }

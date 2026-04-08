@@ -645,7 +645,7 @@
                                         Margin="0,0,8,0"
                                         VerticalAlignment="Center"
                                         Width="24"
-                                        gif:ImageBehavior.AnimatedSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SelectedItem.(FrameworkElement.Tag)}"
+                                        gif:ImageBehavior.AnimatedSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SelectedItem.(FrameworkElement.Tag), Converter={StaticResource ImagePathConverter}}"
                                         x:Name="SelectedImage" />
 
                                     <ContentPresenter
@@ -806,7 +806,7 @@
                                 Margin="0,0,8,0"
                                 VerticalAlignment="Center"
                                 Width="24"
-                                gif:ImageBehavior.AnimatedSource="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
+                                gif:ImageBehavior.AnimatedSource="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ImagePathConverter}}" />
 
                             <ContentPresenter
                                 Grid.Column="1"
@@ -845,7 +845,7 @@
                 Margin="0,0,8,0"
                 VerticalAlignment="Center"
                 Width="24"
-                gif:ImageBehavior.AnimatedSource="{Binding Tag, RelativeSource={RelativeSource AncestorType=ComboBoxItem}}" />
+                gif:ImageBehavior.AnimatedSource="{Binding Tag, RelativeSource={RelativeSource AncestorType=ComboBoxItem}, Converter={StaticResource ImagePathConverter}}" />
             <TextBlock
                 Foreground="{DynamicResource ForegroundPrimaryBrush}"
                 Grid.Column="1"

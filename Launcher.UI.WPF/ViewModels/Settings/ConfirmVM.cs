@@ -1,12 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Messages;
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
 
-public partial class ConfirmVM : ObservableObject
+public partial class ConfirmVM : ObservableObject, IRecipient<CloseOverlayMessage>
 {
-    private readonly TaskCompletionSource<bool> _tcs = new();
+    private readonly TaskCompletionSource<bool> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
     [ObservableProperty]
     private string _title;
     [ObservableProperty]
@@ -22,15 +24,25 @@ public partial class ConfirmVM : ObservableObject
         Title = title;
         Message = message;
         Buttons = buttons;
+        
+        WeakReferenceMessenger.Default.RegisterAll(this);
     }
+
+    public void Receive(CloseOverlayMessage message) =>
+        Complete(false);
     
+    private void Complete(bool result)
+    {
+        WeakReferenceMessenger.Default.UnregisterAll(this);
+        _tcs.TrySetResult(result);
+    }
+
     //Commands
     [RelayCommand]
     private void Confirm() => 
-        _tcs.TrySetResult(true);
+        Complete(true);
     
     [RelayCommand]
     private void Cancel() => 
-        _tcs.TrySetResult(false);
-    
+        Complete(false);
 }

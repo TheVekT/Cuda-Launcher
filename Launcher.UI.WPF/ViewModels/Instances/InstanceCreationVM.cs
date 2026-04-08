@@ -8,6 +8,7 @@ using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
@@ -69,8 +70,8 @@ public partial class InstanceCreationVM: ObservableObject
     private string _JVMArguments;
     
     //Collections
-    public ObservableCollection<string> GameVersions { get; } = new(); 
-    public ObservableCollection<string> LoaderVersions { get; } = new();
+    public ObservableRangeCollection<string> GameVersions { get; } = new(); 
+    public ObservableRangeCollection<string> LoaderVersions { get; } = new();
     
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
@@ -88,7 +89,10 @@ public partial class InstanceCreationVM: ObservableObject
         
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
-        
+    }
+
+    public void Initialize()
+    {
         InstallationName = string.Empty;
         SelectedIsolation = IsolationType.Global;
         
@@ -116,6 +120,7 @@ public partial class InstanceCreationVM: ObservableObject
             SelectedIcon = _instancesStore.IconList.FirstOrDefault();;
         }
     }
+    
     public async Task InitializeAsync()
     {
         await RefreshGameVersions();
@@ -140,11 +145,6 @@ public partial class InstanceCreationVM: ObservableObject
     {
         try
         {
-            _dispatcherService.Invoke(() => 
-            {
-                LoaderVersions.Clear();
-                SelectedLoaderVersion = null;
-            });
 
             var type = GetLoaderType(_selectedModLoader);
             
@@ -161,11 +161,7 @@ public partial class InstanceCreationVM: ObservableObject
 
             _dispatcherService.Invoke(() => 
             {
-                LoaderVersions.Clear();
-                foreach (var version in versionList) 
-                {
-                    LoaderVersions.Add(version);
-                }
+                LoaderVersions.ReplaceRange(versionList);
             });
 
             await Task.Delay(50);
@@ -197,9 +193,8 @@ public partial class InstanceCreationVM: ObservableObject
 
             _dispatcherService.Invoke(() => 
             {
-                GameVersions.Clear();
                 if (versionList.Count == 0) return;
-                foreach (var version in versionList) GameVersions.Add(version);
+                GameVersions.ReplaceRange(versionList);
             });
             
             await Task.Delay(50);

@@ -62,7 +62,7 @@
     "SettingsMenu.Language.UploadCustomLanguageButton": "Завантажити файл (.json)",
     "SettingsMenu.Theme.SelectThemeLabel": "Вибір теми",
     "SettingsMenu.Theme.UploadThemeFileLabel": "Власна тема",
-    "SettingsMenu.Theme.UploadThemeFileButton": "Завантажити тему (.xaml, .zip)",
+    "SettingsMenu.Theme.UploadThemeFileButton": "Завантажити тему (.zip)",
     "ThemePreviewCard.ButtonLabel": "Грати",
     "ThemePreviewCard.CreatedByLabel": "Створено {0}",
     "LoginMenu.Manager.Title": "Акаунти",

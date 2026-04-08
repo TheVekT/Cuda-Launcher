@@ -140,14 +140,7 @@ public partial class InstallationsViewModel : ObservableObject,
         else
             _instanceFileSystemService.OpenInstanceFolder(_instancesStore.SelectedInstance);
     }
-
-    private async Task OpenSettings(MinecraftInstance instance)
-    {
-        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
-        var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
-        _overlayService.Show(InstanceSettingsVM);
-        await InstanceSettingsVM.InitializeAsync();
-    }
+    
 
     private async Task DeleteInstance(MinecraftInstance instance)
     {
@@ -227,14 +220,22 @@ public partial class InstallationsViewModel : ObservableObject,
         await DeleteInstance(parameter as MinecraftInstance);
     
     [RelayCommand]
-    private async Task OpenSettings(object parameter) =>
-        await OpenSettings(parameter as MinecraftInstance);
+    private async Task OpenSettings(object parameter)
+    {
+        var instance = parameter as MinecraftInstance;
+        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
+        var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        _overlayService.Show(InstanceSettingsVM);
+        InstanceSettingsVM.Initialize();
+        await InstanceSettingsVM.InitializeAsync();
+    }
     
     [RelayCommand]
     private async Task OpenAddVersion()
     {
         var InstanceVM = new InstanceCreationVM(_versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
         _overlayService.Show(InstanceVM);
+        InstanceVM.Initialize();
         await InstanceVM.InitializeAsync();
     }
     

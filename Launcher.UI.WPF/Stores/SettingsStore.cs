@@ -5,6 +5,7 @@ using Launcher.Core.Enums;
 using Launcher.Core.Models;
 using Launcher.Core.Services.IO;
 using Launcher.Core.Services.System;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
@@ -74,9 +75,9 @@ public partial class SettingsStore: ObservableObject,
     private string _currentThemePath;
     
     //Collections
-    public ObservableCollection<ThemeModel> AvailableThemes { get; set; } = new ObservableCollection<ThemeModel>();
-    public ObservableCollection<LanguageModel> AvailableLanguages { get; set; } = new ObservableCollection<LanguageModel>();
-    public ObservableCollection<string> AvailableResolutions { get; set; } = new ObservableCollection<string>();
+    public ObservableRangeCollection<ThemeModel> AvailableThemes { get; set; } = new ();
+    public ObservableRangeCollection<LanguageModel> AvailableLanguages { get; set; } = new ();
+    public ObservableCollection<string> AvailableResolutions { get; set; } = new ();
     
     public IEnumerable<BackupFrequency> BackupFrequencyValues => Enum.GetValues(typeof(BackupFrequency)).Cast<BackupFrequency>();
     
@@ -87,12 +88,8 @@ public partial class SettingsStore: ObservableObject,
         _settingsService = settingsService;
         
         // 1. Загружаем доступные темы в список
-        AvailableThemes.Clear();
         var themes = _themeService.ReloadThemes();
-        foreach (var t in themes)
-        {
-            AvailableThemes.Add(t);
-        }
+        AvailableThemes.ReplaceRange(themes);
 
         MaxPhysicalRam = _sysInfoService.GetTotalRAMInMB();
         var avaliableRes = _sysInfoService.GetPrimaryMonitorResolutions();
@@ -102,12 +99,8 @@ public partial class SettingsStore: ObservableObject,
             AvailableResolutions.Add(res);
         }
         
-        AvailableLanguages.Clear();
         var langs = LocalizationService.Instance.GetAvailableLanguages();
-        foreach (var lang in langs)
-        {
-            AvailableLanguages.Add(lang);
-        }
+        AvailableLanguages.ReplaceRange(langs);
         
         SelectedLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == "en-US") ?? AvailableLanguages.FirstOrDefault();
         
@@ -137,18 +130,16 @@ public partial class SettingsStore: ObservableObject,
     public void Receive(ThemeImportedMessage message)
     {
         var lastThemePath = CurrentThemePath;
-        AvailableThemes.Clear();
         var themes = _themeService.ReloadThemes();
-        foreach (var theme in themes) AvailableThemes.Add(theme);
+        AvailableThemes.ReplaceRange(themes);
         CurrentThemePath = lastThemePath;
     }
     
     public void Receive(LanguageImportedMessage message)
     {
         var lastLangCode = SelectedLanguage.Code;
-        AvailableLanguages.Clear(); 
         var langs = LocalizationService.Instance.GetAvailableLanguages();
-        foreach (var lang in langs) AvailableLanguages.Add(lang);
+        AvailableLanguages.ReplaceRange(langs);
         SelectedLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == lastLangCode);
     }
     

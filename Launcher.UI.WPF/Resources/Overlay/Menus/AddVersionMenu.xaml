@@ -73,12 +73,12 @@
                                     SelectedValue="{Binding SelectedModLoader}"
                                     SelectedValuePath="Content"
                                     Style="{StaticResource LoaderComboBox}">
-                                    <ComboBoxItem Content="Vanilla" Tag="/Assets/Icons/150px-Grass_Block_JE7_BE6.png" />
-                                    <!-- <ComboBoxItem Content="OptiFine" Tag="/Assets/Icons/optifine-default.png" /> -->
-                                    <ComboBoxItem Content="Forge" Tag="/Assets/Icons/forge-default.png" />
-                                    <ComboBoxItem Content="NeoForge" Tag="/Assets/Icons/neoforge-default.png" />
-                                    <ComboBoxItem Content="Fabric" Tag="/Assets/Icons/fabric-default.png" />
-                                    <ComboBoxItem Content="Quilt" Tag="/Assets/Icons/quilt-default.png" />
+                                    <ComboBoxItem Content="Vanilla" Tag="150px-Grass_Block_JE7_BE6.png" />
+                                    <!-- <ComboBoxItem Content="OptiFine" Tag="optifine-default.png" /> -->
+                                    <ComboBoxItem Content="Forge" Tag="forge-default.png" />
+                                    <ComboBoxItem Content="NeoForge" Tag="neoforge-default.png" />
+                                    <ComboBoxItem Content="Fabric" Tag="fabric-default.png" />
+                                    <ComboBoxItem Content="Quilt" Tag="quilt-default.png" />
                                 </ComboBox>
                             </StackPanel>
                             <StackPanel Grid.Row="1" Margin="0,5">
