@@ -13,8 +13,8 @@
         <SelfContained>true</SelfContained>
     </PropertyGroup>
     <ItemGroup>
-      <None Include="..\Launcher.UI.WPF\icon.ico">
+      <Resource Include="..\Launcher.UI.WPF\icon.ico">
         <Link>icon.ico</Link>
-      </None>
+      </Resource>
     </ItemGroup>
 </Project>

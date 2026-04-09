@@ -197,6 +197,8 @@
     <Content Update="Resources\Embedded\Images\banner-default.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Remove="icon.ico" />
+    <Resource Include="icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -275,7 +277,9 @@
     <None Remove="Resources\Embedded\Images\banner-default.jpg" />
     <EmbeddedResource Include="Resources\Embedded\Images\banner-default.jpg" />
     <None Remove="Resources\Embedded\Languages\en-US.json" />
-    <EmbeddedResource Include="Resources\Embedded\Languages\en-US.json" />
+    <EmbeddedResource Include="Resources\Embedded\Languages\en-US.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Remove="Assets\Icons\fabric-default.png" />
     <None Remove="Assets\Icons\forge-default.png" />
     <None Remove="Assets\Icons\logo.png" />

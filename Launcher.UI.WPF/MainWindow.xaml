@@ -120,23 +120,8 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel
-                                    Grid.Column="0"
-                                    HorizontalAlignment="Left"
-                                    Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    x:Name="LogoContainer">
-                                    <Image Source="/Assets/Icons/logo.png" VerticalAlignment="Center" />
-                                    <TextBlock
-                                        FontSize="24"
-                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                        Margin="6,0,0,0"
-                                        Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LogoText]}"
-                                        VerticalAlignment="Center" />
-                                </StackPanel>
-                                <StackPanel
                                     Grid.Column="1"
                                     HorizontalAlignment="Left"
-                                    Margin="50,0,0,0"
                                     Orientation="Horizontal"
                                     x:Name="NavContainer">
                                     <RadioButton

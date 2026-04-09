@@ -11,13 +11,21 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-
-        <TextBlock
-            Foreground="{DynamicResource ForegroundSecondaryBrush}"
-            Margin="12,0,0,0"
-            Text="{Binding Path=Title, RelativeSource={RelativeSource AncestorType=Window}}"
-            VerticalAlignment="Center" />
-
+        <StackPanel Orientation="Horizontal">
+            <Image
+                Height="18"
+                Margin="20,0,0,0"
+                Source="{Binding Source='logo.png', Converter={StaticResource ImagePathConverter}}"
+                VerticalAlignment="Center"
+                Width="18" />
+            <TextBlock
+                FontFamily="{DynamicResource GlobalFont}"
+                FontSize="13"
+                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                Margin="12,0,0,0"
+                Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Title]}"
+                VerticalAlignment="Center" />
+        </StackPanel>
         <StackPanel
             Grid.Column="1"
             HorizontalAlignment="Right"
