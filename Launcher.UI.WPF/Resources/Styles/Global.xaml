@@ -53,6 +53,7 @@
         <Setter Property="Background" Value="{DynamicResource BackgroundAccentBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ForegroundOnAccentBrush}" />
         <Setter Property="BorderThickness" Value="{DynamicResource SecondBorderThickness}" />
+        <Setter Property="helpers:ButtonHelper.CornerRadius" Value="{DynamicResource DefaultCorner}" />
         <Setter Property="Padding" Value="10,0" />
 
         <Setter Property="Template">
@@ -62,7 +63,7 @@
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="{DynamicResource DefaultCorner}"
+                        CornerRadius="{Binding Path=(helpers:ButtonHelper.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"
                         Padding="{TemplateBinding Padding}"
                         x:Name="PART_Border">
 

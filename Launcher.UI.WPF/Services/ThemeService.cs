@@ -17,15 +17,14 @@ namespace Launcher.UI.WPF.Services;
 
 public class ThemeService
 {
-    private readonly string _themesRoot;  // Рабочая папка: Assets/Themes (рядом с exe)
-    private readonly string _cacheRoot;   // Кэш: Assets/Themes/Cache
+    private readonly string _themesRoot;  
+    private readonly string _cacheRoot;   
     private readonly ILauncherPathsService _pathsService;
-    private List<ThemeModel> _availableThemes = new List<ThemeModel>();
+    private List<ThemeModel> _availableThemes = new ();
     private ThemeModel _currentTheme;
     
     public ThemeModel CurrentTheme => _currentTheme;
     
-    // Имена файлов, которые мы ищем ВНУТРИ ресурсов и создаем НА ДИСКЕ
     private readonly string[] _defaultThemeFiles = { "default-dark.zip", "default-light.zip" };
 
     public ThemeService(ILauncherPathsService pathsService)
@@ -52,14 +51,11 @@ public class ThemeService
         File.Copy(themeFilePath, destPath, true);
         WeakReferenceMessenger.Default.Send(new ThemeImportedMessage());
     }
-
-    // === 2. Загрузка списка тем ===
+    
     public List<ThemeModel> ReloadThemes()
     {
         var list = new List<ThemeModel>();
         if (!Directory.Exists(_themesRoot)) return list;
-
-        // Чистим кэш перед сканированием
         try 
         {
             if (Directory.Exists(_cacheRoot)) 
@@ -96,49 +92,43 @@ public class ThemeService
         _availableThemes = res;
         return res;
     }
-
-    // === 3. Распаковка и обработка одной темы ===
+    
     private ThemeModel ExtractAndProcessTheme(string zipPath)
     {
         var folderName = Path.GetFileNameWithoutExtension(zipPath);
         var themeCacheDir = Path.Combine(_cacheRoot, folderName);
         Directory.CreateDirectory(themeCacheDir);
-
-        // Распаковка (перезаписываем, если есть)
+        
         ZipFile.ExtractToDirectory(zipPath, themeCacheDir, true);
 
         var themeXamlPath = Path.Combine(themeCacheDir, "Theme.xaml");
         if (!File.Exists(themeXamlPath)) return null;
-
-        // Читаем XAML
+        
         string xamlContent = File.ReadAllText(themeXamlPath);
-
-        // Патчим пути к шрифтам
+        
         var baseUri = new Uri(themeCacheDir + Path.DirectorySeparatorChar).AbsoluteUri;
-        xamlContent = Regex.Replace(xamlContent, @"[""']?[\\/]Fonts[\\/]", match => $"{baseUri}Fonts/");
-
-        // Патчим Namespace (ThemeMetaData)
+        
+        xamlContent = Regex.Replace(xamlContent, @"([\""']?)[\\/]?Fonts[\\/]", $"$1{baseUri}Fonts/", RegexOptions.IgnoreCase);
+        
+        xamlContent = Regex.Replace(xamlContent, @"([\""']?)[\\/]?Images[\\/]", $"$1{baseUri}Images/", RegexOptions.IgnoreCase);
+        
         xamlContent = PatchXamlNamespace(xamlContent);
-
-        // Перезаписываем файл
+        
         File.WriteAllText(themeXamlPath, xamlContent);
-
-        // Парсим имя и автора
+        
         var nameMatch = Regex.Match(xamlContent, @"Name=""([^""]*)""");
         var authorMatch = Regex.Match(xamlContent, @"Author=""([^""]*)""");
 
         var model = new ThemeModel
         {
-            // ИЗМЕНЕНИЕ: Берем только имя файла (например "default-light.zip")
             ZipPath = Path.GetFileName(zipPath), 
             XamlPath = themeXamlPath,
             Name = nameMatch.Success ? nameMatch.Groups[1].Value : folderName,
             Author = authorMatch.Success ? authorMatch.Groups[1].Value : "Unknown",
             BannerPath = null 
         };
+        
 
-        // Ищем баннер (в корне папки темы или в папке Banner)
-        // Ищем файлы .png или .jpg (без учета регистра)
         var possibleDirs = new[] { themeCacheDir, Path.Combine(themeCacheDir, "Banner") };
         
         foreach (var dir in possibleDirs)
@@ -152,20 +142,18 @@ public class ThemeService
                 if (file != null)
                 {
                     model.BannerPath = file;
-                    break; // Нашли - выходим
+                    break;
                 }
             }
         }
 
         return model;
     }
-
-    // === 4. Применение темы ===
-    public void ChangeTheme(string themeFileName) // Переименовал параметр для понятности
+    
+    public void ChangeTheme(string themeFileName)
     {
         if (string.IsNullOrEmpty(themeFileName)) return;
-
-        // ИЗМЕНЕНИЕ: Динамически собираем абсолютный путь к архиву
+        
         string zipPath = Path.Combine(_themesRoot, themeFileName);
 
         if (!File.Exists(zipPath)) return;
@@ -183,8 +171,7 @@ public class ThemeService
             }
 
             if (!File.Exists(themeXamlPath)) return;
-
-            // Читаем и еще раз проверяем патч неймспейса (на всякий случай)
+            
             string xamlContent = File.ReadAllText(themeXamlPath);
             xamlContent = PatchXamlNamespace(xamlContent);
 
@@ -208,9 +195,7 @@ public class ThemeService
             MessageBox.Show($"Failed to apply theme: {ex.Message}");
         }
     }
-
-    // === Вспомогательные методы ===
-
+    
     private string PatchXamlNamespace(string xamlContent)
     {
         string assemblyName = Assembly.GetExecutingAssembly().GetName().Name;

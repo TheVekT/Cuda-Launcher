@@ -84,18 +84,22 @@
                     </Grid>
                 </Border>
                 <Button
+                    Background="{DynamicResource PlayButtonBackgroundBrush}"
+                    BorderBrush="{DynamicResource PlayButtonBorderBrush}"
+                    BorderThickness="{DynamicResource PlayButtonBorderThickness}"
                     Command="{Binding LaunchCommand}"
                     Content="{Binding CurrentPlayButtonText.Value}"
                     FontSize="18"
+                    Foreground="{DynamicResource PlayButtonForegroundBrush}"
                     Height="50"
                     HorizontalAlignment="Center"
                     Style="{StaticResource AccentButtonStyle}"
                     Tag="{Binding CurrentPlayButtonIcon, Converter={StaticResource StringToResourceConverter}}"
                     Width="200"
                     helpers:ButtonHelper.BalanceText="True"
+                    helpers:ButtonHelper.CornerRadius="{DynamicResource PlayButtonCorner}"
                     helpers:ButtonHelper.IsLoading="{Binding AppStore.IsDownloading}"
                     x:Name="PlayButton" />
-                <!--  Click="PlayButton_Click"  -->
 
             </StackPanel>
         </Border>

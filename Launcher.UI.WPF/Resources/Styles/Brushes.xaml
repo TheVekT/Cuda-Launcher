@@ -21,6 +21,10 @@
     <SolidColorBrush Color="{DynamicResource ForegroundPlaceholder}" x:Key="ForegroundPlaceholderBrush" />
     <SolidColorBrush Color="{DynamicResource ForegroundOnAccent}" x:Key="ForegroundOnAccentBrush" />
 
+    <SolidColorBrush Color="{DynamicResource PlayButtonBackground}" x:Key="PlayButtonBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource PlayButtonBorder}" x:Key="PlayButtonBorderBrush" />
+    <SolidColorBrush Color="{DynamicResource PlayButtonForeground}" x:Key="PlayButtonForegroundBrush" />
+
     <SolidColorBrush Color="{DynamicResource BorderPrimary}" x:Key="BorderPrimaryBrush" />
     <SolidColorBrush Color="{DynamicResource BorderSecondary}" x:Key="BorderSecondaryBrush" />
     <SolidColorBrush Color="{DynamicResource BorderAccent}" x:Key="BorderAccentBrush" />
