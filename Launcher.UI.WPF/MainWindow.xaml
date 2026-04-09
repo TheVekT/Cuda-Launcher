@@ -301,8 +301,8 @@
                                             IsEnabled="{Binding IsEnabledInstancesComboBox}"
                                             ItemContainerStyle="{StaticResource InstanceItemContainerStyle}"
                                             ItemTemplate="{StaticResource InstanceDataTemplate}"
-                                            ItemsSource="{Binding InstallationsVM.InstancesStore.Instances}"
-                                            SelectedItem="{Binding InstallationsVM.InstancesStore.SelectedInstance}"
+                                            ItemsSource="{Binding InstancesStore.Instances}"
+                                            SelectedItem="{Binding InstancesStore.SelectedInstance}"
                                             Style="{StaticResource InstanceComboBox}"
                                             Width="300"
                                             helpers:ComboBoxHelper.PopupPlacement="Top" />

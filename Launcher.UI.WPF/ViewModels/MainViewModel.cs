@@ -53,6 +53,8 @@ public partial class MainViewModel : ObservableObject,
     public InstallationsViewModel InstallationsVM => _installationsVM;
     public SkinsViewModel SkinsVM => _skinsVM;
     
+    public InstancesStore InstancesStore => _instancesStore;
+    
     //Atributes
     private Process? _currentGameProcess;
     [ObservableProperty]

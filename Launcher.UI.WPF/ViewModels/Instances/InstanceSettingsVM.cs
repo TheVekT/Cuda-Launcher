@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,6 +9,7 @@ using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
@@ -27,6 +27,16 @@ public partial class InstanceSettingsVM : ObservableObject
     private readonly SettingsStore _settingsStore;
     
     //Attributes
+    public List<ModLoaderItem> AvailableLoaders { get; } = new()
+    {
+        new("Vanilla", "150px-Grass_Block_JE7_BE6.png"),
+        // new("OptiFine", "optifine-default.png"),
+        new("Forge", "forge-default.png"),
+        new("NeoForge", "neoforge-default.png"),
+        new("Fabric", "fabric-default.png"),
+        new("Quilt", "quilt-default.png")
+    };
+    
     private MinecraftInstance _instance;
     
     [ObservableProperty]
@@ -38,7 +48,7 @@ public partial class InstanceSettingsVM : ObservableObject
     private string _installationName;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SuggestedName))]
-    private string _selectedModLoader;
+    private ModLoaderItem _selectedModLoader;
     [ObservableProperty]
     private string _selectedLoaderVersion;
     [ObservableProperty]
@@ -59,6 +69,9 @@ public partial class InstanceSettingsVM : ObservableObject
     private int _maxBackupCount;
     [ObservableProperty]
     private string _JVMArguments;
+    
+    [ObservableProperty]
+    private bool _isViewReady;
     
     //Collections
     public ObservableRangeCollection<string> LoaderVersions { get; } = new();
@@ -84,8 +97,10 @@ public partial class InstanceSettingsVM : ObservableObject
         _settingsStore = settingsStore;
     }
 
-    public void Initialize()
+    public async Task InitializeAsync()
     {
+        IsViewReady = false;
+        
         InstallationName = _instance.Name;
         SelectedGameVersion = _instance.GameVersion;
         SelectedLoaderVersion = _instance.LoaderType == GameLoaderType.Vanilla ? null : _instance.LoaderVersion;
@@ -115,15 +130,16 @@ public partial class InstanceSettingsVM : ObservableObject
             MaxBackupCount = _instance.BackupSettings.SavesMaxBackups.Value;
         }
         
-        _selectedModLoader = _instance.LoaderType.ToString();; 
+        string targetLoaderName = _instance.LoaderType.ToString();
+        SelectedModLoader = AvailableLoaders.FirstOrDefault(l => l.Name == targetLoaderName) 
+                            ?? AvailableLoaders.FirstOrDefault(); 
         
-        OnPropertyChanged(nameof(SelectedModLoader)); 
-    }
-    public async Task InitializeAsync()
-    {
+        await Task.Delay(10);
+        
         await RefreshLoaderVersions();
+        
+        IsViewReady = true;
     }
-    
     
     private void SaveNewInstanceSettings()
     {
@@ -135,7 +151,7 @@ public partial class InstanceSettingsVM : ObservableObject
         _instance.IconPath = !string.IsNullOrEmpty(SelectedIcon) 
             ? _iconsService.GetIconName(SelectedIcon) 
             : _iconsService.GetIconName(_instancesStore.IconList.FirstOrDefault() ?? "");
-        _instance.LoaderVersion = (SelectedModLoader == "Vanilla") ? null : SelectedLoaderVersion;
+        _instance.LoaderVersion = (SelectedModLoader.Name == "Vanilla") ? null : SelectedLoaderVersion;
         _instance.GameSettings.AllocatedMemory = UseGlobalGameSettings ? null : (int?)SelectedMaxRam;
         _instance.GameSettings.Fullscreen = UseGlobalGameSettings ? null : (bool?)IsGameFullscreen;
         _instance.GameSettings.GameResolution =
@@ -171,7 +187,7 @@ public partial class InstanceSettingsVM : ObservableObject
     {
         try
         {
-            var type = GetLoaderType(_selectedModLoader);
+            var type = GetLoaderType(SelectedModLoader.Name);
 
             if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
             {
@@ -199,7 +215,7 @@ public partial class InstanceSettingsVM : ObservableObject
         }
     }
     
-    private GameLoaderType GetLoaderType(string uiName)
+    private GameLoaderType GetLoaderType(string? uiName)
     {
         return uiName switch
         {
@@ -210,7 +226,6 @@ public partial class InstanceSettingsVM : ObservableObject
             _ => GameLoaderType.Vanilla
         };
     }
-    
     
     //Getters and Setters
     partial void OnUseGlobalGameSettingsChanged(bool value)
@@ -228,7 +243,7 @@ public partial class InstanceSettingsVM : ObservableObject
         get
         {
             if (string.IsNullOrEmpty(SelectedGameVersion)) return "New Installation";
-            return $"{SelectedModLoader} {SelectedGameVersion}";
+            return $"{SelectedModLoader.Name} {SelectedGameVersion}";
         }
     }
     

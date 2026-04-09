@@ -226,7 +226,6 @@ public partial class InstallationsViewModel : ObservableObject,
         if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
         var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
         _overlayService.Show(InstanceSettingsVM);
-        InstanceSettingsVM.Initialize();
         await InstanceSettingsVM.InitializeAsync();
     }
     
@@ -235,7 +234,6 @@ public partial class InstallationsViewModel : ObservableObject,
     {
         var InstanceVM = new InstanceCreationVM(_versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
         _overlayService.Show(InstanceVM);
-        InstanceVM.Initialize();
         await InstanceVM.InitializeAsync();
     }
     

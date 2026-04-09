@@ -10,6 +10,7 @@ using Launcher.Core.Services.Game;
 using Launcher.Core.Services.IO;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
@@ -30,6 +31,16 @@ public partial class InstanceCreationVM: ObservableObject
     public bool CreatingPage2Visible { get; set; } = true;
     
     //Attributes
+    public List<ModLoaderItem> AvailableLoaders { get; } = new()
+    {
+        new("Vanilla", "150px-Grass_Block_JE7_BE6.png"),
+        // new("OptiFine", "optifine-default.png"),
+        new("Forge", "forge-default.png"),
+        new("NeoForge", "neoforge-default.png"),
+        new("Fabric", "fabric-default.png"),
+        new("Quilt", "quilt-default.png")
+    };
+
     [ObservableProperty]
     private bool _irisAndSodiumVisible;
     [ObservableProperty]
@@ -43,7 +54,7 @@ public partial class InstanceCreationVM: ObservableObject
     private string _installationName;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SuggestedName))]
-    private string _selectedModLoader;
+    private ModLoaderItem _selectedModLoader;
     [ObservableProperty]
     private string _selectedLoaderVersion;
     [ObservableProperty]
@@ -69,6 +80,9 @@ public partial class InstanceCreationVM: ObservableObject
     [ObservableProperty]
     private string _JVMArguments;
     
+    [ObservableProperty]
+    private bool _isViewReady;
+    
     //Collections
     public ObservableRangeCollection<string> GameVersions { get; } = new(); 
     public ObservableRangeCollection<string> LoaderVersions { get; } = new();
@@ -90,12 +104,13 @@ public partial class InstanceCreationVM: ObservableObject
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
     }
-
-    public void Initialize()
+    
+    public async Task InitializeAsync()
     {
+        IsViewReady = false;
+        
         InstallationName = string.Empty;
         SelectedIsolation = IsolationType.Global;
-        
         SelectedMaxRam = SettingsStore.SelectedMaxRam;
         IsGameFullscreen = SettingsStore.IsGameFullScreen;
         SelectedResolution = SettingsStore.SelectedResolution;
@@ -103,27 +118,22 @@ public partial class InstanceCreationVM: ObservableObject
         SelectedBackupFrequency = SettingsStore.SelectedBackupFrequency;
         MaxBackupCount = SettingsStore.MaxBackupCount;
         JVMArguments = SettingsStore.JVMArguments;
-
         UseGlobalGameSettings = true;
         UseGlobalBackupSettings = true;
-        
         InstallPerformanceMods = false;
-        
-        _selectedModLoader = "Vanilla"; 
-        
-        OnPropertyChanged(nameof(SelectedModLoader)); 
-        
+        SelectedModLoader = AvailableLoaders.FirstOrDefault(l => l.Name == "Vanilla") 
+                            ?? AvailableLoaders.FirstOrDefault();
         CreatingPage1Visible = true;
         CreatingPage2Visible = false;
-        
         if (_instancesStore.IconList.Count > 0){
-            SelectedIcon = _instancesStore.IconList.FirstOrDefault();;
+            SelectedIcon = _instancesStore.IconList.FirstOrDefault();
         }
-    }
-    
-    public async Task InitializeAsync()
-    {
+        
+        await Task.Delay(10);
+        
         await RefreshGameVersions();
+        
+        IsViewReady = true;
     }
 
     private void RefreshGlobalGameSettings()
@@ -145,8 +155,7 @@ public partial class InstanceCreationVM: ObservableObject
     {
         try
         {
-
-            var type = GetLoaderType(_selectedModLoader);
+            var type = GetLoaderType(SelectedModLoader.Name);
             
             if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
             {
@@ -186,7 +195,7 @@ public partial class InstanceCreationVM: ObservableObject
         {
             _dispatcherService.Invoke(() => SelectedGameVersion = null);
 
-            GameLoaderType type = GetLoaderType(_selectedModLoader);
+            GameLoaderType type = GetLoaderType(SelectedModLoader.Name);
             
             var loadedVersions = await _versionService.GetGameVersionsByTypeAsync(type);
             var versionList = loadedVersions.ToList(); 
@@ -210,7 +219,7 @@ public partial class InstanceCreationVM: ObservableObject
         }
     }
     
-    private GameLoaderType GetLoaderType(string uiName)
+    private GameLoaderType GetLoaderType(string? uiName)
     {
         return uiName switch
         {
@@ -238,8 +247,8 @@ public partial class InstanceCreationVM: ObservableObject
                 ? _iconsService.GetIconName(SelectedIcon) 
                 : _iconsService.GetIconName(_instancesStore.IconList.FirstOrDefault() ?? ""),
             GameVersion = SelectedGameVersion,
-            LoaderVersion = (SelectedModLoader == "Vanilla") ? null : SelectedLoaderVersion,
-            LoaderType = GetLoaderType(SelectedModLoader),
+            LoaderVersion = (SelectedModLoader.Name == "Vanilla") ? null : SelectedLoaderVersion,
+            LoaderType = GetLoaderType(SelectedModLoader.Name),
             IsolationType = SelectedIsolation,
             LastPlayedDate = null,
             GameSettings = new GameSettings
@@ -268,9 +277,10 @@ public partial class InstanceCreationVM: ObservableObject
 
     private void RefreshPerfomanceModsVisibility()
     {
-        if (SelectedModLoader == "Quilt" ||
-            SelectedModLoader == "NeoForge" ||
-            SelectedModLoader == "Fabric")
+        var loaderName = SelectedModLoader.Name;
+        if (loaderName == "Quilt" ||
+            loaderName == "NeoForge" ||
+            loaderName == "Fabric")
         {
             if (SelectedIsolation != IsolationType.Global) IrisAndSodiumVisible = true;
             else IrisAndSodiumVisible = false;
@@ -280,7 +290,6 @@ public partial class InstanceCreationVM: ObservableObject
             IrisAndSodiumVisible = false;
         }
     }
-    
     
     //Getters and Setters
     
@@ -309,13 +318,13 @@ public partial class InstanceCreationVM: ObservableObject
         get
         {
             if (string.IsNullOrEmpty(SelectedGameVersion)) return "New Installation";
-            return $"{SelectedModLoader} {SelectedGameVersion}";
+            return $"{SelectedModLoader.Name} {SelectedGameVersion}";
         }
     }
     
-    partial void OnSelectedModLoaderChanged(string value)
+    partial void OnSelectedModLoaderChanged(ModLoaderItem value)
     {
-        if (value == "Vanilla")
+        if (value.Name == "Vanilla")
         {
             SelectedIsolation = IsolationType.Global;
         }

@@ -630,33 +630,15 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <Grid
+                                <ContentPresenter
+                                    Content="{TemplateBinding SelectionBoxItem}"
+                                    ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                    ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                     Grid.Column="0"
+                                    HorizontalAlignment="Left"
                                     Margin="{TemplateBinding Padding}"
-                                    VerticalAlignment="Center">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <Image
-                                        Grid.Column="0"
-                                        Height="24"
-                                        Margin="0,0,8,0"
-                                        VerticalAlignment="Center"
-                                        Width="24"
-                                        gif:ImageBehavior.AnimatedSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SelectedItem.(FrameworkElement.Tag), Converter={StaticResource ImagePathConverter}}"
-                                        x:Name="SelectedImage" />
-
-                                    <ContentPresenter
-                                        Content="{TemplateBinding SelectionBoxItem}"
-                                        ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
-                                        ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                        Grid.Column="1"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        x:Name="SelectedContent" />
-                                </Grid>
+                                    VerticalAlignment="Center"
+                                    x:Name="SelectedContent" />
 
                                 <Path
                                     Data="{DynamicResource Icon.DropDownArrow}"
@@ -708,7 +690,6 @@
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="SelectedItem" Value="{x:Null}">
-                            <Setter Property="Visibility" TargetName="SelectedImage" Value="Collapsed" />
                             <Setter Property="Visibility" TargetName="SelectedContent" Value="Collapsed" />
                         </Trigger>
 
@@ -794,25 +775,8 @@
                         CornerRadius="{DynamicResource DefaultCorner}"
                         Padding="{TemplateBinding Padding}"
                         x:Name="PART_Border">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
 
-                            <Image
-                                Grid.Column="0"
-                                Height="24"
-                                Margin="0,0,8,0"
-                                VerticalAlignment="Center"
-                                Width="24"
-                                gif:ImageBehavior.AnimatedSource="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ImagePathConverter}}" />
-
-                            <ContentPresenter
-                                Grid.Column="1"
-                                VerticalAlignment="Center"
-                                x:Name="ContentPresenter" />
-                        </Grid>
+                        <ContentPresenter VerticalAlignment="Center" x:Name="ContentPresenter" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -839,17 +803,19 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
+
             <Image
                 Grid.Column="0"
                 Height="24"
                 Margin="0,0,8,0"
                 VerticalAlignment="Center"
                 Width="24"
-                gif:ImageBehavior.AnimatedSource="{Binding Tag, RelativeSource={RelativeSource AncestorType=ComboBoxItem}, Converter={StaticResource ImagePathConverter}}" />
+                gif:ImageBehavior.AnimatedSource="{Binding Icon, Converter={StaticResource ImagePathConverter}}" />
+
             <TextBlock
-                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                Foreground="{Binding RelativeSource={RelativeSource AncestorType=Control}, Path=Foreground}"
                 Grid.Column="1"
-                Text="{Binding Content, RelativeSource={RelativeSource AncestorType=ComboBoxItem}}"
+                Text="{Binding Name}"
                 VerticalAlignment="Center" />
         </Grid>
     </DataTemplate>
