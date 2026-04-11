@@ -37,6 +37,7 @@ public partial class MainViewModel : ObservableObject,
     private readonly SettingsStore _settingsStore;
     private readonly InstancesStore _instancesStore;
     private readonly AppStore _appStore;
+    private readonly SkinsStore _skinsStore;
     
     //ViewModels
     private PlayViewModel _playVM { get; }
@@ -54,6 +55,7 @@ public partial class MainViewModel : ObservableObject,
     public SkinsViewModel SkinsVM => _skinsVM;
     
     public InstancesStore InstancesStore => _instancesStore;
+    public LoginStore LoginStore => _loginStore;
     
     //Atributes
     private Process? _currentGameProcess;
@@ -66,6 +68,7 @@ public partial class MainViewModel : ObservableObject,
     {
         await _installationsVM.InitializeAsync();
         await _loginStore.RefreshAllAccountsAsync();
+        await _skinsStore.SyncWithMojangAsync(_loginStore.CurrentAccount?.AccessToken);
         _ = Task.Run(async () => await _versionService.GetGameVersionsByTypeAsync(GameLoaderType.Vanilla));
     }
 
@@ -81,6 +84,7 @@ public partial class MainViewModel : ObservableObject,
         SettingsStore settingsStore,
         InstancesStore instancesStore,
         AppStore appStore,
+        SkinsStore skinsStore,
         PlayViewModel playVM, 
         InstallationsViewModel installationsVM, 
         SkinsViewModel skinsVM,
@@ -100,6 +104,7 @@ public partial class MainViewModel : ObservableObject,
         _settingsStore = settingsStore;
         _instancesStore = instancesStore;
         _appStore = appStore;
+        _skinsStore = skinsStore;
         
         //ViewModels
         _playVM = playVM;

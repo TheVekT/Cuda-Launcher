@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
@@ -17,7 +19,7 @@ public partial class LoginStore : ObservableObject
     private readonly IDispatcherService _dispatcherService;
     
     private bool _isLoggingIn;
-    private UserAccount _currentAccount;
+    private UserAccount? _currentAccount;
     private string _userName = "Guest";
     [ObservableProperty]
     [property: SettingProperty]
@@ -126,7 +128,7 @@ public partial class LoginStore : ObservableObject
     
     //Getters and Setters
     
-    public UserAccount CurrentAccount
+    public UserAccount? CurrentAccount
     {
         get => _currentAccount;
         set
@@ -136,8 +138,10 @@ public partial class LoginStore : ObservableObject
                 _currentAccount = value;
                 OnPropertyChanged(nameof(CurrentAccount));
                 OnPropertyChanged(nameof(IsLoggedIn)); 
-                if (_currentAccount != null)
+                if (value != null)
                 {
+                    if (value.AccountTypeString == "Microsoft")
+                        WeakReferenceMessenger.Default.Send(new MicrosoftLoggedMessage(value));
                     LastSelectedAccountUuid = _currentAccount.UUID;
                 }
             }

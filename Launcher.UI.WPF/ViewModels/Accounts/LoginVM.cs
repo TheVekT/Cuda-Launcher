@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Launcher.Core.Messages;
 using Launcher.Core.Models;
 using Launcher.Core.Services.Auth;
 using Launcher.Core.Services.IO;
@@ -110,7 +111,9 @@ public partial class LoginVM: ObservableObject
             var title = LocalizationService.Instance["Success.LoginMicrosoftTitle"];
             var desc = LocalizationService.Instance["Success.LoginMicrosoftDesc"];
             NotificationService.Instance.ShowSuccess(title, desc);
+            _overlayService.SetClosable(true);
             WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
+            WeakReferenceMessenger.Default.Send(new MicrosoftLoggedMessage(newAccount));
         }
         catch (Exception ex) 
         { 

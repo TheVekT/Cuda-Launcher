@@ -38,6 +38,7 @@ public partial class InstallationsViewModel : ObservableObject,
     
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
+    public AppStore AppStore => _appStore;
   
     
     public InstallationsViewModel(

@@ -13,17 +13,14 @@
     <SelfContained>true</SelfContained>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Embedded\Web\skinview.html" />
+    <EmbeddedResource Include="Resources\Embedded\Web\skinview3d.bundle.js" />
     <None Remove="Assets\Images\banner-default.jpg" />
     <None Remove="Assets\Skins\sk1.png" />
-    <Resource Include="Assets\Skins\sk1.png" />
     <None Remove="Assets\Skins\sk2.png" />
-    <Resource Include="Assets\Skins\sk2.png" />
     <None Remove="Assets\Skins\sk4.png" />
-    <Resource Include="Assets\Skins\sk4.png" />
     <None Remove="Assets\Skins\sk3.png" />
-    <Resource Include="Assets\Skins\sk3.png" />
     <None Remove="Assets\Skins\TheVekT(NOW).png" />
-    <Resource Include="Assets\Skins\TheVekT(NOW).png" />
     <!-- Ensure theme XAML files are compiled as Page so CLR types in XAML resolve correctly -->
     <None Remove="Assets\Icons\150px-Yellow_Glazed_Terracotta_(S)_JE1_BE1.png" />
     <Content Include="Assets\Icons\150px-Yellow_Glazed_Terracotta_(S)_JE1_BE1.png">
@@ -140,11 +137,11 @@
     <Page Remove="Assets\Themes\SteamPunk.xaml" />
     <None Remove="Assets\Themes\CyberPunk.zip" />
     <Content Include="Assets\Themes\CyberPunk.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Remove="Assets\Themes\SteamPunk.zip" />
     <Content Include="Assets\Themes\SteamPunk.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Page Update="Resources\Overlay\Menus\AddVersionMenu.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -199,6 +196,8 @@
     </Content>
     <None Remove="icon.ico" />
     <Resource Include="icon.ico" />
+    <None Remove="Assets\Web\skinview.html" />
+    <None Remove="Assets\Web\skinview3d.bundle.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -252,9 +251,8 @@
 
   <ItemGroup>
     <Folder Include="Assets\Images\" />
-    <Folder Include="Assets\Skins\" />
     <Folder Include="Assets\Themes\" />
-    <Folder Include="Resources\Embedded\Themes\" />
+    <Folder Include="Assets\Web\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -262,6 +260,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Embedded\Themes\default-light.zip" />
     <None Remove="Resources\Embedded\default-light.zip" />
     <None Remove="Resources\Embedded\default-dark.zip" />
     <None Remove="Resources\Embedded\Themes\default-dark.zip" />
@@ -273,13 +272,10 @@
     <EmbeddedResource Include="Resources\Embedded\Icons\quilt-default.png" />
     <EmbeddedResource Include="Resources\Embedded\Themes\default-dark.zip" />
     <None Remove="Resources\Embedded\Themes\default-light.zip" />
-    <EmbeddedResource Include="Resources\Embedded\Themes\default-light.zip" />
     <None Remove="Resources\Embedded\Images\banner-default.jpg" />
     <EmbeddedResource Include="Resources\Embedded\Images\banner-default.jpg" />
     <None Remove="Resources\Embedded\Languages\en-US.json" />
-    <EmbeddedResource Include="Resources\Embedded\Languages\en-US.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Embedded\Languages\en-US.json" />
     <None Remove="Assets\Icons\fabric-default.png" />
     <None Remove="Assets\Icons\forge-default.png" />
     <None Remove="Assets\Icons\logo.png" />
@@ -290,6 +286,8 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0-preview.2.26159.112" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0-preview.2.26159.112" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3908-prerelease" />
     <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 

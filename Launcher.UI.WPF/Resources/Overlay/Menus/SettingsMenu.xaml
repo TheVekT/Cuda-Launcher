@@ -7,6 +7,7 @@
     x:Class="Launcher.UI.WPF.Resources.Overlay.Menus.SettingsMenu"
     x:Name="SettingsRoot"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:behaviors="clr-namespace:Launcher.UI.WPF.Behaviors"
     xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
@@ -321,7 +322,8 @@
                                                         Text="{Binding SettingsStore.MaxBackupCount}"
                                                         TextAlignment="Center"
                                                         VerticalAlignment="Center"
-                                                        Width="25" />
+                                                        Width="25"
+                                                        behaviors:NumericTextBoxBehavior.IsEnabled="True" />
                                                 </StackPanel>
                                             </StackPanel>
                                         </Border>

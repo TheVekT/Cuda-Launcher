@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Messaging;
+using Launcher.Core.Messages;
 using Launcher.Core.Models;
 
 namespace Launcher.Core.Services.Auth;
@@ -20,9 +22,11 @@ public interface IAuthService
 public class AuthService : IAuthService
 {
     private readonly JELoginHandler _loginHandler;
+    private readonly HttpClient _httpClient;
 
-    public AuthService()
+    public AuthService(HttpClient httpClient)
     {
+        _httpClient = httpClient;
         _loginHandler = JELoginHandlerBuilder.BuildDefault();
     }
     
@@ -31,12 +35,12 @@ public class AuthService : IAuthService
         try 
         {
             var session = await _loginHandler.AuthenticateInteractively();
-            
-            return new UserAccount(
+            var user = new UserAccount(
                 session.Username, 
                 session.UUID, 
                 session.AccessToken, 
                 isOffline: false);
+            return user;
         }
         catch (Exception ex)
         {
@@ -62,12 +66,11 @@ public class AuthService : IAuthService
         
         try
         {
-            Debug.WriteLine($"[Auth] Проверяем токен {account.Username} напрямую через Mojang API...");
+            Debug.WriteLine($"[Auth] Validating token for {account.Username}...");
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", account.AccessToken);
             
-            using var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", account.AccessToken);
-            
-            var response = await httpClient.GetAsync("https://api.minecraftservices.com/minecraft/profile");
+            var response = await _httpClient.GetAsync("https://api.minecraftservices.com/minecraft/profile");
             
             if (response.IsSuccessStatusCode)
             {
@@ -79,8 +82,7 @@ public class AuthService : IAuthService
                 {
                     account.Username = nameElement.GetString();
                 }
-                
-                Debug.WriteLine($"[Auth] Токен валиден. Актуальный ник: {account.Username}");
+                Debug.WriteLine($"[Auth] Token valid. User: {account.Username}");
                 return account;
             }
             else

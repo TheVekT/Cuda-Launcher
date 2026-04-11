@@ -32,7 +32,7 @@ public class ThemeService
         _pathsService = pathsService;
         // Настраиваем пути
         _themesRoot = Path.Combine(_pathsService.AssetsDirectory, "Themes");
-        _cacheRoot = Path.Combine(_themesRoot, "Cache");
+        _cacheRoot = Path.Combine(_pathsService.CacheDirectory, "Themes");
 
         Directory.CreateDirectory(_themesRoot);
         Directory.CreateDirectory(_cacheRoot);

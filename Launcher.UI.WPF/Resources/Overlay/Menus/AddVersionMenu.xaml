@@ -581,7 +581,8 @@
                                                                         Text="{Binding MaxBackupCount}"
                                                                         TextAlignment="Center"
                                                                         VerticalAlignment="Center"
-                                                                        Width="25" />
+                                                                        Width="25"
+                                                                        behaviors:NumericTextBoxBehavior.IsEnabled="True" />
                                                                 </StackPanel>
                                                             </StackPanel>
                                                         </Border>

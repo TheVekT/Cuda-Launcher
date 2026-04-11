@@ -10,6 +10,7 @@ public interface ILauncherPathsService
     string UserDataDirectory { get; }
     string InstancesDirectory { get; }
     string AssetsDirectory { get; }
+    string CacheDirectory { get; }
 }
 
 public class LauncherPathsService : ILauncherPathsService
@@ -19,6 +20,7 @@ public class LauncherPathsService : ILauncherPathsService
     public string UserDataDirectory { get; }
     public string InstancesDirectory { get; }
     public string AssetsDirectory { get; }
+    public string CacheDirectory { get; }
 
     public LauncherPathsService()
     {
@@ -28,11 +30,14 @@ public class LauncherPathsService : ILauncherPathsService
         UserDataDirectory = Path.Combine(DataDirectory, "UserData");
         InstancesDirectory = Path.Combine(DataDirectory, "Instances");
         AssetsDirectory = Path.Combine(BaseDirectory, "Assets");
+        
+        CacheDirectory = Path.Combine(BaseDirectory, "Cache");
 
         CreateDir(DataDirectory);
         CreateDir(UserDataDirectory);
         CreateDir(InstancesDirectory);
         CreateDir(AssetsDirectory);
+        CreateDir(CacheDirectory);
     }
 
     private void CreateDir(string path)

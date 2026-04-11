@@ -27,41 +27,7 @@ public class StringToResourceConverter : IValueConverter
     }
 }
 
-public class RadioBoolConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        string targetTheme = parameter as string;
-        string currentTheme = value as string;
-        return string.Equals(currentTheme, targetTheme, StringComparison.InvariantCultureIgnoreCase);
-    }
-    
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (value is bool isChecked && isChecked)
-        {
-            return parameter;
-        }
-        return Binding.DoNothing;
-    }
-}
-public class ThemeMatchConverter : IMultiValueConverter
-{
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-    {
 
-        if (values.Length == 2 && values[0] is string currentPath && values[1] is Uri cardUri)
-        {
-            return string.Equals(currentPath, cardUri.OriginalString, StringComparison.InvariantCultureIgnoreCase);
-        }
-        return false;
-    }
-
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
-}
 public class EdgeAdornerConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -99,26 +65,7 @@ public class EdgeAdornerConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
-public class InvertBoolConverter : IValueConverter
-{
-    public object Convert(object value, System.Type targetType, object parameter, System.Globalization.CultureInfo culture)
-    {
-        if (value is bool boolValue)
-        {
-            return !boolValue;
-        }
-        return false;
-    }
 
-    public object ConvertBack(object value, System.Type targetType, object parameter, System.Globalization.CultureInfo culture)
-    {
-        if (value is bool boolValue)
-        {
-            return !boolValue;
-        }
-        return false;
-    }
-}
 public class PercentToScaleConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -246,34 +193,76 @@ public class InverseBooleanToVisibilityConverter : IValueConverter
     }
 }
 
-public class AccountTypeToLocConverter : IValueConverter
+public class ErrorLocalizationConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is not AccountType type)
-            return string.Empty;
-
-        var loc = System.Windows.Application.Current.Resources["Loc"];
-        if (loc == null)
-            return string.Empty;
-
-        var indexer = loc.GetType().GetProperty("Item"); 
-        if (indexer == null)
-            return string.Empty;
-
-        var key = type switch
+        if (value is string errorKey && !string.IsNullOrEmpty(errorKey))
         {
-            AccountType.Microsoft => "AccountCard.MicrosoftType",
-            AccountType.Offline   => "AccountCard.OfflineType",
-            _                     => null
-        };
-
-        return key == null ? string.Empty : indexer.GetValue(loc, new object[] { key });
+            var localizedString = LocalizationService.Instance[errorKey];
+            
+            return string.IsNullOrEmpty(localizedString) ? errorKey : localizedString;
+        }
+        
+        return value ?? string.Empty;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class NotNullToVisibilityConverter : IValueConverter
+{
+    public bool CollapseWhenNull { get; set; } = true;
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        bool isNotNull = value != null;
+
+        if (targetType == typeof(Visibility))
+        {
+            if (isNotNull)
+                return Visibility.Visible;
+
+            return CollapseWhenNull ? Visibility.Collapsed : Visibility.Hidden;
+        }
+
+        return isNotNull;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotSupportedException();
+    }
+}
+
+public class TypeMatchConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value == null || parameter == null) return false;
+        return value.GetType().Name == parameter.ToString();
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) 
         => throw new NotImplementedException();
 }
+
+public class IsNotNullConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return value != null;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 public class EnumToBooleanConverter : IValueConverter
 {
     // Из ViewModel в XAML (Проверяем, совпадает ли значение с параметром)
