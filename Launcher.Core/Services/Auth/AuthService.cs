@@ -1,14 +1,10 @@
 using CmlLib.Core.Auth;
 using CmlLib.Core.Auth.Microsoft;
-using System;
+using Launcher.Core.Models;
+using Launcher.Core.Services.System;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Messages;
-using Launcher.Core.Models;
 
 namespace Launcher.Core.Services.Auth;
 
@@ -24,23 +20,49 @@ public class AuthService : IAuthService
     private readonly JELoginHandler _loginHandler;
     private readonly HttpClient _httpClient;
 
-    public AuthService(HttpClient httpClient)
+    public AuthService(HttpClient httpClient, ILauncherPathsService pathsService)
     {
         _httpClient = httpClient;
-        _loginHandler = JELoginHandlerBuilder.BuildDefault();
+        
+        string cmlAccountsPath = Path.Combine(pathsService.UserDataDirectory, "cml_accounts.json");
+        
+        // Using the clean, built-in XboxAuthNet engine without external MSAL providers
+        _loginHandler = new JELoginHandlerBuilder()
+            .WithAccountManager(cmlAccountsPath)
+            .Build();
     }
-    
+
     public async Task<UserAccount> LoginWithMicrosoftAsync()
     {
         try 
         {
-            var session = await _loginHandler.AuthenticateInteractively();
-            var user = new UserAccount(
+            var authenticator = _loginHandler.CreateAuthenticatorWithNewAccount();
+            
+            // Native XboxAuthNet embedded browser. Works perfectly with the official ClientID.
+            authenticator.AddMicrosoftOAuthForJE(oauth => oauth.Interactive()); 
+            authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
+            authenticator.AddJEAuthenticator();
+
+            var session = await authenticator.ExecuteForLauncherAsync();
+
+            // Workaround: Explicitly set the Identifier to prevent the AccountManager
+            // from filtering out this newly created session.
+            if (authenticator.Context?.SessionStorage != null)
+            {
+                authenticator.Context.SessionStorage.Set<string>("Identifier", session.UUID);
+            }
+
+            // Persist session data to cml_accounts.json
+            _loginHandler.AccountManager.SaveAccounts();
+
+            var accounts = _loginHandler.AccountManager.GetAccounts();
+            Debug.WriteLine($"[Auth] Interactive login completed. Records in cml_accounts.json: {accounts.Count}");
+
+            return new UserAccount(
                 session.Username, 
                 session.UUID, 
                 session.AccessToken, 
                 isOffline: false);
-            return user;
         }
         catch (Exception ex)
         {
@@ -58,16 +80,13 @@ public class AuthService : IAuthService
     {
         if (account == null) return null;
         if (account.IsOffline) return account;
-
+        
         if (string.IsNullOrEmpty(account.AccessToken))
-        {
-            throw new UnauthorizedAccessException("Token is missing or decryption failed.");
-        }
+            throw new UnauthorizedAccessException("Token is missing.");
         
         try
         {
             Debug.WriteLine($"[Auth] Validating token for {account.Username}...");
-
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", account.AccessToken);
             
             var response = await _httpClient.GetAsync("https://api.minecraftservices.com/minecraft/profile");
@@ -76,25 +95,41 @@ public class AuthService : IAuthService
             {
                 var content = await response.Content.ReadAsStringAsync();
                 using var doc = JsonDocument.Parse(content);
-                var root = doc.RootElement;
-                
-                if (root.TryGetProperty("name", out var nameElement))
+                if (doc.RootElement.TryGetProperty("name", out var nameElement))
                 {
                     account.Username = nameElement.GetString();
                 }
-                Debug.WriteLine($"[Auth] Token valid. User: {account.Username}");
+                Debug.WriteLine($"[Auth] Token is valid. User: {account.Username}");
                 return account;
             }
             else
             {
-                // Сервер вернул ошибку (токен протух, обычно они живут 24 часа).
-                throw new Exception("Minecraft Access Token has expired. Re-login required.");
+                Debug.WriteLine("[Auth] Token expired! Starting built-in Silent Refresh...");
+                
+                var authenticator = _loginHandler.CreateAuthenticatorWithDefaultAccount();
+
+                // Silent refresh mode
+                authenticator.AddMicrosoftOAuthForJE(oauth => oauth.Silent()); 
+                authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
+                authenticator.AddJEAuthenticator();
+
+                var newSession = await authenticator.ExecuteForLauncherAsync();
+
+                // Force persist the refreshed tokens to the disk
+                _loginHandler.AccountManager.SaveAccounts();
+
+                account.AccessToken = newSession.AccessToken;
+                account.Username = newSession.Username;
+                account.UUID = newSession.UUID;
+
+                Debug.WriteLine("[Auth] Silent Refresh pipeline completed successfully!");
+                return account;
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Auth Error] {ex}");
-            throw new Exception($"Session validation failed: {ex.Message}");
+            Debug.WriteLine($"[Auth Error] Refresh failed: {ex.Message}");
+            throw new Exception("Session expired or cache is empty. Manual Microsoft login required.", ex);
         }
     }
 }
