@@ -60,4 +60,38 @@ public partial class MainWindow : Window
         OverlayScale.BeginAnimation(ScaleTransform.ScaleYProperty, scaleAnimation);
         FlashOverlay.BeginAnimation(UIElement.OpacityProperty, flashAnimation);
     }
+    
+    private void UIElement_OnDragEnter(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            e.Effects = DragDropEffects.Copy;
+            if (DataContext is MainViewModel vm && vm.DragEnterCommand.CanExecute(null))
+                vm.DragEnterCommand.Execute(null);
+        }
+        else
+        {
+            e.Effects = DragDropEffects.None;
+        }
+        e.Handled = true;
+    }
+
+    private void UIElement_OnDragLeave(object sender, DragEventArgs e)
+    {
+        if (DataContext is MainViewModel vm && vm.DragLeaveCommand.CanExecute(null))
+            vm.DragLeaveCommand.Execute(null);
+        e.Handled = true;
+    }
+
+    private void UIElement_OnDrop(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            
+            if (DataContext is MainViewModel vm && vm.DropCommand.CanExecute(files))
+                vm.DropCommand.Execute(files);
+        }
+        e.Handled = true;
+    }
 }

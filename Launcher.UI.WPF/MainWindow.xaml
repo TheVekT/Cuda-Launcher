@@ -85,8 +85,9 @@
         <Grid
             AllowDrop="{Binding AppStore.IsOverlayVisible, Converter={StaticResource NotEqualConverter}, ConverterParameter=True}"
             Grid.Row="1"
-            behaviors:FileDragDropBehavior.DragEnterCommand="{Binding DragEnterCommand}"
-            behaviors:FileDragDropBehavior.DragLeaveCommand="{Binding DragLeaveCommand}">
+            PreviewDragEnter="UIElement_OnDragEnter"
+            PreviewDragLeave="UIElement_OnDragLeave"
+            PreviewDrop="UIElement_OnDrop">
             <Grid.LayoutTransform>
                 <ScaleTransform ScaleX="{Binding SettingsVM.SettingsStore.UiScale}" ScaleY="{Binding SettingsVM.SettingsStore.UiScale}" />
             </Grid.LayoutTransform>
