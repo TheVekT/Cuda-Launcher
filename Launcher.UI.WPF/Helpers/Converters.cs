@@ -1,10 +1,9 @@
-using System;
 using System.Globalization;
 using System.IO;
 using System.Windows.Data;
 using System.Windows;
+using Launcher.Core.Config.Abstractions;
 using Launcher.UI.WPF.Services;
-using Launcher.Core.Services.System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Launcher.UI.WPF.Helpers;

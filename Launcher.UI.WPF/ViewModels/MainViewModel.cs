@@ -2,11 +2,11 @@ using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Enums;
-using Launcher.Core.Messages;
-using Launcher.Core.Models;
-using Launcher.Core.Services.Game;
-using Launcher.Core.Services.Integrations;
+using Launcher.Core.Common.Enums;
+using Launcher.Core.Common.Messaging;
+using Launcher.Core.Game.Abstractions;
+using Launcher.Core.Instances.Models;
+using Launcher.Core.Integrations.Abstractions;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
@@ -114,7 +114,7 @@ public partial class MainViewModel : ObservableObject,
         _settingsVM = settingsVM;
         
         
-        _discordService.Initialize(Core.Constants.DiscordAppId);
+        _discordService.Initialize(Launcher.Core.Common.Constants.LauncherConstants.DiscordAppId);
         _overlayService.RegisterOverlaySetter(view => _appStore.CurrentOverlayView = view);
         _navigationService.RegisterNavigationHandler(view => AppStore.CurrentView = view);
         

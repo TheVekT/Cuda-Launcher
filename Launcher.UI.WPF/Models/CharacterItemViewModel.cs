@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Launcher.Core.Models;
+using Launcher.Core.Common.Models;
 
 namespace Launcher.UI.WPF.Models;
 

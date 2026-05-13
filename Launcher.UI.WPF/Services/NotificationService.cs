@@ -1,7 +1,8 @@
 using System.Collections.ObjectModel;
-using Launcher.Core.Enums;
-using Launcher.Core.Models;
-using Launcher.Core.Services.UI;
+using Launcher.Core.Common.Enums;
+using Launcher.Core.Common.Models;
+using Launcher.Core.UI.Abstractions;
+
 namespace Launcher.UI.WPF.Services;
 
 public class NotificationService : INotificationService

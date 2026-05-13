@@ -97,7 +97,7 @@
                                                 <Style BasedOn="{StaticResource MoreContentExpanderStyle}" TargetType="Expander">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                        <DataTrigger Binding="{Binding SelectedModLoader.Name}" Value="Vanilla">
                                                             <Setter Property="Visibility" Value="Collapsed" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
@@ -311,7 +311,7 @@
                                                     <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
                                                         <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
                                                         <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                            <DataTrigger Binding="{Binding SelectedModLoader.Name}" Value="Vanilla">
                                                                 <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.RecommendedBadge]}" />
                                                             </DataTrigger>
                                                         </Style.Triggers>
@@ -374,7 +374,7 @@
                                                     <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
                                                         <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.RecommendedBadge]}" />
                                                         <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                            <DataTrigger Binding="{Binding SelectedModLoader.Name}" Value="Vanilla">
                                                                 <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
                                                             </DataTrigger>
                                                         </Style.Triggers>

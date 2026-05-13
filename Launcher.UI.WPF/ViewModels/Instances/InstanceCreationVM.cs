@@ -1,13 +1,12 @@
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Enums;
-using Launcher.Core.Messages;
-using Launcher.Core.Models;
-using Launcher.Core.Services.Game;
-using Launcher.Core.Services.IO;
+using Launcher.Core.Assets.Abstractions;
+using Launcher.Core.Common.Enums;
+using Launcher.Core.Common.Messaging;
+using Launcher.Core.Game.Abstractions;
+using Launcher.Core.Instances.Models;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
@@ -325,13 +324,10 @@ public partial class InstanceCreationVM: ObservableObject
     partial void OnSelectedModLoaderChanged(ModLoaderItem value)
     {
         if (value.Name == "Vanilla")
-        {
             SelectedIsolation = IsolationType.Global;
-        }
         else
-        {
             SelectedIsolation = IsolationType.Full;
-        }
+        
         _ = RefreshGameVersions();
         _ = RefreshLoaderVersions();
         RefreshPerfomanceModsVisibility();

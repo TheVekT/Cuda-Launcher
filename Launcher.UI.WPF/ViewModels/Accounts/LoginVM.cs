@@ -1,10 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Messages;
-using Launcher.Core.Models;
-using Launcher.Core.Services.Auth;
-using Launcher.Core.Services.IO;
+using Launcher.Core.Common.Messaging;
+using Launcher.Core.Identity.Abstractions;
+using Launcher.Core.Identity.Models;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;

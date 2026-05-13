@@ -19,7 +19,7 @@
     xmlns:behaviors="clr-namespace:Launcher.UI.WPF.Behaviors"
     xmlns:controls="clr-namespace:Launcher.UI.WPF.Resources.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:enums="clr-namespace:Launcher.Core.Enums;assembly=Launcher.Core"
+    xmlns:enums="clr-namespace:Launcher.Core.Common.Enums;assembly=Launcher.Core"
     xmlns:game="clr-namespace:Launcher.UI.WPF.ViewModels.Game"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:instances="clr-namespace:Launcher.UI.WPF.ViewModels.Instances"

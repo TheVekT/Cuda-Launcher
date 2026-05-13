@@ -1,6 +1,6 @@
 using System.IO;
 using System.Reflection;
-using Launcher.Core.Services.System;
+using Launcher.Core.Config.Abstractions;
 
 namespace Launcher.UI.WPF.Services;
 

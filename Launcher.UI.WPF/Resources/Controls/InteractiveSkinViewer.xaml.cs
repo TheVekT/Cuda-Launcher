@@ -64,7 +64,7 @@ public partial class InteractiveSkinViewer : UserControl
         }
     }
     
-    private async void UpdateAnimationInBrowser()
+    private async Task UpdateAnimationInBrowser()
     {
         if (!_isWebViewReady) return;
     
@@ -82,7 +82,7 @@ public partial class InteractiveSkinViewer : UserControl
         }
     }
     
-    private async void InitializeWebViewAsync()
+    private async Task InitializeWebViewAsync()
     {
         string browserCachePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cache", "WebView2Cache");
         var env = await CoreWebView2Environment.CreateAsync(null, browserCachePath);
@@ -106,7 +106,7 @@ public partial class InteractiveSkinViewer : UserControl
         };
     }
     
-    private async void UpdateSkinInBrowser()
+    private async Task UpdateSkinInBrowser()
     {
         if (!_isWebViewReady) return;
 

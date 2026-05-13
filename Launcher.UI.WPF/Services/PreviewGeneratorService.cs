@@ -1,9 +1,7 @@
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using Launcher.Core.Services.System;
-using Launcher.UI.WPF.Models;
+using Launcher.Core.Config.Abstractions;
 using Microsoft.Web.WebView2.Wpf;
 
 namespace Launcher.UI.WPF.Services;

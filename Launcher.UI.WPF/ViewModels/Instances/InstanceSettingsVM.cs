@@ -2,11 +2,11 @@ using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Enums;
-using Launcher.Core.Messages;
-using Launcher.Core.Models;
-using Launcher.Core.Services.Game;
-using Launcher.Core.Services.IO;
+using Launcher.Core.Assets.Abstractions;
+using Launcher.Core.Common.Enums;
+using Launcher.Core.Common.Messaging;
+using Launcher.Core.Game.Abstractions;
+using Launcher.Core.Instances.Models;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
@@ -247,6 +247,8 @@ public partial class InstanceSettingsVM : ObservableObject
         }
     }
     
+    #region Relay Commands
+    
     //Commands
     [RelayCommand]
     private void CloseSelf() =>
@@ -265,4 +267,6 @@ public partial class InstanceSettingsVM : ObservableObject
     [RelayCommand]
     private void DropIcon(string[]? files) =>
         _instancesStore.HandleIconDrop(files);
+    
+    #endregion
 }

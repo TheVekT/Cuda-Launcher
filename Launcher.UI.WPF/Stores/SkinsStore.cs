@@ -2,11 +2,13 @@ using System.Diagnostics;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Messages;
-using Launcher.Core.Models;
-using Launcher.Core.Services.Integrations;
-using Launcher.Core.Services.IO;
-using Launcher.Core.Services.System;
+using Launcher.Core.Assets;
+using Launcher.Core.Assets.Abstractions;
+using Launcher.Core.Common.Messaging;
+using Launcher.Core.Common.Models;
+using Launcher.Core.Config.Abstractions;
+using Launcher.Core.Config.Models;
+using Launcher.Core.Identity.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
@@ -18,7 +20,7 @@ public partial class SkinsStore : ObservableObject, IRecipient<MicrosoftLoggedMe
     private readonly ISettingsService _settingsService;
     private readonly ICharacterManagerService _characterService;
     private readonly IMojangProfileService _mojangProfileService;
-    private readonly MojangAssetCacheService _assetCache;
+    private readonly IMojangAssetCacheService _assetCache;
     private readonly ILauncherPathsService _pathsService;
     private readonly PreviewGeneratorService _previewGeneratorService;
     
@@ -35,7 +37,7 @@ public partial class SkinsStore : ObservableObject, IRecipient<MicrosoftLoggedMe
         ISettingsService settingsService, 
         ICharacterManagerService characterService,
         IMojangProfileService mojangProfileService,
-        MojangAssetCacheService assetCache,
+        IMojangAssetCacheService assetCache,
         PreviewGeneratorService previewGeneratorService,
         ILauncherPathsService pathsService)
     {

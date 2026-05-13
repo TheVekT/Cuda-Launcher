@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel; 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Enums;
-using Launcher.Core.Models;
-using Launcher.Core.Services.IO;
-using Launcher.Core.Services.System;
+using Launcher.Core.Config.Abstractions;
+using Launcher.Core.Config.Models;
+using Launcher.Core.Instances.Models;
+using Launcher.Core.System.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;

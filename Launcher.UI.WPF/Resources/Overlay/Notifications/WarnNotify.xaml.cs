@@ -1,7 +1,7 @@
 
 using System.Windows;
 using System.Windows.Controls;
-using Launcher.Core.Models;
+using Launcher.Core.Common.Models;
 using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.Resources.Overlay.Notifications

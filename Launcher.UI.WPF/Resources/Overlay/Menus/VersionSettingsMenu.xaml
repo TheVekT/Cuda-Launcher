@@ -141,7 +141,7 @@
                                             <Style BasedOn="{StaticResource MoreContentExpanderStyle}" TargetType="Expander">
                                                 <Setter Property="Visibility" Value="Visible" />
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SelectedModLoader}" Value="Vanilla">
+                                                    <DataTrigger Binding="{Binding SelectedModLoader.Name}" Value="Vanilla">
                                                         <Setter Property="Visibility" Value="Collapsed" />
                                                     </DataTrigger>
                                                 </Style.Triggers>

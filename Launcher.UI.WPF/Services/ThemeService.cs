@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Markup;
-using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Services.System;
+using Launcher.Core.Config.Abstractions;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 

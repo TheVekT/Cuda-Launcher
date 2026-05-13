@@ -1,9 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Launcher.Core.Models;
-using Launcher.Core.Services.Integrations;
-using Launcher.Core.Services.IO;
-using Launcher.Core.Services.System;
+using Launcher.Core.Assets.Abstractions;
+using Launcher.Core.Identity.Abstractions;
+using Launcher.Core.System.Abstractions;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;

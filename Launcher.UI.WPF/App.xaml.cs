@@ -1,13 +1,19 @@
-﻿using System.Windows;
+﻿using System.Net.Http;
+using System.Windows;
+using Launcher.Core.Assets;
+using Launcher.Core.Config;
+using Launcher.Core.Game;
+using Launcher.Core.Identity;
+using Launcher.Core.Instances;
+using Launcher.Core.Integrations;
+using Launcher.Core.Mods;
 using Microsoft.Extensions.DependencyInjection;
 using Launcher.UI.WPF.ViewModels;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
-using Launcher.Core.Services.IO;
-using Launcher.Core.Services.Auth;
-using Launcher.Core.Services.Game;
-using Launcher.Core.Services.Integrations;
-using Launcher.Core.Services.System;
+using Launcher.Core.System;
+using Launcher.Core.System.Abstractions;
+using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.ViewModels.Accounts;
 using Launcher.UI.WPF.ViewModels.Game;
 using Launcher.UI.WPF.ViewModels.Instances;
@@ -27,40 +33,33 @@ public partial class App : Application
         {
             var services = new ServiceCollection();
             
-            services.AddSingleton<ILauncherPathsService, LauncherPathsService>();
+            services.AddSingleton<HttpClient>(); 
+            
             services.AddSingleton<LocalizationService>();
+            services.AddSingleton<ILocalizationService>(sp => sp.GetRequiredService<LocalizationService>());
             services.AddSingleton<NotificationService>();
+            services.AddSingleton<INotificationService>(sp => sp.GetRequiredService<NotificationService>());
+            
+            //UI.WPF Services
+            services.AddSingleton<IAssetExtractionService, AssetExtractionService>();
             services.AddSingleton<ThemeService>();
-            services.AddSingleton<IAccountStorageService, AccountStorageService>();
-            services.AddSingleton<IGameVersionService, GameVersionService>();
-            services.AddSingleton<IInstanceService, InstanceService>();
-            services.AddSingleton<IInstanceFileSystemService, InstanceFileSystemService>();
-            services.AddSingleton<IModrinthService, ModrinthService>();
-            services.AddSingleton<ISysInfoService, SysInfoService>();
-            services.AddSingleton<IDiscordService, DiscordService>();
-            services.AddSingleton<ISettingsService, SettingsService>();
-            services.AddSingleton<IDragDropParserService, DragDropParserService>();
-            services.AddSingleton<ISymlinkService, SymlinkService>();
             services.AddSingleton<ImportOrchestratorService>();
             services.AddSingleton<IOverlayService, OverlayService>();
             services.AddSingleton<NavigationService>();
             services.AddSingleton<IDispatcherService, WpfDispatcherService>();
             services.AddSingleton<IInputService, InputService>();
-            services.AddSingleton<IIconsService, IconsService>();
             services.AddSingleton<IFileDialogService, WpfFileDialogService>();
-            services.AddSingleton<IAssetExtractionService, AssetExtractionService>();
-            services.AddSingleton<ICharacterManagerService, CharacterManagerService>();
             services.AddSingleton<PreviewGeneratorService>();
-            services.AddHttpClient<IMojangProfileService, MojangProfileService>();
-            services.AddHttpClient<MojangAssetCacheService>();
-            services.AddHttpClient<IAuthService, AuthService>();
             
-            services.AddSingleton<ILaunchService>(provider => new LaunchService(
-                provider.GetRequiredService<IInstanceFileSystemService>(),
-                provider.GetRequiredService<IModrinthService>(),
-                NotificationService.Instance, 
-                LocalizationService.Instance
-            ));
+            //Core Services
+            services.AddAssetsServices();
+            services.AddConfigServices();
+            services.AddGameServices();
+            services.AddIdentityServices();
+            services.AddInstancesServices();
+            services.AddIntegrationsServices();
+            services.AddModsServices();
+            services.AddSystemServices();
             
             services.AddSingleton<AppStore>();
             services.AddSingleton<LoginStore>();
@@ -81,14 +80,16 @@ public partial class App : Application
             Services = services.BuildServiceProvider();
 
             Services.GetRequiredService<IAssetExtractionService>().EnsureAllBaseAssetsExist();
-            LocalizationService.Instance = Services.GetRequiredService<LocalizationService>();
-            NotificationService.Instance = Services.GetRequiredService<NotificationService>();
+            
+            LocalizationService.Instance = (LocalizationService)Services.GetRequiredService<ILocalizationService>();
+            NotificationService.Instance = (NotificationService)Services.GetRequiredService<INotificationService>();
             
             var mainViewModel = Services.GetRequiredService<MainViewModel>();
+            var mainWindow = Services.GetRequiredService<MainWindow>();
+            
             await mainViewModel.InitializeAsync();
             await Services.GetRequiredService<SkinsStore>().InitializeAsync();
-
-            var mainWindow = Services.GetRequiredService<MainWindow>();
+            
             mainWindow.DataContext = mainViewModel;
             
             mainWindow.Show();

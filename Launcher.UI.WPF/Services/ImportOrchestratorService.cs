@@ -1,13 +1,10 @@
-using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Diagnostics;
-using Launcher.Core.Enums;
-using Launcher.Core.Models;
-using Launcher.Core.Services.IO;
-using Launcher.UI.WPF.Messages; // Для отправки сообщений
+using Launcher.UI.WPF.Messages;
 using CommunityToolkit.Mvvm.Messaging;
+using Launcher.Core.Common.Enums;
+using Launcher.Core.Instances.Abstractions;
+using Launcher.Core.Instances.Models;
 
 namespace Launcher.UI.WPF.Services;
 

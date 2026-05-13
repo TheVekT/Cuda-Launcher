@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Text.Json;
-using System.Collections.Generic;
 
 namespace Launcher.UAC;
 
@@ -10,7 +7,6 @@ public class SymlinkJob
 {
     public string SourcePath { get; set; }
     public string DestPath { get; set; }
-    // 1. Меняем контракт на Inclusions (Белый список)
     public HashSet<string> Inclusions { get; set; }
 }
 

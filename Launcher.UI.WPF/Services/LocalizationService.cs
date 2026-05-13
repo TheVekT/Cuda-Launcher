@@ -3,9 +3,9 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Models;
-using Launcher.Core.Services.System;
-using Launcher.Core.Services.UI;
+using Launcher.Core.Config.Abstractions;
+using Launcher.Core.Config.Models;
+using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.Messages;
 
 namespace Launcher.UI.WPF.Services;

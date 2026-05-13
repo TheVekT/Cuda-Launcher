@@ -1,7 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Launcher.Core.Models;
 using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Resources.Controls;
