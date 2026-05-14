@@ -25,7 +25,7 @@
                                 Foreground="{DynamicResource ForegroundPlaceholderBrush}"
                                 IsHitTestVisible="False"
                                 Margin="{TemplateBinding Padding}"
-                                Text="Search installation..."
+                                Text="{Binding Source={StaticResource Loc}, Path=[Installations.Header.SearchInstallations]}"
                                 VerticalAlignment="Center"
                                 Visibility="Collapsed"
                                 x:Name="PlaceholderText" />
@@ -375,7 +375,7 @@
     </Style>
 
 
-    <!-- Slider Styles -->
+    <!--  Slider Styles  -->
     <Style TargetType="{x:Type Thumb}" x:Key="SliderThumbStyle">
         <Setter Property="SnapsToDevicePixels" Value="true" />
         <Setter Property="OverridesDefaultStyle" Value="true" />
@@ -516,7 +516,7 @@
         </Setter>
     </Style>
 
-    <!-- Theme Preview Radio Style -->
+    <!--  Theme Preview Radio Style  -->
     <Style TargetType="RadioButton" x:Key="InvisibleRadioStyle">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
