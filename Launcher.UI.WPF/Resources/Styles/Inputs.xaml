@@ -1,0 +1,537 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:gif="http://wpfanimatedgif.codeplex.com"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <helpers:EdgeAdornerConverter x:Key="EdgeConverter" />
+    <helpers:ImagePathConverter x:Key="ImagePathConverter" />
+    <!--  Search TextBox Style  -->
+    <Style TargetType="TextBox" x:Key="SearchTextBoxStyle">
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource ForegroundPrimaryBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="border">
+                        <Grid>
+                            <ScrollViewer
+                                Focusable="False"
+                                HorizontalAlignment="Stretch"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="Center"
+                                x:Name="PART_ContentHost" />
+                            <TextBlock
+                                FontSize="{TemplateBinding FontSize}"
+                                Foreground="{DynamicResource ForegroundPlaceholderBrush}"
+                                IsHitTestVisible="False"
+                                Margin="{TemplateBinding Padding}"
+                                Text="Search installation..."
+                                VerticalAlignment="Center"
+                                Visibility="Collapsed"
+                                x:Name="PlaceholderText" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter Property="Visibility" TargetName="PlaceholderText" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource BorderAccentBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Default ToggleSwitch Style  -->
+    <Style TargetType="CheckBox" x:Key="DefaultToggleSwitchStyle">
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
+        <Setter Property="Background" Value="{DynamicResource OverlayBackgroundPrimaryBrush}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid
+                            Grid.Column="1"
+                            Height="24"
+                            Width="44"
+                            x:Name="SwitchTrack">
+                            <Grid.LayoutTransform>
+                                <ScaleTransform ScaleX="{Binding Path=(helpers:ScaleHelper.ScaleFactor), RelativeSource={RelativeSource TemplatedParent}}" ScaleY="{Binding Path=(helpers:ScaleHelper.ScaleFactor), RelativeSource={RelativeSource TemplatedParent}}" />
+                            </Grid.LayoutTransform>
+                            <Border Background="{DynamicResource OverlayBackgroundSurfaceBrush}" CornerRadius="12" />
+
+                            <Border
+                                Background="{DynamicResource BackgroundAccentBrush}"
+                                CornerRadius="12"
+                                Opacity="0"
+                                x:Name="ActiveTrack" />
+
+                            <Grid
+                                Height="20"
+                                HorizontalAlignment="Left"
+                                Margin="3,0,0,0"
+                                Width="20"
+                                x:Name="SwitchThumb">
+
+                                <Ellipse Fill="{DynamicResource OverlaySelectionBrush}" Stroke="{x:Null}" />
+
+                                <Grid.RenderTransform>
+                                    <TranslateTransform X="0" x:Name="ThumbTranslate" />
+                                </Grid.RenderTransform>
+                            </Grid>
+                        </Grid>
+
+                        <ContentPresenter
+                            Grid.Column="0"
+                            HorizontalAlignment="Left"
+                            RecognizesAccessKey="True"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CheckStates">
+
+                                <VisualState x:Name="Unchecked">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                            Duration="0:0:0.2"
+                                            Storyboard.TargetName="ThumbTranslate"
+                                            Storyboard.TargetProperty="X"
+                                            To="0">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+
+                                        <DoubleAnimation
+                                            Duration="0:0:0.2"
+                                            Storyboard.TargetName="ActiveTrack"
+                                            Storyboard.TargetProperty="Opacity"
+                                            To="0" />
+                                    </Storyboard>
+                                </VisualState>
+
+                                <VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                            Duration="0:0:0.2"
+                                            Storyboard.TargetName="ThumbTranslate"
+                                            Storyboard.TargetProperty="X"
+                                            To="20">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+
+                                        <DoubleAnimation
+                                            Duration="0:0:0.2"
+                                            Storyboard.TargetName="ActiveTrack"
+                                            Storyboard.TargetProperty="Opacity"
+                                            To="1" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver" />
+                                <VisualState x:Name="Pressed" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                            Duration="0"
+                                            Storyboard.TargetName="SwitchTrack"
+                                            Storyboard.TargetProperty="Opacity"
+                                            To="0.5" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="RadioButton" x:Key="SegmentedTabButtonStyle">
+        <Setter Property="Foreground" Value="{DynamicResource OverlaySelectionBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="{DynamicResource SecondBorderThickness}" />
+        <Setter Property="Padding" Value="20,6" />
+        <Setter Property="Margin" Value="2,0" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="14"
+                        Padding="{TemplateBinding Padding}"
+                        x:Name="PART_Border">
+
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True" />
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource BackgroundAccentBrush}" />
+                            <Setter Property="Foreground" Value="{DynamicResource ForegroundOnAccentBrush}" />
+                            <Setter Property="FontWeight" Value="Medium" />
+                        </Trigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsChecked" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  Default text input  -->
+    <Style TargetType="TextBox" x:Key="DefaultTextInputStyle">
+        <Setter Property="FontFamily" Value="{DynamicResource GlobalFont}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSecondaryBrush}" />
+        <Setter Property="Background" Value="{DynamicResource OverlayButtonBackgroundBrush}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource DefaultBorderThickness}" />
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource ForegroundPrimaryBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource DefaultCorner}"
+                            x:Name="border">
+                            <ScrollViewer
+                                Focusable="false"
+                                HorizontalScrollBarVisibility="Hidden"
+                                VerticalScrollBarVisibility="Hidden"
+                                x:Name="PART_ContentHost" />
+                        </Border>
+                        <TextBlock
+                            FontSize="{TemplateBinding FontSize}"
+                            Foreground="{DynamicResource ForegroundPlaceholderBrush}"
+                            IsHitTestVisible="False"
+                            Margin="{TemplateBinding Padding}"
+                            Text="{TemplateBinding Tag}"
+                            VerticalAlignment="Center"
+                            Visibility="Collapsed"
+                            x:Name="PlaceholderText" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="Text" Value="" />
+                                <Condition Property="IsKeyboardFocused" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Visibility" TargetName="PlaceholderText" Value="Visible" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  PointradioButton  -->
+    <Style TargetType="RadioButton" x:Key="PointOptionRadioStyle">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid
+                            Grid.Column="0"
+                            Margin="0,0,10,0"
+                            VerticalAlignment="Center">
+                            <Border
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Height="16"
+                                Width="16"
+                                x:Name="OuterCircle">
+                                <Border.BorderBrush>
+                                    <SolidColorBrush Color="{DynamicResource ForegroundSecondary}" />
+                                </Border.BorderBrush>
+                            </Border>
+
+                            <Ellipse
+                                Height="8"
+                                HorizontalAlignment="Center"
+                                Opacity="0"
+                                VerticalAlignment="Center"
+                                Width="8"
+                                x:Name="InnerDot">
+                                <Ellipse.Fill>
+                                    <SolidColorBrush Color="{DynamicResource BackgroundAccent}" />
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Grid>
+
+                        <StackPanel Grid.Column="1">
+                            <StackPanel Orientation="Horizontal">
+                                <ContentPresenter Content="{TemplateBinding Content}">
+                                    <ContentPresenter.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                            <Setter Property="FontSize" Value="14" />
+                                            <Setter Property="FontFamily" Value="{DynamicResource GlobalFont}" />
+                                            <Setter Property="Foreground">
+                                                <Setter.Value>
+                                                    <SolidColorBrush Color="{DynamicResource ForegroundPrimary}" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ContentPresenter.Resources>
+                                </ContentPresenter>
+                                <TextBlock
+                                    FontSize="13"
+                                    Foreground="{DynamicResource FeaturedForegroundBrush}"
+                                    Margin="10,0,0,0"
+                                    Text="{TemplateBinding helpers:RadioButtonHelper.RecommendedBadgeText}"
+                                    VerticalAlignment="Bottom"
+                                    x:Name="RecommendedBadge" />
+                            </StackPanel>
+                            <TextBlock
+                                FontSize="12"
+                                Margin="0,2,0,0"
+                                Text="{TemplateBinding Tag}"
+                                TextWrapping="Wrap"
+                                x:Name="DescriptionText">
+                                <TextBlock.Foreground>
+                                    <SolidColorBrush Color="{DynamicResource ForegroundSecondary}" />
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Opacity" TargetName="InnerDot" Value="1" />
+                            <Setter Property="BorderThickness" TargetName="OuterCircle" Value="1" />
+                            <Setter Property="BorderBrush" TargetName="OuterCircle">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{DynamicResource BackgroundAccent}" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="BorderBrush" TargetName="OuterCircle">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{DynamicResource ForegroundPrimary}" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="Tag" Value="{x:Null}">
+                            <Setter Property="Visibility" TargetName="DescriptionText" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="Tag" Value="">
+                            <Setter Property="Visibility" TargetName="DescriptionText" Value="Collapsed" />
+                        </Trigger>
+                        <DataTrigger Binding="{Binding Path=(helpers:RadioButtonHelper.RecommendedBadgeText), RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                            <Setter Property="Visibility" TargetName="RecommendedBadge" Value="Collapsed" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <!-- Slider Styles -->
+    <Style TargetType="{x:Type Thumb}" x:Key="SliderThumbStyle">
+        <Setter Property="SnapsToDevicePixels" Value="true" />
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Setter Property="Height" Value="14" />
+        <Setter Property="Width" Value="14" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Grid>
+                        <Grid.RenderTransform>
+                            <ScaleTransform CenterX="10" CenterY="10" ScaleX="1" ScaleY="1" x:Name="Scale" />
+                        </Grid.RenderTransform>
+                        <Ellipse
+                            Fill="#40000000"
+                            Margin="1,1,-1,-1"
+                            Opacity="0"
+                            x:Name="Shadow" />
+
+                        <Ellipse
+                            Fill="{DynamicResource OverlaySelectionBrush}"
+                            Stroke="{x:Null}"
+                            x:Name="Ellipse" />
+
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                            Duration="0:0:0.1"
+                                            Storyboard.TargetName="Scale"
+                                            Storyboard.TargetProperty="ScaleX"
+                                            To="1.1" />
+                                        <DoubleAnimation
+                                            Duration="0:0:0.1"
+                                            Storyboard.TargetName="Scale"
+                                            Storyboard.TargetProperty="ScaleY"
+                                            To="1.1" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                            Duration="0:0:0.05"
+                                            Storyboard.TargetName="Scale"
+                                            Storyboard.TargetProperty="ScaleX"
+                                            To="0.95" />
+                                        <DoubleAnimation
+                                            Duration="0:0:0.05"
+                                            Storyboard.TargetName="Scale"
+                                            Storyboard.TargetProperty="ScaleY"
+                                            To="0.95" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type RepeatButton}" x:Key="SliderRepeatButtonStyle">
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Setter Property="IsTabStop" Value="false" />
+        <Setter Property="Focusable" Value="false" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="3"
+                        Height="6" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type Slider}" x:Key="DefaultSliderStyle">
+        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource OverlaySelectionBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Slider}">
+                    <Grid>
+                        <Grid.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding Path=(helpers:ScaleHelper.ScaleFactor), RelativeSource={RelativeSource TemplatedParent}}" ScaleY="{Binding Path=(helpers:ScaleHelper.ScaleFactor), RelativeSource={RelativeSource TemplatedParent}}" />
+                        </Grid.LayoutTransform>
+
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="true"
+                            x:Name="BorderStyle">
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Track Grid.Row="1" x:Name="PART_Track">
+
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton
+                                            Background="{DynamicResource BackgroundAccentBrush}"
+                                            Command="{x:Static Slider.DecreaseLarge}"
+                                            Style="{StaticResource SliderRepeatButtonStyle}" />
+                                    </Track.DecreaseRepeatButton>
+
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource SliderThumbStyle}" x:Name="Thumb" />
+                                    </Track.Thumb>
+
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton
+                                            Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
+                                            Command="{x:Static Slider.IncreaseLarge}"
+                                            Style="{StaticResource SliderRepeatButtonStyle}" />
+                                    </Track.IncreaseRepeatButton>
+                                </Track>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Opacity" TargetName="BorderStyle" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Theme Preview Radio Style -->
+    <Style TargetType="RadioButton" x:Key="InvisibleRadioStyle">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0,0,15,0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border Background="Transparent">
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

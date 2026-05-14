@@ -235,18 +235,12 @@
                                     IsDefault="True"
                                     Style="{StaticResource AccentButtonStyle}"
                                     Width="75"
+                                    Tag="{DynamicResource Icon.ArrowLeft}"
                                     helpers:ButtonHelper.IconSize="11"
                                     x:Name="NextButton">
                                     <Button.Content>
                                         <TextBlock FlowDirection="LeftToRight" Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.NextButton]}" />
                                     </Button.Content>
-                                    <Button.Tag>
-                                        <PathGeometry Figures="M4 6L8 10L12 6">
-                                            <PathGeometry.Transform>
-                                                <RotateTransform Angle="90" CenterX="8" CenterY="8" />
-                                            </PathGeometry.Transform>
-                                        </PathGeometry>
-                                    </Button.Tag>
                                 </Button>
 
                             </Grid>
@@ -605,15 +599,9 @@
                                     Height="30"
                                     Style="{StaticResource OverlayDefaultButtonStyle}"
                                     Width="75"
+                                    Tag="{DynamicResource Icon.ArrowLeft}"
                                     helpers:ButtonHelper.IconSize="11"
                                     x:Name="BackButton">
-                                    <Button.Tag>
-                                        <PathGeometry Figures="M4 6L8 10L12 6">
-                                            <PathGeometry.Transform>
-                                                <RotateTransform Angle="90" CenterX="8" CenterY="8" />
-                                            </PathGeometry.Transform>
-                                        </PathGeometry>
-                                    </Button.Tag>
                                 </Button>
                                 <Button
                                     Command="{Binding CreateInstanceCommand}"
@@ -651,7 +639,7 @@
                     </Button.Template>
                     <Viewbox Stretch="Uniform">
                         <Path
-                            Data="{StaticResource Icon.Close}"
+                            Data="{DynamicResource Icon.Close}"
                             Stroke="{DynamicResource ForegroundPlaceholderBrush}"
                             StrokeThickness="1.33" />
                     </Viewbox>
