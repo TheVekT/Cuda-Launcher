@@ -3,7 +3,7 @@
         <Version>0.1.0</Version>
 
         <Authors>TheVekT</Authors>
-        <Company>MineLauncher</Company>
+        <Company>Cuda Launcher</Company>
         <Copyright>Copyright © 2026</Copyright>
         
         <OutputPath>$(SolutionDir)Build\$(Configuration)\</OutputPath>

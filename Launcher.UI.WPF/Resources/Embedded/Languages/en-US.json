@@ -5,8 +5,8 @@
     "Author": "TheVekT"
   },
   "Translations": {
-    "MainWindow.Title": "Mine Launcher",
-    "MainWindow.Header.LogoText": "MINE",
+    "MainWindow.Title": "Cuda Launcher",
+    "MainWindow.Header.LogoText": "CUDA",
     "MainWindow.Header.LoginButton": "Login",
     "MainWindow.Navigation.Play": "Play",
     "MainWindow.Navigation.Installations": "Installations",
