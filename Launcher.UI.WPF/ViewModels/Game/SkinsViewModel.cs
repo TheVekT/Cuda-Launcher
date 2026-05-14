@@ -64,14 +64,14 @@ public partial class SkinsViewModel : ObservableObject
     [RelayCommand]
     private void EditSkin(CharacterItemViewModel skin)
     {
-        var skinEditorVM = new SkinEditorVM(_characterService, _dialogService, _skinsStore, skin);;
+        var skinEditorVM = new SkinEditorViewModel(_characterService, _dialogService, _skinsStore, skin);;
         _overlayService.Show(skinEditorVM);
     }
 
     [RelayCommand]
     private void AddCharacter()
     {
-        var skinEditorVM = new SkinEditorVM(_characterService, _dialogService, _skinsStore);
+        var skinEditorVM = new SkinEditorViewModel(_characterService, _dialogService, _skinsStore);
         _overlayService.Show(skinEditorVM);
     }
 }

@@ -1,0 +1,307 @@
+<UserControl
+    Background="Transparent"
+    FontFamily="{DynamicResource GlobalFont}"
+    d:DataContext="{d:DesignInstance Type=game:SkinEditorViewModel,
+                                     IsDesignTimeCreatable=True}"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Views.Game.SkinEditorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:game="clr-namespace:Launcher.UI.WPF.ViewModels.Game"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <helpers:EnumToBooleanConverter x:Key="EnumToBoolConverter" />
+        <helpers:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter" />
+    </UserControl.Resources>
+    <Grid Width="512">
+        <Border
+            Background="{DynamicResource OverlayBackgroundPrimaryBrush}"
+            BorderBrush="{DynamicResource OverlayBorderPrimaryBrush}"
+            BorderThickness="{DynamicResource DefaultBorderThickness}"
+            CornerRadius="{DynamicResource DefaultCorner}"
+            Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0">
+                    <TextBlock
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                        Margin="0,0,0,5"
+                        Text="{Binding MenuTitle}" />
+                    <TextBlock
+                        FontSize="13"
+                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                        Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.Subtitle]}" />
+                </StackPanel>
+                <ScrollViewer
+                    Grid.Row="1"
+                    HorizontalScrollBarVisibility="Disabled"
+                    Style="{StaticResource MinimalScrollViewer}"
+                    VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,5">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                Text="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.NameLabel]}" />
+                            <TextBox
+                                FontSize="12"
+                                Height="35"
+                                Margin="0,5,0,0"
+                                Style="{StaticResource DefaultTextInputStyle}"
+                                Tag="{Binding SuggestedName}"
+                                Text="{Binding CharacterName, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock
+                                Background="Transparent"
+                                FontSize="11"
+                                Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                Margin="0,5,0,0"
+                                Text="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.NamePlaceholder]}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Margin="0,5">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                Text="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.UploadSkinLabel]}" />
+                            <Image
+                                Height="40"
+                                HorizontalAlignment="Left"
+                                Margin="0,5"
+                                RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                Source="{Binding TempSkinFilePath}"
+                                Stretch="Uniform"
+                                Width="40">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding TempSkinFilePath}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                            <Button
+                                Command="{Binding ImportSkinFileCommand}"
+                                Content="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.UploadButtonText]}"
+                                FontSize="14"
+                                Height="35"
+                                Style="{StaticResource OverlayDefaultButtonStyle}"
+                                Tag="{StaticResource Icon.Upload}" />
+                            <TextBlock
+                                Background="Transparent"
+                                FontSize="11"
+                                Foreground="{DynamicResource AlertForegroundBrush}"
+                                Margin="0,5,0,0"
+                                Text="{Binding SkinValidationResult}"
+                                Visibility="{Binding SkinValidationResult, Converter={StaticResource NotNullToVisibilityConverter}}" />
+                            <TextBlock
+                                Background="Transparent"
+                                FontSize="11"
+                                Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                Margin="0,5,0,0"
+                                Text="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.UploadSkinPlaceholder]}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Margin="0,5">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                Text="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.SkinVersionLabel]}" />
+                            <RadioButton
+                                Content="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.OptionClassicModel]}"
+                                GroupName="ModelTypeGroup"
+                                IsChecked="{Binding SelectedModelType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Classic}"
+                                Margin="0,10,0,0"
+                                Style="{StaticResource PointOptionRadioStyle}" />
+                            <RadioButton
+                                Content="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.OptionSlimModel]}"
+                                GroupName="ModelTypeGroup"
+                                IsChecked="{Binding SelectedModelType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Slim}"
+                                Margin="0,10,0,0"
+                                Style="{StaticResource PointOptionRadioStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="3" Margin="0,5">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                Text="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.SelectCapeLabel]}" />
+                            <Border
+                                Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
+                                CornerRadius="{DynamicResource DefaultCorner}"
+                                Margin="0,5,0,0"
+                                MaxHeight="155"
+                                Padding="5">
+
+                                <ListBox
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    ItemsSource="{Binding AvailableCapes}"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                    SelectedItem="{Binding SelectedCape}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="5" VerticalAlignment="Top" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border
+                                                CornerRadius="{DynamicResource DefaultCorner}"
+                                                Height="135"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Width="100">
+                                                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <StackPanel
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Visibility="Collapsed"
+                                                        x:Name="NoneContent">
+                                                        <Path
+                                                            Data="{StaticResource Icon.Close}"
+                                                            Height="20"
+                                                            Margin="0,0,0,5"
+                                                            Stretch="Uniform"
+                                                            Stroke="{DynamicResource ForegroundPrimaryBrush}"
+                                                            StrokeThickness="1.33"
+                                                            Width="20" />
+
+                                                        <TextBlock
+                                                            FontSize="14"
+                                                            Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                                            HorizontalAlignment="Center"
+                                                            Text="{Binding Alias}"
+                                                            VerticalAlignment="Center" />
+                                                    </StackPanel>
+
+                                                    <Image
+                                                        HorizontalAlignment="Center"
+                                                        RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                                        Source="{Binding Cape2DPreviewPath}"
+                                                        Stretch="Uniform"
+                                                        VerticalAlignment="Center"
+                                                        x:Name="CapeImage" />
+                                                </Grid>
+                                            </Border>
+
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Id}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" TargetName="CapeImage" Value="Collapsed" />
+                                                    <Setter Property="Visibility" TargetName="NoneContent" Value="Visible" />
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Padding" Value="2" />
+                                            <Setter Property="Margin" Value="2" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="Cursor" Value="Hand" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <Border
+                                                            Background="Transparent"
+                                                            BorderBrush="Transparent"
+                                                            BorderThickness="1"
+                                                            CornerRadius="{DynamicResource DefaultCorner}"
+                                                            Padding="{TemplateBinding Padding}"
+                                                            x:Name="Bd">
+                                                            <ContentPresenter />
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsSelected" Value="True">
+                                                                <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource BorderAccentBrush}" />
+                                                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
+                                                            </Trigger>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                </ListBox>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+                <Grid Grid.Row="2" Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        Command="{Binding CloseSelfCommand}"
+                        Content="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.CancelButton]}"
+                        FontSize="13"
+                        Grid.Column="0"
+                        Height="30"
+                        Margin="0,0,4,0"
+                        Style="{StaticResource DefaultButtonStyle}"
+                        Tag="{StaticResource Icon.Close}"
+                        helpers:ButtonHelper.IconSize="10"
+                        x:Name="CancelButton" />
+                    <Button
+                        Command="{Binding SaveCommand}"
+                        Content="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.CreateButton]}"
+                        FontSize="13"
+                        Grid.Column="1"
+                        Height="30"
+                        IsDefault="True"
+                        Margin="4,0,0,0"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Tag="{StaticResource Icon.Accept}"
+                        helpers:ButtonHelper.IconSize="12"
+                        x:Name="SaveButton" />
+                </Grid>
+            </Grid>
+        </Border>
+        <Button
+            Command="{Binding CloseSelfCommand}"
+            Cursor="Hand"
+            Height="12"
+            HorizontalAlignment="Right"
+            Margin="0,20,20,0"
+            VerticalAlignment="Top"
+            Width="12">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="Transparent">
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+            <Viewbox Stretch="Uniform">
+                <Path
+                    Data="{StaticResource Icon.Close}"
+                    Stroke="{DynamicResource ForegroundPlaceholderBrush}"
+                    StrokeThickness="1.33" />
+            </Viewbox>
+        </Button>
+    </Grid>
+</UserControl>

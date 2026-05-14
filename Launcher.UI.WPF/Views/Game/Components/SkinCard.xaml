@@ -1,0 +1,123 @@
+<UserControl
+    Background="Transparent"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Views.Game.Components.SkinCard"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Border
+        Background="{DynamicResource BackgroundTransparentBrush}"
+        CornerRadius="{DynamicResource DefaultCorner}"
+        Height="225"
+        Width="160"
+        x:Name="CardBorder">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel
+                Grid.Row="0"
+                Margin="8,5"
+                Orientation="Horizontal">
+                <TextBlock
+                    FontSize="14"
+                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                    Margin="0,0,5,0"
+                    Text="{Binding Character.CoreModel.Name, ElementName=Root}"
+                    TextTrimming="CharacterEllipsis"
+                    VerticalAlignment="Bottom" />
+
+                <TextBlock
+                    FontSize="12"
+                    Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                    Text="{Binding Character.CoreModel.SkinVariant, ElementName=Root}"
+                    VerticalAlignment="Bottom" />
+            </StackPanel>
+
+            <Grid Grid.Row="1">
+                <Image Source="{Binding Character.Skin3DPreviewPath, ElementName=Root, TargetNullValue={x:Null}}" Stretch="Uniform" />
+            </Grid>
+
+            <Grid
+                Grid.Row="2"
+                Margin="5"
+                Opacity="0"
+                x:Name="ButtonsPanel">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMouseOver, ElementName=CardBorder}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Duration="0:0:0.2"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Duration="0:0:0.2"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button
+                    Command="{Binding ApplyCommand, ElementName=Root}"
+                    CommandParameter="{Binding Character, ElementName=Root}"
+                    Content="{Binding Source={StaticResource Loc}, Path=[SkinCard.ApplyButton]}"
+                    Grid.Column="0"
+                    Height="25"
+                    Margin="0,0,5,0"
+                    Style="{StaticResource AccentButtonStyle}"
+                    x:Name="ApplyButton" />
+
+                <Button
+                    Click="OpenContextMenu"
+                    Grid.Column="1"
+                    Height="25"
+                    Padding="0"
+                    Style="{StaticResource DefaultButtonStyle}"
+                    Tag="{StaticResource Icon.Dots}"
+                    Width="25"
+                    helpers:ButtonHelper.IconSize="13"
+                    x:Name="OptionsButton">
+                    <Button.ContextMenu>
+                        <ContextMenu Style="{StaticResource ContextMenuStyle}">
+                            <MenuItem
+                                Command="{Binding EditCommand}"
+                                CommandParameter="{Binding Character}"
+                                Header="{Binding Source={StaticResource Loc}, Path=[SkinCard.EditButton]}" />
+                            <Separator />
+                            <MenuItem
+                                Command="{Binding DeleteCommand}"
+                                CommandParameter="{Binding Character}"
+                                Header="{Binding Source={StaticResource Loc}, Path=[SkinCard.RemoveButton]}" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

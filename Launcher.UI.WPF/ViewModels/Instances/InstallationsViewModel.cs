@@ -12,6 +12,7 @@ using Launcher.Core.System.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
+using Launcher.UI.WPF.ViewModels.Common;
 using Launcher.UI.WPF.ViewModels.Settings;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
@@ -148,7 +149,7 @@ public partial class InstallationsViewModel : ObservableObject,
     private async Task DeleteInstance(MinecraftInstance instance)
     {
         if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
-        var confirmVm = new ConfirmVM(
+        var confirmVm = new ConfirmViewModel(
             string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceTitle"], instance.Name), 
             string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceMessage"], instance.Name),
             ConfirmButtons.Delete);
@@ -227,7 +228,7 @@ public partial class InstallationsViewModel : ObservableObject,
     {
         var instance = parameter as MinecraftInstance;
         if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
-        var InstanceSettingsVM = new InstanceSettingsVM(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        var InstanceSettingsVM = new EditInstanceView(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
         _overlayService.Show(InstanceSettingsVM);
         await InstanceSettingsVM.InitializeAsync();
     }
@@ -235,7 +236,7 @@ public partial class InstallationsViewModel : ObservableObject,
     [RelayCommand]
     private async Task OpenAddVersion()
     {
-        var InstanceVM = new InstanceCreationVM(_versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        var InstanceVM = new AddInstanceViewModel(_versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
         _overlayService.Show(InstanceVM);
         await InstanceVM.InitializeAsync();
     }

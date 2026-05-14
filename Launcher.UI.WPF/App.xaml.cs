@@ -18,6 +18,7 @@ using Launcher.UI.WPF.ViewModels.Accounts;
 using Launcher.UI.WPF.ViewModels.Game;
 using Launcher.UI.WPF.ViewModels.Instances;
 using Launcher.UI.WPF.ViewModels.Settings;
+using Launcher.UI.WPF.Views;
 
 namespace Launcher.UI.WPF;
 
@@ -72,9 +73,9 @@ public partial class App : Application
             services.AddTransient<PlayViewModel>();
             services.AddTransient<InstallationsViewModel>();
             services.AddTransient<SkinsViewModel>();
-            services.AddTransient<LoginVM>();
-            services.AddTransient<SettingsVM>();
-            services.AddTransient<MainViewModel>();
+            services.AddTransient<LoginViewModel>();
+            services.AddTransient<SettingsViewModel>();
+            services.AddTransient<MainWindowViewModel>();
             services.AddTransient<MainWindow>();
             
             Services = services.BuildServiceProvider();
@@ -84,7 +85,7 @@ public partial class App : Application
             LocalizationService.Instance = (LocalizationService)Services.GetRequiredService<ILocalizationService>();
             NotificationService.Instance = (NotificationService)Services.GetRequiredService<INotificationService>();
             
-            var mainViewModel = Services.GetRequiredService<MainViewModel>();
+            var mainViewModel = Services.GetRequiredService<MainWindowViewModel>();
             var mainWindow = Services.GetRequiredService<MainWindow>();
             
             await mainViewModel.InitializeAsync();

@@ -1,0 +1,131 @@
+<UserControl
+    Background="Transparent"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Views.Identity.Components.AccountCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid
+        Height="50"
+        Margin="0,5"
+        x:Name="AccountCardPanel">
+        <Border
+            Background="{DynamicResource OverlayButtonBackgroundBrush}"
+            BorderBrush="{DynamicResource OverlayBorderPrimaryBrush}"
+            BorderThickness="{DynamicResource DefaultBorderThickness}"
+            CornerRadius="{DynamicResource DefaultCorner}"
+            Padding="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border
+                    Background="{DynamicResource OverlayButtonBackgroundBrush}"
+                    CornerRadius="20"
+                    Grid.Column="0"
+                    Height="30"
+                    VerticalAlignment="Center"
+                    Width="30">
+                    <Path
+                        Data="{DynamicResource Icon.Account}"
+                        Height="13"
+                        Margin="10,0"
+                        Stretch="Uniform"
+                        Stroke="{DynamicResource ForegroundPrimaryBrush}"
+                        StrokeThickness="1"
+                        VerticalAlignment="Center"
+                        Width="13" />
+                </Border>
+                <StackPanel
+                    Grid.Column="1"
+                    Margin="10,2"
+                    Orientation="Vertical"
+                    VerticalAlignment="Center">
+                    <TextBlock
+                        FontSize="12"
+                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                        Text="{Binding Path=(helpers:AccountCardHelper.AccountName), RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        x:Name="AccountCardName" />
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                        Text="{Binding Path=(helpers:AccountCardHelper.AccountType), RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        x:Name="AccountCardType" />
+                </StackPanel>
+                <Button
+                    Command="{Binding Path=(helpers:AccountCardHelper.UseCommand), RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    CommandParameter="{Binding Path=(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    Content="{Binding Source={StaticResource Loc}, Path=[AccountCard.UseButton]}"
+                    FontSize="13"
+                    Grid.Column="2"
+                    Margin="5,0"
+                    MinWidth="60"
+                    helpers:ButtonHelper.BalanceText="True">
+                    <Button.Style>
+                        <Style BasedOn="{StaticResource AccentButtonStyle}" TargetType="Button">
+
+                            <Setter Property="Opacity" Value="0" />
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=AccountCardPanel}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Duration="0:0:0.2"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    To="1" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Duration="0:0:0.2"
+                                                    Storyboard.TargetProperty="Opacity"
+                                                    To="0" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="OpenContextMenu"
+                    Grid.Column="3"
+                    Style="{StaticResource OverlayDefaultButtonStyle}"
+                    Tag="{StaticResource Icon.Dots}"
+                    Width="25"
+                    helpers:AccountCardHelper.MenuContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    helpers:ButtonHelper.IconSize="12">
+
+                    <Button.ContextMenu>
+                        <ContextMenu Style="{StaticResource ContextMenuStyle}">
+
+                            <MenuItem
+                                Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.RenameAccountCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                CommandParameter="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                Header="{Binding Source={StaticResource Loc}, Path=[AccountCard.ContextMenu.Rename]}" />
+
+                            <MenuItem
+                                Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.LogOutCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                CommandParameter="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                Header="{Binding Source={StaticResource Loc}, Path=[AccountCard.ContextMenu.Logout]}" />
+
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
