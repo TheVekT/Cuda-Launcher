@@ -1,189 +1,79 @@
 using System.IO;
-using System.IO.Compression;
-using System.Reflection;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Windows;
 using System.Windows.Markup;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Config.Abstractions;
+using Launcher.Infrastructure.Themes.Abstractions;
+using Launcher.Infrastructure.Themes.Models;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Services;
 
 public class ThemeService
 {
-    private readonly string _themesRoot;  
-    private readonly string _cacheRoot;   
-    private readonly ILauncherPathsService _pathsService;
-    private List<ThemeModel> _availableThemes = new ();
-    private ThemeModel _currentTheme;
-    
-    public ThemeModel CurrentTheme => _currentTheme;
-    
-    private readonly string[] _defaultThemeFiles = { "default-dark.zip", "default-light.zip" };
+    private const string DefaultThemeFileName = "default-dark.zip";
 
-    public ThemeService(ILauncherPathsService pathsService)
-    {
-        _pathsService = pathsService;
-        // Настраиваем пути
-        _themesRoot = Path.Combine(_pathsService.AssetsDirectory, "Themes");
-        _cacheRoot = Path.Combine(_pathsService.CacheDirectory, "Themes");
+    private readonly IThemeProvider _themeProvider;
+    private List<ThemeModel> _availableThemes = new();
+    private ThemeModel? _currentTheme;
+    private ResourceDictionary? _currentThemeDictionary;
+    private ResourceDictionary? _fallbackThemeDictionary;
 
-        Directory.CreateDirectory(_themesRoot);
-        Directory.CreateDirectory(_cacheRoot);
-    }
-    
-    public ThemeModel GetThemeByFileName(string fileName)
+    public ThemeModel? CurrentTheme => _currentTheme;
+
+    public ThemeService(IThemeProvider themeProvider)
     {
-        return _availableThemes.FirstOrDefault(t => t.ZipPath.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+        _themeProvider = themeProvider;
+        EnsureFallbackThemeLoaded();
     }
-    
+
+    public ThemeModel? GetThemeByFileName(string fileName)
+    {
+        return _themeProvider.GetThemeByFileName(fileName) 
+               ?? _availableThemes.FirstOrDefault(t => t.ZipPath.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task ImportTheme(string themeFilePath)
     {
         if (string.IsNullOrEmpty(themeFilePath) || !File.Exists(themeFilePath)) return;
 
-        var destPath = Path.Combine(_themesRoot, Path.GetFileName(themeFilePath));
-        File.Copy(themeFilePath, destPath, true);
+        await _themeProvider.ImportThemeAsync(themeFilePath);
         WeakReferenceMessenger.Default.Send(new ThemeImportedMessage());
     }
-    
+
     public List<ThemeModel> ReloadThemes()
     {
-        var list = new List<ThemeModel>();
-        if (!Directory.Exists(_themesRoot)) return list;
-        try 
-        {
-            if (Directory.Exists(_cacheRoot)) 
-            {
-                Directory.Delete(_cacheRoot, true);
-                Directory.CreateDirectory(_cacheRoot);
-            }
-        }
-        catch { }
-
-        var zipFiles = Directory.GetFiles(_themesRoot, "*.zip");
-
-        foreach (var zipPath in zipFiles)
-        {
-            try
-            {
-                var model = ExtractAndProcessTheme(zipPath);
-                if (model != null) list.Add(model);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error loading theme {zipPath}: {ex.Message}");
-            }
-        }
-        
-        var res = list.OrderBy(t => 
-            {
-                var fName = Path.GetFileName(t.ZipPath);
-                int index = Array.IndexOf(_defaultThemeFiles, fName);
-                return index >= 0 ? index : int.MaxValue;
-            })
-            .ThenBy(t => t.Name)
-            .ToList();
-        _availableThemes = res;
-        return res;
+        _availableThemes = _themeProvider.GetAllThemes();
+        return _availableThemes;
     }
-    
-    private ThemeModel ExtractAndProcessTheme(string zipPath)
-    {
-        var folderName = Path.GetFileNameWithoutExtension(zipPath);
-        var themeCacheDir = Path.Combine(_cacheRoot, folderName);
-        Directory.CreateDirectory(themeCacheDir);
-        
-        ZipFile.ExtractToDirectory(zipPath, themeCacheDir, true);
 
-        var themeXamlPath = Path.Combine(themeCacheDir, "Theme.xaml");
-        if (!File.Exists(themeXamlPath)) return null;
-        
-        string xamlContent = File.ReadAllText(themeXamlPath);
-        
-        var baseUri = new Uri(themeCacheDir + Path.DirectorySeparatorChar).AbsoluteUri;
-        
-        xamlContent = Regex.Replace(xamlContent, @"([\""']?)[\\/]?Fonts[\\/]", $"$1{baseUri}Fonts/", RegexOptions.IgnoreCase);
-        
-        xamlContent = Regex.Replace(xamlContent, @"([\""']?)[\\/]?Images[\\/]", $"$1{baseUri}Images/", RegexOptions.IgnoreCase);
-        
-        xamlContent = PatchXamlNamespace(xamlContent);
-        
-        File.WriteAllText(themeXamlPath, xamlContent);
-        
-        var nameMatch = Regex.Match(xamlContent, @"Name=""([^""]*)""");
-        var authorMatch = Regex.Match(xamlContent, @"Author=""([^""]*)""");
-
-        var model = new ThemeModel
-        {
-            ZipPath = Path.GetFileName(zipPath), 
-            XamlPath = themeXamlPath,
-            Name = nameMatch.Success ? nameMatch.Groups[1].Value : folderName,
-            Author = authorMatch.Success ? authorMatch.Groups[1].Value : "Unknown",
-            BannerPath = null 
-        };
-        
-
-        var possibleDirs = new[] { themeCacheDir, Path.Combine(themeCacheDir, "Banner") };
-        
-        foreach (var dir in possibleDirs)
-        {
-            if (Directory.Exists(dir))
-            {
-                var file = Directory.GetFiles(dir)
-                    .FirstOrDefault(f => f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                                         f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase));
-                
-                if (file != null)
-                {
-                    model.BannerPath = file;
-                    break;
-                }
-            }
-        }
-
-        return model;
-    }
-    
     public void ChangeTheme(string themeFileName)
     {
         if (string.IsNullOrEmpty(themeFileName)) return;
-        
-        string zipPath = Path.Combine(_themesRoot, themeFileName);
 
-        if (!File.Exists(zipPath)) return;
+        var theme = GetThemeByFileName(themeFileName);
+        if (theme == null || !File.Exists(theme.XamlPath))
+        {
+            theme = _themeProvider.ExtractAndProcessTheme(themeFileName);
+        }
+
+        if (theme == null || !File.Exists(theme.XamlPath)) return;
 
         try
         {
-            var folderName = Path.GetFileNameWithoutExtension(zipPath);
-            var themeCacheDir = Path.Combine(_cacheRoot, folderName);
-            var themeXamlPath = Path.Combine(themeCacheDir, "Theme.xaml");
+            string xamlContent = File.ReadAllText(theme.XamlPath);
 
-            // Если кэша нет - распаковываем
-            if (!File.Exists(themeXamlPath))
-            {
-                ExtractAndProcessTheme(zipPath);
-            }
-
-            if (!File.Exists(themeXamlPath)) return;
-            
-            string xamlContent = File.ReadAllText(themeXamlPath);
-            xamlContent = PatchXamlNamespace(xamlContent);
-
-            using (var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(xamlContent)))
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(xamlContent)))
             {
                 var parserContext = new ParserContext();
                 parserContext.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
                 parserContext.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");
-                
-                string assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-                parserContext.XmlnsDictionary.Add("metadata", $"clr-namespace:Launcher.UI.WPF.Models;assembly={assemblyName}");
 
                 var newDict = (ResourceDictionary)XamlReader.Load(stream, parserContext);
                 ReplaceApplicationResources(newDict);
             }
-            _currentTheme = GetThemeByFileName(themeFileName);
+
+            _currentTheme = theme;
             WeakReferenceMessenger.Default.Send(new ThemeChangedMessage(themeFileName));
         }
         catch (Exception ex)
@@ -191,31 +81,62 @@ public class ThemeService
             MessageBox.Show($"Failed to apply theme: {ex.Message}");
         }
     }
-    
-    private string PatchXamlNamespace(string xamlContent)
-    {
-        string assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-        string oldNs = "clr-namespace:Launcher.UI.WPF.Models";
-        string newNs = $"clr-namespace:Launcher.UI.WPF.Models;assembly={assemblyName}";
 
-        if (xamlContent.Contains(oldNs) && !xamlContent.Contains(oldNs + ";assembly="))
+    private void EnsureFallbackThemeLoaded()
+    {
+        if (_fallbackThemeDictionary != null) return;
+
+        try
         {
-            return xamlContent.Replace(oldNs, newNs);
+            var defaultTheme = _themeProvider.GetThemeByFileName(DefaultThemeFileName) 
+                               ?? _themeProvider.ExtractAndProcessTheme(DefaultThemeFileName);
+
+            if (defaultTheme != null && File.Exists(defaultTheme.XamlPath))
+            {
+                string xamlContent = File.ReadAllText(defaultTheme.XamlPath);
+                using var stream = new MemoryStream(Encoding.UTF8.GetBytes(xamlContent));
+                var parserContext = new ParserContext();
+                parserContext.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
+                parserContext.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");
+
+                _fallbackThemeDictionary = (ResourceDictionary)XamlReader.Load(stream, parserContext);
+            }
         }
-        return xamlContent;
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to load fallback theme: {ex.Message}");
+        }
     }
 
     private void ReplaceApplicationResources(ResourceDictionary newDict)
     {
+        EnsureFallbackThemeLoaded();
+
         var dicts = Application.Current.Resources.MergedDictionaries;
-        var oldTheme = dicts.FirstOrDefault(d => d.Contains("ThemeInfo"));
-        var oldBrushes = dicts.FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Brushes.xaml"));
-        
-        if (oldTheme != null)
-            dicts[dicts.IndexOf(oldTheme)] = newDict;
-        else
-            dicts.Add(newDict);
+
+                var oldBrushes = dicts.FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Brushes.xaml"));
         if (oldBrushes != null)
-            dicts[dicts.IndexOf(oldBrushes)] = new ResourceDictionary { Source = new Uri("Resources/Styles/Brushes.xaml", UriKind.Relative) };
+        {
+            dicts.Remove(oldBrushes);
+        }
+
+                if (_fallbackThemeDictionary != null && !dicts.Contains(_fallbackThemeDictionary))
+        {
+            dicts.Add(_fallbackThemeDictionary);
+        }
+
+                if (_currentThemeDictionary != null && dicts.Contains(_currentThemeDictionary))
+        {
+            var index = dicts.IndexOf(_currentThemeDictionary);
+            dicts[index] = newDict;
+        }
+        else
+        {
+            dicts.Add(newDict);
+        }
+
+        _currentThemeDictionary = newDict;
+
+                dicts.Add(new ResourceDictionary { Source = new Uri("Resources/Styles/Brushes.xaml", UriKind.Relative) });
     }
 }

@@ -45,7 +45,7 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
         _themeService = themeService;
         _pathsService = pathsService;
         
-        ThemeBannerPath = themeService.CurrentTheme.BannerPath;
+        ThemeBannerPath = themeService.CurrentTheme?.BannerPath ?? string.Empty;
         
         WeakReferenceMessenger.Default.RegisterAll(this);
     }
@@ -53,7 +53,7 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     public void Receive(ThemeChangedMessage message)
     {
         var theme = _themeService.GetThemeByFileName(message.ThemeFileName);
-        ThemeBannerPath = theme.BannerPath;
+        ThemeBannerPath = theme?.BannerPath ?? string.Empty;
     }
 
     //Getters and Setters

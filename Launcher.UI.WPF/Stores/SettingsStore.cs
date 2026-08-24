@@ -5,9 +5,9 @@ using Launcher.Core.Config.Abstractions;
 using Launcher.Core.Config.Models;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.System.Abstractions;
+using Launcher.Infrastructure.Themes.Models;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.Stores;

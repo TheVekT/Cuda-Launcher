@@ -474,6 +474,8 @@
                                         <components:ThemePreviewCard
                                             CurrentThemePathVM="{Binding DataContext.SettingsStore.CurrentThemePath, ElementName=SettingsRoot}"
                                             Margin="0,0,15,0"
+                                            ThemeAuthor="{Binding Author}"
+                                            ThemeName="{Binding Name}"
                                             ThemeXamlPath="{Binding XamlPath}"
                                             ZipPathSource="{Binding ZipPath}">
 

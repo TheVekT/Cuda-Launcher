@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Launcher.Infrastructure.Themes.Models;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 
