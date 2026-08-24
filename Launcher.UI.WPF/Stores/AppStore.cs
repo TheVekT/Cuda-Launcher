@@ -28,6 +28,17 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     private object _currentView;
     [ObservableProperty]
     private bool _showCompactPlayButton;
+    [ObservableProperty]
+    private double _downloadProgress;
+    [ObservableProperty]
+    private string _downloadStatusText = "Initiating...";
+    [ObservableProperty]
+    private string _downloadPercentText = "0%";
+
+    partial void OnDownloadProgressChanged(double value)
+    {
+        DownloadPercentText = $"{value:0}%";
+    }
 
     public AppStore(ThemeService themeService, ILauncherPathsService pathsService)
     {

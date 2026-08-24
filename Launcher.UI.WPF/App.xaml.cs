@@ -14,6 +14,7 @@ using Launcher.UI.WPF.Stores;
 using Launcher.Core.System;
 using Launcher.Core.System.Abstractions;
 using Launcher.Core.UI.Abstractions;
+using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.ViewModels.Accounts;
 using Launcher.UI.WPF.ViewModels.Game;
 using Launcher.UI.WPF.ViewModels.Instances;
@@ -28,6 +29,25 @@ public partial class App : Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        AppDomain.CurrentDomain.UnhandledException += (s, ex) =>
+        {
+            Console.WriteLine($"=== UNHANDLED EXCEPTION ===");
+            Console.WriteLine($"Exception Type: {ex.ExceptionObject?.GetType().FullName}");
+            Console.WriteLine($"Message: {ex.ExceptionObject}");
+            Console.WriteLine($"Stack Trace: {((Exception)ex.ExceptionObject)?.StackTrace}");
+        };
+    
+        this.DispatcherUnhandledException += (s, ex) =>
+        {
+            Console.WriteLine($"=== DISPATCHER EXCEPTION ===");
+            Console.WriteLine($"Exception: {ex.Exception.Message}");
+            Console.WriteLine($"Stack Trace:\n{ex.Exception.StackTrace}");
+            if (ex.Exception.InnerException != null)
+            {
+                Console.WriteLine($"Inner Exception: {ex.Exception.InnerException.Message}");
+            }
+            ex.Handled = true;
+        };
         base.OnStartup(e);
 
         try
@@ -83,7 +103,6 @@ public partial class App : Application
             Services.GetRequiredService<IAssetExtractionService>().EnsureAllBaseAssetsExist();
             
             LocalizationService.Instance = (LocalizationService)Services.GetRequiredService<ILocalizationService>();
-            NotificationService.Instance = (NotificationService)Services.GetRequiredService<INotificationService>();
             
             var mainViewModel = Services.GetRequiredService<MainWindowViewModel>();
             var mainWindow = Services.GetRequiredService<MainWindow>();

@@ -2,7 +2,6 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Common.Messaging;
 using Launcher.Core.Integrations.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
@@ -10,9 +9,7 @@ using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Game;
 
-public partial class PlayViewModel: ObservableObject,
-    IRecipient<GameLaunchProgressMessage>,
-    IRecipient<GameLaunchStateMessage>
+public partial class PlayViewModel: ObservableObject
 {
     //Services
     private readonly IDiscordService _discordService;
@@ -22,18 +19,7 @@ public partial class PlayViewModel: ObservableObject,
     private readonly InstancesStore _instancesStore;
     private readonly AppStore _appStore;
     
-
-    private double _downloadProgress;
-    [ObservableProperty]
-    private string _downloadStatusText = "Initiating...";
-    [ObservableProperty]
-    private string _downloadPercentText = "0%";
-    [ObservableProperty]
-    private object _currentPlayButtonIcon;
-    public DynamicTranslation CurrentPlayButtonText { get; } = new DynamicTranslation("Play.PlayButton");
-    
     public AppStore AppStore => _appStore;
-    
 
     public PlayViewModel(IDiscordService discordService, SettingsStore settingsStore, InstancesStore instancesStore, AppStore appStore)
     {
@@ -44,15 +30,20 @@ public partial class PlayViewModel: ObservableObject,
         _appStore = appStore;
         
         _settingsStore.PropertyChanged += OnSettingsStorePropertyChanged;
-        
-        
-        ChangeToPlayIcon("Icon.Play");
-        WeakReferenceMessenger.Default.RegisterAll(this);
+        _appStore.PropertyChanged += OnAppStorePropertyChanged;
     }
     
     private void OnSettingsStorePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(SettingsStore.IsEnableDiscordRichPresence))
+        {
+            UpdateDiscordPresence();
+        }
+    }
+
+    private void OnAppStorePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AppStore.IsGameRunning))
         {
             UpdateDiscordPresence();
         }
@@ -68,53 +59,6 @@ public partial class PlayViewModel: ObservableObject,
         else
         {
             _discordService.ClearPresence();
-        }
-    }
-    
-    private void ChangeToPlayIcon(string iconName)
-    {
-        CurrentPlayButtonIcon = iconName;
-    }
-
-    public void Receive(GameLaunchProgressMessage message)
-    {
-        _appStore.IsDownloading = true;
-        DownloadStatusText = message.Status;
-        DownloadProgress = message.Percent;
-    }
-
-    public void Receive(GameLaunchStateMessage message)
-    {
-        if (message.IsRunning) {
-            _appStore.IsGameRunning = true;
-            UpdateDiscordPresence();
-            _appStore.IsDownloading = false;
-            CurrentPlayButtonText.Update("Play.PlayButton.Close"); 
-            ChangeToPlayIcon("Icon.Close");
-        }
-        else
-        {
-            _appStore.IsDownloading = false;
-            _appStore.IsGameRunning = false;
-            CurrentPlayButtonText.Update("Play.PlayButton");
-            UpdateDiscordPresence();
-            ChangeToPlayIcon("Icon.Play");
-        }
-    }
-
-    //Getters and Setters
-    
-    public double DownloadProgress
-    {
-        get => _downloadProgress;
-        set
-        {
-            if (Math.Abs(_downloadProgress - value) > 0.01)
-            {
-                _downloadProgress = value;
-                OnPropertyChanged(nameof(DownloadProgress));
-                DownloadPercentText = $"{value:0}%"; 
-            }
         }
     }
     

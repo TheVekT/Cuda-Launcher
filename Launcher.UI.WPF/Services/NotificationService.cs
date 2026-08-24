@@ -11,8 +11,6 @@ public class NotificationService : INotificationService
     
     public ObservableCollection<NotificationMessage> Notifications { get; } = new();
     
-    public static NotificationService Instance  { get; internal set; }
-    
     public NotificationService(IDispatcherService dispatcherService)
     {
         _dispatcherService = dispatcherService;
@@ -33,8 +31,7 @@ public class NotificationService : INotificationService
             Notifications.Add(notification);
         });
     }
-
-    // Синтаксический сахар для быстрого вызова из любого места кода
+    
     public void ShowSuccess(string title, string message, double durationSeconds = 5) => 
         Show(title, message, NotificationType.Success, durationSeconds);
 

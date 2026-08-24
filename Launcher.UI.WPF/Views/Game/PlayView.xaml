@@ -56,7 +56,7 @@
                             <TextBlock
                                 FontSize="11"
                                 Foreground="{DynamicResource ForegroundOnAccentBrush}"
-                                Text="{Binding DownloadStatusText}"
+                                Text="{Binding AppStore.DownloadStatusText}"
                                 TextTrimming="CharacterEllipsis"
                                 x:Name="StatusText" />
 
@@ -66,7 +66,7 @@
                                 Foreground="{DynamicResource ForegroundOnAccentBrush}"
                                 Grid.Column="1"
                                 Margin="10,0,0,0"
-                                Text="{Binding DownloadPercentText}"
+                                Text="{Binding AppStore.DownloadPercentText}"
                                 x:Name="PercentText" />
                         </Grid>
 
@@ -78,7 +78,7 @@
                             Height="4"
                             Margin="6,0"
                             Maximum="100"
-                            Value="{Binding DownloadProgress}"
+                            Value="{Binding AppStore.DownloadProgress}"
                             x:Name="InstallProgressBar" />
 
                     </Grid>
@@ -88,13 +88,11 @@
                     BorderBrush="{DynamicResource PlayButtonBorderBrush}"
                     BorderThickness="{DynamicResource PlayButtonBorderThickness}"
                     Command="{Binding LaunchCommand}"
-                    Content="{Binding CurrentPlayButtonText.Value}"
                     FontSize="18"
                     Foreground="{DynamicResource PlayButtonForegroundBrush}"
                     Height="50"
                     HorizontalAlignment="Center"
                     Style="{StaticResource AccentButtonStyle}"
-                    Tag="{Binding CurrentPlayButtonIcon, Converter={StaticResource StringToResourceConverter}}"
                     Width="200"
                     helpers:ButtonHelper.BalanceText="True"
                     helpers:ButtonHelper.CornerRadius="{DynamicResource PlayButtonCorner}"

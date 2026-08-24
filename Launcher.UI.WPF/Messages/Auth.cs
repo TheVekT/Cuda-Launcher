@@ -1,5 +1,5 @@
 using Launcher.Core.Identity.Models;
 
-namespace Launcher.Core.Common.Messaging;
+namespace Launcher.UI.WPF.Messages;
 
 public record MicrosoftLoggedMessage(UserAccount User);

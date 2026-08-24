@@ -7,6 +7,7 @@ using Launcher.Core.Config.Abstractions;
 using Launcher.Core.Config.Models;
 using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Services;
 

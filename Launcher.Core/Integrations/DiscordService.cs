@@ -31,7 +31,7 @@ public class DiscordService : IDiscordService, IDisposable
             Assets = new DiscordRPC.Assets()
             {
                 LargeImageKey = "logo",
-                LargeImageText = "MineLauncher"
+                LargeImageText = "Cuda Launcher"
             },
             Timestamps = Timestamps.Now
         });
@@ -44,11 +44,11 @@ public class DiscordService : IDiscordService, IDisposable
         _client.SetPresence(new RichPresence()
         {
             Details = $"Playing: {instance.Name}",
-            State = $"Version: {instance.GameVersion}  |  {instance.LoaderType}",
+            State = $"{instance.LoaderType} {instance.GameVersion}",
             Assets = new DiscordRPC.Assets()
             {
                 LargeImageKey = "logo", 
-                LargeImageText = "MineLauncher",
+                LargeImageText = "Cuda Launcher",
                 SmallImageKey = "playing",
                 SmallImageText = "In Game"
             },

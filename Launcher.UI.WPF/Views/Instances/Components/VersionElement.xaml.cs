@@ -23,7 +23,7 @@ public partial class VersionElement : UserControl
         _sharedTimer.Start();
     }
 
-    private static void SharedTimer_Tick(object? sender, EventArgs e)
+    public static void RefreshAllLastPlayed()
     {
         foreach (var element in _activeElements.ToList())
         {
@@ -31,11 +31,16 @@ public partial class VersionElement : UserControl
         }
     }
 
+    private static void SharedTimer_Tick(object? sender, EventArgs e)
+    {
+        RefreshAllLastPlayed();
+    }
+
     public VersionElement()
     {
         InitializeComponent();
-        this.Loaded += OnLoaded;
-        this.Unloaded += OnUnloaded;
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -51,7 +56,7 @@ public partial class VersionElement : UserControl
 
     private void UpdateLastPlayedBinding()
     {
-        BindingExpression binding = this.GetBindingExpression(VersionElementHelper.LastPlayedProperty);
+        BindingExpression binding = GetBindingExpression(VersionElementHelper.LastPlayedProperty);
         binding?.UpdateTarget();
     }
 }

@@ -1,8 +1,11 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels;
 
 namespace Launcher.UI.WPF.Views;
@@ -12,9 +15,15 @@ namespace Launcher.UI.WPF.Views;
 /// </summary>
 public partial class MainWindow : Window
 {
+    private AppStore? _appStore;
+    
     public MainWindow()
     {
         InitializeComponent();
+        
+        DataContextChanged += MainWindow_DataContextChanged;
+        Loaded += MainWindow_Loaded;
+        Unloaded += MainWindow_Unloaded;
         
         WeakReferenceMessenger.Default.Register<OverlayBlinkMessage>(this, (r, m) =>
         {
@@ -84,5 +93,79 @@ public partial class MainWindow : Window
                 vm.DropCommand.Execute(files);
         }
         e.Handled = true;
+    }
+    
+    private void MainWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (_appStore != null)
+        {
+            _appStore.PropertyChanged -= OnAppStorePropertyChanged;
+        }
+
+        if (DataContext is MainWindowViewModel vm)
+        {
+            _appStore = vm.AppStore;
+            if (_appStore != null)
+            {
+                _appStore.PropertyChanged += OnAppStorePropertyChanged;
+            }
+        }
+        else
+        {
+            _appStore = null;
+        }
+
+        UpdatePlayButtonState();
+    }
+
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (LocalizationService.Instance != null)
+        {
+            LocalizationService.Instance.PropertyChanged += OnLocalizationChanged;
+        }
+        UpdatePlayButtonState();
+    }
+
+    private void MainWindow_Unloaded(object sender, RoutedEventArgs e)
+    {
+        if (LocalizationService.Instance != null)
+        {
+            LocalizationService.Instance.PropertyChanged -= OnLocalizationChanged;
+        }
+        if (_appStore != null)
+        {
+            _appStore.PropertyChanged -= OnAppStorePropertyChanged;
+        }
+    }
+
+    private void OnAppStorePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AppStore.IsGameRunning))
+        {
+            Dispatcher.Invoke(UpdatePlayButtonState);
+        }
+    }
+
+    private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == "Item[]")
+        {
+            Dispatcher.Invoke(UpdatePlayButtonState);
+        }
+    }
+
+    private void UpdatePlayButtonState()
+    {
+        bool isRunning = _appStore?.IsGameRunning ?? false;
+
+        if (PlayButtonCompact != null)
+        {
+            if (LocalizationService.Instance != null)
+            {
+                PlayButtonCompact.Content = LocalizationService.Instance[isRunning ? "Play.PlayButton.Close" : "Play.PlayButton"];
+            }
+            PlayButtonCompact.Tag = Application.Current.TryFindResource(isRunning ? "Icon.Close" : "Icon.Play");
+        }
     }
 }

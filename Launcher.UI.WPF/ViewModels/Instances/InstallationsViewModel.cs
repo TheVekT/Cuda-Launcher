@@ -1,24 +1,23 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Assets.Abstractions;
 using Launcher.Core.Common.Enums;
-using Launcher.Core.Common.Messaging;
 using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Instances.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.System.Abstractions;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels.Common;
-using Launcher.UI.WPF.ViewModels.Settings;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
 
 public partial class InstallationsViewModel : ObservableObject,
-    IRecipient<GameLaunchStateMessage>,
     IRecipient<InstanceCreatedMessage>,
     IRecipient<InstanceUpdatedMessage>
 {
@@ -67,6 +66,7 @@ public partial class InstallationsViewModel : ObservableObject,
         _settingsStore = settingsStore;
         _appStore = appStore;
         
+        _appStore.PropertyChanged += OnAppStorePropertyChanged;
         WeakReferenceMessenger.Default.RegisterAll(this);
     }
     
@@ -166,9 +166,9 @@ public partial class InstallationsViewModel : ObservableObject,
     }
     
 
-    public void Receive(GameLaunchStateMessage message)
+    private void OnAppStorePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (message.IsRunning)
+        if (e.PropertyName == nameof(AppStore.IsGameRunning) && _appStore.IsGameRunning)
         {
             _instancesStore.ApplySort();
             _instanceService.SaveInstances(_instancesStore.Instances);

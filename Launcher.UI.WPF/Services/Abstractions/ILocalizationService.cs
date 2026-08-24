@@ -1,6 +1,6 @@
 using Launcher.Core.Config.Models;
 
-namespace Launcher.Core.UI.Abstractions;
+namespace Launcher.UI.WPF.Services.Abstractions;
 
 public interface ILocalizationService
 {

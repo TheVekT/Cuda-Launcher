@@ -3,10 +3,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Common.Enums;
-using Launcher.Core.Common.Messaging;
+using Launcher.Core.Common.Messages;
 using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.Integrations.Abstractions;
+using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
@@ -19,8 +20,6 @@ using Launcher.UI.WPF.ViewModels.Settings;
 namespace Launcher.UI.WPF.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject,
-    IRecipient<GameLaunchStateMessage>,
-    IRecipient<GameLaunchProgressMessage>,
     IRecipient<LaunchGameRequestMessage>,
     IRecipient<CloseOverlayMessage>
 {
@@ -32,6 +31,7 @@ public partial class MainWindowViewModel : ObservableObject,
     private readonly IOverlayService _overlayService;
     private readonly NavigationService _navigationService;
     private readonly IDispatcherService _dispatcherService;
+    private readonly INotificationService _notificationService;
 
     //Stores
     private readonly LoginStore _loginStore;
@@ -64,6 +64,8 @@ public partial class MainWindowViewModel : ObservableObject,
     private bool _isEnabledInstancesComboBox = true;
     //public attributes
     public AppStore AppStore => _appStore;
+    
+    public INotificationService NotificationService => _notificationService;
 
     public async Task InitializeAsync()
     {
@@ -81,6 +83,7 @@ public partial class MainWindowViewModel : ObservableObject,
         IOverlayService overlayService,
         NavigationService navigationService,
         IDispatcherService dispatcherService,
+        INotificationService notificationService,
         LoginStore loginStore,
         SettingsStore settingsStore,
         InstancesStore instancesStore,
@@ -99,6 +102,7 @@ public partial class MainWindowViewModel : ObservableObject,
         _overlayService = overlayService;
         _navigationService = navigationService;
         _dispatcherService = dispatcherService;
+        _notificationService = notificationService;
 
         //Stores
         _loginStore = loginStore;
@@ -172,6 +176,7 @@ public partial class MainWindowViewModel : ObservableObject,
         {
             Console.WriteLine("Launching game...");
             IsEnabledInstancesComboBox = false;
+            _appStore.IsDownloading = true;
         
             var globalSettings = new GlobalLaunchSettings
             {
@@ -180,14 +185,57 @@ public partial class MainWindowViewModel : ObservableObject,
                 Resolution = _settingsStore.IsGameFullScreen ? "Auto" : _settingsStore.SelectedResolution
             };
 
-            _currentGameProcess = await _launchService.LaunchGameAsync(_instancesStore.SelectedInstance,
-                _loginStore.CurrentAccount, globalSettings);
+            var progress = new Progress<GameLaunchProgressMessage>(p =>
+            {
+                _appStore.DownloadProgress = p.Percent;
+                _appStore.DownloadStatusText = p.Status;
+            });
 
-            await _currentGameProcess.WaitForExitAsync();
+            var result = await _launchService.LaunchGameAsync(_instancesStore.SelectedInstance,
+                _loginStore.CurrentAccount, globalSettings, progress);
+
+            if (result.IsSuccess)
+            {
+                _currentGameProcess = result.Value;
+                _appStore.IsGameRunning = true;
+                _appStore.IsDownloading = false;
+
+                Console.WriteLine("Game started!");
+                if (!_settingsStore.IsKeepLauncherOpen)
+                    WeakReferenceMessenger.Default.Send(new LauncherVisibilityMessage(false));
+
+                await _currentGameProcess.WaitForExitAsync();
+            }
+            else
+            {
+                _appStore.IsDownloading = false;
+                IsEnabledInstancesComboBox = true;
+                
+                var errorMessage = string.Join(Environment.NewLine, result.Errors.Select(x => x.Message));
+                _notificationService.ShowError(
+                    LocalizationService.Instance["Errors.LaunchFailedTitle"] ?? "Launch Error", 
+                    errorMessage);
+            }
         }
         catch (Exception ex)
         {
             Debug.WriteLine(ex);
+            _appStore.IsDownloading = false;
+            IsEnabledInstancesComboBox = true;
+            _notificationService.ShowError(
+                LocalizationService.Instance["Errors.LaunchFailedTitle"] ?? "Launch Error", 
+                ex.Message);
+        }
+        finally
+        {
+            _dispatcherService.Invoke(() =>
+            {
+                _appStore.IsGameRunning = false;
+                _appStore.IsDownloading = false;
+                _currentGameProcess = null;
+                IsEnabledInstancesComboBox = true;
+                WeakReferenceMessenger.Default.Send(new LauncherVisibilityMessage(true));
+            });
         }
     }
 
@@ -242,14 +290,14 @@ public partial class MainWindowViewModel : ObservableObject,
                 {
                     var title = LocalizationService.Instance["Success.SuccessImport"];
                     var desc = String.Format(LocalizationService.Instance["Success.SuccessImportDesc"], successCount, files.Length);
-                    NotificationService.Instance.ShowSuccess(title, desc);
+                    _notificationService.ShowSuccess(title, desc);
                 }
             }
             catch (OperationCanceledException)
             {
                 var title = LocalizationService.Instance["Info.ImportCanceledTitle"];
                 var desc = LocalizationService.Instance["Info.ImportCanceledDesc"];
-                NotificationService.Instance.ShowInfo(title, desc);
+                _notificationService.ShowInfo(title, desc);
             }
             finally
             {
@@ -258,29 +306,7 @@ public partial class MainWindowViewModel : ObservableObject,
         }
     }
 
-    public void Receive(GameLaunchProgressMessage message)
-    {
-        // nothing there :D
-    }
 
-    public void Receive(GameLaunchStateMessage message)
-    {
-        _dispatcherService.Invoke(() =>
-        {
-            if (message.IsRunning)
-            {
-                Console.WriteLine("Game started!");
-                if (!_settingsStore.IsKeepLauncherOpen)
-                    WeakReferenceMessenger.Default.Send(new LauncherVisibilityMessage(false));
-            }
-            else 
-            {
-                IsEnabledInstancesComboBox = true;
-                _currentGameProcess = null;
-                WeakReferenceMessenger.Default.Send(new LauncherVisibilityMessage(true));
-            }
-        });
-    }
     
     public void Receive(LaunchGameRequestMessage message)
     {

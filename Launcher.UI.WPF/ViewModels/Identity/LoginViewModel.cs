@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Common.Messaging;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.Identity.Models;
+using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
@@ -15,6 +15,7 @@ public partial class LoginViewModel: ObservableObject
     private readonly IAuthService _authService;
     private readonly IAccountStorageService _accountStorage;
     private readonly IOverlayService _overlayService;
+    private readonly INotificationService _notificationService;
     //Stores
     private readonly LoginStore _loginStore;
     //Attributes
@@ -30,11 +31,13 @@ public partial class LoginViewModel: ObservableObject
     public LoginViewModel(IAuthService authService, 
         IAccountStorageService accountStorage,
         IOverlayService overlayService,
+        INotificationService notificationService,
         LoginStore loginStore)
     { 
         _authService = authService; 
         _accountStorage = accountStorage;
         _overlayService = overlayService;
+        _notificationService = notificationService;
         _loginStore = loginStore;
             
         AccountCount = _loginStore.Accounts.Count;
@@ -109,7 +112,7 @@ public partial class LoginViewModel: ObservableObject
             _loginStore.RegisterLogin(newAccount);
             var title = LocalizationService.Instance["Success.LoginMicrosoftTitle"];
             var desc = LocalizationService.Instance["Success.LoginMicrosoftDesc"];
-            NotificationService.Instance.ShowSuccess(title, desc);
+            _notificationService.ShowSuccess(title, desc);
             _overlayService.SetClosable(true);
             WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
             WeakReferenceMessenger.Default.Send(new MicrosoftLoggedMessage(newAccount));
@@ -118,7 +121,7 @@ public partial class LoginViewModel: ObservableObject
         { 
             var title = LocalizationService.Instance["Errors.LoginMicrosoftTitle"];
             var desc = LocalizationService.Instance["Errors.LoginMicrosoftDesc"];
-            NotificationService.Instance.ShowError(title, desc);
+            _notificationService.ShowError(title, desc);
             Console.WriteLine(ex.Message); 
         }
         finally 

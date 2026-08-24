@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Common.Messaging;
 using Launcher.Core.Config.Abstractions;
 using Launcher.Core.Config.Models;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.Identity.Models;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 
 namespace Launcher.UI.WPF.Stores;

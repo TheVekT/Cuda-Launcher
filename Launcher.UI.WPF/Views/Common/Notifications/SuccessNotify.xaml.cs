@@ -1,7 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
+using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Common.Models;
-using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Messages;
 
 namespace Launcher.UI.WPF.Views.Common.Notifications
 {
@@ -16,15 +17,14 @@ namespace Launcher.UI.WPF.Views.Common.Notifications
         {
             if (DataContext is NotificationMessage message)
             {
-                NotificationService.Instance?.Remove(message.Id);
+                WeakReferenceMessenger.Default.Send(new CloseNotificationMessage(message.Id));
             }
         }
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is NotificationMessage message)
             {
-                // Мгновенно удаляем уведомление при клике на крестик
-                NotificationService.Instance?.Remove(message.Id);
+                WeakReferenceMessenger.Default.Send(new CloseNotificationMessage(message.Id));
             }
         }
     }

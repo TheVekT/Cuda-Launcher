@@ -299,7 +299,6 @@
                                             HorizontalAlignment="Center"
                                             Margin="6,0,0,0"
                                             Style="{StaticResource AccentButtonStyle}"
-                                            Tag="{Binding PlayVM.CurrentPlayButtonIcon, Converter={StaticResource StringToResourceConverter}}"
                                             Visibility="{Binding AppStore.ShowCompactPlayButton, Converter={StaticResource BoolToVis}}"
                                             Width="35"
                                             helpers:ButtonHelper.IsLoading="{Binding AppStore.IsDownloading}"
@@ -431,7 +430,7 @@
             <!--  Notifications overlay slot  -->
             <ItemsControl
                 HorizontalAlignment="Right"
-                ItemsSource="{Binding Source={StaticResource Notif}, Path=Notifications}"
+                ItemsSource="{Binding NotificationService.Notifications}"
                 Margin="0,55,20,55"
                 Panel.ZIndex="9999"
                 VerticalAlignment="Top">

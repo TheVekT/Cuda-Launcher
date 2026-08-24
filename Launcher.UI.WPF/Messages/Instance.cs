@@ -1,6 +1,6 @@
 using Launcher.Core.Instances.Models;
 
-namespace Launcher.Core.Common.Messaging;
+namespace Launcher.UI.WPF.Messages;
 
 public record InstanceCreatedMessage(MinecraftInstance Instance);
 public record InstanceUpdatedMessage(MinecraftInstance Instance);

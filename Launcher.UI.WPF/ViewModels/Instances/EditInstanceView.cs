@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Assets.Abstractions;
 using Launcher.Core.Common.Enums;
-using Launcher.Core.Common.Messaging;
 using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.UI.WPF.Helpers;
