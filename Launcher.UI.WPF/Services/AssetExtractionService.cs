@@ -16,7 +16,7 @@ public class AssetExtractionService : IAssetExtractionService
 
     private readonly string[] _defaultThemes = { "default-dark.zip", "default-light.zip" };
     private readonly string[] _defaultLangs = { "en-US.json" };
-    private readonly string[] _defaultIcons = { "150px-Grass_Block_JE7_BE6.png", "fabric-default.png", "forge-default.png", "logo.png", "neoforge-default.png", "optifine-default.png", "quilt-default.png" };
+    private readonly string[] _defaultIcons = { "00_Grass_Block_JE7_BE6.png", "fabric-default.png", "forge-default.png", "logo.png", "neoforge-default.png", "optifine-default.png", "quilt-default.png" };
     private readonly string[] _defaultBanners = { "banner-default.jpg"};
     private readonly string[] _defaultWeb = { "skinview.html", "skinview3d.bundle.js" };
 

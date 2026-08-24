@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Windows;
 using Launcher.Core.Assets;
 using Launcher.Core.Config;
@@ -14,6 +14,7 @@ using Launcher.UI.WPF.Stores;
 using Launcher.Core.System;
 using Launcher.Core.System.Abstractions;
 using Launcher.Core.UI.Abstractions;
+using Launcher.Infrastructure;
 using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.ViewModels.Accounts;
 using Launcher.UI.WPF.ViewModels.Game;
@@ -81,6 +82,9 @@ public partial class App : Application
             services.AddIntegrationsServices();
             services.AddModsServices();
             services.AddSystemServices();
+            
+            //Infrastructure Services
+            services.AddInfrastructureServices();
             
             services.AddSingleton<AppStore>();
             services.AddSingleton<LoginStore>();

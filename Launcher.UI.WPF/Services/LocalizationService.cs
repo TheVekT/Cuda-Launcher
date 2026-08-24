@@ -1,11 +1,7 @@
 using System.ComponentModel;
-using System.IO;
-using System.Text;
-using System.Text.Json;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Config.Abstractions;
 using Launcher.Core.Config.Models;
-using Launcher.Core.UI.Abstractions;
+using Launcher.Infrastructure.Localization.Abstractions;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services.Abstractions;
 
@@ -15,163 +11,55 @@ public class LocalizationService : ILocalizationService, INotifyPropertyChanged
 {
     public static LocalizationService Instance { get; internal set; }
 
+    private const string DefaultLanguageCode = "en-US";
+
     private Dictionary<string, string> _translations = new Dictionary<string, string>();
-    
-    private readonly string _languagesRoot;
-    private readonly string[] _builtInLanguageCodes = { "en-US" };
-    
-    private readonly ILauncherPathsService _pathsService;
+    private Dictionary<string, string> _fallbackTranslations = new Dictionary<string, string>();
+    private readonly ILocalizationProvider _localizationProvider;
 
     public LocalizationService Current => this;
 
-    public LocalizationService(ILauncherPathsService pathsService)
+    public LocalizationService(ILocalizationProvider localizationProvider)
     {
-        _pathsService = pathsService;
-        
-        _languagesRoot = Path.Combine(_pathsService.AssetsDirectory, "Languages");
+        _localizationProvider = localizationProvider;
 
-        if (!Directory.Exists(_languagesRoot))
-        {
-            Directory.CreateDirectory(_languagesRoot);
-        }
-
-        LoadLanguage("en-US");
+        _fallbackTranslations = _localizationProvider.LoadTranslations(DefaultLanguageCode);
+        LoadLanguage(DefaultLanguageCode);
     }
 
     public string this[string key]
     {
         get
         {
-            if (_translations.TryGetValue(key, out var value))
+            if (_translations.TryGetValue(key, out var value) && !string.IsNullOrEmpty(value))
                 return value;
+
+            if (_fallbackTranslations.TryGetValue(key, out var fallbackValue) && !string.IsNullOrEmpty(fallbackValue))
+                return fallbackValue;
+
             return key;
         }
     }
 
     public async Task ImportLocalization(string filePath)
     {
-        try
-        {
-            var fileName = Path.GetFileName(filePath);
-            var destPath = Path.Combine(_languagesRoot, fileName);
-
-            File.Copy(filePath, destPath, overwrite: true);
-            WeakReferenceMessenger.Default.Send(new LanguageImportedMessage());
-        }
-        catch
-        {
-            // Игнорируем любые ошибки при копировании файла
-        }
+        await _localizationProvider.ImportLanguageAsync(filePath);
+        WeakReferenceMessenger.Default.Send(new LanguageImportedMessage());
     }
 
     public List<LanguageModel> GetAvailableLanguages()
     {
-        var languages = new List<LanguageModel>();
-
-        if (!Directory.Exists(_languagesRoot))
-        {
-            // Базовый фоллбэк, если папка не найдена
-            languages.Add(new LanguageModel { Name = "English", Code = "en-US" });
-            return languages;
-        }
-
-        var files = Directory.GetFiles(_languagesRoot, "*.json");
-
-        foreach (var file in files)
-        {
-            try
-            {
-                var json = File.ReadAllText(file, Encoding.UTF8);
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var langData = JsonSerializer.Deserialize<LanguageFile>(json, options);
-
-                if (langData?.Meta != null)
-                {
-                    // Достаем имя и код из метадата
-                    langData.Meta.TryGetValue("Name", out var name);
-                    langData.Meta.TryGetValue("LanguageCode", out var code);
-
-                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code))
-                    {
-                        languages.Add(new LanguageModel { Name = name, Code = code });
-                    }
-                }
-            }
-            catch
-            {
-                // Если файл битый, просто идем дальше
-                continue;
-            }
-        }
-        
-        return languages
-            .OrderByDescending(l => _builtInLanguageCodes.Contains(l.Code))
-            .ThenBy(l => l.Name)
-            .ToList();
+        return _localizationProvider.GetAvailableLanguages();
     }
 
     public string GetCodeByName(string name)
     {
-        if (!Directory.Exists(_languagesRoot)) return "en-US";
-
-        var files = Directory.GetFiles(_languagesRoot, "*.json");
-
-        foreach (var file in files)
-        {
-            try
-            {
-                var json = File.ReadAllText(file, Encoding.UTF8);
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var langData = JsonSerializer.Deserialize<LanguageFile>(json, options);
-
-                if (langData?.Meta != null)
-                {
-                    if (langData.Meta.TryGetValue("Name", out var metaName) && 
-                        !string.IsNullOrEmpty(metaName))
-                    {
-                        if (string.Equals(metaName, name, StringComparison.OrdinalIgnoreCase))
-                        {
-                            if (langData.Meta.TryGetValue("LanguageCode", out var code))
-                            {
-                                return code;
-                            }
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // Если файл битый или занят другим процессом — просто пропускаем его
-                continue;
-            }
-        }
-        return "en-US";
+        return _localizationProvider.GetCodeByName(name);
     }
 
     public void LoadLanguage(string langCode)
     {
-        string foundPath = Path.Combine(_languagesRoot, $"{langCode}.json");
-
-        if (File.Exists(foundPath))
-        {
-            try
-            {
-                var json = File.ReadAllText(foundPath, Encoding.UTF8);
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var langData = JsonSerializer.Deserialize<LanguageFile>(json, options);
-                _translations = langData?.Translations ?? new Dictionary<string, string>();
-            }
-            catch
-            {
-                 // Fallback logic for encoding if needed...
-                _translations = new Dictionary<string, string>();
-            }
-        }
-        else
-        {
-            _translations.Clear();
-        }
-
+        _translations = _localizationProvider.LoadTranslations(langCode);
         OnPropertyChanged("Item[]");
     }
 
@@ -180,11 +68,5 @@ public class LocalizationService : ILocalizationService, INotifyPropertyChanged
     protected void OnPropertyChanged(string propertyName)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    private class LanguageFile
-    {
-        public Dictionary<string, string> Meta { get; set; }
-        public Dictionary<string, string> Translations { get; set; }
     }
 }

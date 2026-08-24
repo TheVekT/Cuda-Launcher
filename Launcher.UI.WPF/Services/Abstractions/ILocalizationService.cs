@@ -11,4 +11,6 @@ public interface ILocalizationService
     string GetCodeByName(string name);
     
     void LoadLanguage(string langCode);
+    
+    Task ImportLocalization(string filePath);
 }

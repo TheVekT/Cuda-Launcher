@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -116,10 +116,6 @@
     </Content>
     <None Remove="Assets\Icons\120px-Bricks_JE5_BE3.png" />
     <Content Include="Assets\Icons\120px-Bricks_JE5_BE3.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Remove="Assets\Icons\116px-Lectern_with_Book_(S).png" />
-    <Content Include="Assets\Icons\116px-Lectern_with_Book_(S).png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Remove="Assets\Icons\quilt-default.png" />
@@ -283,6 +279,9 @@
       <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
+    <None Remove="Assets\Icons\0_Grass_Block_JE7_BE6.png" />
+    <None Remove="Resources\Embedded\Icons\00_Grass_Block_JE7_BE6.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\00_Grass_Block_JE7_BE6.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -322,6 +321,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Launcher.Core\Launcher.Core.csproj" />
+    <ProjectReference Include="..\Launcher.Infrastructure\Launcher.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
