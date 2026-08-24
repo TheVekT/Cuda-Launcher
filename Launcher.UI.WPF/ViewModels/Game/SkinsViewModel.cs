@@ -5,6 +5,7 @@ using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.System.Abstractions;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Game;

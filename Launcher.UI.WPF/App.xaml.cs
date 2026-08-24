@@ -57,21 +57,19 @@ public partial class App : Application
             
             services.AddSingleton<HttpClient>(); 
             
-            services.AddSingleton<LocalizationService>();
-            services.AddSingleton<ILocalizationService>(sp => sp.GetRequiredService<LocalizationService>());
-            services.AddSingleton<NotificationService>();
-            services.AddSingleton<INotificationService>(sp => sp.GetRequiredService<NotificationService>());
+            services.AddSingleton<ILocalizationService, LocalizationService>();
+            services.AddSingleton<INotificationService, NotificationService>();
             
             //UI.WPF Services
             services.AddSingleton<IAssetExtractionService, AssetExtractionService>();
-            services.AddSingleton<ThemeService>();
+            services.AddSingleton<IThemeService, ThemeService>();
             services.AddSingleton<ImportOrchestratorService>();
             services.AddSingleton<IOverlayService, OverlayService>();
-            services.AddSingleton<NavigationService>();
+            services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IDispatcherService, WpfDispatcherService>();
             services.AddSingleton<IInputService, InputService>();
             services.AddSingleton<IFileDialogService, WpfFileDialogService>();
-            services.AddSingleton<PreviewGeneratorService>();
+            services.AddSingleton<IPreviewGeneratorService, PreviewGeneratorService>();
             
             //Core Services
             services.AddAssetsServices();
@@ -86,6 +84,7 @@ public partial class App : Application
             //Infrastructure Services
             services.AddInfrastructureServices();
             
+            //Stores
             services.AddSingleton<AppStore>();
             services.AddSingleton<LoginStore>();
             services.AddSingleton<SettingsStore>();
@@ -93,7 +92,7 @@ public partial class App : Application
             services.AddSingleton<SkinsStore>();
 
             
-            
+            //ViewModels
             services.AddTransient<PlayViewModel>();
             services.AddTransient<InstallationsViewModel>();
             services.AddTransient<SkinsViewModel>();

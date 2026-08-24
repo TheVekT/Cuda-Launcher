@@ -4,13 +4,14 @@ using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Config.Abstractions;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.ViewModels.Game;
 
 namespace Launcher.UI.WPF.Stores;
 
 public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
 {
-    private readonly ThemeService _themeService;
+    private readonly IThemeService _themeService;
     private readonly ILauncherPathsService _pathsService;
     
     [ObservableProperty]
@@ -40,7 +41,7 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
         DownloadPercentText = $"{value:0}%";
     }
 
-    public AppStore(ThemeService themeService, ILauncherPathsService pathsService)
+    public AppStore(IThemeService themeService, ILauncherPathsService pathsService)
     {
         _themeService = themeService;
         _pathsService = pathsService;

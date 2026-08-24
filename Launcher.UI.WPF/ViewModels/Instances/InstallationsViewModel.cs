@@ -12,6 +12,7 @@ using Launcher.Core.System.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels.Common;
 
@@ -196,6 +197,7 @@ public partial class InstallationsViewModel : ObservableObject,
         
             _instanceService.SaveInstances(_instancesStore.Instances);
             _overlayService.SetClosable(true);
+            WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
             Debug.WriteLine($"Created instance: {message.Instance.Name}");
         }
         catch (Exception ex)

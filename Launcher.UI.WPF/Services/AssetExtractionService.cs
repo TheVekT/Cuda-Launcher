@@ -1,13 +1,9 @@
 using System.IO;
 using System.Reflection;
 using Launcher.Core.Config.Abstractions;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Services;
-
-public interface IAssetExtractionService
-{
-    void EnsureAllBaseAssetsExist();
-}
 
 public class AssetExtractionService : IAssetExtractionService
 {

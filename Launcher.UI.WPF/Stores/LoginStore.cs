@@ -8,6 +8,7 @@ using Launcher.Core.Identity.Models;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Stores;
 

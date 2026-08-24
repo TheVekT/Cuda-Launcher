@@ -6,6 +6,7 @@ using Launcher.Core.Identity.Models;
 using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Accounts;

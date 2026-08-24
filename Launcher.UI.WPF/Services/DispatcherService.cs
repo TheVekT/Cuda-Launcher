@@ -1,15 +1,7 @@
 using System.Windows;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Services;
-
-public interface IDispatcherService
-{
-    void Invoke(Action action);
-    
-    Task InvokeAsync(Action action);
-    
-    Task InvokeAsync(Func<Task> asyncAction);
-}
 
 public class WpfDispatcherService : IDispatcherService
 {

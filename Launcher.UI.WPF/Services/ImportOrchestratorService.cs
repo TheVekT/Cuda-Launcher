@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Common.Enums;
 using Launcher.Core.Instances.Abstractions;
 using Launcher.Core.Instances.Models;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Services;
 
@@ -12,12 +13,12 @@ public class ImportOrchestratorService
 {
     private readonly IDragDropParserService _dragDropParserService;
     private readonly IInstanceFileSystemService _instanceFileSystemService;
-    private readonly ThemeService _themeService;
+    private readonly IThemeService _themeService;
 
     public ImportOrchestratorService(
         IDragDropParserService dragDropParserService,
         IInstanceFileSystemService instanceFileSystemService,
-        ThemeService themeService)
+        IThemeService themeService)
     {
         _dragDropParserService = dragDropParserService;
         _instanceFileSystemService = instanceFileSystemService;

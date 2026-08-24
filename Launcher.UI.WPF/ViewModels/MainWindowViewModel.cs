@@ -10,6 +10,7 @@ using Launcher.Core.Integrations.Abstractions;
 using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels.Accounts;
 using Launcher.UI.WPF.ViewModels.Common;
@@ -29,7 +30,7 @@ public partial class MainWindowViewModel : ObservableObject,
     private readonly IDiscordService _discordService;
     private readonly ImportOrchestratorService _importOrchestratorService;
     private readonly IOverlayService _overlayService;
-    private readonly NavigationService _navigationService;
+    private readonly INavigationService _navigationService;
     private readonly IDispatcherService _dispatcherService;
     private readonly INotificationService _notificationService;
 
@@ -81,7 +82,7 @@ public partial class MainWindowViewModel : ObservableObject,
         IDiscordService discordService,
         ImportOrchestratorService importOrchestratorService,
         IOverlayService overlayService,
-        NavigationService navigationService,
+        INavigationService navigationService,
         IDispatcherService dispatcherService,
         INotificationService notificationService,
         LoginStore loginStore,

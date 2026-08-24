@@ -2,11 +2,12 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Launcher.Core.Config.Abstractions;
+using Launcher.UI.WPF.Services.Abstractions;
 using Microsoft.Web.WebView2.Wpf;
 
 namespace Launcher.UI.WPF.Services;
 
-public class PreviewGeneratorService
+public class PreviewGeneratorService : IPreviewGeneratorService
 {
     private readonly string _previewCacheDir;
     private readonly ILauncherPathsService _pathsService;

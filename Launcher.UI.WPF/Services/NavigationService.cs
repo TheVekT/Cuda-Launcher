@@ -1,7 +1,9 @@
 
+using Launcher.UI.WPF.Services.Abstractions;
+
 namespace Launcher.UI.WPF.Services;
 
-public class NavigationService
+public class NavigationService: INavigationService
 {
     private Action<object>? _navigationAction;
     

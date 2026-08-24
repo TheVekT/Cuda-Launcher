@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Infrastructure.Themes.Models;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Settings;
@@ -11,14 +12,14 @@ namespace Launcher.UI.WPF.ViewModels.Settings;
 public partial class SettingsViewModel: ObservableObject
 {
     private readonly SettingsStore _settingsStore;
-    private readonly ThemeService _themeService;
+    private readonly IThemeService _themeService;
     
     private readonly AppStore _appStore;
     
     public SettingsStore SettingsStore => _settingsStore;
     public AppStore AppStore => _appStore;
     
-    public SettingsViewModel(SettingsStore settingsStore, ThemeService themeService, AppStore appStore)
+    public SettingsViewModel(SettingsStore settingsStore, IThemeService themeService, AppStore appStore)
     {
         _settingsStore = settingsStore;
         _themeService = themeService;

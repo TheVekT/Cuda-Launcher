@@ -11,6 +11,7 @@ using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Stores;
 
@@ -21,7 +22,7 @@ public partial class SkinsStore : ObservableObject, IRecipient<MicrosoftLoggedMe
     private readonly IMojangProfileService _mojangProfileService;
     private readonly IMojangAssetCacheService _assetCache;
     private readonly ILauncherPathsService _pathsService;
-    private readonly PreviewGeneratorService _previewGeneratorService;
+    private readonly IPreviewGeneratorService _previewGeneratorService;
     
     public ObservableRangeCollection<CharacterItemViewModel> Skins { get; } = new();
     public ObservableRangeCollection<CapeItemModel> AvailableCapes { get; } = new();
@@ -37,7 +38,7 @@ public partial class SkinsStore : ObservableObject, IRecipient<MicrosoftLoggedMe
         ICharacterManagerService characterService,
         IMojangProfileService mojangProfileService,
         IMojangAssetCacheService assetCache,
-        PreviewGeneratorService previewGeneratorService,
+        IPreviewGeneratorService previewGeneratorService,
         ILauncherPathsService pathsService)
     {
         _settingsService = settingsService;

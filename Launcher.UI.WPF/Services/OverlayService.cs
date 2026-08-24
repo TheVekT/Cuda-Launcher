@@ -1,17 +1,8 @@
-using System;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Services;
-
-public interface IOverlayService
-{
-    void Show(object viewModel);
-    void Close();
-    void SetClosable(bool isClosable);
-    
-    void RegisterOverlaySetter(Action<object?> updateOverlayAction);
-}
 
 public class OverlayService : IOverlayService
 {

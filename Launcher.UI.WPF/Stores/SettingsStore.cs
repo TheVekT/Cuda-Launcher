@@ -9,6 +9,7 @@ using Launcher.Infrastructure.Themes.Models;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Stores;
 
@@ -17,7 +18,7 @@ public partial class SettingsStore: ObservableObject,
     IRecipient<LanguageImportedMessage>
 {
     //Services
-    private readonly ThemeService _themeService;
+    private readonly IThemeService _themeService;
     private readonly ISysInfoService _sysInfoService;
     private readonly ISettingsService _settingsService;
     
@@ -81,7 +82,7 @@ public partial class SettingsStore: ObservableObject,
     
     public IEnumerable<BackupFrequency> BackupFrequencyValues => Enum.GetValues(typeof(BackupFrequency)).Cast<BackupFrequency>();
     
-    public SettingsStore(ThemeService themeService, ISysInfoService sysInfoService, ISettingsService settingsService)
+    public SettingsStore(IThemeService themeService, ISysInfoService sysInfoService, ISettingsService settingsService)
     {
         _themeService = themeService;
         _sysInfoService = sysInfoService;

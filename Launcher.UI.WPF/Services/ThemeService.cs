@@ -6,10 +6,11 @@ using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Infrastructure.Themes.Abstractions;
 using Launcher.Infrastructure.Themes.Models;
 using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Services;
 
-public class ThemeService
+public class ThemeService: IThemeService
 {
     private const string DefaultThemeFileName = "default-dark.zip";
 

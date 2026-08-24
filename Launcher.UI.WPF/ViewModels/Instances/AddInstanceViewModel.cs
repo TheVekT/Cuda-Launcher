@@ -10,6 +10,7 @@ using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
@@ -269,7 +270,6 @@ public partial class AddInstanceViewModel: ObservableObject
         };
         
         WeakReferenceMessenger.Default.Send(new InstanceCreatedMessage(newInstance));
-        WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
         IsCreatingInstance = false;
     }
 
