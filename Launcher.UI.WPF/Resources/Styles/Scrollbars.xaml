@@ -5,6 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <helpers:EdgeAdornerConverter x:Key="EdgeConverter" />
     <helpers:ImagePathConverter x:Key="ImagePathConverter" />
+
+    <!-- Vertical Scroll Styles -->
     <Style TargetType="{x:Type Thumb}" x:Key="MinimalScrollThumb">
         <Setter Property="Template">
             <Setter.Value>
@@ -55,6 +57,60 @@
         </Setter>
     </Style>
 
+    <!-- Horizontal Scroll Styles -->
+    <Style TargetType="Thumb" x:Key="MinimalThumb">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border
+                        Background="{DynamicResource BorderAccentBrush}"
+                        BorderThickness="0"
+                        CornerRadius="1" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar" x:Key="MinimalScrollBarStyle">
+        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
+        <Setter Property="Stylus.IsFlicksEnabled" Value="false" />
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="#808080" />
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid
+                        Background="Transparent"
+                        Height="{TemplateBinding Height}"
+                        x:Name="Bg">
+                        <Track
+                            Focusable="false"
+                            IsDirectionReversed="False"
+                            IsEnabled="{TemplateBinding IsEnabled}"
+                            x:Name="PART_Track">
+                            <Track.Thumb>
+                                <Thumb Background="{TemplateBinding Foreground}" Style="{StaticResource MinimalThumb}" />
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Opacity" TargetName="PART_Track" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="false">
+                            <Setter Property="Opacity" TargetName="PART_Track" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ScrollViewer Styles -->
     <Style TargetType="{x:Type ScrollViewer}" x:Key="MinimalScrollViewer">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
@@ -65,84 +121,39 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
                         <ScrollContentPresenter
                             CanContentScroll="{TemplateBinding CanContentScroll}"
                             Content="{TemplateBinding Content}"
-                            Grid.Column="0" />
+                            Grid.Column="0"
+                            Grid.Row="0" />
 
                         <ScrollBar
                             Grid.Column="1"
+                            Grid.Row="0"
                             Maximum="{TemplateBinding ScrollableHeight}"
+                            Orientation="Vertical"
                             Style="{StaticResource MinimalScrollBar}"
                             Value="{TemplateBinding VerticalOffset}"
                             ViewportSize="{TemplateBinding ViewportHeight}"
                             Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
                             x:Name="PART_VerticalScrollBar" />
+
+                        <ScrollBar
+                            Grid.Column="0"
+                            Grid.Row="1"
+                            Maximum="{TemplateBinding ScrollableWidth}"
+                            Orientation="Horizontal"
+                            Style="{StaticResource MinimalScrollBarStyle}"
+                            Value="{TemplateBinding HorizontalOffset}"
+                            ViewportSize="{TemplateBinding ViewportWidth}"
+                            Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                            x:Name="PART_HorizontalScrollBar" />
                     </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-
-    <!-- Horizontal Scroll Styles -->
-    <Style TargetType="Thumb" x:Key="MinimalThumb">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Thumb">
-                    <Border
-                        Background="{TemplateBinding Background}"
-                        CornerRadius="{DynamicResource DefaultCorner}"
-                        Height="5" />
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style TargetType="ScrollBar" x:Key="MinimalScrollBarStyle">
-        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
-        <Setter Property="Stylus.IsFlicksEnabled" Value="false" />
-        <Setter Property="Height" Value="6" />
-        <Setter Property="Margin" Value="0,5,0,0" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource OverlayBackgroundSurfaceBrush}" />
-
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ScrollBar">
-                    <Grid
-                        Background="Transparent"
-                        SnapsToDevicePixels="true"
-                        x:Name="Bg">
-                        <Track
-                            IsDirectionReversed="False"
-                            IsEnabled="{TemplateBinding IsEnabled}"
-                            x:Name="PART_Track">
-                            <Track.DecreaseRepeatButton>
-                                <RepeatButton
-                                    Command="ScrollBar.PageLeftCommand"
-                                    Opacity="0"
-                                    Width="0" />
-                            </Track.DecreaseRepeatButton>
-                            <Track.IncreaseRepeatButton>
-                                <RepeatButton
-                                    Command="ScrollBar.PageRightCommand"
-                                    Opacity="0"
-                                    Width="0" />
-                            </Track.IncreaseRepeatButton>
-
-                            <Track.Thumb>
-                                <Thumb Background="{TemplateBinding Foreground}" Style="{StaticResource MinimalThumb}" />
-                            </Track.Thumb>
-                        </Track>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="false">
-                            <Setter Property="Opacity" Value="0.5" />
-                        </Trigger>
-
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

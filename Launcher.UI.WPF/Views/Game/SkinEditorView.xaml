@@ -28,7 +28,7 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0">
+                <StackPanel Grid.Row="0" Margin="0,0,0,5">
                     <TextBlock
                         FontSize="16"
                         FontWeight="Bold"
@@ -38,7 +38,7 @@
                     <TextBlock
                         FontSize="13"
                         Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                        Text="{Binding Source={StaticResource Loc}, Path=[AddInstallation.Subtitle]}" />
+                        Text="{Binding Source={StaticResource Loc}, Path=[SkinEditorMenu.Subtitle]}" />
                 </StackPanel>
                 <ScrollViewer
                     Grid.Row="1"

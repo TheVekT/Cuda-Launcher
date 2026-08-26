@@ -33,6 +33,7 @@ public partial class MainWindowViewModel : ObservableObject,
     private readonly INavigationService _navigationService;
     private readonly IDispatcherService _dispatcherService;
     private readonly INotificationService _notificationService;
+    private readonly IClipboardService _clipboardService;
 
     //Stores
     private readonly LoginStore _loginStore;
@@ -85,6 +86,7 @@ public partial class MainWindowViewModel : ObservableObject,
         INavigationService navigationService,
         IDispatcherService dispatcherService,
         INotificationService notificationService,
+        IClipboardService clipboardService,
         LoginStore loginStore,
         SettingsStore settingsStore,
         InstancesStore instancesStore,
@@ -104,6 +106,7 @@ public partial class MainWindowViewModel : ObservableObject,
         _navigationService = navigationService;
         _dispatcherService = dispatcherService;
         _notificationService = notificationService;
+        _clipboardService = clipboardService;
 
         //Stores
         _loginStore = loginStore;
@@ -123,10 +126,17 @@ public partial class MainWindowViewModel : ObservableObject,
         _discordService.Initialize(Launcher.Core.Common.Constants.LauncherConstants.DiscordAppId);
         _overlayService.RegisterOverlaySetter(view => _appStore.CurrentOverlayView = view);
         _navigationService.RegisterNavigationHandler(view => AppStore.CurrentView = view);
+        _launchService.GameCrashed += OnGameCrashed;
         
         _navigationService.Navigate(_playVM);
         
         WeakReferenceMessenger.Default.RegisterAll(this);
+    }
+    
+    private void OnGameCrashed(MinecraftInstance instance, GameCrashReport report)
+    {
+        var crashVM = new CrashViewModel(_clipboardService, report.ExitCode, report.StackTrace, report.CrashReportFilePath);
+        _overlayService.Show(crashVM);
     }
     
     private async Task HandlePlayButtonPress()

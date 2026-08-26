@@ -46,7 +46,7 @@
             <instances1:AddInstanceView />
         </DataTemplate>
 
-        <DataTemplate DataType="{x:Type instances:EditInstanceView}">
+        <DataTemplate DataType="{x:Type instances:EditInstanceViewModel}">
             <instances1:EditInstanceView />
         </DataTemplate>
 
@@ -73,6 +73,11 @@
         <DataTemplate DataType="{x:Type game:SkinEditorViewModel}">
             <game1:SkinEditorView />
         </DataTemplate>
+
+        <DataTemplate DataType="{x:Type game:CrashViewModel}">
+            <game1:CrashView />
+        </DataTemplate>
+
     </Window.Resources>
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome

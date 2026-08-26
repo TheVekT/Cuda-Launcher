@@ -15,7 +15,7 @@ using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;
 
-public partial class EditInstanceView : ObservableObject
+public partial class EditInstanceViewModel : ObservableObject
 {
     //Services
     private readonly IGameVersionService _versionService;
@@ -80,7 +80,7 @@ public partial class EditInstanceView : ObservableObject
     public InstancesStore InstancesStore => _instancesStore;
     public SettingsStore SettingsStore => _settingsStore;
     
-    public EditInstanceView(MinecraftInstance instance,
+    public EditInstanceViewModel(MinecraftInstance instance,
         IGameVersionService versionService,
         IDispatcherService dispatcherService,
         IIconsService iconsService,

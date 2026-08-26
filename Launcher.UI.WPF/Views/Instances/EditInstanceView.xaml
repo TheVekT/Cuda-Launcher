@@ -1,7 +1,7 @@
 <UserControl
     Background="Transparent"
     FontFamily="{DynamicResource GlobalFont}"
-    d:DataContext="{d:DesignInstance Type=instances:EditInstanceView,
+    d:DataContext="{d:DesignInstance Type=instances:EditInstanceViewModel,
                                      IsDesignTimeCreatable=False}"
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Views.Instances.EditInstanceView"

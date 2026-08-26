@@ -230,7 +230,7 @@ public partial class InstallationsViewModel : ObservableObject,
     {
         var instance = parameter as MinecraftInstance;
         if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
-        var InstanceSettingsVM = new EditInstanceView(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        var InstanceSettingsVM = new EditInstanceViewModel(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
         _overlayService.Show(InstanceSettingsVM);
         await InstanceSettingsVM.InitializeAsync();
     }

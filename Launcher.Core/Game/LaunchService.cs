@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
@@ -7,23 +8,28 @@ using CmlLib.Core.ModLoaders.FabricMC;
 using CmlLib.Core.ModLoaders.QuiltMC;
 using CmlLib.Core.ProcessBuilder;
 using CmlLib.Core.Version;
+using FluentResults;
 using Launcher.Core.Common.Enums;
+using Launcher.Core.Common.Messages;
 using Launcher.Core.Common.Models;
 using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Identity.Models;
 using Launcher.Core.Instances.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.Mods.Abstractions;
-using FluentResults;
-using Launcher.Core.Common.Messages;
 
 namespace Launcher.Core.Game;
 
 public class LaunchService : ILaunchService
 {
+    private const int MaxLogBufferLines = 60;
+    private const int MaxCrashReportSnippetLines = 35;
+
     private readonly IInstanceFileSystemService _fileService;
     private readonly IModrinthService _modrinthService;
     private readonly HttpClient _httpClient;
+    
+    public event Action<MinecraftInstance, GameCrashReport>? GameCrashed;
 
     public LaunchService(IInstanceFileSystemService fileService, 
         IModrinthService modrinthService)
@@ -85,8 +91,7 @@ public class LaunchService : ILaunchService
                 Runtime = globalMcPath.Runtime,
                 Versions = globalMcPath.Versions
             };
-
-            // === 2. ТАЙМЕР ЗАГРУЗКИ ===
+            
             Stopwatch networkTimer = new Stopwatch();
             networkTimer.Start();
             string currentAction = "Verifying files...";
@@ -107,8 +112,7 @@ public class LaunchService : ILaunchService
                     progress?.Report(new GameLaunchProgressMessage(percent, currentAction));
                 }
             };
-
-            // === 3. ПОЛУЧЕНИЕ ВЕРСИИ И УСТАНОВКА ЛОАДЕРОВ ===
+            
             progress?.Report(new GameLaunchProgressMessage(15, $"Preparing Minecraft {instance.GameVersion}..."));
             var baseVersion = await launcher.GetVersionAsync(instance.GameVersion);
 
@@ -124,8 +128,7 @@ public class LaunchService : ILaunchService
             }
 
             progress?.Report(new GameLaunchProgressMessage(90, "Finalizing..."));
-
-            // === 4. ОПЦИИ ЗАПУСКА ===
+            
             var safeGameSettings = instance.GameSettings ?? new GameSettings();
             int finalRam = safeGameSettings.AllocatedMemory ?? globalSettings.MaxRamMb;
             bool finalFullscreen = safeGameSettings.Fullscreen ?? globalSettings.IsFullscreen;
@@ -161,9 +164,42 @@ public class LaunchService : ILaunchService
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
+            process.EnableRaisingEvents = true;
 
-            process.OutputDataReceived += (s, e) => { if (!string.IsNullOrEmpty(e.Data)) Console.WriteLine($"[GAME OUT] {e.Data}"); };
-            process.ErrorDataReceived += (s, e) => { if (!string.IsNullOrEmpty(e.Data)) Console.WriteLine($"[GAME ERR] {e.Data}"); };
+            var logBuffer = new ConcurrentQueue<string>();
+
+            process.OutputDataReceived += (s, e) =>
+            {
+                if (string.IsNullOrEmpty(e.Data)) return;
+                AppendToLogBuffer(logBuffer, e.Data);
+            };
+
+            process.ErrorDataReceived += (s, e) =>
+            {
+                if (string.IsNullOrEmpty(e.Data)) return;
+                AppendToLogBuffer(logBuffer, e.Data);
+                Debug.WriteLine($"[GAME ERR] {e.Data}");
+            };
+
+            DateTime processStartTime = DateTime.UtcNow;
+
+            process.Exited += (s, e) =>
+            {
+                int exitCode = process.ExitCode;
+                if (exitCode != 0)
+                {
+                    var (snippet, reportPath) = ExtractCrashDetails(instancePath, processStartTime, logBuffer);
+                    var crashReport = new GameCrashReport(exitCode, snippet, reportPath);
+
+                    GameCrashed?.Invoke(instance, crashReport);
+                }
+                else
+                {
+                    Debug.WriteLine("[GAME] Process finished normally (exit code: 0).");
+                }
+
+                process.Dispose();
+            };
 
             process.Start();
             process.BeginOutputReadLine();
@@ -180,6 +216,50 @@ public class LaunchService : ILaunchService
         }
     }
 
+    private static void AppendToLogBuffer(ConcurrentQueue<string> buffer, string line)
+    {
+        buffer.Enqueue(line);
+        while (buffer.Count > MaxLogBufferLines)
+        {
+            buffer.TryDequeue(out _);
+        }
+    }
+
+    private static (string Snippet, string? ReportPath) ExtractCrashDetails(
+        string instancePath, 
+        DateTime processStartTime, 
+        ConcurrentQueue<string> logBuffer)
+    {
+        try
+        {
+            string crashReportsDir = Path.Combine(instancePath, "crash-reports");
+            if (Directory.Exists(crashReportsDir))
+            {
+                var directoryInfo = new DirectoryInfo(crashReportsDir);
+                var latestReport = directoryInfo.GetFiles("crash-*.txt")
+                    .OrderByDescending(f => f.LastWriteTimeUtc)
+                    .FirstOrDefault();
+
+                if (latestReport != null && latestReport.LastWriteTimeUtc >= processStartTime.AddMinutes(-1))
+                {
+                    var lines = File.ReadLines(latestReport.FullName).Take(MaxCrashReportSnippetLines);
+                    return ($"{latestReport.Name}\n" + string.Join(Environment.NewLine, lines), latestReport.FullName);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[WARNING] Failed to inspect crash-reports directory: {ex.Message}");
+        }
+
+        if (!logBuffer.IsEmpty)
+        {
+            return ("[From stderr/stdout buffer]\n" + string.Join(Environment.NewLine, logBuffer.ToArray()), null);
+        }
+
+        return ("No crash report file or standard output captured.", null);
+    }
+    
     private async Task<IVersion> InstallLoaderAsync(MinecraftLauncher launcher, MinecraftInstance instance)
     {
         var mcVersion = instance.GameVersion;

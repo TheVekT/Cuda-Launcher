@@ -8,5 +8,11 @@ namespace Launcher.Core.Game.Abstractions;
 
 public interface ILaunchService
 {
-    Task<Result<Process>> LaunchGameAsync(MinecraftInstance instance, UserAccount account, GlobalLaunchSettings globalSettings, IProgress<GameLaunchProgressMessage> progress);
+    event Action<MinecraftInstance, GameCrashReport>? GameCrashed;
+    
+    Task<Result<Process>> LaunchGameAsync(
+        MinecraftInstance instance, 
+        UserAccount account, 
+        GlobalLaunchSettings globalSettings, 
+        IProgress<GameLaunchProgressMessage> progress);
 }

@@ -70,6 +70,7 @@ public partial class App : Application
             services.AddSingleton<IInputService, InputService>();
             services.AddSingleton<IFileDialogService, WpfFileDialogService>();
             services.AddSingleton<IPreviewGeneratorService, PreviewGeneratorService>();
+            services.AddSingleton<IClipboardService, WpfClipboardService>();
             
             //Core Services
             services.AddAssetsServices();
