@@ -98,11 +98,10 @@
     "LoginMenu.Add.OfflineTypeLabel": "Офлайн (Піратка)",
     "LoginMenu.Add.MicrosoftDescription": "Увійдіть в акаунт Microsoft для доступу до серверів та скінів.",
     "AccountCard.UseButton": "Обрати",
-    "AccountCard.RemoveButton": "Видалити",
     "AccountCard.MicrosoftType": "Microsoft",
     "AccountCard.OfflineType": "Офлайн",
     "AccountCard.ContextMenu.Rename": "Перейменувати",
-    "AccountCard.ContextMenu.Logout": "Вийти",
+    "AccountCard.ContextMenu.Remove": "Видалити",
     "Play.Title": "Гра",
     "Play.PlayButton": "ГРАТИ",
     "Play.PlayButton.Cancel": "Скасувати",
@@ -219,6 +218,11 @@
     "Errors.SkinValidation.FileNotFound": "Файл не знайдено.",
     "Errors.SkinValidation.NotPng": "Файл скіна повинен бути у форматі PNG.",
     "Errors.SkinValidation.WrongSize": "Неправильний розмір. Скін повинен бути 64x64 або 64x32.",
-    "Errors.SkinValidation.InvalidPng": "Файл не є коректним зображенням PNG."
+    "Errors.SkinValidation.InvalidPng": "Файл не є коректним зображенням PNG.",
+    "Errors.ApplyMojangSkin.Title": "Встановлення скіна не вдалося",
+    "Errors.ApplyMojangCape.Title": "Встановлення плаща не вдалося",
+    "Errors.ApplyMojangCharacter.Title": "Встановлення персонажа не вдалося",
+    "Errors.ApplyMojangCharacter.RateLimit": "Забагато запитів. Будь ласка, зачекайте трохи.",
+    "Errors.ApplyMojangCharacter.Unknown": "Сталася невідома помилка під час застосування персонажа."
   }
 }

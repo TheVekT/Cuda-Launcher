@@ -67,7 +67,7 @@ public class AuthService : IAuthService
     public UserAccount LoginOffline(string nickname)
     {
         var offlineSession = MSession.CreateOfflineSession(nickname);
-        return new UserAccount(offlineSession.Username, offlineSession.UUID, offlineSession.AccessToken, isOffline: true);
+        return new UserAccount(offlineSession.Username, offlineSession.UUID, null, isOffline: true);
     }
 
     public async Task<UserAccount> ValidateAndRefreshAccountAsync(UserAccount account)
@@ -81,9 +81,10 @@ public class AuthService : IAuthService
         try
         {
             Debug.WriteLine($"[Auth] Validating token for {account.Username}...");
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", account.AccessToken);
+            using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.minecraftservices.com/minecraft/profile");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", account.AccessToken);
             
-            var response = await _httpClient.GetAsync("https://api.minecraftservices.com/minecraft/profile");
+            var response = await _httpClient.SendAsync(request);
             
             if (response.IsSuccessStatusCode)
             {

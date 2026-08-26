@@ -1,17 +1,20 @@
+using System.Text.Json.Serialization;
+
 namespace Launcher.Core.Identity.Models;
 
 public class UserAccount
 {
     public string Username { get; set; }
     public string UUID { get; set; }
-    public string AccessToken { get; set; }
+    public string? AccessToken { get; set; }
     public bool IsOffline { get; set; }
     
+    [JsonIgnore]
     public string AccountTypeString => IsOffline ? "Offline" : "Microsoft";
     
     public UserAccount() { }
     
-    public UserAccount(string name, string uuid, string token, bool isOffline)
+    public UserAccount(string name, string uuid, string? token, bool isOffline)
     {
         Username = name;
         UUID = uuid;

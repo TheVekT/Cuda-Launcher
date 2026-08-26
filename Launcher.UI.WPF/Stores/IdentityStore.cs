@@ -12,7 +12,7 @@ using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Stores;
 
-public partial class LoginStore : ObservableObject
+public partial class IdentityStore : ObservableObject
 {
     private readonly IAccountStorageService _accountStorage;
     private readonly ISettingsService _settingsService;
@@ -24,13 +24,13 @@ public partial class LoginStore : ObservableObject
     private string _userName = "Guest";
     [ObservableProperty]
     [property: SettingProperty]
-    private string _lastSelectedAccountUuid; // ID для сохранения в settings.json
+    private string _lastSelectedAccountUuid;
     
     public bool IsLoggedIn => CurrentAccount != null;
     public ObservableRangeCollection<UserAccount> Accounts { get; set; } = new();
 
     // Добавили ISettingsService в конструктор
-    public LoginStore(IAccountStorageService accountStorage, 
+    public IdentityStore(IAccountStorageService accountStorage, 
         ISettingsService settingsService, 
         IAuthService authService,
         IDispatcherService dispatcherService)
@@ -141,8 +141,7 @@ public partial class LoginStore : ObservableObject
                 OnPropertyChanged(nameof(IsLoggedIn)); 
                 if (value != null)
                 {
-                    if (value.AccountTypeString == "Microsoft")
-                        WeakReferenceMessenger.Default.Send(new MicrosoftLoggedMessage(value));
+                    WeakReferenceMessenger.Default.Send(new AccountLoggedMessage(value));
                     LastSelectedAccountUuid = _currentAccount.UUID;
                 }
             }

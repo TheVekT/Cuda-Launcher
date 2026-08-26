@@ -1,6 +1,8 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Launcher.Core.Common.Enums;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.Identity.Models;
 
@@ -16,9 +18,21 @@ public class MojangProfileService : IMojangProfileService
         _httpClient = httpClient;
     }
 
+    private static NetworkRequestStatus MapStatusCode(HttpStatusCode statusCode) => statusCode switch
+    {
+        HttpStatusCode.OK or HttpStatusCode.NoContent or HttpStatusCode.Created or HttpStatusCode.Accepted => NetworkRequestStatus.Success,
+        HttpStatusCode.TooManyRequests => NetworkRequestStatus.RateLimited,
+        HttpStatusCode.Unauthorized => NetworkRequestStatus.Unauthorized,
+        HttpStatusCode.Forbidden => NetworkRequestStatus.Forbidden,
+        HttpStatusCode.NotFound => NetworkRequestStatus.NotFound,
+        HttpStatusCode.BadRequest => NetworkRequestStatus.BadRequest,
+        >= HttpStatusCode.InternalServerError => NetworkRequestStatus.ServerError,
+        _ => NetworkRequestStatus.Error
+    };
+
     public async Task<MojangProfile?> GetProfileAsync(string accessToken)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, BaseUrl);
+        using var request = new HttpRequestMessage(HttpMethod.Get, BaseUrl);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = await _httpClient.SendAsync(request);
@@ -28,44 +42,64 @@ public class MojangProfileService : IMojangProfileService
         return JsonSerializer.Deserialize<MojangProfile>(json);
     }
 
-    public async Task<bool> UploadSkinAsync(string accessToken, string filePath, string variant = "classic")
+    public async Task<NetworkRequestStatus> UploadSkinAsync(string accessToken, string filePath, string variant = "classic")
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/skins");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/skins");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        using var content = new MultipartFormDataContent();
-        
-        content.Add(new StringContent(variant), "variant");
-        
-        using var fileStream = File.OpenRead(filePath);
-        var fileContent = new StreamContent(fileStream);
-        fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
-        content.Add(fileContent, "file", Path.GetFileName(filePath));
+            using var content = new MultipartFormDataContent();
+            content.Add(new StringContent(variant), "variant");
+            
+            using var fileStream = File.OpenRead(filePath);
+            var fileContent = new StreamContent(fileStream);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+            content.Add(fileContent, "file", Path.GetFileName(filePath));
 
-        request.Content = content;
+            request.Content = content;
 
-        var response = await _httpClient.SendAsync(request);
-        return response.IsSuccessStatusCode;
+            var response = await _httpClient.SendAsync(request);
+            return MapStatusCode(response.StatusCode);
+        }
+        catch
+        {
+            return NetworkRequestStatus.Error;
+        }
     }
 
-    public async Task<bool> ApplyCapeAsync(string accessToken, string capeId)
+    public async Task<NetworkRequestStatus> ApplyCapeAsync(string accessToken, string capeId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/capes/active");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/capes/active");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var jsonContent = JsonSerializer.Serialize(new { capeId = capeId });
-        request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            var jsonContent = JsonSerializer.Serialize(new { capeId = capeId });
+            request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.SendAsync(request);
-        return response.IsSuccessStatusCode;
+            var response = await _httpClient.SendAsync(request);
+            return MapStatusCode(response.StatusCode);
+        }
+        catch
+        {
+            return NetworkRequestStatus.Error;
+        }
     }
 
-    public async Task<bool> HideCapeAsync(string accessToken)
+    public async Task<NetworkRequestStatus> HideCapeAsync(string accessToken)
     {
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/capes/active");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/capes/active");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = await _httpClient.SendAsync(request);
-        return response.IsSuccessStatusCode;
+            var response = await _httpClient.SendAsync(request);
+            return MapStatusCode(response.StatusCode);
+        }
+        catch
+        {
+            return NetworkRequestStatus.Error;
+        }
     }
 }

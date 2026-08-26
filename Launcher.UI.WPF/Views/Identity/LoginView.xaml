@@ -82,7 +82,7 @@
                                 <TextBlock
                                     FontSize="14"
                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                    Text="{Binding LoginStore.CurrentAccount.Username}"
+                                    Text="{Binding IdentityStore.CurrentAccount.Username}"
                                     x:Name="AccountName" />
                                 <TextBlock
                                     FontSize="13"
@@ -92,7 +92,7 @@
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="{Binding Source={StaticResource Loc}, Path=[AccountCard.MicrosoftType]}" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding LoginStore.CurrentAccount.IsOffline}" Value="True">
+                                                <DataTrigger Binding="{Binding IdentityStore.CurrentAccount.IsOffline}" Value="True">
                                                     <Setter Property="Text" Value="{Binding Source={StaticResource Loc}, Path=[AccountCard.OfflineType]}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -149,7 +149,7 @@
                         </Grid>
                         <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Hidden">
 
-                            <ItemsControl ItemsSource="{Binding LoginStore.Accounts}">
+                            <ItemsControl ItemsSource="{Binding IdentityStore.Accounts}">
 
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -157,7 +157,7 @@
                                             helpers:AccountCardHelper.AccountName="{Binding Username}"
                                             helpers:AccountCardHelper.AccountType="{Binding AccountTypeString}"
                                             helpers:AccountCardHelper.CommandParameter="{Binding}"
-                                            helpers:AccountCardHelper.LogOutCommand="{Binding DataContext.LogOutCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            helpers:AccountCardHelper.DeleteAccountCommand="{Binding DataContext.DeleteAccountCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             helpers:AccountCardHelper.RenameAccountCommand="{Binding DataContext.RenameAccountCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             helpers:AccountCardHelper.UseCommand="{Binding DataContext.SelectAccountCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
 

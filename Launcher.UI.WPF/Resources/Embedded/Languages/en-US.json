@@ -98,11 +98,10 @@
     "LoginMenu.Add.OfflineTypeLabel": "Offline Account",
     "LoginMenu.Add.MicrosoftDescription": "Sign in with your Microsoft account to access online features and services.",
     "AccountCard.UseButton": "Use",
-    "AccountCard.RemoveButton": "Remove",
     "AccountCard.MicrosoftType": "Microsoft",
     "AccountCard.OfflineType": "Offline",
     "AccountCard.ContextMenu.Rename": "Rename",
-    "AccountCard.ContextMenu.Logout": "Logout",
+    "AccountCard.ContextMenu.Remove": "Remove",
     "Play.Title": "Play",
     "Play.PlayButton": "PLAY",
     "Play.PlayButton.Cancel": "Cancel",
@@ -219,6 +218,11 @@
     "Errors.SkinValidation.FileNotFound": "File not found.",
     "Errors.SkinValidation.NotPng": "Skin file must be a PNG image.",
     "Errors.SkinValidation.WrongSize": "Wrong size. Skin must be 64x64 or 64x32.",
-    "Errors.SkinValidation.InvalidPng": "File is not a valid PNG image."
+    "Errors.SkinValidation.InvalidPng": "File is not a valid PNG image.",
+    "Errors.ApplyMojangSkin.Title": "Skin apply failed",
+    "Errors.ApplyMojangCape.Title": "Cape apply failed",
+    "Errors.ApplyMojangCharacter.Title": "Character apply failed",
+    "Errors.ApplyMojangCharacter.RateLimit": "Too many requests. Please wait a moment.",
+    "Errors.ApplyMojangCharacter.Unknown": "Unknown error occurred while applying cape."
   }
 }

@@ -30,7 +30,10 @@ public class MojangAssetCacheService : IMojangAssetCacheService
 
         try
         {
-            byte[] imageBytes = await _httpClient.GetByteArrayAsync(url);
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            byte[] imageBytes = await response.Content.ReadAsByteArrayAsync();
             await File.WriteAllBytesAsync(localPath, imageBytes);
             return localPath;
         }

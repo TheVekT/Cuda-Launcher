@@ -26,10 +26,7 @@
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed" />
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding LoginStore.CurrentAccount, Converter={StaticResource IsNotNullConverter}}" Value="True">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding LoginStore.CurrentAccount.IsOffline}" Value="False">
+                        <DataTrigger Binding="{Binding IdentityStore.CurrentAccount.IsOffline}" Value="False">
                             <Setter Property="Visibility" Value="Visible" />
                         </DataTrigger>
                     </Style.Triggers>
@@ -160,10 +157,10 @@
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed" />
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding LoginStore.CurrentAccount}" Value="{x:Null}">
+                        <DataTrigger Binding="{Binding IdentityStore.CurrentAccount}" Value="{x:Null}">
                             <Setter Property="Visibility" Value="Visible" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding LoginStore.CurrentAccount.IsOffline}" Value="True">
+                        <DataTrigger Binding="{Binding IdentityStore.CurrentAccount.IsOffline}" Value="True">
                             <Setter Property="Visibility" Value="Visible" />
                         </DataTrigger>
                     </Style.Triggers>

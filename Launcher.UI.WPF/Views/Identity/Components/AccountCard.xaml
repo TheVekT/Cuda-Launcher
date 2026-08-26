@@ -118,9 +118,9 @@
                                 Header="{Binding Source={StaticResource Loc}, Path=[AccountCard.ContextMenu.Rename]}" />
 
                             <MenuItem
-                                Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.LogOutCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.DeleteAccountCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                 CommandParameter="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                Header="{Binding Source={StaticResource Loc}, Path=[AccountCard.ContextMenu.Logout]}" />
+                                Header="{Binding Source={StaticResource Loc}, Path=[AccountCard.ContextMenu.Remove]}" />
 
                         </ContextMenu>
                     </Button.ContextMenu>

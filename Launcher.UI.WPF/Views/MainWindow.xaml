@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     Background="{DynamicResource AppBackgroundBrush}"
     FontFamily="{DynamicResource GlobalFont}"
     FontWeight="Medium"
@@ -233,10 +233,10 @@
                                             <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
                                             <Style.Triggers>
 
-                                                <DataTrigger Binding="{Binding LoginStore.IsLoggedIn}" Value="True">
-                                                    <Setter Property="Content" Value="{Binding LoginStore.CurrentAccount.Username}" />
+                                                <DataTrigger Binding="{Binding IdentityStore.IsLoggedIn}" Value="True">
+                                                    <Setter Property="Content" Value="{Binding IdentityStore.CurrentAccount.Username}" />
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding LoginStore.IsLoggedIn}" Value="False">
+                                                <DataTrigger Binding="{Binding IdentityStore.IsLoggedIn}" Value="False">
                                                     <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -448,39 +448,47 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <ContentControl>
+                        <ContentControl Content="{Binding}">
                             <ContentControl.Style>
                                 <Style TargetType="ContentControl">
                                     <Style.Triggers>
 
                                         <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Info}">
-                                            <Setter Property="Content">
+                                            <Setter Property="ContentTemplate">
                                                 <Setter.Value>
-                                                    <notifications1:InfoNotify />
+                                                    <DataTemplate>
+                                                        <notifications1:InfoNotify />
+                                                    </DataTemplate>
                                                 </Setter.Value>
                                             </Setter>
                                         </DataTrigger>
 
                                         <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Success}">
-                                            <Setter Property="Content">
+                                            <Setter Property="ContentTemplate">
                                                 <Setter.Value>
-                                                    <notifications1:SuccessNotify />
+                                                    <DataTemplate>
+                                                        <notifications1:SuccessNotify />
+                                                    </DataTemplate>
                                                 </Setter.Value>
                                             </Setter>
                                         </DataTrigger>
 
                                         <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Warning}">
-                                            <Setter Property="Content">
+                                            <Setter Property="ContentTemplate">
                                                 <Setter.Value>
-                                                    <notifications1:WarnNotify />
+                                                    <DataTemplate>
+                                                        <notifications1:WarnNotify />
+                                                    </DataTemplate>
                                                 </Setter.Value>
                                             </Setter>
                                         </DataTrigger>
 
                                         <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Error}">
-                                            <Setter Property="Content">
+                                            <Setter Property="ContentTemplate">
                                                 <Setter.Value>
-                                                    <notifications1:ErrorNotify />
+                                                    <DataTemplate>
+                                                        <notifications1:ErrorNotify />
+                                                    </DataTemplate>
                                                 </Setter.Value>
                                             </Setter>
                                         </DataTrigger>

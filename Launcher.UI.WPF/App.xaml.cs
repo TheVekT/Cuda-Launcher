@@ -87,7 +87,7 @@ public partial class App : Application
             
             //Stores
             services.AddSingleton<AppStore>();
-            services.AddSingleton<LoginStore>();
+            services.AddSingleton<IdentityStore>();
             services.AddSingleton<SettingsStore>();
             services.AddSingleton<InstancesStore>();
             services.AddSingleton<SkinsStore>();

@@ -362,11 +362,11 @@ public static class AccountCardHelper
     public static void SetCommandParameter(DependencyObject element, object value) => element.SetValue(CommandParameterProperty, value);
     public static object GetCommandParameter(DependencyObject element) => element.GetValue(CommandParameterProperty);
     
-    public static readonly DependencyProperty LogOutCommandProperty =
-        DependencyProperty.RegisterAttached("LogOutCommand", typeof(ICommand), typeof(AccountCardHelper), new PropertyMetadata(null));
+    public static readonly DependencyProperty DeleteAccountCommandProperty =
+        DependencyProperty.RegisterAttached("DeleteAccountCommand", typeof(ICommand), typeof(AccountCardHelper), new PropertyMetadata(null));
     
-    public static ICommand GetLogOutCommand(DependencyObject obj) => (ICommand)obj.GetValue(LogOutCommandProperty);
-    public static void SetLogOutCommand(DependencyObject obj, ICommand value) => obj.SetValue(LogOutCommandProperty, value);
+    public static ICommand GetDeleteAccountCommand(DependencyObject obj) => (ICommand)obj.GetValue(DeleteAccountCommandProperty);
+    public static void SetDeleteAccountCommand(DependencyObject obj, ICommand value) => obj.SetValue(DeleteAccountCommandProperty, value);
     
     public static readonly DependencyProperty RenameAccountCommandProperty =
         DependencyProperty.RegisterAttached("RenameAccountCommand", typeof(ICommand), typeof(AccountCardHelper), new PropertyMetadata(null));

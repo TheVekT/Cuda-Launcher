@@ -22,7 +22,8 @@ namespace Launcher.UI.WPF.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject,
     IRecipient<LaunchGameRequestMessage>,
-    IRecipient<CloseOverlayMessage>
+    IRecipient<CloseOverlayMessage>,
+    IRecipient<CloseNotificationMessage>
 {
     //Services
     private readonly IGameVersionService _versionService;
@@ -36,7 +37,7 @@ public partial class MainWindowViewModel : ObservableObject,
     private readonly IClipboardService _clipboardService;
 
     //Stores
-    private readonly LoginStore _loginStore;
+    private readonly IdentityStore _identityStore;
     private readonly SettingsStore _settingsStore;
     private readonly InstancesStore _instancesStore;
     private readonly AppStore _appStore;
@@ -58,7 +59,7 @@ public partial class MainWindowViewModel : ObservableObject,
     public SkinsViewModel SkinsVM => _skinsVM;
     
     public InstancesStore InstancesStore => _instancesStore;
-    public LoginStore LoginStore => _loginStore;
+    public IdentityStore IdentityStore => _identityStore;
     
     //Atributes
     private Process? _currentGameProcess;
@@ -72,8 +73,8 @@ public partial class MainWindowViewModel : ObservableObject,
     public async Task InitializeAsync()
     {
         await _installationsVM.InitializeAsync();
-        await _loginStore.RefreshAllAccountsAsync();
-        await _skinsStore.SyncWithMojangAsync(_loginStore.CurrentAccount?.AccessToken);
+        await _identityStore.RefreshAllAccountsAsync();
+        await _skinsVM.SyncWithMojangAsync(_identityStore.CurrentAccount?.AccessToken);
         _ = Task.Run(async () => await _versionService.GetGameVersionsByTypeAsync(GameLoaderType.Vanilla));
     }
 
@@ -87,7 +88,7 @@ public partial class MainWindowViewModel : ObservableObject,
         IDispatcherService dispatcherService,
         INotificationService notificationService,
         IClipboardService clipboardService,
-        LoginStore loginStore,
+        IdentityStore identityStore,
         SettingsStore settingsStore,
         InstancesStore instancesStore,
         AppStore appStore,
@@ -109,7 +110,7 @@ public partial class MainWindowViewModel : ObservableObject,
         _clipboardService = clipboardService;
 
         //Stores
-        _loginStore = loginStore;
+        _identityStore = identityStore;
         _settingsStore = settingsStore;
         _instancesStore = instancesStore;
         _appStore = appStore;
@@ -177,7 +178,7 @@ public partial class MainWindowViewModel : ObservableObject,
         if (_appStore.IsGameRunning) return;
 
         if (_instancesStore.SelectedInstance == null) return;
-        if (_loginStore.CurrentAccount == null) 
+        if (_identityStore.CurrentAccount == null) 
         { 
             OpenLogin(); 
             return;
@@ -203,7 +204,7 @@ public partial class MainWindowViewModel : ObservableObject,
             });
 
             var result = await _launchService.LaunchGameAsync(_instancesStore.SelectedInstance,
-                _loginStore.CurrentAccount, globalSettings, progress);
+                _identityStore.CurrentAccount, globalSettings, progress);
 
             if (result.IsSuccess)
             {
@@ -327,10 +328,13 @@ public partial class MainWindowViewModel : ObservableObject,
         });
     }
 
-    public void Receive(CloseOverlayMessage message)
-    {
+    public void Receive(CloseOverlayMessage message) =>
         _overlayService.Close();
-    }
+    
+
+    public void Receive(CloseNotificationMessage message) =>
+        _notificationService.Remove(message.MessageId);
+    
     
     //Commands
     [RelayCommand]
@@ -357,29 +361,25 @@ public partial class MainWindowViewModel : ObservableObject,
     private void CloseOverlay() => 
         WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
     
-    
     [RelayCommand]
     private void OpenLogin()
     {
-        _loginViewModel.IsAddAccPageOpen = !_loginStore.IsLoggedIn; 
+        _loginViewModel.IsAddAccPageOpen = !_identityStore.IsLoggedIn; 
         _overlayService.Show(_loginViewModel);
     }
     
     [RelayCommand]
-    private void DragEnter()
-    {
+    private void DragEnter() =>
         HandleDragEnter();
-    }
+    
     
     [RelayCommand]
-    private void DragLeave()
-    {        
+    private void DragLeave() =>
         HandleDragLeave();
-    }
+    
     
     [RelayCommand]
-    private async Task Drop(string[]? files)
-    {        
+    private async Task Drop(string[]? files) =>
         await HandleDropAsync(files);
-    }
+    
 }

@@ -15,7 +15,7 @@
                     <DoubleAnimation
                         BeginTime="0:0:5"
                         Completed="FadeOut_Completed"
-                        Duration="0:0:2"
+                        Duration="0:0:1"
                         From="1"
                         Storyboard.TargetProperty="Opacity"
                         To="0" />
@@ -42,7 +42,7 @@
                     <DoubleAnimation
                         BeginTime="0:0:5"
                         Completed="FadeOut_Completed"
-                        Duration="0:0:2"
+                        Duration="0:0:1"
                         From="1"
                         Storyboard.TargetProperty="Opacity"
                         To="0" />

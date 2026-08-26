@@ -18,9 +18,9 @@ public partial class LoginViewModel: ObservableObject
     private readonly IOverlayService _overlayService;
     private readonly INotificationService _notificationService;
     //Stores
-    private readonly LoginStore _loginStore;
+    private readonly IdentityStore _identityStore;
     //Attributes
-    public LoginStore LoginStore => _loginStore;
+    public IdentityStore IdentityStore => _identityStore;
     
     [ObservableProperty]
     private bool _isAddAccPageOpen;
@@ -33,20 +33,20 @@ public partial class LoginViewModel: ObservableObject
         IAccountStorageService accountStorage,
         IOverlayService overlayService,
         INotificationService notificationService,
-        LoginStore loginStore)
+        IdentityStore identityStore)
     { 
         _authService = authService; 
         _accountStorage = accountStorage;
         _overlayService = overlayService;
         _notificationService = notificationService;
-        _loginStore = loginStore;
+        _identityStore = identityStore;
             
-        AccountCount = _loginStore.Accounts.Count;
+        AccountCount = _identityStore.Accounts.Count;
         
             
-        _loginStore.Accounts.CollectionChanged += (s, e) => 
+        _identityStore.Accounts.CollectionChanged += (s, e) => 
         {
-            AccountCount = _loginStore.Accounts.Count;
+            AccountCount = _identityStore.Accounts.Count;
         };
     }
         
@@ -64,25 +64,25 @@ public partial class LoginViewModel: ObservableObject
         return;
     }
         
-    private void HandleLogout(UserAccount account)
+    private void HandleDeleteAccount(UserAccount account)
     {
-        Console.WriteLine($"Logout {account.Username}");
-        var isSelectedAccountToDelete = _loginStore.CurrentAccount == account;
-        _loginStore.Accounts.Remove(account);
-        _accountStorage.SaveAccounts(_loginStore.Accounts);
+        Console.WriteLine($"Deleting account {account.Username}");
+        var isSelectedAccountToDelete = _identityStore.CurrentAccount == account;
+        _identityStore.Accounts.Remove(account);
+        _accountStorage.SaveAccounts(_identityStore.Accounts);
             
-        if (isSelectedAccountToDelete && _loginStore.Accounts.Count > 0)
+        if (isSelectedAccountToDelete && _identityStore.Accounts.Count > 0)
         {
-            _loginStore.CurrentAccount = _loginStore.Accounts.FirstOrDefault();;
+            _identityStore.CurrentAccount = _identityStore.Accounts.FirstOrDefault();;
         }
-        else if (_loginStore.Accounts.Count > 0)
+        else if (_identityStore.Accounts.Count > 0)
         {
-            _loginStore.CurrentAccount = _loginStore.CurrentAccount; 
+            _identityStore.CurrentAccount = _identityStore.CurrentAccount; 
         }
         else
         {
             IsAddAccPageOpen = true;
-            _loginStore.CurrentAccount = null;
+            _identityStore.CurrentAccount = null;
         }
     }
         
@@ -93,9 +93,10 @@ public partial class LoginViewModel: ObservableObject
         {
             var account = _authService.LoginOffline(nickname);
                 
-            _loginStore.RegisterLogin(account); 
+            _identityStore.RegisterLogin(account); 
                 
             WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
+            WeakReferenceMessenger.Default.Send(new AccountLoggedMessage(account));
         }
     }
 
@@ -110,13 +111,13 @@ public partial class LoginViewModel: ObservableObject
             _overlayService.SetClosable(false);
             var newAccount = await _authService.LoginWithMicrosoftAsync();
                 
-            _loginStore.RegisterLogin(newAccount);
+            _identityStore.RegisterLogin(newAccount);
             var title = LocalizationService.Instance["Success.LoginMicrosoftTitle"];
             var desc = LocalizationService.Instance["Success.LoginMicrosoftDesc"];
             _notificationService.ShowSuccess(title, desc);
             _overlayService.SetClosable(true);
             WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
-            WeakReferenceMessenger.Default.Send(new MicrosoftLoggedMessage(newAccount));
+            WeakReferenceMessenger.Default.Send(new AccountLoggedMessage(newAccount));
         }
         catch (Exception ex) 
         { 
@@ -154,16 +155,16 @@ public partial class LoginViewModel: ObservableObject
     {
         if (parameter is UserAccount account)
         {
-            _loginStore.CurrentAccount = account;
+            _identityStore.CurrentAccount = account;
         }
     }
     
     [RelayCommand]
-    private void LogOut(object parameter)
+    private void DeleteAccount(object parameter)
     {
         if (parameter is UserAccount account)
         {
-            HandleLogout(account);
+            HandleDeleteAccount(account);
         }
     }
 
