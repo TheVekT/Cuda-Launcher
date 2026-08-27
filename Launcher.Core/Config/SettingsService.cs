@@ -24,8 +24,7 @@ public class SettingsService : ISettingsService
         
         Directory.CreateDirectory(_pathsService.UserDataDirectory);
         _settingsFilePath = Path.Combine(_pathsService.UserDataDirectory, "settings.json");
-
-        // Читаем файл один раз при запуске сервиса
+        
         LoadRawJson();
     }
 

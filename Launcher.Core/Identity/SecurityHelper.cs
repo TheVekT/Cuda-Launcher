@@ -20,8 +20,7 @@ public static class SecurityHelper
             return null;
         }
     }
-
-    // Расшифровываем строку
+    
     public static string Unprotect(string cipherText)
     {
         if (string.IsNullOrEmpty(cipherText)) return cipherText;
