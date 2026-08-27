@@ -217,10 +217,19 @@
     "Errors.SkinValidation.NotPng": "Файл скіна повинен бути у форматі PNG.",
     "Errors.SkinValidation.WrongSize": "Неправильний розмір. Скін повинен бути 64x64 або 64x32.",
     "Errors.SkinValidation.InvalidPng": "Файл не є коректним зображенням PNG.",
-    "Errors.ApplyMojangSkin.Title": "Встановлення скіна не вдалося",
-    "Errors.ApplyMojangCape.Title": "Встановлення плаща не вдалося",
-    "Errors.ApplyMojangCharacter.Title": "Встановлення персонажа не вдалося",
-    "Errors.ApplyMojangCharacter.RateLimit": "Забагато запитів. Будь ласка, зачекайте трохи.",
-    "Errors.ApplyMojangCharacter.Unknown": "Сталася невідома помилка під час застосування персонажа."
+    "Warnings.ApplyMojangSkin.Title": "Встановлення скіна не вдалося",
+    "Warnings.ApplyMojangCape.Title": "Встановлення плаща не вдалося",
+    "Warnings.ApplyMojangCharacter.Title": "Встановлення персонажа не вдалося",
+    "Warnings.ApplyMojangCharacter.RateLimit": "Забагато запитів. Будь ласка, зачекайте трохи.",
+    "Warnings.ApplyMojangCharacter.Unknown": "Сталася невідома помилка під час застосування персонажа.",
+    "Info.MojangTokenExpired.Title": "Токен Mojang закінчився",
+    "Info.MojangTokenExpired.Desc": "Ваш токен Mojang для {0} закінчився. Будь ласка, увійдіть знову через Microsoft, щоб оновити його.",
+    "Warnings.NoInternetTitle": "Відсутнє підключення до Інтернету",
+    "Warnings.NoInternetDesc": "Ви зараз офлайн. Деякі функції будуть недоступні.",
+    "Errors.CantInstallVersion.Title": "Неможливо встановити версію",
+    "Errors.CantInstallVersion.Desc": "Не вдалося встановити файли для {0}. Перевірте підключення до інтернету.",
+    "Errors.CantInstallMods.Title": "Неможливо встановити моди",
+    "Errors.CantInstallMods.Desc": "Не вдалося встановити моди для {0}. Перевірте підключення до інтернету.",
+    "Errors.LaunchError.Title": "Помилка запуску"
   }
 }

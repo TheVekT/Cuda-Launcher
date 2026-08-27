@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Launcher.Core.Common.Enums;
 using Launcher.Core.Common.Models;
@@ -13,55 +14,64 @@ public class ModrinthService : IModrinthService
     public ModrinthService()
     {
         _httpClient = new HttpClient();
-        // ВАЖНО: Modrinth требует понятный User-Agent, иначе забанит
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("MineLauncher/dev (vviktor2007@gmail.com)");
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("CudaLauncher/dev (vviktor2007@gmail.com)");
     }
     
-    public async Task InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null)
+    public async Task<bool> InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null)
     {
-        if (instance.IsolationType == IsolationType.Global) return;
+        if (instance.IsolationType == IsolationType.Global) return false;
 
         string slug = null;
         if (instance.LoaderType == GameLoaderType.Fabric) slug = "fabric-api";
         else if (instance.LoaderType == GameLoaderType.Quilt) slug = "qsl";
 
-        if (slug == null) return;
+        if (slug == null) return false;
 
         try
         {
             progress?.Report(new LaunchState { Progress = 5, StatusText = $"Downloading {slug}..." });
             var downloadUrl = await GetLatestModDownloadUrlAsync(slug, instance.GameVersion, instance.LoaderType.ToString().ToLower());
             if (downloadUrl != null)
-            {
                 await DownloadModAsync(downloadUrl, modsFolder, $"{slug}-{instance.GameVersion}.jar");
-            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Modrinth] Failed to install {slug}: {ex.Message}");
+            Debug.WriteLine($"[Modrinth] Failed to install {slug}: {ex.Message}");
+            return false;
         }
+        return true;
     }
     
-    public async Task InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null)
+    public async Task<bool> InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null)
     {
-        if (instance.IsolationType == IsolationType.Global) return;
-        if (!instance.RequestPerformanceMods) return;
+        if (instance.IsolationType == IsolationType.Global) return false;
+        if (!instance.RequestPerformanceMods) return false;
 
         string[] targets = { "sodium", "iris" };
         string loaderStr = instance.LoaderType.ToString().ToLower();
 
         progress?.Report(new LaunchState { Progress = 10, StatusText = "Downloading performance mods..." });
-
-        foreach (var slug in targets)
+        
+        try
         {
-            progress?.Report(new LaunchState { Progress = 10, StatusText = $"Downloading {slug}..." });
-            var downloadUrl = await GetLatestModDownloadUrlAsync(slug, instance.GameVersion, loaderStr);
+            foreach (var slug in targets)
+            {
+                progress?.Report(new LaunchState { Progress = 10, StatusText = $"Downloading {slug}..." });
+                var downloadUrl = await GetLatestModDownloadUrlAsync(slug, instance.GameVersion, loaderStr);
             
-            if (downloadUrl == null)
-                throw new InvalidOperationException($"Мод {slug} недоступен для Minecraft {instance.GameVersion} на лоадере {instance.LoaderType}.");
+                if (downloadUrl == null)
+                    throw new InvalidOperationException($"Мод {slug} недоступен для Minecraft {instance.GameVersion} на лоадере {instance.LoaderType}.");
 
-            await DownloadModAsync(downloadUrl, modsFolder, $"{slug}-{instance.GameVersion}.jar");
+                await DownloadModAsync(downloadUrl, modsFolder, $"{slug}-{instance.GameVersion}.jar");
+            }
         }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            return false;
+        }
+        
+        return true;
     }
 
     // --- УНИВЕРСАЛЬНЫЕ МЕТОДЫ (ЗАГОТОВКА НА БУДУЩЕЕ) ---
@@ -95,8 +105,7 @@ public class ModrinthService : IModrinthService
     {
         Directory.CreateDirectory(folder);
         var filePath = Path.Combine(folder, fileName);
-
-        // Простая защита от повторного скачивания, если файл почему-то уже лежит
+        
         if (File.Exists(filePath)) return;
 
         var response = await _httpClient.GetAsync(url);

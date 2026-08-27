@@ -158,7 +158,11 @@ public partial class AddInstanceViewModel: ObservableObject
             
             if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
             {
-                _dispatcherService.Invoke(() => LoaderVersions.Clear());
+                _dispatcherService.Invoke(() => 
+                {
+                    LoaderVersions.Clear();
+                    SelectedLoaderVersion = null;
+                });
                 return;
             }
             
@@ -170,16 +174,7 @@ public partial class AddInstanceViewModel: ObservableObject
             _dispatcherService.Invoke(() => 
             {
                 LoaderVersions.ReplaceRange(versionList);
-            });
-
-            await Task.Delay(50);
-
-            _dispatcherService.Invoke(() => 
-            {
-                if (LoaderVersions.Count > 0)
-                {
-                    SelectedLoaderVersion = recommendedVersion ?? LoaderVersions.FirstOrDefault();
-                }
+                SelectedLoaderVersion = recommendedVersion ?? LoaderVersions.FirstOrDefault();
             });
         }
         catch (Exception ex)
@@ -196,20 +191,13 @@ public partial class AddInstanceViewModel: ObservableObject
 
             GameLoaderType type = GetLoaderType(SelectedModLoader.Name);
             
-            var loadedVersions = await _versionService.GetGameVersionsByTypeAsync(type);
+            var loadedVersions = await _versionService.GetGameVersionsByTypeAsync(type, _settingsStore.IsEnableSnapshots);
             var versionList = loadedVersions.ToList(); 
 
             _dispatcherService.Invoke(() => 
             {
-                if (versionList.Count == 0) return;
                 GameVersions.ReplaceRange(versionList);
-            });
-            
-            await Task.Delay(50);
-
-            _dispatcherService.Invoke(() => 
-            {
-                if (GameVersions.Count > 0) SelectedGameVersion = GameVersions[0];
+                SelectedGameVersion = GameVersions.FirstOrDefault();
             });
         }
         catch (Exception ex)

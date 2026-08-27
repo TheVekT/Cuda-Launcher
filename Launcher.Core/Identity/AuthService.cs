@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Text.Json;
 using CmlLib.Core.Auth;
 using CmlLib.Core.Auth.Microsoft;
@@ -60,7 +62,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
-            throw new Exception($"Microsoft Login failed: {ex.Message}");
+            throw new Exception($"Microsoft Login failed: {ex.Message}", ex);
         }
     }
 
@@ -72,45 +74,50 @@ public class AuthService : IAuthService
 
     public async Task<UserAccount> ValidateAndRefreshAccountAsync(UserAccount account)
     {
-        if (account == null) return null;
         if (account.IsOffline) return account;
         
         if (string.IsNullOrEmpty(account.AccessToken))
             throw new UnauthorizedAccessException("Token is missing.");
-        
+        HttpResponseMessage response;
         try
         {
             Debug.WriteLine($"[Auth] Validating token for {account.Username}...");
             using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.minecraftservices.com/minecraft/profile");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", account.AccessToken);
             
-            var response = await _httpClient.SendAsync(request);
-            
-            if (response.IsSuccessStatusCode)
+            response = await _httpClient.SendAsync(request);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or SocketException or TaskCanceledException)
+        {
+            Debug.WriteLine($"[Auth Warn] Network unreachable. Proceeding with cached credentials for {account.Username}.");
+            return account;
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(content);
+            if (doc.RootElement.TryGetProperty("name", out var nameElement))
             {
-                var content = await response.Content.ReadAsStringAsync();
-                using var doc = JsonDocument.Parse(content);
-                if (doc.RootElement.TryGetProperty("name", out var nameElement))
-                {
-                    account.Username = nameElement.GetString();
-                }
-                Debug.WriteLine($"[Auth] Token is valid. User: {account.Username}");
-                return account;
+                account.Username = nameElement.GetString() ?? account.Username;
             }
-            else
+            Debug.WriteLine($"[Auth] Token is valid. User: {account.Username}");
+            return account;
+        }
+        
+        if (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden)
+        {
+            Debug.WriteLine("[Auth] Token expired! Starting built-in Silent Refresh...");
+            try
             {
-                Debug.WriteLine("[Auth] Token expired! Starting built-in Silent Refresh...");
-                
                 var authenticator = _loginHandler.CreateAuthenticatorWithDefaultAccount();
 
-                // Silent refresh mode
                 authenticator.AddMicrosoftOAuthForJE(oauth => oauth.Silent()); 
                 authenticator.AddXboxAuthForJE(xbox => xbox.Basic());
                 authenticator.AddJEAuthenticator();
 
                 var newSession = await authenticator.ExecuteForLauncherAsync();
 
-                // Force persist the refreshed tokens to the disk
                 _loginHandler.AccountManager.SaveAccounts();
 
                 account.AccessToken = newSession.AccessToken;
@@ -120,11 +127,18 @@ public class AuthService : IAuthService
                 Debug.WriteLine("[Auth] Silent Refresh pipeline completed successfully!");
                 return account;
             }
+            catch (Exception ex) when (ex is HttpRequestException or SocketException or TaskCanceledException)
+            {
+                Debug.WriteLine($"[Auth Warn] Network unreachable during Silent Refresh. Keeping cached credentials for {account.Username}.");
+                return account;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Auth Error] Refresh failed: {ex.Message}");
+                throw new UnauthorizedAccessException("Session expired or cache is empty. Manual Microsoft login required.", ex);
+            }
         }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[Auth Error] Refresh failed: {ex.Message}");
-            throw new Exception("Session expired or cache is empty. Manual Microsoft login required.", ex);
-        }
+
+        return account;
     }
 }

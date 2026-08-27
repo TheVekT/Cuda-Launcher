@@ -299,7 +299,7 @@ public class TimeAgoConverter : IValueConverter
     {
         // 1. Обработка null (Если игры никогда не запускались)
         if (value == null)
-            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_Never]; // Ты писал "Newer", но по смыслу LastPlayed это "Never" (Никогда)
+            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_Never];
 
         // 2. Проверка типа
         if (value is not DateTime date)

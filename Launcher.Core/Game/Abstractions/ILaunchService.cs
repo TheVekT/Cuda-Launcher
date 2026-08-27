@@ -10,7 +10,7 @@ public interface ILaunchService
 {
     event Action<MinecraftInstance, GameCrashReport>? GameCrashed;
     
-    Task<Result<Process>> LaunchGameAsync(
+    Task<Result<GameLaunchResult>> LaunchGameAsync(
         MinecraftInstance instance, 
         UserAccount account, 
         GlobalLaunchSettings globalSettings, 

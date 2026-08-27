@@ -5,6 +5,7 @@ using Launcher.Core.Config.Abstractions;
 using Launcher.Core.Config.Models;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.Identity.Models;
+using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
@@ -18,6 +19,7 @@ public partial class IdentityStore : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IAuthService _authService;
     private readonly IDispatcherService _dispatcherService;
+    private readonly INotificationService _notificationService;
     
     private bool _isLoggingIn;
     private UserAccount? _currentAccount;
@@ -33,12 +35,14 @@ public partial class IdentityStore : ObservableObject
     public IdentityStore(IAccountStorageService accountStorage, 
         ISettingsService settingsService, 
         IAuthService authService,
-        IDispatcherService dispatcherService)
+        IDispatcherService dispatcherService,
+        INotificationService notificationService)
     {
         _accountStorage = accountStorage;
         _settingsService = settingsService;
         _authService = authService;
         _dispatcherService = dispatcherService;
+        _notificationService = notificationService;
         
         _settingsService.Initialize(this);
         
@@ -87,8 +91,6 @@ public partial class IdentityStore : ObservableObject
     
     public async Task RefreshAllAccountsAsync()
     {
-        bool isChanged = false;
-        
         var accountsList = Accounts.ToList(); 
 
         foreach (var acc in accountsList)
@@ -98,33 +100,30 @@ public partial class IdentityStore : ObservableObject
             try
             {
                 await _authService.ValidateAndRefreshAccountAsync(acc);
-                isChanged = true; 
             }
-            catch (Exception ex)
+            catch (UnauthorizedAccessException ex)
             {
-                Debug.WriteLine($"[Auth] Account {acc.Username} validation failed: {ex.Message}");
+                Debug.WriteLine($"[Auth] Account {acc.Username} is unauthorized or token expired: {ex.Message}");
                 
                 _dispatcherService.Invoke(() => 
                 {
                     Accounts.Remove(acc);
-    
-                    isChanged = true;
-    
+                    
                     if (CurrentAccount == acc && Accounts.Count > 0)
-                    {
                         CurrentAccount = Accounts.FirstOrDefault();
-                    }
                     else if (Accounts.Count == 0)
-                    {
                         CurrentAccount = null;
-                    }
                 });
+                var title = LocalizationService.Instance[LocKey.Info_MojangTokenExpired_Title];
+                var description = LocalizationService.Instance[LocKey.Info_MojangTokenExpired_Desc];
+                _notificationService.ShowInfo(title, string.Format(description, acc.Username));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Auth] Unexpected error while refreshing account {acc.Username}: {ex.Message}");
             }
         }
-        if (isChanged)
-        {
-            _accountStorage.SaveAccounts(Accounts);
-        }
+        _accountStorage.SaveAccounts(Accounts);
     }
     
     //Getters and Setters

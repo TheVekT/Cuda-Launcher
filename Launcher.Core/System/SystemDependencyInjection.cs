@@ -9,6 +9,7 @@ public static class SystemDependencyInjection
     {
         services.AddSingleton<ISymlinkService, SymlinkService>();
         services.AddSingleton<ISysInfoService, SysInfoService>();
+        services.AddSingleton<IConnectivityService, ConnectivityService>();
 
         return services;
     }

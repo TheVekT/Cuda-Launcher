@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Common.Models;
 using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Models;
 
 namespace Launcher.UI.WPF.Views.Common.Notifications
 {

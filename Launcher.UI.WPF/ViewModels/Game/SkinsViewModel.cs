@@ -168,15 +168,15 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
         {
             var titleKey = (skinSuccess, capeSuccess) switch
             {
-                (false, false) => LocKey.Errors_ApplyMojangCharacter_Title,
-                (false, true)  => LocKey.Errors_ApplyMojangSkin_Title,
-                _              => LocKey.Errors_ApplyMojangCape_Title
+                (false, false) => LocKey.Warnings_ApplyMojangCharacter_Title,
+                (false, true)  => LocKey.Warnings_ApplyMojangSkin_Title,
+                _              => LocKey.Warnings_ApplyMojangCape_Title
             };
             var isRateLimited = skinStatus == NetworkRequestStatus.RateLimited || 
                                 capeStatus == NetworkRequestStatus.RateLimited;
             var descKey = isRateLimited
-                ? LocKey.Errors_ApplyMojangCharacter_RateLimit
-                : LocKey.Errors_ApplyMojangCharacter_Unknown;
+                ? LocKey.Warnings_ApplyMojangCharacter_RateLimit
+                : LocKey.Warnings_ApplyMojangCharacter_Unknown;
             _notificationService.ShowWarning(
                 LocalizationService.Instance[titleKey], 
                 LocalizationService.Instance[descKey]);

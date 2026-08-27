@@ -191,7 +191,11 @@ public partial class EditInstanceViewModel : ObservableObject
 
             if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
             {
-                _dispatcherService.Invoke(() => LoaderVersions.Clear());
+                _dispatcherService.Invoke(() => 
+                {
+                    LoaderVersions.Clear();
+                    SelectedLoaderVersion = null;
+                });
                 return;
             }
 
@@ -206,6 +210,10 @@ public partial class EditInstanceViewModel : ObservableObject
                 if (!string.IsNullOrEmpty(currentSavedVersion) && LoaderVersions.Contains(currentSavedVersion))
                 {
                     SelectedLoaderVersion = currentSavedVersion;
+                }
+                else
+                {
+                    SelectedLoaderVersion = LoaderVersions.FirstOrDefault();
                 }
             });
         }
@@ -249,7 +257,6 @@ public partial class EditInstanceViewModel : ObservableObject
     
     #region Relay Commands
     
-    //Commands
     [RelayCommand]
     private void CloseSelf() =>
         WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());

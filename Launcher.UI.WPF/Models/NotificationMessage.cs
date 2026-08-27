@@ -1,6 +1,6 @@
 using Launcher.Core.Common.Enums;
 
-namespace Launcher.Core.Common.Models;
+namespace Launcher.UI.WPF.Models;
 
 public class NotificationMessage
 {

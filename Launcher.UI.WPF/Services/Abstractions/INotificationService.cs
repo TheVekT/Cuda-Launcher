@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Launcher.Core.Common.Enums;
 using Launcher.Core.Common.Models;
+using Launcher.UI.WPF.Models;
 
 namespace Launcher.Core.UI.Abstractions;
 

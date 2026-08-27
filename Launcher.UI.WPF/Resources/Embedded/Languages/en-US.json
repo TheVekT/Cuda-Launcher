@@ -217,10 +217,19 @@
     "Errors.SkinValidation.NotPng": "Skin file must be a PNG image.",
     "Errors.SkinValidation.WrongSize": "Wrong size. Skin must be 64x64 or 64x32.",
     "Errors.SkinValidation.InvalidPng": "File is not a valid PNG image.",
-    "Errors.ApplyMojangSkin.Title": "Skin apply failed",
-    "Errors.ApplyMojangCape.Title": "Cape apply failed",
-    "Errors.ApplyMojangCharacter.Title": "Character apply failed",
-    "Errors.ApplyMojangCharacter.RateLimit": "Too many requests. Please wait a moment.",
-    "Errors.ApplyMojangCharacter.Unknown": "Unknown error occurred while applying cape."
+    "Warnings.ApplyMojangSkin.Title": "Skin apply failed",
+    "Warnings.ApplyMojangCape.Title": "Cape apply failed",
+    "Warnings.ApplyMojangCharacter.Title": "Character apply failed",
+    "Warnings.ApplyMojangCharacter.RateLimit": "Too many requests. Please wait a moment.",
+    "Warnings.ApplyMojangCharacter.Unknown": "Unknown error occurred while applying cape.",
+    "Errors.MojangTokenExpired.Title": "Mojang token expired",
+    "Errors.MojangTokenExpired.Desc": "Your Mojang token for {0} has expired. Please log in again to refresh your session.",
+    "Warnings.NoInternetTitle": "No internet connection",
+    "Warnings.NoInternetDesc": "You are currently offline. Some features will be unavailable.",
+    "Errors.CantInstallVersion.Title": "Cant install version",
+    "Errors.CantInstallVersion.Desc": "Cant install files for {0}. Check your internet connection.",
+    "Errors.CantInstallMods.Title": "Cant install mods",
+    "Errors.CantInstallMods.Desc": "Cant install mods for {0}. Check your internet connection.",
+    "Errors.LaunchError.Title": "Game launch failed"
   }
 }

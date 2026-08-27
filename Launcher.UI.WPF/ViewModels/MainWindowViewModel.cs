@@ -1,12 +1,17 @@
 using System.Diagnostics;
+using System.IO;
+using System.Net.Http;
+using System.Net.Sockets;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using FluentResults;
 using Launcher.Core.Common.Enums;
 using Launcher.Core.Common.Messages;
 using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.Integrations.Abstractions;
+using Launcher.Core.System.Abstractions;
 using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
@@ -36,6 +41,7 @@ public partial class MainWindowViewModel : ObservableObject,
     private readonly IDispatcherService _dispatcherService;
     private readonly INotificationService _notificationService;
     private readonly IClipboardService _clipboardService;
+    private readonly IConnectivityService _connectivityService;
 
     //Stores
     private readonly IdentityStore _identityStore;
@@ -45,11 +51,11 @@ public partial class MainWindowViewModel : ObservableObject,
     private readonly SkinsStore _skinsStore;
     
     //ViewModels
-    private PlayViewModel _playVM { get; }
-    private InstallationsViewModel _installationsVM { get; }
-    private SkinsViewModel _skinsVM { get; }
-    private LoginViewModel _loginViewModel { get; }
-    private SettingsViewModel _settingsViewModel { get; }
+    private readonly PlayViewModel _playVM;
+    private readonly InstallationsViewModel _installationsVM;
+    private readonly SkinsViewModel _skinsVM;
+    private readonly LoginViewModel _loginViewModel;
+    private readonly SettingsViewModel _settingsViewModel;
     
     
     //Public ViewModels 
@@ -77,6 +83,14 @@ public partial class MainWindowViewModel : ObservableObject,
         await _identityStore.RefreshAllAccountsAsync();
         await _skinsVM.SyncWithMojangAsync(_identityStore.CurrentAccount?.AccessToken);
         _ = Task.Run(async () => await _versionService.GetGameVersionsByTypeAsync(GameLoaderType.Vanilla));
+
+        bool isOnline = await _connectivityService.CheckInternetAccessAsync();
+        if (!isOnline)
+        {
+            var title = LocalizationService.Instance[LocKey.Warnings_NoInternetTitle] ?? "No Internet Connection";
+            var desc = LocalizationService.Instance[LocKey.Warnings_NoInternetDesc] ?? "You are currently offline. Some features and online versions will be unavailable.";
+            _notificationService.ShowWarning(title, desc);
+        }
     }
 
     public MainWindowViewModel(
@@ -89,6 +103,7 @@ public partial class MainWindowViewModel : ObservableObject,
         IDispatcherService dispatcherService,
         INotificationService notificationService,
         IClipboardService clipboardService,
+        IConnectivityService connectivityService,
         IdentityStore identityStore,
         SettingsStore settingsStore,
         InstancesStore instancesStore,
@@ -109,6 +124,7 @@ public partial class MainWindowViewModel : ObservableObject,
         _dispatcherService = dispatcherService;
         _notificationService = notificationService;
         _clipboardService = clipboardService;
+        _connectivityService = connectivityService;
 
         //Stores
         _identityStore = identityStore;
@@ -145,7 +161,9 @@ public partial class MainWindowViewModel : ObservableObject,
     {
         if (_appStore.IsGameRunning)
         {
+            _launchService.GameCrashed -= OnGameCrashed;
             await CloseGameProcess();
+            _launchService.GameCrashed += OnGameCrashed;
         }
         else if (_appStore.IsDownloading)
         {
@@ -153,7 +171,7 @@ public partial class MainWindowViewModel : ObservableObject,
         }
         else
         {
-            await LaunchGame(); 
+            await LaunchGameAsync(); 
         }
     }
     
@@ -173,7 +191,7 @@ public partial class MainWindowViewModel : ObservableObject,
         }
     }
     
-    private async Task LaunchGame()
+    private async Task LaunchGameAsync()
     {
         if (_appStore.IsDownloading) return;
         if (_appStore.IsGameRunning) return;
@@ -209,9 +227,16 @@ public partial class MainWindowViewModel : ObservableObject,
 
             if (result.IsSuccess)
             {
-                _currentGameProcess = result.Value;
+                _currentGameProcess = result.Value.Process;
                 _appStore.IsGameRunning = true;
                 _appStore.IsDownloading = false;
+                
+                if (result.Value.IsPerformanceModsInstalled == false || result.Value.IsEssentialApisInstalled == false)
+                {
+                    var title = LocalizationService.Instance[LocKey.Errors_CantInstallMods_Title];
+                    var desc = LocalizationService.Instance[LocKey.Errors_CantInstallMods_Desc];
+                    _notificationService.ShowError(title, string.Format(desc, _instancesStore.SelectedInstance.Name));
+                }
 
                 Console.WriteLine("Game started!");
                 if (!_settingsStore.IsKeepLauncherOpen)
@@ -219,24 +244,40 @@ public partial class MainWindowViewModel : ObservableObject,
 
                 await _currentGameProcess.WaitForExitAsync();
             }
-            else
+            else if (result.IsFailed)
             {
-                _appStore.IsDownloading = false;
-                IsEnabledInstancesComboBox = true;
-                
-                var errorMessage = string.Join(Environment.NewLine, result.Errors.Select(x => x.Message));
-                _notificationService.ShowError(
-                    "Launch Error", 
-                    errorMessage);
+                var rootException = result.Errors
+                    .SelectMany(e => e.Reasons.OfType<ExceptionalError>())
+                    .Select(e => e.Exception)
+                    .FirstOrDefault();
+                if (rootException is HttpRequestException or SocketException)
+                {
+                    Debug.WriteLine($"[Launch Error] Network error: {rootException.Message}");
+                    _notificationService.ShowError(
+                        LocalizationService.Instance[LocKey.Errors_CantInstallVersion_Title],
+                        string.Format(LocalizationService.Instance[LocKey.Errors_CantInstallVersion_Desc], _instancesStore.SelectedInstance.Name));
+                }
+                else if (rootException is FileNotFoundException or DirectoryNotFoundException)
+                {
+                    Debug.WriteLine($"[Launch Error] File or directory not found: {rootException.Message}");
+                    _notificationService.ShowError(
+                        LocalizationService.Instance[LocKey.Errors_LaunchError_Title],
+                        $"Required file or directory not found: {rootException.Message}");
+                }
+                else
+                {
+                    var errorMessage = string.Join(Environment.NewLine, result.Errors.Select(x => x.Message));
+                    _notificationService.ShowError(
+                        LocalizationService.Instance[LocKey.Errors_LaunchError_Title],
+                        errorMessage);
+                }
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine(ex);
-            _appStore.IsDownloading = false;
-            IsEnabledInstancesComboBox = true;
             _notificationService.ShowError(
-                "Launch Error", 
+                LocalizationService.Instance[LocKey.Errors_LaunchError_Title],
                 ex.Message);
         }
         finally

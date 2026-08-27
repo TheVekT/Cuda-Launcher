@@ -5,6 +5,6 @@ namespace Launcher.Core.Mods.Abstractions;
 
 public interface IModrinthService
 {
-    Task InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null);
-    Task InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null);
+    Task<bool> InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null);
+    Task<bool> InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null);
 }
