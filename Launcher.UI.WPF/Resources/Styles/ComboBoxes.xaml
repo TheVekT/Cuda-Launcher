@@ -46,7 +46,7 @@
                                     Height="11"
                                     Margin="0,0,12,0"
                                     Stretch="Uniform"
-                                    Stroke="{DynamicResource DropDownArrowBrush}"
+                                    Stroke="{DynamicResource ForegroundSecondaryBrush}"
                                     VerticalAlignment="Center"
                                     Width="11" />
                             </Grid>
@@ -54,7 +54,7 @@
 
                         <ToggleButton
                             Background="Transparent"
-                            BorderThickness="{DynamicResource SecondBorderThickness}"
+                            BorderThickness="{DynamicResource SecondaryBorderThickness}"
                             IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                             x:Name="PART_ToggleButton">
                             <ToggleButton.Template>
@@ -155,7 +155,7 @@
                                     Height="11"
                                     Margin="0,0,12,0"
                                     Stretch="Uniform"
-                                    Stroke="{DynamicResource DropDownArrowBrush}"
+                                    Stroke="{DynamicResource ForegroundSecondaryBrush}"
                                     VerticalAlignment="Center"
                                     Width="11" />
                             </Grid>
@@ -163,7 +163,7 @@
 
                         <ToggleButton
                             Background="Transparent"
-                            BorderThickness="{DynamicResource SecondBorderThickness}"
+                            BorderThickness="{DynamicResource SecondaryBorderThickness}"
                             IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                             x:Name="PART_ToggleButton">
                             <ToggleButton.Template>
@@ -262,7 +262,7 @@
                                     Height="11"
                                     Margin="0,0,12,0"
                                     Stretch="Uniform"
-                                    Stroke="{DynamicResource DropDownArrowBrush}"
+                                    Stroke="{DynamicResource ForegroundSecondaryBrush}"
                                     VerticalAlignment="Center"
                                     Width="11" />
                             </Grid>
@@ -270,7 +270,7 @@
 
                         <ToggleButton
                             Background="Transparent"
-                            BorderThickness="{DynamicResource SecondBorderThickness}"
+                            BorderThickness="{DynamicResource SecondaryBorderThickness}"
                             IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                             x:Name="PART_ToggleButton">
                             <ToggleButton.Template>
@@ -533,7 +533,7 @@
                                     Height="11"
                                     Margin="0,0,12,0"
                                     Stretch="Uniform"
-                                    Stroke="{DynamicResource DropDownArrowBrush}"
+                                    Stroke="{DynamicResource ForegroundSecondaryBrush}"
                                     VerticalAlignment="Center"
                                     Width="11" />
                             </Grid>
@@ -541,7 +541,7 @@
 
                         <ToggleButton
                             Background="Transparent"
-                            BorderThickness="{DynamicResource SecondBorderThickness}"
+                            BorderThickness="{DynamicResource SecondaryBorderThickness}"
                             IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                             x:Name="PART_ToggleButton">
                             <ToggleButton.Template>

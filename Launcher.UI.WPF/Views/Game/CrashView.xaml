@@ -43,7 +43,7 @@
                         <Path
                             Data="{StaticResource Icon.XCircle}"
                             Stretch="Uniform"
-                            Stroke="{DynamicResource ColorDangerBrush}"
+                            Stroke="{DynamicResource DangerForegroundBrush}"
                             StrokeThickness="1.33" />
                     </Border>
                     <TextBlock
@@ -51,7 +51,7 @@
                         FontWeight="Bold"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
                         Margin="10,0,0,0"
-                        Text="{Binding Source={StaticResource Loc}, Path=[CrashReportView.Title]}"
+                        Text="{helpers:Loc CrashReportView_Title}"
                         VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel
@@ -61,7 +61,7 @@
                     <TextBlock
                         FontSize="14"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                        Text="{Binding Source={StaticResource Loc}, Path=[CrashReportView.ExitCode]}"
+                        Text="{helpers:Loc CrashReportView_ExitCode}"
                         VerticalAlignment="Center" />
                     <TextBlock
                         FontSize="14"
@@ -78,7 +78,7 @@
                         FontSize="14"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
                         Margin="0,0,0,8"
-                        Text="{Binding Source={StaticResource Loc}, Path=[CrashReportView.StackTrace]}"
+                        Text="{helpers:Loc CrashReportView_StackTrace}"
                         VerticalAlignment="Center" />
                     <Border
                         Background="{DynamicResource BackgroundTransparentBrush}"
@@ -105,7 +105,7 @@
                     <TextBlock
                         FontSize="14"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                        Text="{Binding Source={StaticResource Loc}, Path=[CrashReportView.FromFile]}"
+                        Text="{helpers:Loc CrashReportView_FromFile}"
                         VerticalAlignment="Center" />
                     <TextBlock
                         FontSize="14"
@@ -123,7 +123,7 @@
                     <TextBlock Grid.Column="0" />
                     <Button
                         Command="{Binding CopyStackTraceCommand}"
-                        Content="{Binding Source={StaticResource Loc}, Path=[CrashReportView.CopyError]}"
+                        Content="{helpers:Loc CrashReportView_CopyError}"
                         FontSize="13"
                         Grid.Column="1"
                         Height="30"
@@ -133,7 +133,7 @@
                         helpers:ButtonHelper.IconSize="12" />
                     <Button
                         Command="{Binding CloseSelfCommand}"
-                        Content="{Binding Source={StaticResource Loc}, Path=[CrashReportView.Close]}"
+                        Content="{helpers:Loc CrashReportView_Close}"
                         FontSize="13"
                         Grid.Column="2"
                         Height="30"

@@ -38,12 +38,12 @@
                     FontSize="20"
                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                     Grid.Column="0"
-                    Text="{Binding Source={StaticResource Loc}, Path=[Installations.Header.Title]}"
+                    Text="{helpers:Loc Installations_Header_Title}"
                     VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" />
                 <Button
                     Command="{Binding OpenAddVersionCommand}"
-                    Content="{Binding Source={StaticResource Loc}, Path=[Installations.Header.NewInstallationButton]}"
+                    Content="{helpers:Loc Installations_Header_NewInstallationButton}"
                     FontSize="13"
                     Grid.Column="2"
                     Height="30"
@@ -94,10 +94,10 @@
                         Style="{StaticResource DefaultComboBox}"
                         Width="180">
 
-                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.LastPlayed]}" />
-                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.Name]}" />
-                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.GameVersion]}" />
-                        <ComboBoxItem Content="{Binding Source={StaticResource Loc}, Path=[Installations.Sort.ModLoader]}" />
+                        <ComboBoxItem Content="{helpers:Loc Installations_Sort_LastPlayed}" />
+                        <ComboBoxItem Content="{helpers:Loc Installations_Sort_Name}" />
+                        <ComboBoxItem Content="{helpers:Loc Installations_Sort_GameVersion}" />
+                        <ComboBoxItem Content="{helpers:Loc Installations_Sort_ModLoader}" />
                     </ComboBox>
                 </Grid>
 

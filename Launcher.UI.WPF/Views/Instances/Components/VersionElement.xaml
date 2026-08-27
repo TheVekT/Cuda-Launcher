@@ -14,7 +14,7 @@
         VerticalAlignment="Top"
         x:Name="VersionCard">
         <Border
-            Background="{DynamicResource BackgroundLowTransparentBrush}"
+            Background="{DynamicResource BackgroundCardBrush}"
             BorderBrush="{DynamicResource BorderPrimaryBrush}"
             BorderThickness="{DynamicResource DefaultBorderThickness}"
             CornerRadius="{DynamicResource DefaultCorner}"
@@ -50,14 +50,14 @@
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal">
                         <TextBlock FontSize="12" Foreground="{DynamicResource ForegroundSecondaryBrush}">
-                            <Run Text="{Binding Source={StaticResource Loc}, Path=[VersionElement.VersionLabel], Mode=OneWay}" />
+                            <Run Text="{helpers:Loc VersionElement_VersionLabel}" />
                             <Run Text="{Binding Path=(helpers:VersionElementHelper.GameVersion), RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </TextBlock>
                         <TextBlock
                             FontSize="12"
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Margin="12,0,0,0">
-                            <Run Text="{Binding Source={StaticResource Loc}, Path=[VersionElement.LastPlayedLabel], Mode=OneWay}" />
+                            <Run Text="{helpers:Loc VersionElement_LastPlayedLabel}" />
                             <Run Text="{Binding Path=(helpers:VersionElementHelper.LastPlayed), RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </TextBlock>
                     </StackPanel>
@@ -111,7 +111,7 @@
                         Command="{Binding Path=(helpers:VersionElementHelper.DeleteCommand), RelativeSource={RelativeSource AncestorType=UserControl}}"
                         CommandParameter="{Binding Path=(helpers:VersionElementHelper.Instance), RelativeSource={RelativeSource AncestorType=UserControl}}"
                         FontSize="12"
-                        Foreground="{DynamicResource ColorDangerBrush}"
+                        Foreground="{DynamicResource DangerForegroundBrush}"
                         Height="35"
                         Padding="0"
                         Style="{StaticResource DefaultButtonStyle}"

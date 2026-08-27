@@ -52,7 +52,7 @@
     <Style TargetType="Button" x:Key="AccentButtonStyle">
         <Setter Property="Background" Value="{DynamicResource BackgroundAccentBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ForegroundOnAccentBrush}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource SecondBorderThickness}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource SecondaryBorderThickness}" />
         <Setter Property="helpers:ButtonHelper.CornerRadius" Value="{DynamicResource DefaultCorner}" />
         <Setter Property="Padding" Value="10,0" />
 
@@ -316,7 +316,7 @@
                             <Setter Property="Visibility" TargetName="ContentView" Value="Collapsed" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
+                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource OverlayHoverButtonBackgroundBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -378,7 +378,7 @@
                             <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource ColorDangerBrush}" />
+                            <Setter Property="Background" TargetName="PART_Border" Value="{DynamicResource DangerForegroundBrush}" />
                             <Setter Property="Foreground" Value="{DynamicResource ForegroundOnAccentBrush}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">

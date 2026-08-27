@@ -299,15 +299,15 @@ public class TimeAgoConverter : IValueConverter
     {
         // 1. Обработка null (Если игры никогда не запускались)
         if (value == null)
-            return LocalizationService.Instance["VersionElement.LastPlayed.Never"]; // Ты писал "Newer", но по смыслу LastPlayed это "Never" (Никогда)
+            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_Never]; // Ты писал "Newer", но по смыслу LastPlayed это "Never" (Никогда)
 
         // 2. Проверка типа
         if (value is not DateTime date)
-            return LocalizationService.Instance["VersionElement.LastPlayed.Never"];
+            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_Never];
 
         // Если дата "минимальная" (дефолтная), считаем что не играли
         if (date == DateTime.MinValue)
-            return LocalizationService.Instance["VersionElement.LastPlayed.Never"];
+            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_Never];
 
         var timeSpan = DateTime.Now - date;
 
@@ -315,26 +315,26 @@ public class TimeAgoConverter : IValueConverter
         
         // Меньше минуты
         if (timeSpan.TotalSeconds < 60)
-            return LocalizationService.Instance["VersionElement.LastPlayed.JustNow"];
+            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_JustNow];
 
         // Меньше часа (минуты)
         if (timeSpan.TotalMinutes < 60)
-            return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XMinsAgo"], timeSpan.Minutes);
+            return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XMinsAgo], timeSpan.Minutes);
 
         // Меньше суток (часы)
         if (timeSpan.TotalHours < 24)
         {
             // Можно добавить логику для "1 hr." vs "2 hrs.", но обычно сокращения hr. достаточно
-            return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XHoursAgo"], timeSpan.Hours);
+            return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XHoursAgo], timeSpan.Hours);
         }
 
         // Меньше 48 часов (вчера / 1 день назад)
         if (timeSpan.TotalDays < 2)
-            return LocalizationService.Instance["VersionElement.LastPlayed.1DayAgo"];
+            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_1DayAgo];
 
         // Меньше месяца (дни)
         if (timeSpan.TotalDays < 30)
-            return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XDaysAgo"], timeSpan.Days);
+            return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XDaysAgo], timeSpan.Days);
 
         // Меньше года (месяцы)
         if (timeSpan.TotalDays < 365)
@@ -342,22 +342,22 @@ public class TimeAgoConverter : IValueConverter
             int months = (int)(timeSpan.TotalDays / 30);
             if (months <= 1)
             {
-                return LocalizationService.Instance["VersionElement.LastPlayed.1MonthAgo"];
+                return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_1MonthAgo];
             }
             else
             {
-                return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XMonthsAgo"], months);
+                return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XMonthsAgo], months);
             }
         }
 
         // Больше года
         // Если чуть больше года
         if (timeSpan.TotalDays < 730) // меньше 2 лет
-            return LocalizationService.Instance["VersionElement.LastPlayed.OverYearAgo"];
+            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_OverYearAgo];
         
         // Если много лет
         int years = (int)(timeSpan.TotalDays / 365);
-        return string.Format(LocalizationService.Instance["VersionElement.LastPlayed.XYearsAgo"], years);
+        return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XYearsAgo], years);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

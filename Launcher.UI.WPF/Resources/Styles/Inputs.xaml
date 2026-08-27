@@ -26,7 +26,7 @@
                                 Foreground="{DynamicResource ForegroundPlaceholderBrush}"
                                 IsHitTestVisible="False"
                                 Margin="{TemplateBinding Padding}"
-                                Text="{Binding Source={x:Static local:LocalizationService.Instance}, Path=[Installations.Header.SearchInstallations]}"
+                                Text="{helpers:Loc Installations_Header_SearchInstallations}"
                                 VerticalAlignment="Center"
                                 Visibility="Collapsed"
                                 x:Name="PlaceholderText" />
@@ -166,7 +166,7 @@
     <Style TargetType="RadioButton" x:Key="SegmentedTabButtonStyle">
         <Setter Property="Foreground" Value="{DynamicResource OverlaySelectionBrush}" />
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="{DynamicResource SecondBorderThickness}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource SecondaryBorderThickness}" />
         <Setter Property="Padding" Value="20,6" />
         <Setter Property="Margin" Value="2,0" />
         <Setter Property="FontSize" Value="14" />

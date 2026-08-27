@@ -36,12 +36,12 @@
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
                         Grid.Row="0"
                         Margin="0,0,0,5"
-                        Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Manager.Title]}" />
+                        Text="{helpers:Loc LoginMenu_Manager_Title}" />
                     <TextBlock
                         FontSize="13"
                         Foreground="{DynamicResource ForegroundSecondaryBrush}"
                         Grid.Row="1"
-                        Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Manager.Subtitle]}" />
+                        Text="{helpers:Loc LoginMenu_Manager_Subtitle}" />
                     <Border
                         Background="{DynamicResource OverlayButtonBackgroundBrush}"
                         BorderBrush="{DynamicResource BackgroundAccentBrush}"
@@ -90,10 +90,10 @@
                                     x:Name="AccountType">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Text" Value="{Binding Source={StaticResource Loc}, Path=[AccountCard.MicrosoftType]}" />
+                                            <Setter Property="Text" Value="{helpers:Loc AccountCard_MicrosoftType}" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IdentityStore.CurrentAccount.IsOffline}" Value="True">
-                                                    <Setter Property="Text" Value="{Binding Source={StaticResource Loc}, Path=[AccountCard.OfflineType]}" />
+                                                    <Setter Property="Text" Value="{helpers:Loc AccountCard_OfflineType}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -132,7 +132,7 @@
                                 VerticalAlignment="Center">
                                 <TextBlock.Text>
                                     <MultiBinding Converter="{StaticResource StringFormatConverter}">
-                                        <Binding Path="[LoginMenu.Manager.AccountListTitle]" Source="{StaticResource Loc}" />
+                                        <helpers:Loc Key="LoginMenu_Manager_AccountListTitle" />
 
                                         <Binding Path="AccountCount" />
                                     </MultiBinding>
@@ -140,7 +140,7 @@
                             </TextBlock>
                             <Button
                                 Command="{Binding AddNewAccountCommand}"
-                                Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Manager.AddAccountButton]}"
+                                Content="{helpers:Loc LoginMenu_Manager_AddAccountButton}"
                                 Grid.Column="1"
                                 Height="30"
                                 Style="{StaticResource AccentButtonStyle}"
@@ -189,27 +189,27 @@
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
                         Grid.Row="0"
                         Margin="0,0,0,5"
-                        Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.Title]}" />
+                        Text="{helpers:Loc LoginMenu_Add_Title}" />
                     <TextBlock
                         FontSize="13"
                         Foreground="{DynamicResource ForegroundSecondaryBrush}"
                         Grid.Row="1"
-                        Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.Subtitle]}" />
+                        Text="{helpers:Loc LoginMenu_Add_Subtitle}" />
                     <StackPanel Grid.Row="2" Margin="0,10">
                         <TextBlock
                             FontSize="14"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
                             Margin="0,5,0,0"
-                            Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.AccountTypeLabel]}" />
+                            Text="{helpers:Loc LoginMenu_Add_AccountTypeLabel}" />
                         <RadioButton
-                            Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.MicrosoftTypeLabel]}"
+                            Content="{helpers:Loc LoginMenu_Add_MicrosoftTypeLabel}"
                             GroupName="AccountTypeGroup"
                             IsChecked="True"
                             Margin="0,8,0,0"
                             Style="{StaticResource PointOptionRadioStyle}"
                             x:Name="MicrosoftTypeRadio" />
                         <RadioButton
-                            Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.OfflineTypeLabel]}"
+                            Content="{helpers:Loc LoginMenu_Add_OfflineTypeLabel}"
                             GroupName="AccountTypeGroup"
                             IsChecked="False"
                             Margin="0,8,0,0"
@@ -224,10 +224,10 @@
                             FontSize="12"
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Margin="0,5"
-                            Text="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.MicrosoftDescription]}" />
+                            Text="{helpers:Loc LoginMenu_Add_MicrosoftDescription}" />
                         <Button
                             Command="{Binding MicrosoftLoginCommand}"
-                            Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.MicrosoftButton]}"
+                            Content="{helpers:Loc LoginMenu_Add_MicrosoftButton}"
                             FontSize="14"
                             Height="40"
                             IsDefault="True"
@@ -250,7 +250,7 @@
                         <Button
                             Command="{Binding OfflineLoginCommand}"
                             CommandParameter="{Binding ElementName=OfflineUsernameBox, Path=Text}"
-                            Content="{Binding Source={StaticResource Loc}, Path=[LoginMenu.Add.OfflineButton]}"
+                            Content="{helpers:Loc LoginMenu_Add_OfflineButton}"
                             FontSize="14"
                             Height="40"
                             IsDefault="True"

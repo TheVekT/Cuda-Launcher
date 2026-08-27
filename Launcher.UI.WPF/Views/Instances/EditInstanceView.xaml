@@ -37,11 +37,11 @@
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                 Margin="0,0,0,5"
-                                Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.Title]}" />
+                                Text="{helpers:Loc InstallationSettings_Title}" />
                             <TextBlock
                                 FontSize="13"
                                 Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                                Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.Subtitle]}" />
+                                Text="{helpers:Loc InstallationSettings_Subtitle}" />
                             <Border
                                 Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
                                 CornerRadius="{DynamicResource DefaultCorner}"
@@ -53,14 +53,14 @@
                                 <helpers:FlexPanel>
 
                                     <RadioButton
-                                        Content="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.Tabs.General]}"
+                                        Content="{helpers:Loc InstallationSettings_Tabs_General}"
                                         GroupName="InstanceSettingsTabs"
                                         IsChecked="True"
                                         Style="{StaticResource SegmentedTabButtonStyle}"
                                         x:Name="TabGeneral" />
 
                                     <RadioButton
-                                        Content="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.Tabs.Advanced]}"
+                                        Content="{helpers:Loc InstallationSettings_Tabs_Advanced}"
                                         GroupName="InstanceSettingsTabs"
                                         IsChecked="False"
                                         Style="{StaticResource SegmentedTabButtonStyle}"
@@ -86,7 +86,7 @@
                                         FontSize="12"
                                         FontWeight="Bold"
                                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                        Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.NameLabel]}" />
+                                        Text="{helpers:Loc InstallationSettings_NameLabel}" />
                                     <TextBox
                                         FontSize="12"
                                         Height="35"
@@ -99,14 +99,14 @@
                                         FontSize="11"
                                         Foreground="{DynamicResource ForegroundSecondaryBrush}"
                                         Margin="0,5,0,0"
-                                        Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.NamePlaceholder]}" />
+                                        Text="{helpers:Loc InstallationSettings_NamePlaceholder}" />
                                 </StackPanel>
                                 <StackPanel Grid.Row="1" Margin="0,5">
                                     <TextBlock
                                         FontSize="12"
                                         FontWeight="Bold"
                                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                        Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.ModLoaderLabel]}" />
+                                        Text="{helpers:Loc InstallationSettings_ModLoaderLabel}" />
                                     <ComboBox
                                         Height="35"
                                         IsEnabled="False"
@@ -122,7 +122,7 @@
                                         FontSize="12"
                                         FontWeight="Bold"
                                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                        Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.GameVersionLabel]}" />
+                                        Text="{helpers:Loc InstallationSettings_GameVersionLabel}" />
                                     <ComboBox
                                         Height="35"
                                         IsEnabled="False"
@@ -135,7 +135,7 @@
                                     <Expander
                                         FontSize="12"
                                         Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                                        Header="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.LoaderVersionLabel]}"
+                                        Header="{helpers:Loc InstallationSettings_LoaderVersionLabel}"
                                         Margin="0,5,0,0">
                                         <Expander.Style>
                                             <Style BasedOn="{StaticResource MoreContentExpanderStyle}" TargetType="Expander">
@@ -161,7 +161,7 @@
                                         FontSize="12"
                                         FontWeight="Bold"
                                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                        Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.InstallationIconLabel]}" />
+                                        Text="{helpers:Loc InstallationSettings_InstallationIconLabel}" />
 
                                     <Border
                                         Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
@@ -217,10 +217,10 @@
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsSelected" Value="True">
                                                                         <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource BorderAccentBrush}" />
-                                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
+                                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBackgroundBrush}" />
                                                                     </Trigger>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBgBrush}" />
+                                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBackgroundBrush}" />
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -237,7 +237,7 @@
                                     <!--  Drop="UploadButton_Drop"  -->
                                     <Button
                                         Command="{Binding SelectIconCommand}"
-                                        Content="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.InstallationIconUpload]}"
+                                        Content="{helpers:Loc InstallationSettings_InstallationIconUpload}"
                                         Height="50"
                                         Margin="0,5,0,0"
                                         Style="{StaticResource UploadDropZoneStyle}"
@@ -253,7 +253,7 @@
                             Visibility="{Binding ElementName=TabAdvanced, Path=IsChecked, Converter={StaticResource BoolToVis}}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox
-                                    Content="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.InheritGameSettings]}"
+                                    Content="{helpers:Loc InstallationSettings_InheritGameSettings}"
                                     FontSize="13"
                                     IsChecked="{Binding UseGlobalGameSettings}"
                                     Margin="0,5,0,0"
@@ -279,7 +279,7 @@
                                                 <TextBlock FontSize="13" Foreground="{DynamicResource ForegroundPrimaryBrush}">
                                                     <TextBlock.Text>
                                                         <MultiBinding Converter="{StaticResource StringFormatConverter}">
-                                                            <Binding Path="[InstallationSettings.AllocatedMemoryLabel]" Source="{StaticResource Loc}" />
+                                                            <helpers:Loc Key="InstallationSettings_AllocatedMemoryLabel" />
 
                                                             <Binding ElementName="AllocatedMemory" Path="Value" />
                                                         </MultiBinding>
@@ -296,7 +296,7 @@
                                                 x:Name="AllocatedMemory" />
                                         </StackPanel>
                                         <CheckBox
-                                            Content="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.FullscreenModeLabel]}"
+                                            Content="{helpers:Loc InstallationSettings_FullscreenModeLabel}"
                                             FontSize="13"
                                             IsChecked="{Binding IsGameFullscreen}"
                                             Margin="0,5,0,0"
@@ -313,7 +313,7 @@
                                                 FontSize="13"
                                                 Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                                 Margin="0,0,0,5"
-                                                Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.WindowResolutionLabel]}" />
+                                                Text="{helpers:Loc InstallationSettings_WindowResolutionLabel}" />
                                             <ComboBox
                                                 Height="30"
                                                 ItemsSource="{Binding SettingsStore.AvailableResolutions}"
@@ -326,7 +326,7 @@
 
                                                         <DataTemplate.Triggers>
                                                             <DataTrigger Binding="{Binding}" Value="Auto">
-                                                                <Setter Property="Text" TargetName="ResolutionText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.Resolution.Auto]}" />
+                                                                <Setter Property="Text" TargetName="ResolutionText" Value="{helpers:Loc InstallationSettings_Resolution_Auto}" />
                                                             </DataTrigger>
                                                         </DataTemplate.Triggers>
                                                     </DataTemplate>
@@ -337,7 +337,7 @@
                                             FontSize="13"
                                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                             Margin="0,5,0,0"
-                                            Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.EditJVMArgumentsLabel]}"
+                                            Text="{helpers:Loc InstallationSettings_EditJVMArgumentsLabel}"
                                             TextWrapping="Wrap" />
                                         <TextBox
                                             FontSize="12"
@@ -349,7 +349,7 @@
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical">
                                     <CheckBox
-                                        Content="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.InheritBackupSettings]}"
+                                        Content="{helpers:Loc InstallationSettings_InheritBackupSettings}"
                                         FontSize="13"
                                         IsChecked="{Binding UseGlobalBackupSettings}"
                                         Margin="0,5"
@@ -373,7 +373,7 @@
                                         <Border Padding="0,5">
                                             <StackPanel>
                                                 <CheckBox
-                                                    Content="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.EnableBackups]}"
+                                                    Content="{helpers:Loc InstallationSettings_EnableBackups}"
                                                     FontSize="12"
                                                     IsChecked="{Binding IsEnableAutoBackups}"
                                                     Margin="0,0,0,5"
@@ -385,7 +385,7 @@
                                                     FontSize="12"
                                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                                     Margin="0,0,0,6"
-                                                    Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.BackupFreqLabel]}" />
+                                                    Text="{helpers:Loc InstallationSettings_BackupFreqLabel}" />
                                                 <ComboBox
                                                     Height="30"
                                                     ItemsSource="{Binding SettingsStore.BackupFrequencyValues}"
@@ -396,16 +396,16 @@
                                                             <TextBlock x:Name="FreqText" />
                                                             <DataTemplate.Triggers>
                                                                 <DataTrigger Binding="{Binding}" Value="Daily">
-                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Daily]}" />
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{helpers:Loc InstallationSettings_BackupFreq_Daily}" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding}" Value="Weekly">
-                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Weekly]}" />
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{helpers:Loc InstallationSettings_BackupFreq_Weekly}" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding}" Value="Biweekly">
-                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Biweekly]}" />
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{helpers:Loc InstallationSettings_BackupFreq_Biweekly}" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding}" Value="Monthly">
-                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[AddInstallation.BackupFreq.Monthly]}" />
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{helpers:Loc InstallationSettings_BackupFreq_Monthly}" />
                                                                 </DataTrigger>
                                                             </DataTemplate.Triggers>
                                                         </DataTemplate>
@@ -416,7 +416,7 @@
                                                         FontSize="12"
                                                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                                         Margin="0,0,10,0"
-                                                        Text="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.BackupsLimitLabel]}"
+                                                        Text="{helpers:Loc InstallationSettings_BackupsLimitLabel}"
                                                         VerticalAlignment="Center" />
                                                     <TextBox
                                                         Background="Transparent"
@@ -443,7 +443,7 @@
                             </Grid.ColumnDefinitions>
                             <Button
                                 Command="{Binding CloseSelfCommand}"
-                                Content="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.Cancel]}"
+                                Content="{helpers:Loc InstallationSettings_Cancel}"
                                 FontSize="13"
                                 Grid.Column="0"
                                 Height="30"
@@ -454,7 +454,7 @@
                                 x:Name="CancelButton" />
                             <Button
                                 Command="{Binding SaveCommand}"
-                                Content="{Binding Source={StaticResource Loc}, Path=[InstallationSettings.Save]}"
+                                Content="{helpers:Loc InstallationSettings_Save}"
                                 FontSize="13"
                                 Grid.Column="1"
                                 Height="30"

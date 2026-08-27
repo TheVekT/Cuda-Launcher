@@ -37,11 +37,11 @@
                         FontWeight="Bold"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
                         Margin="0,0,0,5"
-                        Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Title]}" />
+                        Text="{helpers:Loc SettingsMenu_Title}" />
                     <TextBlock
                         FontSize="13"
                         Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                        Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Subtitle]}" />
+                        Text="{helpers:Loc SettingsMenu_Subtitle}" />
                     <Border
                         Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
                         CornerRadius="{DynamicResource DefaultCorner}"
@@ -54,35 +54,35 @@
                         <helpers:FlexPanel>
 
                             <RadioButton
-                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.General]}"
+                                Content="{helpers:Loc SettingsMenu_Tabs_General}"
                                 GroupName="SettingsTabs"
                                 IsChecked="True"
                                 Style="{StaticResource SegmentedTabButtonStyle}"
                                 x:Name="TabGeneral" />
 
                             <RadioButton
-                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.Game]}"
+                                Content="{helpers:Loc SettingsMenu_Tabs_Game}"
                                 GroupName="SettingsTabs"
                                 IsChecked="False"
                                 Style="{StaticResource SegmentedTabButtonStyle}"
                                 x:Name="TabGame" />
 
                             <RadioButton
-                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.Language]}"
+                                Content="{helpers:Loc SettingsMenu_Tabs_Language}"
                                 GroupName="SettingsTabs"
                                 IsChecked="False"
                                 Style="{StaticResource SegmentedTabButtonStyle}"
                                 x:Name="TabLanguage" />
 
                             <RadioButton
-                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.Theme]}"
+                                Content="{helpers:Loc SettingsMenu_Tabs_Theme}"
                                 GroupName="SettingsTabs"
                                 IsChecked="False"
                                 Style="{StaticResource SegmentedTabButtonStyle}"
                                 x:Name="TabTheme" />
 
                             <RadioButton
-                                Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Tabs.About]}"
+                                Content="{helpers:Loc SettingsMenu_Tabs_About}"
                                 GroupName="SettingsTabs"
                                 Style="{StaticResource SegmentedTabButtonStyle}"
                                 x:Name="TabAbout" />
@@ -103,7 +103,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <CheckBox
-                        Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.KeepLauncherOpen]}"
+                        Content="{helpers:Loc SettingsMenu_General_KeepLauncherOpen}"
                         FontSize="14"
                         Grid.Row="0"
                         IsChecked="{Binding SettingsStore.IsKeepLauncherOpen}"
@@ -112,7 +112,7 @@
                         VerticalAlignment="Top"
                         helpers:ScaleHelper.ScaleFactor="0.8" />
                     <CheckBox
-                        Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.EnableAutoUpdates]}"
+                        Content="{helpers:Loc SettingsMenu_General_EnableAutoUpdates}"
                         FontSize="14"
                         Grid.Row="1"
                         IsChecked="{Binding SettingsStore.IsEnableAutoUpdates}"
@@ -121,7 +121,7 @@
                         VerticalAlignment="Top"
                         helpers:ScaleHelper.ScaleFactor="0.8" />
                     <CheckBox
-                        Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.DiscordRichPresence]}"
+                        Content="{helpers:Loc SettingsMenu_General_DiscordRichPresence}"
                         FontSize="14"
                         Grid.Row="2"
                         IsChecked="{Binding SettingsStore.IsEnableDiscordRichPresence}"
@@ -136,7 +136,7 @@
                         <TextBlock FontSize="14" Foreground="{DynamicResource ForegroundPrimaryBrush}">
                             <TextBlock.Text>
                                 <MultiBinding Converter="{StaticResource StringFormatConverter}">
-                                    <Binding Path="[SettingsMenu.General.InterfaceScaleLabel]" Source="{StaticResource Loc}" />
+                                    <helpers:Loc Key="SettingsMenu_General_InterfaceScaleLabel" />
 
                                     <Binding ElementName="UiScaleSlider" Path="Value" />
                                 </MultiBinding>
@@ -153,7 +153,7 @@
                         <TextBlock
                             FontSize="11"
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.General.InterfaceScaleDescription]}" />
+                            Text="{helpers:Loc SettingsMenu_General_InterfaceScaleDescription}" />
                     </StackPanel>
                 </Grid>
                 <!--  Game Settings Panel  -->
@@ -189,7 +189,7 @@
                                     <TextBlock FontSize="14" Foreground="{DynamicResource ForegroundPrimaryBrush}">
                                         <TextBlock.Text>
                                             <MultiBinding Converter="{StaticResource StringFormatConverter}">
-                                                <Binding Path="[SettingsMenu.Game.AllocatedMemoryLabel]" Source="{StaticResource Loc}" />
+                                                <helpers:Loc Key="SettingsMenu_Game_AllocatedMemoryLabel" />
 
                                                 <Binding ElementName="AllocatedMemory" Path="Value" />
                                             </MultiBinding>
@@ -207,7 +207,7 @@
                             </StackPanel>
                             <StackPanel Grid.Row="1" Orientation="Vertical">
                                 <CheckBox
-                                    Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.EnableSnapshots]}"
+                                    Content="{helpers:Loc SettingsMenu_Game_EnableSnapshots}"
                                     FontSize="14"
                                     IsChecked="{Binding SettingsStore.IsEnableSnapshots}"
                                     Margin="0,5"
@@ -215,7 +215,7 @@
                                     VerticalAlignment="Top"
                                     helpers:ScaleHelper.ScaleFactor="0.8" />
                                 <CheckBox
-                                    Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.FullscreenModeLabel]}"
+                                    Content="{helpers:Loc SettingsMenu_Game_FullscreenModeLabel}"
                                     FontSize="14"
                                     IsChecked="{Binding SettingsStore.IsGameFullScreen}"
                                     Margin="0,5"
@@ -234,7 +234,7 @@
                                     FontSize="14"
                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                     Margin="0,0,0,5"
-                                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.WindowResolutionLabel]}" />
+                                    Text="{helpers:Loc SettingsMenu_Game_WindowResolutionLabel}" />
                                 <ComboBox
                                     Height="35"
                                     ItemsSource="{Binding SettingsStore.AvailableResolutions}"
@@ -247,7 +247,7 @@
 
                                             <DataTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding}" Value="Auto">
-                                                    <Setter Property="Text" TargetName="ResolutionText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.Resolution.Auto]}" />
+                                                    <Setter Property="Text" TargetName="ResolutionText" Value="{helpers:Loc SettingsMenu_Game_Resolution_Auto}" />
                                                 </DataTrigger>
                                             </DataTemplate.Triggers>
                                         </DataTemplate>
@@ -256,7 +256,7 @@
                             </StackPanel>
                             <StackPanel Grid.Row="3" Orientation="Vertical">
                                 <CheckBox
-                                    Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.EnableBackups]}"
+                                    Content="{helpers:Loc SettingsMenu_Game_EnableBackups}"
                                     FontSize="14"
                                     IsChecked="{Binding SettingsStore.IsEnableAutoBackups}"
                                     Margin="0,5"
@@ -271,7 +271,7 @@
                                     helpers:VisibilityHelper.IsVisible="{Binding IsChecked, ElementName=EnableBackupsCheckbox}">
                                     <Expander
                                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                        Header="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupSettingsLabel]}"
+                                        Header="{helpers:Loc SettingsMenu_Game_BackupSettingsLabel}"
                                         Margin="10,0"
                                         Style="{StaticResource MoreContentExpanderStyle}">
                                         <Border Padding="0,10">
@@ -280,7 +280,7 @@
                                                     FontSize="13"
                                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                                     Margin="0,0,0,6"
-                                                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreqLabel]}" />
+                                                    Text="{helpers:Loc SettingsMenu_Game_BackupFreqLabel}" />
                                                 <ComboBox
                                                     Height="35"
                                                     ItemsSource="{Binding SettingsStore.BackupFrequencyValues}"
@@ -291,16 +291,16 @@
                                                             <TextBlock x:Name="FreqText" />
                                                             <DataTemplate.Triggers>
                                                                 <DataTrigger Binding="{Binding}" Value="Daily">
-                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Daily]}" />
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{helpers:Loc SettingsMenu_Game_BackupFreq_Daily}" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding}" Value="Weekly">
-                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Weekly]}" />
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{helpers:Loc SettingsMenu_Game_BackupFreq_Weekly}" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding}" Value="Biweekly">
-                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Biweekly]}" />
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{helpers:Loc SettingsMenu_Game_BackupFreq_Biweekly}" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding}" Value="Monthly">
-                                                                    <Setter Property="Text" TargetName="FreqText" Value="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupFreq.Monthly]}" />
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{helpers:Loc SettingsMenu_Game_BackupFreq_Monthly}" />
                                                                 </DataTrigger>
                                                             </DataTemplate.Triggers>
                                                         </DataTemplate>
@@ -311,7 +311,7 @@
                                                         FontSize="13"
                                                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                                         Margin="0,0,10,0"
-                                                        Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.BackupsLimitLabel]}"
+                                                        Text="{helpers:Loc SettingsMenu_Game_BackupsLimitLabel}"
                                                         VerticalAlignment="Center" />
                                                     <TextBox
                                                         Background="Transparent"
@@ -335,7 +335,7 @@
                                     FontSize="14"
                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                     Margin="0,5,0,0"
-                                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.EditJVMArgumentsLabel]}"
+                                    Text="{helpers:Loc SettingsMenu_Game_EditJVMArgumentsLabel}"
                                     TextWrapping="Wrap" />
                                 <TextBox
                                     Margin="0,5"
@@ -352,7 +352,7 @@
                                     FontSize="14"
                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                     Margin="0,4"
-                                    Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.MinecraftRootDirectoryLabel]}" />
+                                    Text="{helpers:Loc SettingsMenu_Game_MinecraftRootDirectoryLabel}" />
                                 <TextBlock
                                     FontSize="12"
                                     Foreground="{DynamicResource ForegroundSecondaryBrush}"
@@ -360,7 +360,7 @@
                                     Text="Binding C:/current/minecraft/root/directory/.path"
                                     x:Name="CurrentMinecraftRootDirectory" />
                                 <Button
-                                    Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.MoveMinecraftFolderButton]}"
+                                    Content="{helpers:Loc SettingsMenu_Game_MoveMinecraftFolderButton}"
                                     FontSize="14"
                                     Height="35"
                                     Style="{StaticResource OverlayDefaultButtonStyle}"
@@ -391,7 +391,7 @@
                                                 Foreground="{DynamicResource AlertForegroundBrush}"
                                                 HorizontalAlignment="Center"
                                                 Margin="10,0,0,0"
-                                                Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Game.MinecraftRootDirectoryAlert]}"
+                                                Text="{helpers:Loc SettingsMenu_Game_MinecraftRootDirectoryAlert}"
                                                 VerticalAlignment="Center" />
                                         </StackPanel>
                                     </Border>
@@ -417,7 +417,7 @@
                             FontSize="14"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
                             Margin="0,0,0,5"
-                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Language.SelectLanguageLabel]}" />
+                            Text="{helpers:Loc SettingsMenu_Language_SelectLanguageLabel}" />
                         <ComboBox
                             DisplayMemberPath="Name"
                             Height="35"
@@ -433,10 +433,10 @@
                             FontSize="14"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
                             Margin="0,0,0,5"
-                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Language.UploadCustomLanguageLabel]}" />
+                            Text="{helpers:Loc SettingsMenu_Language_UploadCustomLanguageLabel}" />
                         <Button
                             Command="{Binding ImportLanguageCommand}"
-                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Language.UploadCustomLanguageButton]}"
+                            Content="{helpers:Loc SettingsMenu_Language_UploadCustomLanguageButton}"
                             FontSize="14"
                             Height="35"
                             Style="{StaticResource OverlayDefaultButtonStyle}"
@@ -460,7 +460,7 @@
                             FontSize="14"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
                             Margin="0,0,0,5"
-                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.SelectThemeLabel]}" />
+                            Text="{helpers:Loc SettingsMenu_Theme_SelectThemeLabel}" />
                         <ScrollViewer Style="{StaticResource HorizontalScrollViewerStyle}" helpers:ScrollViewerHelper.EnableHorizontalScrolling="True">
                             <ItemsControl ItemsSource="{Binding SettingsStore.AvailableThemes}">
                                 <ItemsControl.ItemsPanel>
@@ -500,10 +500,10 @@
                             FontSize="14"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
                             Margin="0,0,0,5"
-                            Text="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.UploadThemeFileLabel]}" />
+                            Text="{helpers:Loc SettingsMenu_Theme_UploadThemeFileLabel}" />
                         <Button
                             Command="{Binding ImportThemeCommand}"
-                            Content="{Binding Source={StaticResource Loc}, Path=[SettingsMenu.Theme.UploadThemeFileButton]}"
+                            Content="{helpers:Loc SettingsMenu_Theme_UploadThemeFileButton}"
                             FontSize="14"
                             Height="35"
                             Style="{StaticResource OverlayDefaultButtonStyle}"

@@ -7,7 +7,7 @@
     MinHeight="720"
     MinWidth="1280"
     TextOptions.TextFormattingMode="Display"
-    Title="{Binding Source={StaticResource Loc}, Path=[MainWindow.Title]}"
+    Title="{helpers:Loc MainWindow_Title}"
     UseLayoutRounding="True"
     Width="1280"
     WindowStyle="SingleBorderWindow"
@@ -154,7 +154,7 @@
                                                 <TextBlock
                                                     FontSize="14"
                                                     Margin="6,0,0,0"
-                                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Play]}" />
+                                                    Text="{helpers:Loc MainWindow_Navigation_Play}" />
                                             </StackPanel>
                                         </RadioButton.Content>
                                     </RadioButton>
@@ -183,7 +183,7 @@
                                                 <TextBlock
                                                     FontSize="14"
                                                     Margin="6,0,0,0"
-                                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Installations]}" />
+                                                    Text="{helpers:Loc MainWindow_Navigation_Installations}" />
                                             </StackPanel>
                                         </RadioButton.Content>
                                     </RadioButton>
@@ -212,7 +212,7 @@
                                                 <TextBlock
                                                     FontSize="14"
                                                     Margin="6,0,0,0"
-                                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.Navigation.Skins]}" />
+                                                    Text="{helpers:Loc MainWindow_Navigation_Skins}" />
                                             </StackPanel>
                                         </RadioButton.Content>
                                     </RadioButton>
@@ -230,14 +230,14 @@
                                     <Button.Style>
                                         <Style BasedOn="{StaticResource AccentButtonStyle}" TargetType="Button">
 
-                                            <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
+                                            <Setter Property="Content" Value="{helpers:Loc MainWindow_Header_LoginButton}" />
                                             <Style.Triggers>
 
                                                 <DataTrigger Binding="{Binding IdentityStore.IsLoggedIn}" Value="True">
                                                     <Setter Property="Content" Value="{Binding IdentityStore.CurrentAccount.Username}" />
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IdentityStore.IsLoggedIn}" Value="False">
-                                                    <Setter Property="Content" Value="{Binding Source={StaticResource Loc}, Path=[MainWindow.Header.LoginButton]}" />
+                                                    <Setter Property="Content" Value="{helpers:Loc MainWindow_Header_LoginButton}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -322,12 +322,12 @@
                                             x:Name="OpenFolderButton">
                                             <Button.ContextMenu>
                                                 <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                                                    <MenuItem Command="{Binding InstallationsVM.OpenInstanceFolderCommand}" Header="{Binding Source={StaticResource Loc}, Path=[MainWindow.Footer.OpenFolder.ContextMenu.OpenInstanceFolder]}" />
+                                                    <MenuItem Command="{Binding InstallationsVM.OpenInstanceFolderCommand}" Header="{helpers:Loc MainWindow_Footer_OpenFolder_ContextMenu_OpenInstanceFolder}" />
 
-                                                    <MenuItem Command="{Binding InstallationsVM.OpenModsFolderCommand}" Header="{Binding Source={StaticResource Loc}, Path=[MainWindow.Footer.OpenFolder.ContextMenu.OpenInstanceModsFolder]}" />
+                                                    <MenuItem Command="{Binding InstallationsVM.OpenModsFolderCommand}" Header="{helpers:Loc MainWindow_Footer_OpenFolder_ContextMenu_OpenInstanceModsFolder}" />
 
                                                     <Separator />
-                                                    <MenuItem Command="{Binding InstallationsVM.OpenRootFolderCommand}" Header="{Binding Source={StaticResource Loc}, Path=[MainWindow.Footer.OpenFolder.ContextMenu.OpenRootMinecraftFolder]}" />
+                                                    <MenuItem Command="{Binding InstallationsVM.OpenRootFolderCommand}" Header="{helpers:Loc MainWindow_Footer_OpenFolder_ContextMenu_OpenRootMinecraftFolder}" />
                                                 </ContextMenu>
                                             </Button.ContextMenu>
                                         </Button>
@@ -542,12 +542,12 @@
                                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                                     HorizontalAlignment="Center"
                                     Margin="0,10,0,8"
-                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.DragDropOverlay.Title]}" />
+                                    Text="{helpers:Loc MainWindow_DragDropOverlay_Title}" />
                                 <TextBlock
                                     FontSize="16"
                                     Foreground="{DynamicResource ForegroundSecondaryBrush}"
                                     HorizontalAlignment="Center"
-                                    Text="{Binding Source={StaticResource Loc}, Path=[MainWindow.DragDropOverlay.Subtitle]}" />
+                                    Text="{helpers:Loc MainWindow_DragDropOverlay_Subtitle}" />
                             </StackPanel>
                         </Border>
 

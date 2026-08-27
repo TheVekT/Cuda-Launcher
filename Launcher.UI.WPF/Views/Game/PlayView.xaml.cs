@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels.Game;
@@ -87,7 +88,7 @@ public partial class PlayView : UserControl
         {
             if (LocalizationService.Instance != null)
             {
-                PlayButton.Content = LocalizationService.Instance[isRunning ? "Play.PlayButton.Close" : "Play.PlayButton"];
+                PlayButton.Content = LocalizationService.Instance[isRunning ? LocKey.Play_PlayButton_Close : LocKey.Play_PlayButton];
             }
             PlayButton.Tag = Application.Current.TryFindResource(isRunning ? "Icon.Close" : "Icon.Play");
         }

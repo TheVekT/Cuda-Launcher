@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.Identity.Models;
 using Launcher.Core.UI.Abstractions;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Services.Abstractions;
@@ -112,8 +113,8 @@ public partial class LoginViewModel: ObservableObject
             var newAccount = await _authService.LoginWithMicrosoftAsync();
                 
             _identityStore.RegisterLogin(newAccount);
-            var title = LocalizationService.Instance["Success.LoginMicrosoftTitle"];
-            var desc = LocalizationService.Instance["Success.LoginMicrosoftDesc"];
+            var title = LocalizationService.Instance[LocKey.Success_LoginMicrosoftTitle];
+            var desc = LocalizationService.Instance[LocKey.Success_LoginMicrosoftDesc];
             _notificationService.ShowSuccess(title, desc);
             _overlayService.SetClosable(true);
             WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
@@ -121,8 +122,8 @@ public partial class LoginViewModel: ObservableObject
         }
         catch (Exception ex) 
         { 
-            var title = LocalizationService.Instance["Errors.LoginMicrosoftTitle"];
-            var desc = LocalizationService.Instance["Errors.LoginMicrosoftDesc"];
+            var title = LocalizationService.Instance[LocKey.Errors_LoginMicrosoftTitle];
+            var desc = LocalizationService.Instance[LocKey.Errors_LoginMicrosoftDesc];
             _notificationService.ShowError(title, desc);
             Console.WriteLine(ex.Message); 
         }

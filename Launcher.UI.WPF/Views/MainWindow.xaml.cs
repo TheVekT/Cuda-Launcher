@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using CommunityToolkit.Mvvm.Messaging;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
@@ -163,7 +164,7 @@ public partial class MainWindow : Window
         {
             if (LocalizationService.Instance != null)
             {
-                PlayButtonCompact.Content = LocalizationService.Instance[isRunning ? "Play.PlayButton.Close" : "Play.PlayButton"];
+                PlayButtonCompact.Content = LocalizationService.Instance[isRunning ? LocKey.Play_PlayButton_Close : LocKey.Play_PlayButton];
             }
             PlayButtonCompact.Tag = Application.Current.TryFindResource(isRunning ? "Icon.Close" : "Icon.Play");
         }

@@ -60,7 +60,7 @@
                 <Button
                     Command="{Binding Path=(helpers:AccountCardHelper.UseCommand), RelativeSource={RelativeSource AncestorType=UserControl}}"
                     CommandParameter="{Binding Path=(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=UserControl}}"
-                    Content="{Binding Source={StaticResource Loc}, Path=[AccountCard.UseButton]}"
+                    Content="{helpers:Loc AccountCard_UseButton}"
                     FontSize="13"
                     Grid.Column="2"
                     Margin="5,0"
@@ -115,12 +115,12 @@
                             <MenuItem
                                 Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.RenameAccountCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                 CommandParameter="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                Header="{Binding Source={StaticResource Loc}, Path=[AccountCard.ContextMenu.Rename]}" />
+                                Header="{helpers:Loc AccountCard_ContextMenu_Rename}" />
 
                             <MenuItem
                                 Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.DeleteAccountCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                 CommandParameter="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                Header="{Binding Source={StaticResource Loc}, Path=[AccountCard.ContextMenu.Remove]}" />
+                                Header="{helpers:Loc AccountCard_ContextMenu_Remove}" />
 
                         </ContextMenu>
                     </Button.ContextMenu>

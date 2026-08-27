@@ -60,7 +60,7 @@
                         FontSize="11"
                         Foreground="{Binding P_ForegroundOnAccent, ElementName=CardRoot}"
                         HorizontalAlignment="Center"
-                        Text="{Binding [ThemePreviewCard.ButtonLabel], Source={StaticResource Loc}}"
+                        Text="{helpers:Loc ThemePreviewCard_ButtonLabel}"
                         VerticalAlignment="Center" />
                 </Border>
 
@@ -77,7 +77,7 @@
                     Foreground="{Binding P_ForegroundSecondary, ElementName=CardRoot}">
                     <TextBlock.Text>
                         <MultiBinding Converter="{StaticResource StringFormatConverter}">
-                            <Binding Path="[ThemePreviewCard.CreatedByLabel]" Source="{StaticResource Loc}" />
+                            <helpers:Loc Key="ThemePreviewCard_CreatedByLabel" />
                             <Binding ElementName="CardRoot" Path="ThemeAuthor" />
                         </MultiBinding>
                     </TextBlock.Text>

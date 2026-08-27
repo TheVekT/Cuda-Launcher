@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Config.Models;
 using Launcher.Infrastructure.Localization.Abstractions;
 using Launcher.Infrastructure.Localization.Models;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services.Abstractions;
 
@@ -41,6 +42,8 @@ public class LocalizationService : ILocalizationService, INotifyPropertyChanged
             return key;
         }
     }
+
+    public string this[LocKey key] => this[key.ToKeyString()];
 
     public async Task ImportLocalization(string filePath)
     {

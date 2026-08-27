@@ -9,6 +9,7 @@ using Launcher.Core.Common.Models;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.System.Abstractions;
 using Launcher.Core.UI.Abstractions;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
@@ -167,15 +168,15 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
         {
             var titleKey = (skinSuccess, capeSuccess) switch
             {
-                (false, false) => "Errors.ApplyMojangCharacter.Title",
-                (false, true)  => "Errors.ApplyMojangSkin.Title",
-                _              => "Errors.ApplyMojangCape.Title"
+                (false, false) => LocKey.Errors_ApplyMojangCharacter_Title,
+                (false, true)  => LocKey.Errors_ApplyMojangSkin_Title,
+                _              => LocKey.Errors_ApplyMojangCape_Title
             };
             var isRateLimited = skinStatus == NetworkRequestStatus.RateLimited || 
                                 capeStatus == NetworkRequestStatus.RateLimited;
             var descKey = isRateLimited
-                ? "Errors.ApplyMojangCharacter.RateLimit"
-                : "Errors.ApplyMojangCharacter.Unknown";
+                ? LocKey.Errors_ApplyMojangCharacter_RateLimit
+                : LocKey.Errors_ApplyMojangCharacter_Unknown;
             _notificationService.ShowWarning(
                 LocalizationService.Instance[titleKey], 
                 LocalizationService.Instance[descKey]);

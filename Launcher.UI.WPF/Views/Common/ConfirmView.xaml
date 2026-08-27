@@ -58,7 +58,7 @@
                         </Grid.ColumnDefinitions>
                         <Button
                             Command="{Binding CancelCommand}"
-                            Content="{Binding Source={StaticResource Loc}, Path=[Confirmation.CancelButtonText]}"
+                            Content="{helpers:Loc Confirmation_CancelButtonText}"
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Grid.Column="0"
                             Height="35"
@@ -66,9 +66,9 @@
                             Tag="{StaticResource Icon.Close}"
                             helpers:ButtonHelper.IconSize="10" />
                         <Button
-                            Background="{DynamicResource ColorDangerBrush}"
+                            Background="{DynamicResource DangerForegroundBrush}"
                             Command="{Binding ConfirmCommand}"
-                            Content="{Binding Source={StaticResource Loc}, Path=[Confirmation.DeleteButtonText]}"
+                            Content="{helpers:Loc Confirmation_DeleteButtonText}"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
                             Grid.Column="1"
                             Height="35"
@@ -80,7 +80,7 @@
                             x:Name="DeleteButton" />
                         <Button
                             Command="{Binding ConfirmCommand}"
-                            Content="{Binding Source={StaticResource Loc}, Path=[Confirmation.ConfirmButtonText]}"
+                            Content="{helpers:Loc Confirmation_ConfirmButtonText}"
                             Grid.Column="1"
                             Height="35"
                             IsDefault="True"

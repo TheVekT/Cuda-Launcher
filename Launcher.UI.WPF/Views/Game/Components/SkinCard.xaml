@@ -86,7 +86,7 @@
                 <Button
                     Command="{Binding ApplyCommand, ElementName=Root}"
                     CommandParameter="{Binding Character, ElementName=Root}"
-                    Content="{Binding Source={StaticResource Loc}, Path=[SkinCard.ApplyButton]}"
+                    Content="{helpers:Loc SkinCard_ApplyButton}"
                     Grid.Column="0"
                     Height="25"
                     Margin="0,0,5,0"
@@ -108,12 +108,12 @@
                             <MenuItem
                                 Command="{Binding EditCommand}"
                                 CommandParameter="{Binding Character}"
-                                Header="{Binding Source={StaticResource Loc}, Path=[SkinCard.EditButton]}" />
+                                Header="{helpers:Loc SkinCard_EditButton}" />
                             <Separator />
                             <MenuItem
                                 Command="{Binding DeleteCommand}"
                                 CommandParameter="{Binding Character}"
-                                Header="{Binding Source={StaticResource Loc}, Path=[SkinCard.RemoveButton]}" />
+                                Header="{helpers:Loc SkinCard_RemoveButton}" />
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>

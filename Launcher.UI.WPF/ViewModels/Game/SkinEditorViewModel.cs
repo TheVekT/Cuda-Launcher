@@ -69,12 +69,12 @@ public partial class SkinEditorViewModel : ObservableValidator
         IsEditMode = _editingSkin != null;
 
 
-        MenuTitle = IsEditMode ? LocalizationService.Instance["SkinEditorMenu.Settings.Title"] : LocalizationService.Instance["SkinEditorMenu.Title"];
+        MenuTitle = IsEditMode ? LocalizationService.Instance[LocKey.SkinEditorMenu_Settings_Title] : LocalizationService.Instance[LocKey.SkinEditorMenu_Title];
         
         var noCapeOption = new CapeItemModel 
         { 
             Id = null!,
-            Alias = LocalizationService.Instance["SkinEditorMenu.NoCapeOption"], 
+            Alias = LocalizationService.Instance[LocKey.SkinEditorMenu_NoCapeOption], 
             LocalImagePath = null! 
         };
         

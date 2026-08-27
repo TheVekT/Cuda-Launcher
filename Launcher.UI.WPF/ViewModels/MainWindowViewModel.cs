@@ -8,6 +8,7 @@ using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.Integrations.Abstractions;
 using Launcher.Core.UI.Abstractions;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Services.Abstractions;
@@ -225,7 +226,7 @@ public partial class MainWindowViewModel : ObservableObject,
                 
                 var errorMessage = string.Join(Environment.NewLine, result.Errors.Select(x => x.Message));
                 _notificationService.ShowError(
-                    LocalizationService.Instance["Errors.LaunchFailedTitle"] ?? "Launch Error", 
+                    "Launch Error", 
                     errorMessage);
             }
         }
@@ -235,7 +236,7 @@ public partial class MainWindowViewModel : ObservableObject,
             _appStore.IsDownloading = false;
             IsEnabledInstancesComboBox = true;
             _notificationService.ShowError(
-                LocalizationService.Instance["Errors.LaunchFailedTitle"] ?? "Launch Error", 
+                "Launch Error", 
                 ex.Message);
         }
         finally
@@ -275,8 +276,8 @@ public partial class MainWindowViewModel : ObservableObject,
                 onCancel: () => cts.Cancel()                      
             )
             {
-                Title = LocalizationService.Instance["ProgressMenu.ImportingFiles.Title"],
-                Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.DescriptionPreparing"], files.Length),
+                Title = LocalizationService.Instance[LocKey.ProgressMenu_ImportingFiles_Title],
+                Message = String.Format(LocalizationService.Instance[LocKey.ProgressMenu_ImportingFiles_DescriptionPreparing], files.Length),
                 IsIndeterminate = false,
                 ProgressValue = 0,
                 ProgressText = "0%"
@@ -289,7 +290,7 @@ public partial class MainWindowViewModel : ObservableObject,
                 var progressHandler = new Progress<(double Percent, string FileName)>(data => 
                 {
                     progressVM.Report(data.Percent);
-                    progressVM.Message = String.Format(LocalizationService.Instance["ProgressMenu.ImportingFiles.Description"], data.FileName);
+                    progressVM.Message = String.Format(LocalizationService.Instance[LocKey.ProgressMenu_ImportingFiles_Description], data.FileName);
                 });
                 
                 int successCount = await _importOrchestratorService.ProcessDroppedFilesAsync(
@@ -300,15 +301,15 @@ public partial class MainWindowViewModel : ObservableObject,
 
                 if (successCount > 0)
                 {
-                    var title = LocalizationService.Instance["Success.SuccessImport"];
-                    var desc = String.Format(LocalizationService.Instance["Success.SuccessImportDesc"], successCount, files.Length);
+                    var title = LocalizationService.Instance[LocKey.Success_SuccessImport];
+                    var desc = String.Format(LocalizationService.Instance[LocKey.Success_SuccessImportDesc], successCount, files.Length);
                     _notificationService.ShowSuccess(title, desc);
                 }
             }
             catch (OperationCanceledException)
             {
-                var title = LocalizationService.Instance["Info.ImportCanceledTitle"];
-                var desc = LocalizationService.Instance["Info.ImportCanceledDesc"];
+                var title = LocalizationService.Instance[LocKey.Info_ImportCanceledTitle];
+                var desc = LocalizationService.Instance[LocKey.Info_ImportCanceledDesc];
                 _notificationService.ShowInfo(title, desc);
             }
             finally

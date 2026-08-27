@@ -151,8 +151,8 @@ public partial class InstallationsViewModel : ObservableObject,
     {
         if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
         var confirmVm = new ConfirmViewModel(
-            string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceTitle"], instance.Name), 
-            string.Format(LocalizationService.Instance["Confirmation.DeleteInstanceMessage"], instance.Name),
+            string.Format(LocalizationService.Instance[LocKey.Confirmation_DeleteInstanceTitle], instance.Name), 
+            string.Format(LocalizationService.Instance[LocKey.Confirmation_DeleteInstanceMessage], instance.Name),
             ConfirmButtons.Delete);
 
         _overlayService.Show(confirmVm);

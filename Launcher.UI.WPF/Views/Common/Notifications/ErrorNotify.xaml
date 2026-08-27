@@ -53,7 +53,7 @@
 
     <Grid>
 
-        <Border Background="{DynamicResource BackgroundLowTransparentBrush}" CornerRadius="{DynamicResource DefaultCorner}">
+        <Border Background="{DynamicResource BackgroundCardBrush}" CornerRadius="{DynamicResource DefaultCorner}">
             <Border.Effect>
                 <DropShadowEffect
                     BlurRadius="15"
@@ -65,7 +65,7 @@
         </Border>
 
         <Border
-            Background="{DynamicResource BackgroundLowTransparentBrush}"
+            Background="{DynamicResource BackgroundCardBrush}"
             BorderBrush="{DynamicResource BorderSecondaryBrush}"
             BorderThickness="{DynamicResource DefaultBorderThickness}"
             CornerRadius="{DynamicResource DefaultCorner}"
@@ -87,7 +87,7 @@
                     <Path
                         Data="{StaticResource Icon.XCircle}"
                         Stretch="Uniform"
-                        Stroke="{DynamicResource ColorDangerBrush}"
+                        Stroke="{DynamicResource DangerForegroundBrush}"
                         StrokeThickness="1.33" />
                 </Viewbox>
 
