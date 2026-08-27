@@ -1,4 +1,5 @@
 using Launcher.Core.Config.Models;
+using Launcher.Infrastructure.Localization.Models;
 
 namespace Launcher.UI.WPF.Services.Abstractions;
 

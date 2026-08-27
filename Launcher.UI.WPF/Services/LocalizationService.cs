@@ -2,6 +2,7 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Config.Models;
 using Launcher.Infrastructure.Localization.Abstractions;
+using Launcher.Infrastructure.Localization.Models;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services.Abstractions;
 

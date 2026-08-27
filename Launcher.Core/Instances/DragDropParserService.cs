@@ -38,9 +38,8 @@ public class DragDropParserService : IDragDropParserService
             
             var root = doc.RootElement;
 
-            // Ищем нашу сигнатуру локализации: корневой объект "Meta" с полем "LanguageCode"
             if (root.TryGetProperty("Meta", out var metaElement) && 
-                metaElement.TryGetProperty("LanguageCode", out _))
+                metaElement.TryGetProperty("Code", out _))
             {
                 return ParsedFileType.LauncherLocalization;
             }

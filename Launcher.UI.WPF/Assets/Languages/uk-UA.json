@@ -1,8 +1,9 @@
 {
   "Meta": {
     "Name": "Українська",
-    "LanguageCode": "uk-UA",
-    "Author": "TheVekT"
+    "Code": "uk-UA",
+    "Author": "TheVekT",
+    "Version": "1.0.0"
   },
   "Translations": {
     "MainWindow.Title": "Cuda Launcher",

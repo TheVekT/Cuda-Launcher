@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
 using Launcher.Core.Config.Abstractions;
-using Launcher.Core.Config.Models;
 using Launcher.Infrastructure.Localization.Abstractions;
+using Launcher.Infrastructure.Localization.Models;
 
 namespace Launcher.Infrastructure.Localization;
 
@@ -29,7 +29,7 @@ public class JsonLocalizationProvider : ILocalizationProvider
 
         if (!Directory.Exists(_languagesRoot))
         {
-            languages.Add(new LanguageModel { Name = "English", Code = "en-US" });
+            languages.Add(new LanguageModel { Name = "English (US)", Code = "en-US", Author = "TheVekT", Version = "1.0.0" });
             return languages;
         }
 
@@ -46,11 +46,19 @@ public class JsonLocalizationProvider : ILocalizationProvider
                 if (langData?.Meta != null)
                 {
                     langData.Meta.TryGetValue("Name", out var name);
-                    langData.Meta.TryGetValue("LanguageCode", out var code);
+                    langData.Meta.TryGetValue("Code", out var code);
+                    langData.Meta.TryGetValue("Author", out var author);
+                    langData.Meta.TryGetValue("Version", out var version);
 
                     if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code))
                     {
-                        languages.Add(new LanguageModel { Name = name, Code = code });
+                        languages.Add(new LanguageModel 
+                        { 
+                            Name = name, 
+                            Code = code,
+                            Author = author ?? string.Empty,
+                            Version = version ?? "1.0.0"
+                        });
                     }
                 }
             }
@@ -88,7 +96,7 @@ public class JsonLocalizationProvider : ILocalizationProvider
                     {
                         if (string.Equals(metaName, name, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (langData.Meta.TryGetValue("LanguageCode", out var code))
+                            if (langData.Meta.TryGetValue("Code", out var code) && !string.IsNullOrEmpty(code))
                             {
                                 return code;
                             }
