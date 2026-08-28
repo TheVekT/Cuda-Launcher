@@ -3,11 +3,11 @@ using System.Text.Json;
 
 namespace Launcher.UAC;
 
-public class SymlinkJob
+public class SymlinkJob(string sourcePath, string destPath, HashSet<string> inclusions)
 {
-    public string SourcePath { get; set; }
-    public string DestPath { get; set; }
-    public HashSet<string> Inclusions { get; set; }
+    public string SourcePath { get; init; } = sourcePath;
+    public string DestPath { get; init; } = destPath;
+    public HashSet<string> Inclusions { get; set; } = inclusions;
 }
 
 class Program
@@ -23,14 +23,14 @@ class Program
         {
             var json = File.ReadAllText(jobFilePath);
             
-            // Настраиваем парсер, чтобы он не придирался к регистру букв в JSON
+            // Configure the parser to be case-insensitive when reading JSON properties
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var job = JsonSerializer.Deserialize<SymlinkJob>(json, options);
 
-            if (job == null || job.Inclusions == null) return 1;
-
-            // ВАЖНО: При десериализации HashSet теряет настройку "игнорировать регистр".
-            // Пересоздаем его с StringComparer.OrdinalIgnoreCase, чтобы "options.txt" и "Options.txt" считались одинаково.
+            if (job == null) return 1;
+            
+            // English: When deserializing, HashSet loses the "ignore case" setting.
+            // We recreate it with StringComparer.OrdinalIgnoreCase so that "options.txt" and "Options.txt" are considered the same.
             var safeInclusions = new HashSet<string>(job.Inclusions, StringComparer.OrdinalIgnoreCase);
             job.Inclusions = safeInclusions;
 
@@ -47,7 +47,14 @@ class Program
         {
             if (File.Exists(jobFilePath)) 
             {
-                try { File.Delete(jobFilePath); } catch { }
+                try
+                {
+                    File.Delete(jobFilePath);
+                }
+                catch
+                {
+                    Debug.WriteLine("Failed to delete symlink job file.");
+                }
             }
         }
     }
@@ -56,12 +63,11 @@ class Program
     {
         if (!Directory.Exists(job.SourcePath)) return;
 
-        // 1. Ссылки на папки (/D)
+        // 1. Make directory links for folders
         foreach (var dirPath in Directory.GetDirectories(job.SourcePath))
         {
             var dirName = new DirectoryInfo(dirPath).Name;
             
-            // ЛОГИКА ВАЙТЛИСТА: Если папки НЕТ в нашем белом списке — просто пропускаем её
             if (!job.Inclusions.Contains(dirName)) continue;
 
             var destDir = Path.Combine(job.DestPath, dirName);
@@ -71,12 +77,11 @@ class Program
             RunCmd($"/c mklink /D \"{destDir}\" \"{dirPath}\"");
         }
 
-        // 2. Ссылки на файлы
+        // 2. Make file links
         foreach (var filePath in Directory.GetFiles(job.SourcePath))
         {
             var fileName = Path.GetFileName(filePath);
             
-            // ЛОГИКА ВАЙТЛИСТА: Если файла НЕТ в списке — пропускаем
             if (!job.Inclusions.Contains(fileName)) continue;
 
             var destFile = Path.Combine(job.DestPath, fileName);
