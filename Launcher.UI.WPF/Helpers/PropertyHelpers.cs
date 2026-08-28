@@ -407,7 +407,7 @@ public static class ConfirmViewHelper
             "VisibleButtons",
             typeof(ConfirmButtons),
             typeof(ConfirmViewHelper),
-            new PropertyMetadata(ConfirmButtons.ConfirmAndCancel)); // Значение по умолчанию
+            new PropertyMetadata(ConfirmButtons.ConfirmAndCancel));
     
     public static ConfirmButtons GetVisibleButtons(DependencyObject obj)
     {

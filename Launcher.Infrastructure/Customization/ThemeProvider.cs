@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
@@ -42,7 +43,7 @@ public class ThemeProvider : IThemeProvider
         }
         catch
         {
-            // Игнорируем ошибки очистки кэша
+            Debug.WriteLine("Error occurred while cleaning up themes cache.");
         }
 
         var zipFiles = Directory.GetFiles(_themesRoot, "*.zip");
@@ -56,7 +57,7 @@ public class ThemeProvider : IThemeProvider
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading theme {zipPath}: {ex.Message}");
+                Debug.WriteLine($"Error loading theme {zipPath}: {ex.Message}");
             }
         }
 
@@ -105,8 +106,7 @@ public class ThemeProvider : IThemeProvider
 
         var themeXamlPath = Path.Combine(themeCacheDir, "Theme.xaml");
         if (!File.Exists(themeXamlPath)) return null;
-
-        // 1. Читаем манифест темы manifest.json
+        
         var manifestPath = Path.Combine(themeCacheDir, "manifest.json");
         string name = folderName;
         string author = "Unknown";
@@ -131,11 +131,10 @@ public class ThemeProvider : IThemeProvider
             }
             catch
             {
-                // При ошибке чтения манифеста оставляем дефолтные значения
+                Debug.WriteLine("Error occurred while deserializing theme manifest.");
             }
         }
-
-        // 2. Обрабатываем относительные пути к ресурсам в Theme.xaml (Fonts и Images)
+        
         string xamlContent = File.ReadAllText(themeXamlPath);
         var baseUri = new Uri(themeCacheDir + Path.DirectorySeparatorChar).AbsoluteUri;
 
@@ -143,8 +142,7 @@ public class ThemeProvider : IThemeProvider
         xamlContent = Regex.Replace(xamlContent, @"([\""']?)[\\/]?Images[\\/]", $"$1{baseUri}Images/", RegexOptions.IgnoreCase);
 
         File.WriteAllText(themeXamlPath, xamlContent);
-
-        // 3. Поиск баннера темы
+        
         string? bannerPath = null;
         var possibleDirs = new[] { themeCacheDir, Path.Combine(themeCacheDir, "Banner") };
 
