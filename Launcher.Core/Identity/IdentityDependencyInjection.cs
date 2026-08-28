@@ -1,4 +1,3 @@
-using System.Security;
 using Launcher.Core.Identity.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 

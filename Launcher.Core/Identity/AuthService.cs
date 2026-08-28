@@ -43,9 +43,9 @@ public class AuthService : IAuthService
 
             // Workaround: Explicitly set the Identifier to prevent the AccountManager
             // from filtering out this newly created session.
-            if (authenticator.Context?.SessionStorage != null)
+            if (!string.IsNullOrEmpty(session.UUID))
             {
-                authenticator.Context.SessionStorage.Set<string>("Identifier", session.UUID);
+                authenticator.Context?.SessionStorage.Set("Identifier", session.UUID);
             }
 
             // Persist session data to cml_accounts.json
@@ -55,8 +55,8 @@ public class AuthService : IAuthService
             Debug.WriteLine($"[Auth] Interactive login completed. Records in cml_accounts.json: {accounts.Count}");
 
             return new UserAccount(
-                session.Username, 
-                session.UUID, 
+                session.Username ?? string.Empty, 
+                session.UUID ?? string.Empty, 
                 session.AccessToken, 
                 isOffline: false);
         }
@@ -68,8 +68,14 @@ public class AuthService : IAuthService
 
     public UserAccount LoginOffline(string nickname)
     {
-        var offlineSession = MSession.CreateOfflineSession(nickname);
-        return new UserAccount(offlineSession.Username, offlineSession.UUID, null, isOffline: true);
+        string safeNickname = string.IsNullOrWhiteSpace(nickname) ? "Player" : nickname.Trim();
+        var offlineSession = MSession.CreateOfflineSession(safeNickname);
+    
+        return new UserAccount(
+            offlineSession.Username ?? safeNickname, 
+            offlineSession.UUID ?? Guid.NewGuid().ToString(), 
+            null, 
+            isOffline: true);
     }
 
     public async Task<UserAccount> ValidateAndRefreshAccountAsync(UserAccount account)
@@ -121,8 +127,8 @@ public class AuthService : IAuthService
                 _loginHandler.AccountManager.SaveAccounts();
 
                 account.AccessToken = newSession.AccessToken;
-                account.Username = newSession.Username;
-                account.UUID = newSession.UUID;
+                account.Username = newSession.Username ?? account.Username;
+                account.UUID = newSession.UUID ?? account.UUID;
 
                 Debug.WriteLine("[Auth] Silent Refresh pipeline completed successfully!");
                 return account;

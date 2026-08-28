@@ -1,4 +1,4 @@
-using Launcher.Infrastructure.Themes.Models;
+using Launcher.Infrastructure.Customization.Models;
 
 namespace Launcher.UI.WPF.Services.Abstractions;
 

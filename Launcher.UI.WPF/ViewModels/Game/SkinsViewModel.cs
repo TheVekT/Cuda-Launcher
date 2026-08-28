@@ -3,12 +3,11 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Assets.Abstractions;
 using Launcher.Core.Common.Enums;
-using Launcher.Core.Common.Models;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.System.Abstractions;
-using Launcher.Core.UI.Abstractions;
+using Launcher.Infrastructure.Assets.Abstractions;
+using Launcher.Infrastructure.Assets.Models;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
@@ -112,13 +111,13 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
                 
                 // Create a temporary CharacterModel for the active skin
                 var coreTempSkin = new CharacterModel
-                {
-                    Id = profile.Id,
-                    Name = profile.Name,
-                    SkinFileName = Path.GetFileName(localSkinPath),
-                    CapeId = activeCapeId,
-                    SkinVariant = activeMojangSkin.Variant?.ToLower() ?? "classic"
-                };
+                (
+                    id : profile.Id,
+                    name : profile.Name,
+                    skinFileName : Path.GetFileName(localSkinPath),
+                    capeId : activeCapeId,
+                    skinVariant : activeMojangSkin.Variant?.ToLower() ?? "classic"
+                );
                 
                 // Create a temporary CharacterItemViewModel for the active skin and set it as the selected skin in SkinsStore
                 var tempSkinVM = new CharacterItemViewModel(coreTempSkin)

@@ -1,4 +1,4 @@
-using Launcher.Core.Common.Enums;
+using Launcher.UI.WPF.Helpers;
 
 namespace Launcher.UI.WPF.Models;
 

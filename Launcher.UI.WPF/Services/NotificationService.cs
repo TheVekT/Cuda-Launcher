@@ -1,7 +1,5 @@
 using System.Collections.ObjectModel;
-using Launcher.Core.Common.Enums;
-using Launcher.Core.Common.Models;
-using Launcher.Core.UI.Abstractions;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services.Abstractions;
 

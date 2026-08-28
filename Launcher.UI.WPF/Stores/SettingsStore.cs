@@ -1,12 +1,12 @@
 using System.Collections.ObjectModel; 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Config.Abstractions;
-using Launcher.Core.Config.Models;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.System.Abstractions;
+using Launcher.Infrastructure.Config.Abstractions;
+using Launcher.Infrastructure.Config.Models;
+using Launcher.Infrastructure.Customization.Models;
 using Launcher.Infrastructure.Localization.Models;
-using Launcher.Infrastructure.Themes.Models;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;

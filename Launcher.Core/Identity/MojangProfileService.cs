@@ -8,15 +8,9 @@ using Launcher.Core.Identity.Models;
 
 namespace Launcher.Core.Identity;
 
-public class MojangProfileService : IMojangProfileService
+public class MojangProfileService(HttpClient httpClient) : IMojangProfileService
 {
-    private readonly HttpClient _httpClient;
     private const string BaseUrl = "https://api.minecraftservices.com/minecraft/profile";
-
-    public MojangProfileService(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
 
     private static NetworkRequestStatus MapStatusCode(HttpStatusCode statusCode) => statusCode switch
     {
@@ -35,7 +29,7 @@ public class MojangProfileService : IMojangProfileService
         using var request = new HttpRequestMessage(HttpMethod.Get, BaseUrl);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = await _httpClient.SendAsync(request);
+        var response = await httpClient.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
 
         var json = await response.Content.ReadAsStringAsync();
@@ -51,15 +45,15 @@ public class MojangProfileService : IMojangProfileService
 
             using var content = new MultipartFormDataContent();
             content.Add(new StringContent(variant), "variant");
-            
-            using var fileStream = File.OpenRead(filePath);
+
+            await using var fileStream = File.OpenRead(filePath);
             var fileContent = new StreamContent(fileStream);
             fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
             content.Add(fileContent, "file", Path.GetFileName(filePath));
 
             request.Content = content;
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request);
             return MapStatusCode(response.StatusCode);
         }
         catch
@@ -75,10 +69,10 @@ public class MojangProfileService : IMojangProfileService
             using var request = new HttpRequestMessage(HttpMethod.Put, $"{BaseUrl}/capes/active");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-            var jsonContent = JsonSerializer.Serialize(new { capeId = capeId });
+            var jsonContent = JsonSerializer.Serialize(new { capeId });
             request.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request);
             return MapStatusCode(response.StatusCode);
         }
         catch
@@ -94,7 +88,7 @@ public class MojangProfileService : IMojangProfileService
             using var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/capes/active");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request);
             return MapStatusCode(response.StatusCode);
         }
         catch

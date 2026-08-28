@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Launcher.Core.Common.Helpers;
 using Launcher.Core.Config.Abstractions;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.Identity.Models;
@@ -9,6 +10,7 @@ public class AccountStorageService : IAccountStorageService
 {
     private readonly string _userDataPath;
     private readonly string _filePath;
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private readonly ILauncherPathsService _pathsService;
 
     public AccountStorageService(ILauncherPathsService pathsService)

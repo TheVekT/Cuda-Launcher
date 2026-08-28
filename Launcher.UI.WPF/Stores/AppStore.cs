@@ -32,7 +32,7 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     [ObservableProperty]
     private double _downloadProgress;
     [ObservableProperty]
-    private string _downloadStatusText = "Initiating...";
+    private string? _downloadStatusText = "Initiating...";
     [ObservableProperty]
     private string _downloadPercentText = "0%";
 

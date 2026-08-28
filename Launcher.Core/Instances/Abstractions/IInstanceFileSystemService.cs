@@ -11,8 +11,8 @@ public interface IInstanceFileSystemService
     string GetGlobalMinecraftPath();
     void DeleteInstance(MinecraftInstance instance);
     
-    void OpenInstanceFolder(MinecraftInstance instance);
-    void OpenInstanceModsFolder(MinecraftInstance instance);
+    void OpenInstanceFolder(MinecraftInstance? instance);
+    void OpenInstanceModsFolder(MinecraftInstance? instance);
     void OpenRootMinecraftFolder();
     
     Task ImportModAsync(MinecraftInstance instance, string sourceFilePath);

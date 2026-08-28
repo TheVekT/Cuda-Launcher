@@ -1,5 +1,4 @@
-using Launcher.Core.System;
-using Launcher.Core.System.Abstractions;
+using Launcher.UI.WPF.Services.Abstractions;
 using Microsoft.Win32;
 
 namespace Launcher.UI.WPF.Services;

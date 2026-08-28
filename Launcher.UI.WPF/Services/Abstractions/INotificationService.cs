@@ -1,9 +1,8 @@
 using System.Collections.ObjectModel;
-using Launcher.Core.Common.Enums;
-using Launcher.Core.Common.Models;
+using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Models;
 
-namespace Launcher.Core.UI.Abstractions;
+namespace Launcher.UI.WPF.Services.Abstractions;
 
 public interface INotificationService
 {

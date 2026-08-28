@@ -10,19 +10,18 @@ using Launcher.Core.Common.Enums;
 using Launcher.Core.Common.Messages;
 using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Instances.Models;
-using Launcher.Core.Integrations.Abstractions;
 using Launcher.Core.System.Abstractions;
-using Launcher.Core.UI.Abstractions;
+using Launcher.Infrastructure.Integrations.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
-using Launcher.UI.WPF.ViewModels.Accounts;
 using Launcher.UI.WPF.ViewModels.Common;
+using Launcher.UI.WPF.ViewModels.Config;
 using Launcher.UI.WPF.ViewModels.Game;
+using Launcher.UI.WPF.ViewModels.Identity;
 using Launcher.UI.WPF.ViewModels.Instances;
-using Launcher.UI.WPF.ViewModels.Settings;
 
 namespace Launcher.UI.WPF.ViewModels;
 
@@ -141,7 +140,7 @@ public partial class MainWindowViewModel : ObservableObject,
         _settingsViewModel = settingsViewModel;
         
         
-        _discordService.Initialize(Launcher.Core.Common.Constants.LauncherConstants.DiscordAppId);
+        _discordService.Initialize(Core.Common.Constants.LauncherConstants.DiscordAppId);
         _overlayService.RegisterOverlaySetter(view => _appStore.CurrentOverlayView = view);
         _navigationService.RegisterNavigationHandler(view => AppStore.CurrentView = view);
         _launchService.GameCrashed += OnGameCrashed;
@@ -210,11 +209,11 @@ public partial class MainWindowViewModel : ObservableObject,
             _appStore.IsDownloading = true;
         
             var globalSettings = new GlobalLaunchSettings
-            {
-                MaxRamMb = _settingsStore.SelectedMaxRam,
-                IsFullscreen = _settingsStore.IsGameFullScreen,
-                Resolution = _settingsStore.IsGameFullScreen ? "Auto" : _settingsStore.SelectedResolution
-            };
+            (
+                maxRamMb : _settingsStore.SelectedMaxRam,
+                isFullscreen : _settingsStore.IsGameFullScreen,
+                resolution : _settingsStore.IsGameFullScreen ? "Auto" : _settingsStore.SelectedResolution
+            );
 
             var progress = new Progress<GameLaunchProgressMessage>(p =>
             {

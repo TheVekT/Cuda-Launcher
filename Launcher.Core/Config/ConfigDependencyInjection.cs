@@ -8,7 +8,6 @@ public static class ConfigDependencyInjection
     public static IServiceCollection AddConfigServices(this IServiceCollection services)
     {
         services.AddSingleton<ILauncherPathsService, LauncherPathsService>();
-        services.AddSingleton<ISettingsService, SettingsService>();
         
         return services;
     }

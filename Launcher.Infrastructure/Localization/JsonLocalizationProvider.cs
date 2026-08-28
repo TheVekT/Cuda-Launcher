@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using Launcher.Core.Config.Abstractions;
@@ -8,9 +9,10 @@ namespace Launcher.Infrastructure.Localization;
 
 public class JsonLocalizationProvider : ILocalizationProvider
 {
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private readonly ILauncherPathsService _pathsService;
     private readonly string _languagesRoot;
-    private readonly string[] _builtInLanguageCodes = { "en-US" };
+    private readonly string[] _builtInLanguageCodes = ["en-US"];
 
     public JsonLocalizationProvider(ILauncherPathsService pathsService)
     {
@@ -29,7 +31,7 @@ public class JsonLocalizationProvider : ILocalizationProvider
 
         if (!Directory.Exists(_languagesRoot))
         {
-            languages.Add(new LanguageModel { Name = "English (US)", Code = "en-US", Author = "TheVekT", Version = "1.0.0" });
+            languages.Add(new LanguageModel("1.0.0", "English (US)", "en-US", "TheVekT"));
             return languages;
         }
 
@@ -53,19 +55,18 @@ public class JsonLocalizationProvider : ILocalizationProvider
                     if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code))
                     {
                         languages.Add(new LanguageModel 
-                        { 
-                            Name = name, 
-                            Code = code,
-                            Author = author ?? string.Empty,
-                            Version = version ?? "1.0.0"
-                        });
+                        (
+                            name : name, 
+                            code : code,
+                            author : author ?? string.Empty,
+                            version : version ?? "1.0.0"
+                        ));
                     }
                 }
             }
             catch
             {
-                // Если файл поврежден, пропускаем его
-                continue;
+                Debug.WriteLine("Error occurred while processing language file: " + file);
             }
         }
 
@@ -106,8 +107,7 @@ public class JsonLocalizationProvider : ILocalizationProvider
             }
             catch
             {
-                // Если файл поврежден или занят другим процессом — пропускаем его
-                continue;
+                Debug.WriteLine("Error occurred while processing language file: " + file);
             }
         }
 
@@ -147,15 +147,9 @@ public class JsonLocalizationProvider : ILocalizationProvider
         }
         catch
         {
-            // Игнорируем ошибки при копировании файла
+            Debug.WriteLine("Error occurred while importing language file: " + filePath);
         }
 
         return Task.CompletedTask;
-    }
-
-    private class LanguageFile
-    {
-        public Dictionary<string, string>? Meta { get; set; }
-        public Dictionary<string, string>? Translations { get; set; }
     }
 }

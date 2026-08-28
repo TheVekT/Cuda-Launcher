@@ -1,11 +1,9 @@
 using System.Net.Http;
 using System.Windows;
-using Launcher.Core.Assets;
 using Launcher.Core.Config;
 using Launcher.Core.Game;
 using Launcher.Core.Identity;
 using Launcher.Core.Instances;
-using Launcher.Core.Integrations;
 using Launcher.Core.Mods;
 using Microsoft.Extensions.DependencyInjection;
 using Launcher.UI.WPF.ViewModels;
@@ -13,18 +11,21 @@ using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Stores;
 using Launcher.Core.System;
 using Launcher.Core.System.Abstractions;
-using Launcher.Core.UI.Abstractions;
-using Launcher.Infrastructure;
+using Launcher.Infrastructure.Assets;
+using Launcher.Infrastructure.Config;
+using Launcher.Infrastructure.Customization;
+using Launcher.Infrastructure.Integrations;
+using Launcher.Infrastructure.Localization;
 using Launcher.UI.WPF.Services.Abstractions;
-using Launcher.UI.WPF.ViewModels.Accounts;
+using Launcher.UI.WPF.ViewModels.Config;
 using Launcher.UI.WPF.ViewModels.Game;
+using Launcher.UI.WPF.ViewModels.Identity;
 using Launcher.UI.WPF.ViewModels.Instances;
-using Launcher.UI.WPF.ViewModels.Settings;
 using Launcher.UI.WPF.Views;
 
 namespace Launcher.UI.WPF;
 
-public partial class App : Application
+public partial class App
 {
     public static IServiceProvider Services { get; private set; }
 
@@ -38,7 +39,7 @@ public partial class App : Application
             Console.WriteLine($"Stack Trace: {((Exception)ex.ExceptionObject)?.StackTrace}");
         };
     
-        this.DispatcherUnhandledException += (s, ex) =>
+        DispatcherUnhandledException += (s, ex) =>
         {
             Console.WriteLine($"=== DISPATCHER EXCEPTION ===");
             Console.WriteLine($"Exception: {ex.Exception.Message}");
@@ -73,17 +74,19 @@ public partial class App : Application
             services.AddSingleton<IClipboardService, WpfClipboardService>();
             
             //Core Services
-            services.AddAssetsServices();
             services.AddConfigServices();
             services.AddGameServices();
             services.AddIdentityServices();
             services.AddInstancesServices();
-            services.AddIntegrationsServices();
             services.AddModsServices();
             services.AddSystemServices();
             
             //Infrastructure Services
-            services.AddInfrastructureServices();
+            services.AddInfrastructureConfigServices();
+            services.AddCustomizationServices();
+            services.AddIntegrationsServices();
+            services.AddLocalizationServices();
+            services.AddAssetsServices();
             
             //Stores
             services.AddSingleton<AppStore>();

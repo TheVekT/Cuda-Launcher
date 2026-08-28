@@ -1,4 +1,3 @@
-using Launcher.Core.Config.Models;
 using Launcher.Infrastructure.Localization.Models;
 using Launcher.UI.WPF.Helpers;
 

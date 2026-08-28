@@ -15,14 +15,13 @@
     mc:Ignorable="d"
     x:Class="Launcher.UI.WPF.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:accounts="clr-namespace:Launcher.UI.WPF.ViewModels.Accounts"
+    xmlns:accounts="clr-namespace:Launcher.UI.WPF.ViewModels.Identity"
     xmlns:behaviors="clr-namespace:Launcher.UI.WPF.Behaviors"
     xmlns:common="clr-namespace:Launcher.UI.WPF.Views.Common"
     xmlns:components="clr-namespace:Launcher.UI.WPF.Views.Common.Components"
     xmlns:config="clr-namespace:Launcher.UI.WPF.ViewModels.Config"
     xmlns:config1="clr-namespace:Launcher.UI.WPF.Views.Config"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:enums="clr-namespace:Launcher.Core.Common.Enums;assembly=Launcher.Core"
     xmlns:game="clr-namespace:Launcher.UI.WPF.ViewModels.Game"
     xmlns:game1="clr-namespace:Launcher.UI.WPF.Views.Game"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
@@ -31,7 +30,6 @@
     xmlns:instances1="clr-namespace:Launcher.UI.WPF.Views.Instances"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:notifications1="clr-namespace:Launcher.UI.WPF.Views.Common.Notifications"
-    xmlns:settings="clr-namespace:Launcher.UI.WPF.ViewModels.Settings"
     xmlns:settings1="clr-namespace:Launcher.UI.WPF.ViewModels.Common"
     xmlns:settings2="clr-namespace:Launcher.UI.WPF.Views.Settings"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
@@ -66,7 +64,7 @@
             <identity:LoginView />
         </DataTemplate>
 
-        <DataTemplate DataType="{x:Type settings:SettingsViewModel}">
+        <DataTemplate DataType="{x:Type config:SettingsViewModel}">
             <settings2:SettingsView />
         </DataTemplate>
 
@@ -453,7 +451,7 @@
                                 <Style TargetType="ContentControl">
                                     <Style.Triggers>
 
-                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Info}">
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static helpers:NotificationType.Info}">
                                             <Setter Property="ContentTemplate">
                                                 <Setter.Value>
                                                     <DataTemplate>
@@ -463,7 +461,7 @@
                                             </Setter>
                                         </DataTrigger>
 
-                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Success}">
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static helpers:NotificationType.Success}">
                                             <Setter Property="ContentTemplate">
                                                 <Setter.Value>
                                                     <DataTemplate>
@@ -473,7 +471,7 @@
                                             </Setter>
                                         </DataTrigger>
 
-                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Warning}">
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static helpers:NotificationType.Warning}">
                                             <Setter Property="ContentTemplate">
                                                 <Setter.Value>
                                                     <DataTemplate>
@@ -483,7 +481,7 @@
                                             </Setter>
                                         </DataTrigger>
 
-                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static enums:NotificationType.Error}">
+                                        <DataTrigger Binding="{Binding Type}" Value="{x:Static helpers:NotificationType.Error}">
                                             <Setter Property="ContentTemplate">
                                                 <Setter.Value>
                                                     <DataTemplate>

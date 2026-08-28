@@ -10,6 +10,7 @@ namespace Launcher.Core.System;
 public class SymlinkService : ISymlinkService
 {
     private readonly string _toolPath;
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private readonly ILauncherPathsService _pathsService;
     
     public SymlinkService(ILauncherPathsService pathsService)
@@ -25,14 +26,14 @@ public class SymlinkService : ISymlinkService
              throw new FileNotFoundException($"UAC Helper tool not found at {_toolPath}. Make sure Launcher Helper is built.");
         }
         
-        var job = new SymlinkJob 
-        { 
-            SourcePath = sourceBase, 
-            DestPath = destBase, 
-            Inclusions = inclusions 
-        };
-        string tempJobFile = Path.Combine(Path.GetTempPath(), $"job_{Guid.NewGuid()}.json");
-        string json = JsonSerializer.Serialize(job);
+        var job = new SymlinkJob
+        (
+            sourcePath : sourceBase, 
+            destPath : destBase, 
+            inclusions : inclusions 
+        );
+        var tempJobFile = Path.Combine(Path.GetTempPath(), $"job_{Guid.NewGuid()}.json");
+        var json = JsonSerializer.Serialize(job);
         File.WriteAllText(tempJobFile, json);
         
         var startInfo = new ProcessStartInfo
@@ -48,12 +49,9 @@ public class SymlinkService : ISymlinkService
         try
         {
             var process = Process.Start(startInfo);
-            process.WaitForExit(); 
-
-            if (process.ExitCode != 0)
-            {
-                throw new Exception($"Symlink helper exited with code {process.ExitCode}. Check log file near exe.");
-            }
+            process?.WaitForExit(); 
+            if (process?.ExitCode != 0)
+                throw new Exception($"Symlink helper exited with code {process?.ExitCode}. Check log file near exe.");
         }
         catch (Win32Exception)
         {
@@ -63,7 +61,14 @@ public class SymlinkService : ISymlinkService
         {
             if (File.Exists(tempJobFile)) 
             {
-                try { File.Delete(tempJobFile); } catch { }
+                try
+                {
+                    File.Delete(tempJobFile);
+                }
+                catch
+                {
+                    Debug.WriteLine("Failed to delete symlink job file.");
+                }
             }
         }
     }

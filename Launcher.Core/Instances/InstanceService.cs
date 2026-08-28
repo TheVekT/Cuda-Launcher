@@ -10,6 +10,7 @@ public class InstanceService : IInstanceService
 {
     private readonly string _instancesFolderPath;
     private readonly string _jsonFilePath;
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private readonly ILauncherPathsService _pathsService;
 
     public InstanceService(ILauncherPathsService pathsService)
@@ -35,7 +36,7 @@ public class InstanceService : IInstanceService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Ошибка сохранения: {ex.Message}");
+            Debug.WriteLine($"Error saving instances: {ex.Message}");
         }
     }
 
@@ -66,13 +67,9 @@ public class InstanceService : IInstanceService
         var currentInstances = LoadInstances();
         var instanceToRemove = currentInstances.FirstOrDefault(x => x.Id == instanceId);
 
-        if (instanceToRemove != null)
-        {
-            currentInstances.Remove(instanceToRemove);
-            SaveInstances(currentInstances);
-            
-            // В будущем здесь добавим вызов:
-            // _fileSystemService.DeleteInstanceFolder(instanceToRemove.Name);
-        }
+        if (instanceToRemove == null) return;
+        
+        currentInstances.Remove(instanceToRemove);
+        SaveInstances(currentInstances);
     }
 }

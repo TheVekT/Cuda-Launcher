@@ -19,10 +19,9 @@
       <PackageReference Include="XboxAuthNet.Game.Msal" Version="0.1.3" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Common\Helpers\" />
+      <Folder Include="Common\Models\" />
       <Folder Include="Common\Validators\" />
-      <Folder Include="Game\Models\" />
-      <Folder Include="Integrations\Models\" />
+      <Folder Include="Config\Models\" />
       <Folder Include="Mods\Models\" />
     </ItemGroup>
 

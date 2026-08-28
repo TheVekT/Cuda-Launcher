@@ -16,6 +16,7 @@ using Launcher.Core.Common.Enums;
 using Launcher.Core.Common.Messages;
 using Launcher.Core.Common.Models;
 using Launcher.Core.Game.Abstractions;
+using Launcher.Core.Game.Models;
 using Launcher.Core.Identity.Models;
 using Launcher.Core.Instances.Abstractions;
 using Launcher.Core.Instances.Models;
@@ -24,28 +25,18 @@ using Launcher.Core.System.Abstractions;
 
 namespace Launcher.Core.Game;
 
-public class LaunchService : ILaunchService
+public class LaunchService(
+    IInstanceFileSystemService fileService,
+    IModrinthService modrinthService,
+    IConnectivityService connectivityService)
+    : ILaunchService
 {
     private const int MaxLogBufferLines = 60;
     private const int MaxCrashReportSnippetLines = 35;
 
-    private readonly IInstanceFileSystemService _fileService;
-    private readonly IModrinthService _modrinthService;
-    private readonly IConnectivityService _connectivityService;
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _httpClient = new();
     
     public event Action<MinecraftInstance, GameCrashReport>? GameCrashed;
-
-    public LaunchService(
-        IInstanceFileSystemService fileService, 
-        IModrinthService modrinthService, 
-        IConnectivityService connectivityService)
-    {
-        _fileService = fileService;
-        _modrinthService = modrinthService;
-        _connectivityService = connectivityService;
-        _httpClient = new HttpClient(); 
-    }
 
     public async Task<Result<GameLaunchResult>> LaunchGameAsync(
         MinecraftInstance instance, 
@@ -53,38 +44,36 @@ public class LaunchService : ILaunchService
         GlobalLaunchSettings globalSettings, 
         IProgress<GameLaunchProgressMessage> progress)
     {
-        if (instance == null || account == null || globalSettings == null)
-            return Result.Fail<GameLaunchResult>("Required launch parameters are null.");
 
         try
         {
-            progress?.Report(new GameLaunchProgressMessage(0, "Preparing..."));
+            progress.Report(new GameLaunchProgressMessage(0, "Preparing..."));
             
-            bool isConnected = await _connectivityService.CheckInternetAccessAsync();
-            var instancePath = _fileService.PrepareForLaunch(instance);
+            var isConnected = await connectivityService.CheckInternetAccessAsync();
+            var instancePath = fileService.PrepareForLaunch(instance);
             
             var localProgress = new Progress<LaunchState>(state => 
-                progress?.Report(new GameLaunchProgressMessage(state.Progress, state.StatusText)));
+                progress.Report(new GameLaunchProgressMessage(state.Progress, state.StatusText)));
 
             var (isEssentialApisInstalled, isPerformanceModsInstalled) = 
                 await InstallInitialModsAsync(instance, instancePath, isConnected, localProgress);
 
-            progress?.Report(new GameLaunchProgressMessage(5, "Initializing..."));
+            progress.Report(new GameLaunchProgressMessage(5, "Initializing..."));
 
-            var globalMcPath = new MinecraftPath(_fileService.GetGlobalMinecraftPath());
+            var globalMcPath = new MinecraftPath(fileService.GetGlobalMinecraftPath());
             var launcher = new MinecraftLauncher(globalMcPath);
 
             SetupFileVerificationProgress(launcher, progress);
             
-            progress?.Report(new GameLaunchProgressMessage(15, $"Preparing Minecraft {instance.GameVersion}..."));
+            progress.Report(new GameLaunchProgressMessage(15, $"Preparing Minecraft {instance.GameVersion}..."));
 
             string versionIdToLaunch = await ResolveVersionIdAsync(launcher, instance, globalMcPath, isConnected, progress);
 
-            progress?.Report(new GameLaunchProgressMessage(90, "Finalizing..."));
+            progress.Report(new GameLaunchProgressMessage(90, "Finalizing..."));
             
             var launchOption = CreateLaunchOption(instance, account, globalSettings, instancePath, globalMcPath);
 
-            progress?.Report(new GameLaunchProgressMessage(95, "Starting game..."));
+            progress.Report(new GameLaunchProgressMessage(95, "Starting game..."));
             
             var process = await BuildProcessAsync(launcher, globalMcPath, versionIdToLaunch, launchOption, isConnected);
             var logBuffer = new ConcurrentQueue<string>();
@@ -95,7 +84,7 @@ public class LaunchService : ILaunchService
             process.BeginErrorReadLine();
             
             instance.LastPlayedDate = DateTime.Now;
-            progress?.Report(new GameLaunchProgressMessage(100, "Game started!"));
+            progress.Report(new GameLaunchProgressMessage(100, "Game started!"));
             
             return Result.Ok(new GameLaunchResult(process, isPerformanceModsInstalled, isEssentialApisInstalled));
         }
@@ -125,21 +114,24 @@ public class LaunchService : ILaunchService
         bool? performanceInstalled = null;
         string modsFolder = Path.Combine(instancePath, "mods");
 
-        try
+        if (instance.LoaderType == GameLoaderType.Fabric || instance.LoaderType == GameLoaderType.Quilt)
         {
-            essentialInstalled = await _modrinthService.InstallEssentialApisAsync(instance, modsFolder, progress);
+            try
+            {
+                essentialInstalled = await modrinthService.InstallEssentialApisAsync(instance, modsFolder, progress);
+            }
+            catch (Exception ex)
+            {
+                essentialInstalled = false;
+                Debug.WriteLine($"[Launch Warn] Failed to install Essential APIs: {ex.Message}");
+            }
         }
-        catch (Exception ex)
-        {
-            essentialInstalled = false;
-            Debug.WriteLine($"[Launch Warn] Failed to install Essential APIs: {ex.Message}");
-        }
-
+        
         if (instance.RequestPerformanceMods)
         {
             try
             {
-                performanceInstalled = await _modrinthService.InstallPerformanceModsAsync(instance, modsFolder, progress);
+                performanceInstalled = await modrinthService.InstallPerformanceModsAsync(instance, modsFolder, progress);
             }
             catch (Exception ex)
             {
@@ -158,7 +150,7 @@ public class LaunchService : ILaunchService
     private static void SetupFileVerificationProgress(MinecraftLauncher launcher, IProgress<GameLaunchProgressMessage>? progress)
     {
         var networkTimer = Stopwatch.StartNew();
-        string currentAction = "Verifying files...";
+        var currentAction = "Verifying files...";
 
         launcher.ByteProgressChanged += (_, _) =>
         {
@@ -218,7 +210,7 @@ public class LaunchService : ILaunchService
         string instancePath, 
         MinecraftPath globalMcPath)
     {
-        var safeGameSettings = instance.GameSettings ?? new GameSettings();
+        var safeGameSettings = instance.GameSettings;
         var (screenWidth, screenHeight) = ParseResolution(safeGameSettings.GameResolution ?? globalSettings.Resolution);
 
         var instanceMcPath = new MinecraftPath(instancePath)
@@ -244,7 +236,7 @@ public class LaunchService : ILaunchService
 
         if (!string.IsNullOrWhiteSpace(safeGameSettings.JvmArgs))
         {
-            option.ExtraJvmArguments = new[] { MArgument.FromCommandLine(safeGameSettings.JvmArgs) };
+            option.ExtraJvmArguments = [MArgument.FromCommandLine(safeGameSettings.JvmArgs)];
         }
 
         return option;
@@ -380,10 +372,10 @@ public class LaunchService : ILaunchService
 
         return instance.LoaderType switch
         {
-            GameLoaderType.Forge => await launcher.GetVersionAsync(await new ForgeInstaller(launcher).Install(mcVersion, loaderVersion)),
-            GameLoaderType.Fabric => await launcher.GetVersionAsync(await new FabricInstaller(_httpClient).Install(mcVersion, loaderVersion, launcher.MinecraftPath)),
-            GameLoaderType.NeoForge => await launcher.GetVersionAsync(await new NeoForgeInstaller(launcher).Install(mcVersion, loaderVersion)),
-            GameLoaderType.Quilt => await launcher.GetVersionAsync(await new QuiltInstaller(_httpClient).Install(mcVersion, loaderVersion, launcher.MinecraftPath)),
+            GameLoaderType.Forge => await launcher.GetVersionAsync(await new ForgeInstaller(launcher).Install(mcVersion, loaderVersion!)),
+            GameLoaderType.Fabric => await launcher.GetVersionAsync(await new FabricInstaller(_httpClient).Install(mcVersion, loaderVersion!, launcher.MinecraftPath)),
+            GameLoaderType.NeoForge => await launcher.GetVersionAsync(await new NeoForgeInstaller(launcher).Install(mcVersion, loaderVersion!)),
+            GameLoaderType.Quilt => await launcher.GetVersionAsync(await new QuiltInstaller(_httpClient).Install(mcVersion, loaderVersion!, launcher.MinecraftPath)),
             _ => await launcher.GetVersionAsync(mcVersion)
         };
     }
@@ -403,7 +395,7 @@ public class LaunchService : ILaunchService
 
         var directories = Directory.GetDirectories(versionsDir)
             .Select(Path.GetFileName)
-            .Where(x => !string.IsNullOrEmpty(x))
+            .OfType<string>()
             .ToList();
 
         // 1. Exact match

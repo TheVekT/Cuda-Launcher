@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text.Json;
 using CmlLib.Core;
@@ -15,7 +14,7 @@ namespace Launcher.Core.Game;
 
 public class GameVersionService : IGameVersionService
 {
-    private static readonly string[] PreReleaseKeywords = { "beta", "alpha", "rc", "snapshot" };
+    private static readonly string[] PreReleaseKeywords = ["beta", "alpha", "rc", "snapshot"];
 
     private readonly IConnectivityService _connectivityService;
     private readonly MinecraftLauncher _launcher;
@@ -86,7 +85,7 @@ public class GameVersionService : IGameVersionService
     public async Task<IEnumerable<string>> GetLoaderVersionsAsync(GameLoaderType type, string gameVersion)
     {
         if (string.IsNullOrWhiteSpace(gameVersion))
-            return Enumerable.Empty<string>();
+            return [];
 
         if (!await CheckOnlineAsync())
         {
@@ -102,7 +101,7 @@ public class GameVersionService : IGameVersionService
                 GameLoaderType.NeoForge => await GetNeoForgeVersions(gameVersion),
                 GameLoaderType.Fabric => await GetFabricOrQuiltLoaderVersions("https://meta.fabricmc.net/v2/versions/loader/", GameLoaderType.Fabric, gameVersion),
                 GameLoaderType.Quilt => await GetFabricOrQuiltLoaderVersions("https://meta.quiltmc.org/v3/versions/loader/", GameLoaderType.Quilt, gameVersion),
-                _ => Enumerable.Empty<string>()
+                _ => []
             };
 
             return SortVersionsDescending(versions);
@@ -188,7 +187,7 @@ public class GameVersionService : IGameVersionService
                 .Where(v => !string.IsNullOrEmpty(v))
                 .Select(v => v!.StartsWith("1.") && v.Contains('-')
                     ? v.Substring(0, v.IndexOf('-'))
-                    : Version.TryParse(v!.Split('-')[0], out var ver) ? (ver.Minor == 0 ? $"1.{ver.Major}" : $"1.{ver.Major}.{ver.Minor}") : null)
+                    : Version.TryParse(v.Split('-')[0], out var ver) ? (ver.Minor == 0 ? $"1.{ver.Major}" : $"1.{ver.Major}.{ver.Minor}") : null)
                 .Where(v => v != null)
                 .Select(v => v!)
                 .ToList();
@@ -260,6 +259,7 @@ public class GameVersionService : IGameVersionService
         string McVersion,
         string? LoaderVersion,
         string? Type,
+        // ReSharper disable once NotAccessedPositionalProperty.Local
         DateTimeOffset? ReleaseTime);
 
     private LocalVersionInfo? ParseLocalVersion(string dirPath)
@@ -325,7 +325,7 @@ public class GameVersionService : IGameVersionService
         Func<LocalVersionInfo, bool> predicate,
         Func<LocalVersionInfo, string> selector)
     {
-        if (!Directory.Exists(_versionsPath)) return Enumerable.Empty<string>();
+        if (!Directory.Exists(_versionsPath)) return [];
 
         return SortVersionsDescending(Directory.GetDirectories(_versionsPath)
             .Select(ParseLocalVersion)
@@ -419,8 +419,8 @@ public class GameVersionService : IGameVersionService
             if (x == null) return -1;
             if (y == null) return 1;
 
-            var partsX = x.Split(new[] { '.', '-', '+', '_' }, StringSplitOptions.RemoveEmptyEntries);
-            var partsY = y.Split(new[] { '.', '-', '+', '_' }, StringSplitOptions.RemoveEmptyEntries);
+            var partsX = x.Split(['.', '-', '+', '_'], StringSplitOptions.RemoveEmptyEntries);
+            var partsY = y.Split(['.', '-', '+', '_'], StringSplitOptions.RemoveEmptyEntries);
 
             int maxLen = Math.Max(partsX.Length, partsY.Length);
             for (int i = 0; i < maxLen; i++)

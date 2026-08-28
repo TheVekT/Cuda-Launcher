@@ -17,19 +17,18 @@ public class ModrinthService : IModrinthService
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("CudaLauncher/dev (vviktor2007@gmail.com)");
     }
     
-    public async Task<bool> InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null)
+    public async Task<bool> InstallEssentialApisAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress)
     {
         if (instance.IsolationType == IsolationType.Global) return false;
-
-        string slug = null;
+        
+        string? slug = null;
         if (instance.LoaderType == GameLoaderType.Fabric) slug = "fabric-api";
         else if (instance.LoaderType == GameLoaderType.Quilt) slug = "qsl";
-
         if (slug == null) return false;
 
         try
         {
-            progress?.Report(new LaunchState { Progress = 5, StatusText = $"Downloading {slug}..." });
+            progress.Report(new LaunchState { Progress = 5, StatusText = $"Downloading {slug}..." });
             var downloadUrl = await GetLatestModDownloadUrlAsync(slug, instance.GameVersion, instance.LoaderType.ToString().ToLower());
             if (downloadUrl != null)
                 await DownloadModAsync(downloadUrl, modsFolder, $"{slug}-{instance.GameVersion}.jar");
@@ -42,15 +41,15 @@ public class ModrinthService : IModrinthService
         return true;
     }
     
-    public async Task<bool> InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress = null)
+    public async Task<bool> InstallPerformanceModsAsync(MinecraftInstance instance, string modsFolder, IProgress<LaunchState> progress)
     {
         if (instance.IsolationType == IsolationType.Global) return false;
         if (!instance.RequestPerformanceMods) return false;
 
-        string[] targets = { "sodium", "iris" };
-        string loaderStr = instance.LoaderType.ToString().ToLower();
+        string[] targets = ["sodium", "iris"];
+        var loaderStr = instance.LoaderType.ToString().ToLower();
 
-        progress?.Report(new LaunchState { Progress = 10, StatusText = "Downloading performance mods..." });
+        progress.Report(new LaunchState { Progress = 10, StatusText = "Downloading performance mods..." });
         
         try
         {
@@ -74,12 +73,10 @@ public class ModrinthService : IModrinthService
         return true;
     }
 
-    // --- УНИВЕРСАЛЬНЫЕ МЕТОДЫ (ЗАГОТОВКА НА БУДУЩЕЕ) ---
-
-    private async Task<string> GetLatestModDownloadUrlAsync(string slug, string gameVersion, string loader)
+    private async Task<string?> GetLatestModDownloadUrlAsync(string slug, string gameVersion, string loader)
     {
-        // Формируем запрос с фильтрацией по версии игры и лоадеру
-        // Modrinth API ожидает массивы в формате JSON-строки, например: ["1.21.1"]
+        // Form the Modrinth API URL to fetch the latest version of the mod for the specified game version and loader.
+        // Modrinth API expects arrays in the format of a JSON string, e.g., ["1.21.1"]
         string url = $"https://api.modrinth.com/v2/project/{slug}/version" +
                      $"?game_versions=[\"{gameVersion}\"]" +
                      $"&loaders=[\"{loader}\"]";
@@ -89,15 +86,15 @@ public class ModrinthService : IModrinthService
 
         var json = await response.Content.ReadAsStringAsync();
         using var document = JsonDocument.Parse(json);
-
-        // API возвращает массив версий, отсортированных от новых к старым. Берем самую первую.
+        
         var rootArray = document.RootElement;
-        if (rootArray.GetArrayLength() == 0) return null; // Мод не найден под эти параметры
+        
+        if (rootArray.GetArrayLength() == 0) return null; // No versions found for the specified criteria
 
         var latestVersion = rootArray[0];
         var filesArray = latestVersion.GetProperty("files");
         
-        // Возвращаем прямую ссылку на скачивание первого файла (обычно это primary .jar)
+        // Assuming the first file is the main mod file. You might want to add additional checks here.
         return filesArray[0].GetProperty("url").GetString();
     }
 
@@ -111,7 +108,7 @@ public class ModrinthService : IModrinthService
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
-        using var fs = new FileStream(filePath, FileMode.Create);
+        await using var fs = new FileStream(filePath, FileMode.Create);
         await response.Content.CopyToAsync(fs);
         Console.WriteLine($"[Modrinth] Downloaded {fileName} to {folder}");
     }

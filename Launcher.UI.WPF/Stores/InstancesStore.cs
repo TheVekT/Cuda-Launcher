@@ -1,11 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Launcher.Core.Assets.Abstractions;
-using Launcher.Core.Config.Abstractions;
-using Launcher.Core.Config.Models;
 using Launcher.Core.Instances.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.System.Abstractions;
+using Launcher.Infrastructure.Assets.Abstractions;
+using Launcher.Infrastructure.Config.Abstractions;
+using Launcher.Infrastructure.Config.Models;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Stores;
 

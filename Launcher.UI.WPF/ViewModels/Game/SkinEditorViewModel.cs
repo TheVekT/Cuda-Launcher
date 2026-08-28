@@ -4,14 +4,15 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Assets.Abstractions;
-using Launcher.Core.Assets.Validators;
-using Launcher.Core.Common.Models;
 using Launcher.Core.System.Abstractions;
+using Launcher.Infrastructure.Assets.Abstractions;
+using Launcher.Infrastructure.Assets.Models;
+using Launcher.Infrastructure.Assets.Validators;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Game;
@@ -165,13 +166,13 @@ public partial class SkinEditorViewModel : ObservableValidator
             else
             {
                 var coreCharacter = new CharacterModel
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = finalName,
-                    SkinFileName = currentSkinFileName, 
-                    SkinVariant = SelectedModelType.ToString().ToLower(),
-                    CapeId = SelectedCape?.Id
-                };
+                (
+                    id: Guid.NewGuid().ToString(),
+                    name: finalName,
+                    skinFileName: currentSkinFileName,
+                    capeId: SelectedCape?.Id,
+                    skinVariant: SelectedModelType.ToString().ToLower()
+                );
                 
                 var newCharacterVM = new CharacterItemViewModel(coreCharacter)
                 {

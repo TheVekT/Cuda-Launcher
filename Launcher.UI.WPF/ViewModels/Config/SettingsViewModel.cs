@@ -1,13 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Infrastructure.Themes.Models;
+using Launcher.Infrastructure.Customization.Models;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
 
-namespace Launcher.UI.WPF.ViewModels.Settings;
+namespace Launcher.UI.WPF.ViewModels.Config;
 
 public partial class SettingsViewModel: ObservableObject
 {

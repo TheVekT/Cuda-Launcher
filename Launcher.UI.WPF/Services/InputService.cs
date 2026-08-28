@@ -1,5 +1,5 @@
 using System.Windows.Input;
-using Launcher.Core.System.Abstractions;
+using Launcher.UI.WPF.Services.Abstractions;
 
 namespace Launcher.UI.WPF.Services;
 

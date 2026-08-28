@@ -12,6 +12,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
 {
     private readonly string _instancesBasePath;
     private readonly string _portableGlobalPath;
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
     private readonly ILauncherPathsService _pathsService;
     private readonly ISymlinkService _symlinkService;
 
@@ -34,8 +35,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
     {
         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraft");
     }
-
-    // Вспомогательный метод для получения корня инстанса
+    
     private string GetInstanceRootPath(MinecraftInstance instance)
     {
         if (instance.IsolationType == IsolationType.Global)
@@ -43,8 +43,6 @@ public class InstanceFileSystemService : IInstanceFileSystemService
             
         return Path.Combine(_instancesBasePath, instance.Id);
     }
-
-    // --- МЕТОДЫ ИМПОРТА ---
 
     public async Task ImportModAsync(MinecraftInstance instance, string sourceFilePath)
     {
@@ -205,7 +203,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
             var filePath = Path.Combine(sourcePath, file);
             if (!File.Exists(filePath))
             {
-                File.WriteAllText(filePath, ""); 
+                await File.WriteAllTextAsync(filePath, ""); 
             }
         }
 
@@ -235,7 +233,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
     private void PrepareFullLazy(string instancePath)
     {
         CreateDir(instancePath);
-        string[] basicFolders = { "mods", "config", "saves", "screenshots", "resourcepacks" };
+        string[] basicFolders = ["mods", "config", "saves", "screenshots", "resourcepacks"];
         foreach (var folder in basicFolders) CreateDir(Path.Combine(instancePath, folder));
     }
 
@@ -251,7 +249,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
         OpenFolderInExplorer(path);
     }
 
-    public void OpenInstanceFolder(MinecraftInstance instance)
+    public void OpenInstanceFolder(MinecraftInstance? instance)
     {
         if (instance == null) return;
 
@@ -266,7 +264,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
         OpenFolderInExplorer(instancePath);
     }
 
-    public void OpenInstanceModsFolder(MinecraftInstance instance)
+    public void OpenInstanceModsFolder(MinecraftInstance? instance)
     {
         if (instance == null) return;
 

@@ -2,14 +2,15 @@ using System.Diagnostics;
 using System.Management;
 using System.Runtime.InteropServices;
 using Launcher.Core.System.Abstractions;
+// ReSharper disable InconsistentNaming
 
 namespace Launcher.Core.System;
 
 public class SysInfoService : ISysInfoService
 {
-    // --- WinAPI для разрешений монитора ---
+    // Windows API for monitor resolutions
     [StructLayout(LayoutKind.Sequential)]
-    public struct DEVMODE
+    private struct Devmode
     {
         private const int CCHDEVICENAME = 32;
         private const int CCHFORMNAME = 32;
@@ -39,59 +40,69 @@ public class SysInfoService : ISysInfoService
         public int dmDisplayFrequency;
     }
 
-    [DllImport("user32.dll")]
-    private static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
-
-    private const int ENUM_CURRENT_SETTINGS = -1;
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern bool EnumDisplaySettings(string? deviceName, int modeNum, ref Devmode devMode);
 
     /// <summary>
-    /// Возвращает общий объем физической ОЗУ в Мегабайтах
+    /// Returns the total physical RAM in MB using WMI. If WMI fails, it falls back to using GC info.
     /// </summary>
     public long GetTotalRAMInMB()
     {
-        try
+        if (OperatingSystem.IsWindows())
         {
-            using (var searcher = new ManagementObjectSearcher("SELECT Capacity FROM Win32_PhysicalMemory"))
+            try
             {
+                // language=none
+                using var searcher = new ManagementObjectSearcher("SELECT Capacity FROM Win32_PhysicalMemory");
+                using var collection = searcher.Get();
+
                 long totalCapacity = 0;
-                foreach (var obj in searcher.Get())
+                foreach (var obj in collection)
                 {
-                    totalCapacity += Convert.ToInt64(obj["Capacity"]);
+                    using (obj)
+                    {
+                        totalCapacity += Convert.ToInt64(obj["Capacity"]);
+                    }
                 }
-                Debug.WriteLine($"Total RAM from WMI: {totalCapacity / (1024 * 1024)} MB");
-                return totalCapacity / (1024 * 1024);
+
+                long totalRamMb = totalCapacity / (1024 * 1024);
+                Debug.WriteLine($"Total RAM from WMI: {totalRamMb} MB");
+                return totalRamMb;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to get RAM from WMI: {ex.Message}");
             }
         }
-        catch
-        {
-            // Fallback: если WMI не сработал, берем то, что видит ОС (может быть чуть меньше физической)
-            Debug.WriteLine($"Failed to get RAM from WMI, falling back to GC info. Total available memory: {GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / (1024 * 1024)} MB");
-            return (long)GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / (1024 * 1024);
-        }
+
+        // Fallback: Use GC info to get total available memory
+        var fallbackRamMb = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / (1024 * 1024);
+        Debug.WriteLine($"Falling back to GC info. Total available memory: {fallbackRamMb} MB");
+        return fallbackRamMb;
     }
 
     /// <summary>
-    /// Возвращает список доступных разрешений основного монитора в формате "1920x1080"
+    /// Returns a list of supported resolutions for the primary monitor, sorted from highest to lowest.
     /// </summary>
     public IEnumerable<string> GetPrimaryMonitorResolutions()
     {
         var resolutions = new HashSet<string>();
-        var devMode = new DEVMODE();
+        var devMode = new Devmode();
         int modeIndex = 0;
 
-        // Перебираем все поддерживаемые видеокартой режимы
+        // Enumerate all display settings for the primary monitor
         while (EnumDisplaySettings(null, modeIndex, ref devMode))
         {
-            // Фильтруем: берем только те, где глубина цвета 32 бита (стандарт для игр)
-            // и ширина экрана больше 800 (чтобы не предлагать совсем старые режимы)
-            if (devMode.dmBitsPerPel == 32 && devMode.dmPelsWidth >= 800)
+            // We only want to include resolutions that are 32-bit color depth
+            // and have a width of at least 800 pixels
+            if (devMode is { dmBitsPerPel: 32, dmPelsWidth: >= 800 })
             {
                 resolutions.Add($"{devMode.dmPelsWidth}x{devMode.dmPelsHeight}");
             }
             modeIndex++;
         }
 
-        // Сортируем от большего к меньшему
+        // Sort the resolutions first by width, then by height, both in descending order
         return resolutions
             .Select(r => {
                 var parts = r.Split('x');

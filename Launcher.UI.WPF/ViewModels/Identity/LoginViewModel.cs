@@ -3,14 +3,13 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.Identity.Models;
-using Launcher.Core.UI.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Services.Abstractions;
 using Launcher.UI.WPF.Stores;
 
-namespace Launcher.UI.WPF.ViewModels.Accounts;
+namespace Launcher.UI.WPF.ViewModels.Identity;
 public partial class LoginViewModel: ObservableObject
 { 
     //Services

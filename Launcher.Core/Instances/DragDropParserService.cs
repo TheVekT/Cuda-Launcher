@@ -33,7 +33,7 @@ public class DragDropParserService : IDragDropParserService
     {
         try
         {
-            using var stream = File.OpenRead(filePath);
+            await using var stream = File.OpenRead(filePath);
             using var doc = await JsonDocument.ParseAsync(stream);
             
             var root = doc.RootElement;
@@ -46,20 +46,20 @@ public class DragDropParserService : IDragDropParserService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Drag&Drop] Ошибка парсинга JSON '{filePath}': {ex.Message}");
+            Debug.WriteLine($"[Drag&Drop] Parsing Error in JSON '{filePath}': {ex.Message}");
         }
 
         return ParsedFileType.Unknown;
     }
 
-private ParsedFileType ParseZipSignature(string filePath)
+    private ParsedFileType ParseZipSignature(string filePath)
     {
         try
         {
             using var archive = ZipFile.OpenRead(filePath);
 
-            bool isResourcepack = false;
-            bool isShaderpack = false;
+            var isResourcepack = false;
+            var isShaderpack = false;
 
             foreach (var entry in archive.Entries)
             {
@@ -83,7 +83,7 @@ private ParsedFileType ParseZipSignature(string filePath)
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Drag&Drop] Ошибка парсинга ZIP '{filePath}': {ex.Message}");
+            Debug.WriteLine($"[Drag&Drop] Parsing Error in ZIP '{filePath}': {ex.Message}");
         }
 
         return ParsedFileType.Unknown;

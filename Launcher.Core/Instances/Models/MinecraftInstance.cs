@@ -4,28 +4,27 @@ namespace Launcher.Core.Instances.Models;
 
 public class MinecraftInstance
 {
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string Id { get; init; } = Guid.NewGuid().ToString();
     
-    public string Name { get; set; }
-    public string IconPath { get; set; }
+    public required string Name { get; set; }
+    public required string IconPath { get; set; }
     
-    public string GameVersion { get; set; }   // 1.20.1
-    public string? LoaderVersion { get; set; } // 47.1.0 (for Vanilla it will be null)
+    public required string GameVersion { get; set; }   // 1.20.1
+    public string? LoaderVersion { get; set; } // 47.1.0 (for Vanilla it will be a null)
     
     public GameLoaderType LoaderType { get; set; }
     
-    public IsolationType IsolationType { get; set; }
+    public IsolationType IsolationType { get; init; }
     
     public DateTime? LastPlayedDate { get; set; }
     
-    public GameSettings GameSettings { get; set; } = new();
+    public GameSettings GameSettings { get; init; } = new();
     
     public PartialIsolationSettings PartialSettings { get; set; } = new();
     
-    public BackupSettings BackupSettings { get; set; } = new();
+    public BackupSettings BackupSettings { get; init; } = new();
     
-    public bool RequestPerformanceMods { get; set; } = false;
-    public MinecraftInstance() { }
+    public bool RequestPerformanceMods { get; set; }
 }
 
 public class PartialIsolationSettings
@@ -35,17 +34,19 @@ public class PartialIsolationSettings
     public bool IsSavesUnique { get; set; } = false;
     public bool IsResourcePacksUnique { get; set; } = false;
 }
+
 public class BackupSettings
 {
     public BackupPolicy SavesBackupSettings { get; set; } = BackupPolicy.Inherit;
-    public BackupFrequency? SavesBackupFrequency { get; set; } = null;
-    public int? SavesMaxBackups { get; set; } = null;
+    public BackupFrequency? SavesBackupFrequency { get; set; }
+    public int? SavesMaxBackups { get; set; }
     public DateTime? LastBackupDate { get; set; }
 }
+
 public class GameSettings
 {
-    public int? AllocatedMemory { get; set; } = null;
-    public string? JvmArgs { get; set; } = null;
-    public bool? Fullscreen { get; set; } = null;
-    public string? GameResolution { get; set; } = null; // e.g. "1920x1080"
+    public int? AllocatedMemory { get; set; }
+    public string? JvmArgs { get; set; }
+    public bool? Fullscreen { get; set; }
+    public string? GameResolution { get; set; } // e.g. "1920x1080"
 }
