@@ -3,7 +3,6 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Config.Abstractions;
-using Launcher.Core.Identity.Abstractions;
 using Launcher.Infrastructure.Assets.Abstractions;
 using Launcher.Infrastructure.Config.Abstractions;
 using Launcher.Infrastructure.Config.Models;
@@ -18,14 +17,11 @@ public partial class SkinsStore : ObservableObject
 {
     private readonly ISettingsService _settingsService;
     private readonly ICharacterManagerService _characterService;
-    private readonly IMojangProfileService _mojangProfileService;
     private readonly ILauncherPathsService _pathsService;
     private readonly IPreviewGeneratorService _previewGeneratorService;
     
     public ObservableRangeCollection<CharacterItemViewModel> Skins { get; } = new();
     public ObservableRangeCollection<CapeItemViewModel> AvailableCapes { get; } = new();
-    
-    private string _accessToken = string.Empty;
 
     [ObservableProperty]
     [property: SettingProperty]
@@ -34,13 +30,11 @@ public partial class SkinsStore : ObservableObject
     public SkinsStore(
         ISettingsService settingsService, 
         ICharacterManagerService characterService,
-        IMojangProfileService mojangProfileService,
         IPreviewGeneratorService previewGeneratorService,
         ILauncherPathsService pathsService)
     {
         _settingsService = settingsService;
         _characterService = characterService;
-        _mojangProfileService = mojangProfileService;
         _pathsService = pathsService;
         _previewGeneratorService = previewGeneratorService;
         

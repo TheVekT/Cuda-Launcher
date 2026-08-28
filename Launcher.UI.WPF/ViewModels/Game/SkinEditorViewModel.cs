@@ -4,6 +4,7 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using DiscordRPC.Message;
 using Launcher.Core.System.Abstractions;
 using Launcher.Infrastructure.Assets.Abstractions;
 using Launcher.Infrastructure.Assets.Models;
@@ -38,7 +39,7 @@ public partial class SkinEditorViewModel : ObservableValidator
     [ObservableProperty]
     private bool _isEditMode;
     
-    private bool _isSkinReplaced = false;
+    private bool _isSkinReplaced;
 
 
     [ObservableProperty] 
@@ -104,15 +105,28 @@ public partial class SkinEditorViewModel : ObservableValidator
 
     private bool ValidateSkin()
     {
-        var validationResult = SkinValidator.ValidateSkinFile(TempSkinFilePath, null);
+        var validationResult = SkinValidator.ValidateSkinFile(TempSkinFilePath);
         if (validationResult != ValidationResult.Success)
         {
-            string? errorKey = validationResult!.ErrorMessage;
+            LocKey errorKey = MapValidationErrorToKey(validationResult?.ErrorMessage);
             var errorMessage = LocalizationService.Instance[errorKey];
             SkinValidationResult = errorMessage;
             return false;
         }
         return true;
+    }
+    
+    private LocKey MapValidationErrorToKey(string? errorMessage)
+    {
+        return errorMessage switch
+        {
+            "No file selected." => LocKey.Errors_SkinValidation_NoFileSelected,
+            "File not found." => LocKey.Errors_SkinValidation_FileNotFound,
+            "Invalid file format. Only PNG files are allowed." => LocKey.Errors_SkinValidation_NotPng,
+            "Invalid skin dimensions. Only 64x32 and 64x64 skins are allowed." => LocKey.Errors_SkinValidation_WrongSize,
+            "Invalid skin file. Please select a valid PNG file." => LocKey.Errors_SkinValidation_InvalidPng,
+            _ => LocKey.None
+        };
     }
 
     [RelayCommand]

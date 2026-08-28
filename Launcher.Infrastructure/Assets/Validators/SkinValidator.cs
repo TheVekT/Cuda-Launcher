@@ -4,7 +4,7 @@ namespace Launcher.Infrastructure.Assets.Validators;
 
 public static class SkinValidator
 {
-    public static ValidationResult? ValidateSkinFile(string? filePath, ValidationContext context)
+    public static ValidationResult? ValidateSkinFile(string? filePath)
     {
         if (string.IsNullOrEmpty(filePath))
             return new ValidationResult("No file selected.");

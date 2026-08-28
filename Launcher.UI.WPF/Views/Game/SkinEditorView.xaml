@@ -82,7 +82,7 @@
                             <Image
                                 Height="40"
                                 HorizontalAlignment="Left"
-                                Margin="0,5"
+                                Margin="0,5,0,0"
                                 RenderOptions.BitmapScalingMode="NearestNeighbor"
                                 Source="{Binding TempSkinFilePath}"
                                 Stretch="Uniform"
@@ -103,6 +103,7 @@
                                 Content="{localization:Loc SkinEditorMenu_UploadButtonText}"
                                 FontSize="14"
                                 Height="35"
+                                Margin="0,5,0,0"
                                 Style="{StaticResource OverlayDefaultButtonStyle}"
                                 Tag="{StaticResource Icon.Upload}" />
                             <TextBlock
