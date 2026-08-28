@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.Sockets;
-using System.Text.Json;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.Installer.Forge;
@@ -28,7 +27,8 @@ namespace Launcher.Core.Game;
 public class LaunchService(
     IInstanceFileSystemService fileService,
     IModrinthService modrinthService,
-    IConnectivityService connectivityService)
+    IConnectivityService connectivityService,
+    IJavaPathResolver javaPathResolver)
     : ILaunchService
 {
     private const int MaxLogBufferLines = 60;
@@ -203,7 +203,7 @@ public class LaunchService(
         return offlineId;
     }
 
-    private static MLaunchOption CreateLaunchOption(
+    private MLaunchOption CreateLaunchOption(
         MinecraftInstance instance, 
         UserAccount account, 
         GlobalLaunchSettings globalSettings, 
@@ -231,7 +231,7 @@ public class LaunchService(
             Path = instanceMcPath,
             VersionType = instance.LoaderType.ToString(),
             GameLauncherName = "Launcher",
-            JavaPath = ResolveJavaPath(globalMcPath, instance)
+            JavaPath = javaPathResolver.ResolveJavaPath(globalMcPath, instance)
         };
 
         if (!string.IsNullOrWhiteSpace(safeGameSettings.JvmArgs))
@@ -415,69 +415,5 @@ public class LaunchService(
         return directories.FirstOrDefault(id =>
             id.Contains(loaderTag, StringComparison.OrdinalIgnoreCase) &&
             id.Contains(instance.GameVersion, StringComparison.OrdinalIgnoreCase));
-    }
-
-    private static string? ResolveJavaPath(MinecraftPath globalMcPath, MinecraftInstance instance)
-    {
-        string runtimeDir = globalMcPath.Runtime;
-        if (!Directory.Exists(runtimeDir))
-            return null;
-
-        string osArch = OperatingSystem.IsWindows() ? "windows-x64" : (OperatingSystem.IsMacOS() ? "mac-os" : "linux");
-        string exe = OperatingSystem.IsWindows() ? "javaw.exe" : "java";
-
-        string? FindJava(string component)
-        {
-            var p1 = Path.Combine(runtimeDir, osArch, component, "bin", exe);
-            if (File.Exists(p1)) return p1;
-            var p2 = Path.Combine(runtimeDir, component, "bin", exe);
-            return File.Exists(p2) ? p2 : null;
-        }
-
-        // 1. Check base version JSON manifest
-        string baseJson = Path.Combine(globalMcPath.Versions, instance.GameVersion, $"{instance.GameVersion}.json");
-        if (File.Exists(baseJson))
-        {
-            try
-            {
-                using var doc = JsonDocument.Parse(File.ReadAllText(baseJson));
-                if (doc.RootElement.TryGetProperty("javaVersion", out var jv) &&
-                    jv.TryGetProperty("component", out var comp) &&
-                    comp.GetString() is { Length: > 0 } componentName)
-                {
-                    var found = FindJava(componentName);
-                    if (found != null) return found;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Launch Warn] Failed to parse javaVersion from {baseJson}: {ex.Message}");
-            }
-        }
-
-        // 2. Version heuristic fallback
-        string target = instance.GameVersion switch
-        {
-            var v when v.StartsWith("26", StringComparison.OrdinalIgnoreCase) => "java-runtime-epsilon",
-            var v when IsVersionAtLeast(v, 1, 20, 5) => "java-runtime-delta",
-            var v when IsVersionAtLeast(v, 1, 18) => "java-runtime-gamma",
-            var v when IsVersionAtLeast(v, 1, 17) => "java-runtime-alpha",
-            _ => "jre-legacy"
-        };
-
-        return FindJava(target);
-    }
-
-    private static bool IsVersionAtLeast(string versionStr, int targetMajor, int targetMinor, int targetBuild = 0)
-    {
-        var parts = versionStr.Split('.');
-        if (parts.Length >= 2 && int.TryParse(parts[0], out int major) && int.TryParse(parts[1], out int minor))
-        {
-            int build = parts.Length >= 3 && int.TryParse(parts[2], out int b) ? b : 0;
-            if (major != targetMajor) return major > targetMajor;
-            if (minor != targetMinor) return minor > targetMinor;
-            return build >= targetBuild;
-        }
-        return false;
     }
 }

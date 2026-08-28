@@ -7,6 +7,7 @@ public static class GameDependencyInjection
 {
     public static IServiceCollection AddGameServices(this IServiceCollection services)
     {
+        services.AddSingleton<IJavaPathResolver, JavaPathResolver>();
         services.AddSingleton<IGameVersionService, GameVersionService>();
         services.AddSingleton<ILaunchService, LaunchService>();
         
