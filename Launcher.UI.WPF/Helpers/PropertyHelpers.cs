@@ -354,8 +354,7 @@ public static class AccountCardHelper
 
     public static void SetUseCommand(DependencyObject element, ICommand value) => element.SetValue(UseCommandProperty, value);
     public static ICommand GetUseCommand(DependencyObject element) => (ICommand)element.GetValue(UseCommandProperty);
-
-    // 2. Свойство для ПАРАМЕТРА (чтобы передать сам аккаунт)
+    
     public static readonly DependencyProperty CommandParameterProperty =
         DependencyProperty.RegisterAttached("CommandParameter", typeof(object), typeof(AccountCardHelper), new PropertyMetadata(null));
 
@@ -403,7 +402,6 @@ public static class RadioButtonHelper
 }
 public static class ConfirmViewHelper
 {
-    // Регистрируем свойство типа ConfirmButtons
     public static readonly DependencyProperty VisibleButtonsProperty =
         DependencyProperty.RegisterAttached(
             "VisibleButtons",
