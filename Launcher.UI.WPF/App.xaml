@@ -17,7 +17,7 @@
             </ResourceDictionary.MergedDictionaries>
             <helpers:ImagePathConverter x:Key="ImagePathConverter" />
             <helpers:EqualConverter x:Key="EqualConverter" />
-            <helpers:NotEqualConverter x:Key="NotEqualConverter" />
+            <helpers:EqualConverter x:Key="NotEqualConverter" Invert="True" />
             <x:Static Member="customization:LocalizationService.Instance" x:Key="Loc" />
             <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis" />
             <BooleanToVisibilityConverter x:Key="BoolToVis" />

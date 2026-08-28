@@ -3,31 +3,11 @@ using System.IO;
 using System.Windows.Data;
 using System.Windows;
 using Launcher.Core.Config.Abstractions;
-using Launcher.UI.WPF.Helpers.Enums;
 using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Services.Customization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Launcher.UI.WPF.Helpers;
-
-public class StringToResourceConverter : IValueConverter
-{
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is string resourceKey && !string.IsNullOrEmpty(resourceKey))
-        {
-            return Application.Current.TryFindResource(resourceKey);
-        }
-        
-        return null;
-    }
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
-}
-
 
 public class EdgeAdornerConverter : IValueConverter
 {
@@ -227,19 +207,6 @@ public class TypeMatchConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-public class IsNotNullConverter : IValueConverter
-{
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        return value != null;
-    }
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
-}
-
 public class EnumToBooleanConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -324,13 +291,13 @@ public class TimeAgoConverter : IValueConverter
     }
 }
 
-public class ConfirmButtonVisibilityConverter : IValueConverter
+public class EnumFlagToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is ConfirmButtons currentMask && parameter is ConfirmButtons targetFlag)
+        if (value is Enum currentMask && parameter is Enum targetFlag)
         {
-            return (currentMask & targetFlag) == targetFlag 
+            return currentMask.HasFlag(targetFlag) 
                 ? Visibility.Visible 
                 : Visibility.Collapsed;
         }
@@ -346,10 +313,13 @@ public class ConfirmButtonVisibilityConverter : IValueConverter
 
 public class EqualConverter : IValueConverter
 {
+    public bool Invert { get; set; }
+
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value == null || parameter == null) return false;
-        return value.ToString()!.Equals(parameter.ToString(), StringComparison.OrdinalIgnoreCase);
+        if (value == null || parameter == null) return Invert;
+        bool equals = value.ToString()!.Equals(parameter.ToString(), StringComparison.OrdinalIgnoreCase);
+        return Invert ? !equals : equals;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) 
@@ -384,14 +354,3 @@ public class ImagePathConverter : IValueConverter
         throw new NotImplementedException();
 }
 
-public class NotEqualConverter : IValueConverter
-{
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value == null || parameter == null) return true;
-        return !value.ToString()!.Equals(parameter.ToString(), StringComparison.OrdinalIgnoreCase);
-    }
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) 
-        => throw new NotImplementedException();
-}

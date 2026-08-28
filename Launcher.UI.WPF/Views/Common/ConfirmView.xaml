@@ -15,7 +15,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
-        <helpers:ConfirmButtonVisibilityConverter x:Key="ButtonVisConverter" />
+        <helpers:EnumFlagToVisibilityConverter x:Key="ButtonVisConverter" />
     </UserControl.Resources>
     <Grid
         Height="Auto"
