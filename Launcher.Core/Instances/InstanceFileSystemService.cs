@@ -66,40 +66,37 @@ public class InstanceFileSystemService : IInstanceFileSystemService
 
         string saveName = Path.GetFileNameWithoutExtension(sourceZipPath);
         string extractPath = Path.Combine(targetDir, saveName);
-
-        // Асинхронная распаковка архива
+        
         await Task.Run(() => 
         {
-            // Распаковываем во временную папку с именем архива
+            // unzip the save into a temporary folder first to check its structure
             if (Directory.Exists(extractPath)) Directory.Delete(extractPath, true);
             ZipFile.ExtractToDirectory(sourceZipPath, extractPath);
-
-            // Умная проверка: если внутри архива была всего одна папка (и больше никаких файлов в корне), 
-            // значит архив был запакован вместе с корневой папкой мира.
+            
+            // Smart check: if there was only one folder inside the archive (and no other files in the root),
+            // In this case, archive was packed with the world's root folder.
             var extractedDirs = Directory.GetDirectories(extractPath);
             var extractedFiles = Directory.GetFiles(extractPath);
 
             if (extractedDirs.Length == 1 && extractedFiles.Length == 0)
             {
-                // Ситуация: saves/MyWorld/MyWorld/level.dat
-                // Нужно вытащить внутреннюю папку наружу
+                // Situation: saves/MyWorld/MyWorld/level.dat
+                // We need to move the inner folder up one level and delete the now-empty outer folder.
                 string innerWorldFolder = extractedDirs[0];
                 string tempMovePath = Path.Combine(targetDir, Guid.NewGuid().ToString());
-
-                // Перемещаем внутреннюю папку во временное место
+                
                 Directory.Move(innerWorldFolder, tempMovePath);
                 
-                // Удаляем теперь уже пустую папку-обертку
                 Directory.Delete(extractPath);
                 
-                // Переименовываем временную папку в оригинальное имя (или имя из архива)
+                // Now we rename the inner folder to the original save name (or keep its original name if you prefer)
                 string finalFolderName = new DirectoryInfo(innerWorldFolder).Name;
                 string finalPath = Path.Combine(targetDir, finalFolderName);
                 
                 if (Directory.Exists(finalPath)) Directory.Delete(finalPath, true);
                 Directory.Move(tempMovePath, finalPath);
             }
-            // Иначе ситуация: saves/MyWorld/level.dat - всё идеально, ничего двигать не нужно
+            // Otherwise, situation: saves/MyWorld/level.dat - everything is perfect, no need to move anything
         });
     }
 
@@ -109,8 +106,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
         CreateDir(targetDir);
 
         var targetFile = Path.Combine(targetDir, Path.GetFileName(sourceFilePath));
-
-        // Используем Task.Run для предотвращения зависания UI при копировании больших файлов
+        
         await Task.Run(() => 
         {
             File.Copy(sourceFilePath, targetFile, overwrite: true);
@@ -136,8 +132,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
                 break;
         }
     }
-
-    // --- ЭТАП 2: ПОДГОТОВКА К ЗАПУСКУ (GAME) ---
+    
     public string PrepareForLaunch(MinecraftInstance instance)
     {
         var instancePath = Path.Combine(_instancesBasePath, instance.Id);
@@ -178,8 +173,6 @@ public class InstanceFileSystemService : IInstanceFileSystemService
             catch (Exception ex) { Debug.WriteLine($"Error deleting instance: {ex.Message}"); }
         }
     }
-
-    // --- ВНУТРЕННИЕ МЕТОДЫ ---
 
     private async Task PreparePartial(string instancePath)
     {
