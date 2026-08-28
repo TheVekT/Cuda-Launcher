@@ -9,7 +9,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:common="clr-namespace:Launcher.UI.WPF.ViewModels.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:enums="clr-namespace:Launcher.UI.WPF.Helpers.Enums"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
@@ -56,7 +58,7 @@
                         </Grid.ColumnDefinitions>
                         <Button
                             Command="{Binding CancelCommand}"
-                            Content="{helpers:Loc Confirmation_CancelButtonText}"
+                            Content="{localization:Loc Confirmation_CancelButtonText}"
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Grid.Column="0"
                             Height="35"
@@ -66,26 +68,26 @@
                         <Button
                             Background="{DynamicResource DangerForegroundBrush}"
                             Command="{Binding ConfirmCommand}"
-                            Content="{helpers:Loc Confirmation_DeleteButtonText}"
+                            Content="{localization:Loc Confirmation_DeleteButtonText}"
                             Foreground="{DynamicResource ForegroundPrimaryBrush}"
                             Grid.Column="1"
                             Height="35"
                             Margin="8,0,0,0"
                             Style="{StaticResource AccentButtonStyle}"
                             Tag="{StaticResource Icon.Trash}"
-                            Visibility="{Binding Path=(helpers:ConfirmViewHelper.VisibleButtons), RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource ButtonVisConverter}, ConverterParameter={x:Static helpers:ConfirmButtons.Delete}}"
+                            Visibility="{Binding Path=(helpers:ConfirmViewHelper.VisibleButtons), RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource ButtonVisConverter}, ConverterParameter={x:Static enums:ConfirmButtons.Delete}}"
                             helpers:ButtonHelper.IconSize="13"
                             x:Name="DeleteButton" />
                         <Button
                             Command="{Binding ConfirmCommand}"
-                            Content="{helpers:Loc Confirmation_ConfirmButtonText}"
+                            Content="{localization:Loc Confirmation_ConfirmButtonText}"
                             Grid.Column="1"
                             Height="35"
                             IsDefault="True"
                             Margin="8,0,0,0"
                             Style="{StaticResource AccentButtonStyle}"
                             Tag="{StaticResource Icon.Accept}"
-                            Visibility="{Binding Path=(helpers:ConfirmViewHelper.VisibleButtons), RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource ButtonVisConverter}, ConverterParameter={x:Static helpers:ConfirmButtons.Confirm}}"
+                            Visibility="{Binding Path=(helpers:ConfirmViewHelper.VisibleButtons), RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource ButtonVisConverter}, ConverterParameter={x:Static enums:ConfirmButtons.Confirm}}"
                             helpers:ButtonHelper.IconSize="13"
                             x:Name="ConfirmButton" />
                     </Grid>

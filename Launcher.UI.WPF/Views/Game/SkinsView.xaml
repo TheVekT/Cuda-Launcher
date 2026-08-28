@@ -13,11 +13,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:game="clr-namespace:Launcher.UI.WPF.ViewModels.Game"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <helpers:SnappingWidthConverter x:Key="SnappingConverter" />
-        <helpers:IsNotNullConverter x:Key="IsNotNullConverter" />
     </UserControl.Resources>
 
     <Grid>
@@ -60,7 +60,7 @@
                             Grid.Row="0"
                             HorizontalAlignment="Left"
                             Padding="10,0"
-                            Text="{helpers:Loc Skins_Preview_Title}"
+                            Text="{localization:Loc Skins_Preview_Title}"
                             VerticalAlignment="Center" />
                         <components:InteractiveSkinViewer
                             AnimationType="walk"
@@ -105,11 +105,11 @@
                                 Grid.Column="0"
                                 HorizontalAlignment="Left"
                                 Padding="5,0"
-                                Text="{helpers:Loc Skins_Library_Title}"
+                                Text="{localization:Loc Skins_Library_Title}"
                                 VerticalAlignment="Center" />
                             <Button
                                 Command="{Binding AddCharacterCommand}"
-                                Content="{helpers:Loc Skins_Library_AddSkinButton}"
+                                Content="{localization:Loc Skins_Library_AddSkinButton}"
                                 FontSize="13"
                                 Grid.Column="1"
                                 Height="30"
@@ -184,13 +184,13 @@
                     FontWeight="Bold"
                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                     HorizontalAlignment="Center"
-                    Text="{helpers:Loc Skins_FunctionUnavailableTitle}" />
+                    Text="{localization:Loc Skins_FunctionUnavailableTitle}" />
                 <TextBlock
                     FontSize="16"
                     Foreground="{DynamicResource ForegroundSecondaryBrush}"
                     HorizontalAlignment="Center"
                     Margin="0,10,0,0"
-                    Text="{helpers:Loc Skins_FunctionUnavailableDesc}" />
+                    Text="{localization:Loc Skins_FunctionUnavailableDesc}" />
             </StackPanel>
         </Grid>
     </Grid>

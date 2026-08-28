@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
 
 namespace Launcher.UI.WPF.ViewModels.Game;
 

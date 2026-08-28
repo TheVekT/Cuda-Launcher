@@ -3,14 +3,16 @@ using System.IO;
 using System.Windows.Data;
 using System.Windows;
 using Launcher.Core.Config.Abstractions;
-using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Helpers.Enums;
+using Launcher.UI.WPF.Helpers.Localization;
+using Launcher.UI.WPF.Services.Customization;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Launcher.UI.WPF.Helpers;
 
 public class StringToResourceConverter : IValueConverter
 {
-    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is string resourceKey && !string.IsNullOrEmpty(resourceKey))
         {
@@ -20,7 +22,7 @@ public class StringToResourceConverter : IValueConverter
         return null;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }
@@ -29,10 +31,9 @@ public class StringToResourceConverter : IValueConverter
 
 public class EdgeAdornerConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        string side = parameter as string;
-        if (side == null) return value;
+        if (parameter is not string side) return value;
         
         if (targetType == typeof(CornerRadius) && value is FrameworkElement element)
         {
@@ -59,7 +60,7 @@ public class EdgeAdornerConverter : IValueConverter
         return value;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }
@@ -67,7 +68,7 @@ public class EdgeAdornerConverter : IValueConverter
 
 public class PercentToScaleConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is double scale)
         {
@@ -76,7 +77,7 @@ public class PercentToScaleConverter : IValueConverter
         return 100.0;
     }
     
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is double percent)
         {
@@ -85,7 +86,8 @@ public class PercentToScaleConverter : IValueConverter
         return 1.0;
     }
 }
-    public class SnappingWidthConverter : IMultiValueConverter
+
+public class SnappingWidthConverter : IMultiValueConverter
 {
     private const double CardWidth = 160.0; 
     private const double CardMarginHorizontal = 5.0 + 5.0;
@@ -143,6 +145,7 @@ public class PercentToScaleConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
+
 public class StringFormatConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -152,21 +155,17 @@ public class StringFormatConverter : IMultiValueConverter
         
         string format = formatString;
         
-        object value = values[1] != DependencyProperty.UnsetValue ? values[1] : null;
-        
-        if (value != null)
+        var value = values[1] != DependencyProperty.UnsetValue ? values[1] : null;
+
+        if (value == null) return format;
+        try
         {
-            try
-            {
-                return string.Format(culture, format, value);
-            }
-            catch
-            {
-                return format;
-            }
+            return string.Format(culture, format, value);
         }
-        
-        return format;
+        catch
+        {
+            return format;
+        }
     }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -177,7 +176,7 @@ public class StringFormatConverter : IMultiValueConverter
 
 public class InverseBooleanToVisibilityConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is bool boolValue)
         {
@@ -186,27 +185,7 @@ public class InverseBooleanToVisibilityConverter : IValueConverter
         return Visibility.Visible;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-public class ErrorLocalizationConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (value is string errorKey && !string.IsNullOrEmpty(errorKey))
-        {
-            var localizedString = LocalizationService.Instance[errorKey];
-            
-            return string.IsNullOrEmpty(localizedString) ? errorKey : localizedString;
-        }
-        
-        return value ?? string.Empty;
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }
@@ -214,9 +193,8 @@ public class ErrorLocalizationConverter : IValueConverter
 
 public class NotNullToVisibilityConverter : IValueConverter
 {
-    public bool CollapseWhenNull { get; set; } = true;
 
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         bool isNotNull = value != null;
 
@@ -225,13 +203,13 @@ public class NotNullToVisibilityConverter : IValueConverter
             if (isNotNull)
                 return Visibility.Visible;
 
-            return CollapseWhenNull ? Visibility.Collapsed : Visibility.Hidden;
+            return Visibility.Collapsed;
         }
 
         return isNotNull;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotSupportedException();
     }
@@ -239,24 +217,24 @@ public class NotNullToVisibilityConverter : IValueConverter
 
 public class TypeMatchConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null || parameter == null) return false;
         return value.GetType().Name == parameter.ToString();
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) 
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) 
         => throw new NotImplementedException();
 }
 
 public class IsNotNullConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         return value != null;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }
@@ -264,103 +242,83 @@ public class IsNotNullConverter : IValueConverter
 
 public class EnumToBooleanConverter : IValueConverter
 {
-    // Из ViewModel в XAML (Проверяем, совпадает ли значение с параметром)
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null || parameter == null) return false;
         
-        string checkValue = value.ToString();
-        string targetValue = parameter.ToString();
+        var checkValue = value.ToString();
+        var targetValue = parameter.ToString();
         
-        return checkValue.Equals(targetValue, StringComparison.InvariantCultureIgnoreCase);
+        return checkValue?.Equals(targetValue, StringComparison.InvariantCultureIgnoreCase);
     }
-
-    // Из XAML в ViewModel (Если радиокнопка стала True, возвращаем Enum)
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null || parameter == null) return Binding.DoNothing;
         
-        bool useValue = (bool)value;
-        string targetValue = parameter.ToString();
+        var useValue = (bool)value;
+        var targetValue = parameter.ToString()!;
         
         if (useValue)
-        {
-            // Конвертируем строку-параметр обратно в Enum
             return Enum.Parse(targetType, targetValue); 
-        }
-
+        
         return Binding.DoNothing;
     }
 }
 
 public class TimeAgoConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        // 1. Обработка null (Если игры никогда не запускались)
-        if (value == null)
-            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_Never];
-
-        // 2. Проверка типа
-        if (value is not DateTime date)
-            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_Never];
-
-        // Если дата "минимальная" (дефолтная), считаем что не играли
-        if (date == DateTime.MinValue)
+        if (value == null || value is not DateTime date || date == DateTime.MinValue)
             return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_Never];
 
         var timeSpan = DateTime.Now - date;
-
-        // 3. Логика "Сколько времени прошло"
         
-        // Меньше минуты
+        // less than a minute
         if (timeSpan.TotalSeconds < 60)
             return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_JustNow];
 
-        // Меньше часа (минуты)
+        // less than an hour (minutes)
         if (timeSpan.TotalMinutes < 60)
             return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XMinsAgo], timeSpan.Minutes);
 
-        // Меньше суток (часы)
+        // less than a day (hours)
         if (timeSpan.TotalHours < 24)
         {
-            // Можно добавить логику для "1 hr." vs "2 hrs.", но обычно сокращения hr. достаточно
             return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XHoursAgo], timeSpan.Hours);
         }
 
-        // Меньше 48 часов (вчера / 1 день назад)
-        if (timeSpan.TotalDays < 2)
-            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_1DayAgo];
-
-        // Меньше месяца (дни)
-        if (timeSpan.TotalDays < 30)
-            return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XDaysAgo], timeSpan.Days);
-
-        // Меньше года (месяцы)
-        if (timeSpan.TotalDays < 365)
+        switch (timeSpan.TotalDays)
         {
-            int months = (int)(timeSpan.TotalDays / 30);
-            if (months <= 1)
+            // less than 48 hours (yesterday / 1 day ago)
+            case < 2:
+                return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_1DayAgo];
+            // less than a month (days)
+            case < 30:
+                return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XDaysAgo], timeSpan.Days);
+            // less than a year (months)
+            case < 365:
             {
-                return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_1MonthAgo];
+                var months = (int)(timeSpan.TotalDays / 30);
+                return months <= 1 ? LocalizationService.Instance[LocKey.VersionElement_LastPlayed_1MonthAgo] 
+                    : string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XMonthsAgo], months);
             }
-            else
+            // More than a year
+            // If just over a year
+            // less than 2 years
+            case < 730:
+                return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_OverYearAgo];
+            default:
             {
-                return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XMonthsAgo], months);
+                // if more than 2 years, show the number of years
+                var years = (int)(timeSpan.TotalDays / 365);
+                return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XYearsAgo], years);
             }
         }
-
-        // Больше года
-        // Если чуть больше года
-        if (timeSpan.TotalDays < 730) // меньше 2 лет
-            return LocalizationService.Instance[LocKey.VersionElement_LastPlayed_OverYearAgo];
-        
-        // Если много лет
-        int years = (int)(timeSpan.TotalDays / 365);
-        return string.Format(LocalizationService.Instance[LocKey.VersionElement_LastPlayed_XYearsAgo], years);
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }
@@ -368,7 +326,7 @@ public class TimeAgoConverter : IValueConverter
 
 public class ConfirmButtonVisibilityConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is ConfirmButtons currentMask && parameter is ConfirmButtons targetFlag)
         {
@@ -380,7 +338,7 @@ public class ConfirmButtonVisibilityConverter : IValueConverter
         return Visibility.Collapsed;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }
@@ -388,30 +346,24 @@ public class ConfirmButtonVisibilityConverter : IValueConverter
 
 public class EqualConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null || parameter == null) return false;
-        // Сравниваем значение из Binding с параметром из XAML
-        return value.ToString().Equals(parameter.ToString(), StringComparison.OrdinalIgnoreCase);
+        return value.ToString()!.Equals(parameter.ToString(), StringComparison.OrdinalIgnoreCase);
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) 
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) 
         => throw new NotImplementedException();
 }
 
 public class ImagePathConverter : IValueConverter
 {
-    private readonly ILauncherPathsService _pathsService;
+    private readonly ILauncherPathsService _pathsService = App.Services!.GetRequiredService<ILauncherPathsService>();
 
-    public ImagePathConverter()
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        _pathsService = App.Services.GetRequiredService<ILauncherPathsService>();
-    }
-    
-    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        string iconsDir = Path.Combine(_pathsService.AssetsDirectory, "Icons");
-        string defaultIconPath = Path.Combine(iconsDir, "logo.png");
+        var iconsDir = Path.Combine(_pathsService.AssetsDirectory, "Icons");
+        var defaultIconPath = Path.Combine(iconsDir, "logo.png");
 
         if (value is string fileName && !string.IsNullOrEmpty(fileName))
         {
@@ -425,26 +377,21 @@ public class ImagePathConverter : IValueConverter
             }
         }
         
-        if (File.Exists(defaultIconPath))
-        {
-            return defaultIconPath;
-        }
-
-        return null;
+        return File.Exists(defaultIconPath) ? defaultIconPath : null;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => 
+        throw new NotImplementedException();
 }
 
 public class NotEqualConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null || parameter == null) return true;
-        // Возвращаем true, если значения НЕ совпадают
-        return !value.ToString().Equals(parameter.ToString(), StringComparison.OrdinalIgnoreCase);
+        return !value.ToString()!.Equals(parameter.ToString(), StringComparison.OrdinalIgnoreCase);
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) 
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) 
         => throw new NotImplementedException();
 }

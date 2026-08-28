@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Enums;
 using Launcher.UI.WPF.Messages;
 
 namespace Launcher.UI.WPF.ViewModels.Common;

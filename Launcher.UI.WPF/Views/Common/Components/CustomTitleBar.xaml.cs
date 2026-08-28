@@ -1,23 +1,20 @@
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Launcher.UI.WPF.Views.Common.Components
 {
-    public partial class CustomTitleBar : UserControl
+    public partial class CustomTitleBar
     {
         public CustomTitleBar()
         {
             InitializeComponent();
         }
-
-        // ��������������� �����, ����� ����� ������������ ����
-        private Window GetParentWindow()
+        
+        private Window? GetParentWindow()
         {
             return Window.GetWindow(this);
         }
-
-        // �������������� ����
+        
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ButtonState == MouseButtonState.Pressed)
@@ -25,8 +22,7 @@ namespace Launcher.UI.WPF.Views.Common.Components
                 GetParentWindow()?.DragMove();
             }
         }
-
-        // ������ "��������"
+        
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
             var window = GetParentWindow();
@@ -35,8 +31,7 @@ namespace Launcher.UI.WPF.Views.Common.Components
                 window.WindowState = WindowState.Minimized;
             }
         }
-
-        // ������ "����������/������������"
+        
         private void MaximizeButton_Click(object sender, RoutedEventArgs e)
         {
             var window = GetParentWindow();
@@ -47,8 +42,7 @@ namespace Launcher.UI.WPF.Views.Common.Components
                     : WindowState.Maximized;
             }
         }
-
-        // ������ "�������"
+        
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             GetParentWindow()?.Close();

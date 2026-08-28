@@ -3,10 +3,10 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.Identity.Models;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Services.Customization;
+using Launcher.UI.WPF.Services.Shell.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Identity;

@@ -114,6 +114,9 @@
         <Geometry>M2.66665 10.6668C1.93331 10.6668 1.33331 10.0668 1.33331 9.3335V2.66683C1.33331 1.9335 1.93331 1.3335 2.66665 1.3335H9.33331C10.0666 1.3335 10.6666 1.9335 10.6666 2.66683</Geometry>
     </GeometryGroup>
 
+    <!--  spinner (loading) icon  -->
     <Geometry x:Key="Icon.Spinner">M 12 2 A 10 10 0 1 1 2 12</Geometry>
+
+    <!--  expander arrow icon  -->
     <Geometry x:Key="Icon.ExpanderArrow">M0,0 L5,5 L10,0</Geometry>
 </ResourceDictionary>

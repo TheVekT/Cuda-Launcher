@@ -1,71 +1,66 @@
 using System.IO;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
+// ReSharper disable InconsistentNaming
 
 namespace Launcher.UI.WPF.Views.Config.Components
 {
-    public partial class ThemePreviewCard : UserControl
+    public partial class ThemePreviewCard
     {
         public ThemePreviewCard()
         {
             InitializeComponent();
         }
         
-        // === 1. ПУТЬ К РАСПАКОВАННОМУ XAML (Для отрисовки превью цветов) ===
         public static readonly DependencyProperty ThemeXamlPathProperty =
-            DependencyProperty.Register("ThemeXamlPath", typeof(string), typeof(ThemePreviewCard), new PropertyMetadata(null, OnThemeXamlPathChanged));
+            DependencyProperty.Register(nameof(ThemeXamlPath), typeof(string), typeof(ThemePreviewCard), new PropertyMetadata(null, OnThemeXamlPathChanged));
 
         public string ThemeXamlPath
         {
             get => (string)GetValue(ThemeXamlPathProperty);
             set => SetValue(ThemeXamlPathProperty, value);
         }
-
-        // === 2. ПУТЬ К ZIP АРХИВУ (Для сохранения в настройки при клике) ===
+        
         public static readonly DependencyProperty ZipPathSourceProperty =
-            DependencyProperty.Register("ZipPathSource", typeof(string), typeof(ThemePreviewCard), new PropertyMetadata(null));
+            DependencyProperty.Register(nameof(ZipPathSource), typeof(string), typeof(ThemePreviewCard), new PropertyMetadata(null));
         
         public string ZipPathSource
         {
             get => (string)GetValue(ZipPathSourceProperty);
             set => SetValue(ZipPathSourceProperty, value);
         }
-
-        // === 3. ТЕКУЩАЯ ВЫБРАННАЯ ТЕМА (Для подсветки) ===
-        public static readonly DependencyProperty CurrentThemePathVMProperty =
-            DependencyProperty.Register("CurrentThemePathVM", typeof(string), typeof(ThemePreviewCard), 
+        
+        public static readonly DependencyProperty CurrentThemePathVmProperty =
+            DependencyProperty.Register(nameof(CurrentThemePathVm), typeof(string), typeof(ThemePreviewCard), 
                 new PropertyMetadata(null, OnCurrentThemePathVMChanged));
         
-        public string CurrentThemePathVM
+        public string CurrentThemePathVm
         {
-            get => (string)GetValue(CurrentThemePathVMProperty);
-            set => SetValue(CurrentThemePathVMProperty, value);
+            get => (string)GetValue(CurrentThemePathVmProperty);
+            set => SetValue(CurrentThemePathVmProperty, value);
         }
 
         public static readonly DependencyProperty IsSelectedProperty =
-           DependencyProperty.Register("IsSelected", typeof(bool), typeof(ThemePreviewCard), new PropertyMetadata(false));
+           DependencyProperty.Register(nameof(IsSelected), typeof(bool), typeof(ThemePreviewCard), new PropertyMetadata(false));
         
         public bool IsSelected
         {
             get => (bool)GetValue(IsSelectedProperty);
             set => SetValue(IsSelectedProperty, value);
         }
-
-        // Логика подсветки
+        
         private static void OnCurrentThemePathVMChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is ThemePreviewCard card)
             {
                 card.IsSelected = !string.IsNullOrEmpty(card.ZipPathSource) && 
-                                  !string.IsNullOrEmpty(card.CurrentThemePathVM) &&
-                                  card.ZipPathSource == card.CurrentThemePathVM;
+                                  !string.IsNullOrEmpty(card.CurrentThemePathVm) &&
+                                  card.ZipPathSource == card.CurrentThemePathVm;
             }
         }
         
-        // === ЗАГРУЗКА РЕСУРСОВ ИЗ XAML ФАЙЛА ===
         private static void OnThemeXamlPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is ThemePreviewCard card && e.NewValue is string path && File.Exists(path))
@@ -120,8 +115,7 @@ namespace Launcher.UI.WPF.Views.Config.Components
             }
             return new FontFamily("Arial");
         }
-
-        // === Dependency Properties для цветов ===
+        
         public static readonly DependencyProperty P_GlobalFontProperty = DP_Font("P_GlobalFont");
         public FontFamily P_GlobalFont { get => (FontFamily)GetValue(P_GlobalFontProperty); set => SetValue(P_GlobalFontProperty, value); }
         
@@ -152,10 +146,10 @@ namespace Launcher.UI.WPF.Views.Config.Components
         public static readonly DependencyProperty P_ForegroundSecondaryProperty = DP("P_ForegroundSecondary");
         public Brush P_ForegroundSecondary { get => (Brush)GetValue(P_ForegroundSecondaryProperty); set => SetValue(P_ForegroundSecondaryProperty, value); }
 
-        public static readonly DependencyProperty ThemeNameProperty = DependencyProperty.Register("ThemeName", typeof(string), typeof(ThemePreviewCard), new PropertyMetadata("Unknown"));
+        public static readonly DependencyProperty ThemeNameProperty = DependencyProperty.Register(nameof(ThemeName), typeof(string), typeof(ThemePreviewCard), new PropertyMetadata("Unknown"));
         public string ThemeName { get => (string)GetValue(ThemeNameProperty); set => SetValue(ThemeNameProperty, value); }
         
-        public static readonly DependencyProperty ThemeAuthorProperty = DependencyProperty.Register("ThemeAuthor", typeof(string), typeof(ThemePreviewCard), new PropertyMetadata("Unknown"));
+        public static readonly DependencyProperty ThemeAuthorProperty = DependencyProperty.Register(nameof(ThemeAuthor), typeof(string), typeof(ThemePreviewCard), new PropertyMetadata("Unknown"));
         public string ThemeAuthor { get => (string)GetValue(ThemeAuthorProperty); set => SetValue(ThemeAuthorProperty, value); }
 
         private static DependencyProperty DP(string name) => DependencyProperty.Register(name, typeof(Brush), typeof(ThemePreviewCard), new PropertyMetadata(Brushes.Transparent));

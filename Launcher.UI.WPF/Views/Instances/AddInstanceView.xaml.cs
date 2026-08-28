@@ -1,8 +1,7 @@
-using System.Windows.Controls;
 
 namespace Launcher.UI.WPF.Views.Instances;
 
-public partial class AddInstanceView : UserControl
+public partial class AddInstanceView
 {
     private string _version;
     

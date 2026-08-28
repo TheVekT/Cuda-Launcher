@@ -1,12 +1,11 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:gif="http://wpfanimatedgif.codeplex.com"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <helpers:EdgeAdornerConverter x:Key="EdgeConverter" />
     <helpers:ImagePathConverter x:Key="ImagePathConverter" />
 
-    <!-- Vertical Scroll Styles -->
+    <!--  Vertical Scroll Styles  -->
     <Style TargetType="{x:Type Thumb}" x:Key="MinimalScrollThumb">
         <Setter Property="Template">
             <Setter.Value>
@@ -57,7 +56,7 @@
         </Setter>
     </Style>
 
-    <!-- Horizontal Scroll Styles -->
+    <!--  Horizontal Scroll Styles  -->
     <Style TargetType="Thumb" x:Key="MinimalThumb">
         <Setter Property="Template">
             <Setter.Value>
@@ -110,7 +109,7 @@
         </Setter>
     </Style>
 
-    <!-- ScrollViewer Styles -->
+    <!--  ScrollViewer Styles  -->
     <Style TargetType="{x:Type ScrollViewer}" x:Key="MinimalScrollViewer">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">

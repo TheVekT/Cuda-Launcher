@@ -3,8 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Infrastructure.Customization.Models;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Services.Customization;
+using Launcher.UI.WPF.Services.Customization.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Config;

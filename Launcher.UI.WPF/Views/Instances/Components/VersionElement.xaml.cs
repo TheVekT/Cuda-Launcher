@@ -1,12 +1,11 @@
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Threading;
 using Launcher.UI.WPF.Helpers;
 
 namespace Launcher.UI.WPF.Views.Instances.Components;
 
-public partial class VersionElement : UserControl
+public partial class VersionElement
 {
     private static readonly DispatcherTimer _sharedTimer;
     
@@ -56,7 +55,7 @@ public partial class VersionElement : UserControl
 
     private void UpdateLastPlayedBinding()
     {
-        BindingExpression binding = GetBindingExpression(VersionElementHelper.LastPlayedProperty);
+        BindingExpression? binding = GetBindingExpression(VersionElementHelper.LastPlayedProperty);
         binding?.UpdateTarget();
     }
 }

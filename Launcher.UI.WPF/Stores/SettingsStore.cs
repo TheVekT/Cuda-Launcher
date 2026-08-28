@@ -7,10 +7,10 @@ using Launcher.Infrastructure.Config.Abstractions;
 using Launcher.Infrastructure.Config.Models;
 using Launcher.Infrastructure.Customization.Models;
 using Launcher.Infrastructure.Localization.Models;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Collections;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Services.Customization;
+using Launcher.UI.WPF.Services.Customization.Abstractions;
 
 namespace Launcher.UI.WPF.Stores;
 

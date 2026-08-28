@@ -1,8 +1,7 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:gif="http://wpfanimatedgif.codeplex.com"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
-    xmlns:local="clr-namespace:Launcher.UI.WPF.Services"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <helpers:EdgeAdornerConverter x:Key="EdgeConverter" />
     <helpers:ImagePathConverter x:Key="ImagePathConverter" />
@@ -26,7 +25,7 @@
                                 Foreground="{DynamicResource ForegroundPlaceholderBrush}"
                                 IsHitTestVisible="False"
                                 Margin="{TemplateBinding Padding}"
-                                Text="{helpers:Loc Installations_Header_SearchInstallations}"
+                                Text="{localization:Loc Installations_Header_SearchInstallations}"
                                 VerticalAlignment="Center"
                                 Visibility="Collapsed"
                                 x:Name="PlaceholderText" />

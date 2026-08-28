@@ -1,10 +1,9 @@
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media.Animation;
 
 namespace Launcher.UI.WPF.Views.Instances.Skeletons;
 
-public partial class EditInstanceSkeleton : UserControl
+public partial class EditInstanceSkeleton
 {
     private Storyboard _pulseStoryboard;
     

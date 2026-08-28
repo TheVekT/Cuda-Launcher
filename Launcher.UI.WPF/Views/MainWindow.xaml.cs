@@ -3,9 +3,9 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels;
 
@@ -14,7 +14,7 @@ namespace Launcher.UI.WPF.Views;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window
+public partial class MainWindow
 {
     private AppStore? _appStore;
     
@@ -26,12 +26,12 @@ public partial class MainWindow : Window
         Loaded += MainWindow_Loaded;
         Unloaded += MainWindow_Unloaded;
         
-        WeakReferenceMessenger.Default.Register<OverlayBlinkMessage>(this, (r, m) =>
+        WeakReferenceMessenger.Default.Register<OverlayBlinkMessage>(this, (_, _) =>
         {
-            Dispatcher.Invoke(() => PlayBlinkAnimation());
+            Dispatcher.Invoke(PlayBlinkAnimation);
         });
         
-        WeakReferenceMessenger.Default.Register<LauncherVisibilityMessage>(this, (r, m) =>
+        WeakReferenceMessenger.Default.Register<LauncherVisibilityMessage>(this, (_, m) =>
         {
             Dispatcher.Invoke(() => 
             {
@@ -88,7 +88,7 @@ public partial class MainWindow : Window
     {
         if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
             
             if (DataContext is MainWindowViewModel vm && vm.DropCommand.CanExecute(files))
                 vm.DropCommand.Execute(files);
@@ -121,19 +121,15 @@ public partial class MainWindow : Window
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        if (LocalizationService.Instance != null)
-        {
-            LocalizationService.Instance.PropertyChanged += OnLocalizationChanged;
-        }
+        LocalizationService.Instance.PropertyChanged += OnLocalizationChanged;
+        
         UpdatePlayButtonState();
     }
 
     private void MainWindow_Unloaded(object sender, RoutedEventArgs e)
     {
-        if (LocalizationService.Instance != null)
-        {
-            LocalizationService.Instance.PropertyChanged -= OnLocalizationChanged;
-        }
+        LocalizationService.Instance.PropertyChanged -= OnLocalizationChanged;
+        
         if (_appStore != null)
         {
             _appStore.PropertyChanged -= OnAppStorePropertyChanged;
@@ -162,10 +158,7 @@ public partial class MainWindow : Window
 
         if (PlayButtonCompact != null)
         {
-            if (LocalizationService.Instance != null)
-            {
-                PlayButtonCompact.Content = LocalizationService.Instance[isRunning ? LocKey.Play_PlayButton_Close : LocKey.Play_PlayButton];
-            }
+            PlayButtonCompact.Content = LocalizationService.Instance[isRunning ? LocKey.Play_PlayButton_Close : LocKey.Play_PlayButton];
             PlayButtonCompact.Tag = Application.Current.TryFindResource(isRunning ? "Icon.Close" : "Icon.Play");
         }
     }

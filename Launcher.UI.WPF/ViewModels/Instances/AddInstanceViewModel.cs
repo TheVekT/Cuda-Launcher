@@ -6,11 +6,10 @@ using Launcher.Core.Common.Enums;
 using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.Infrastructure.Assets.Abstractions;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Collections;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Models;
-using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Models.Instances;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Instances;

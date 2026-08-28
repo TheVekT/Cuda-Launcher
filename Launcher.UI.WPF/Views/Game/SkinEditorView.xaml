@@ -9,6 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:game="clr-namespace:Launcher.UI.WPF.ViewModels.Game"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
@@ -38,7 +39,7 @@
                     <TextBlock
                         FontSize="13"
                         Foreground="{DynamicResource ForegroundSecondaryBrush}"
-                        Text="{helpers:Loc SkinEditorMenu_Subtitle}" />
+                        Text="{localization:Loc SkinEditorMenu_Subtitle}" />
                 </StackPanel>
                 <ScrollViewer
                     Grid.Row="1"
@@ -57,7 +58,7 @@
                                 FontSize="12"
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                Text="{helpers:Loc SkinEditorMenu_NameLabel}" />
+                                Text="{localization:Loc SkinEditorMenu_NameLabel}" />
                             <TextBox
                                 FontSize="12"
                                 Height="35"
@@ -70,14 +71,14 @@
                                 FontSize="11"
                                 Foreground="{DynamicResource ForegroundSecondaryBrush}"
                                 Margin="0,5,0,0"
-                                Text="{helpers:Loc SkinEditorMenu_NamePlaceholder}" />
+                                Text="{localization:Loc SkinEditorMenu_NamePlaceholder}" />
                         </StackPanel>
                         <StackPanel Grid.Row="1" Margin="0,5">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                Text="{helpers:Loc SkinEditorMenu_UploadSkinLabel}" />
+                                Text="{localization:Loc SkinEditorMenu_UploadSkinLabel}" />
                             <Image
                                 Height="40"
                                 HorizontalAlignment="Left"
@@ -99,7 +100,7 @@
                             </Image>
                             <Button
                                 Command="{Binding ImportSkinFileCommand}"
-                                Content="{helpers:Loc SkinEditorMenu_UploadButtonText}"
+                                Content="{localization:Loc SkinEditorMenu_UploadButtonText}"
                                 FontSize="14"
                                 Height="35"
                                 Style="{StaticResource OverlayDefaultButtonStyle}"
@@ -116,22 +117,22 @@
                                 FontSize="11"
                                 Foreground="{DynamicResource ForegroundSecondaryBrush}"
                                 Margin="0,5,0,0"
-                                Text="{helpers:Loc SkinEditorMenu_UploadSkinPlaceholder}" />
+                                Text="{localization:Loc SkinEditorMenu_UploadSkinPlaceholder}" />
                         </StackPanel>
                         <StackPanel Grid.Row="2" Margin="0,5">
                             <TextBlock
                                 FontSize="12"
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                Text="{helpers:Loc SkinEditorMenu_SkinVersionLabel}" />
+                                Text="{localization:Loc SkinEditorMenu_SkinVersionLabel}" />
                             <RadioButton
-                                Content="{helpers:Loc SkinEditorMenu_OptionClassicModel}"
+                                Content="{localization:Loc SkinEditorMenu_OptionClassicModel}"
                                 GroupName="ModelTypeGroup"
                                 IsChecked="{Binding SelectedModelType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Classic}"
                                 Margin="0,10,0,0"
                                 Style="{StaticResource PointOptionRadioStyle}" />
                             <RadioButton
-                                Content="{helpers:Loc SkinEditorMenu_OptionSlimModel}"
+                                Content="{localization:Loc SkinEditorMenu_OptionSlimModel}"
                                 GroupName="ModelTypeGroup"
                                 IsChecked="{Binding SelectedModelType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Slim}"
                                 Margin="0,10,0,0"
@@ -142,7 +143,7 @@
                                 FontSize="12"
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                                Text="{helpers:Loc SkinEditorMenu_SelectCapeLabel}" />
+                                Text="{localization:Loc SkinEditorMenu_SelectCapeLabel}" />
                             <Border
                                 Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
                                 CornerRadius="{DynamicResource DefaultCorner}"
@@ -257,7 +258,7 @@
                     </Grid.ColumnDefinitions>
                     <Button
                         Command="{Binding CloseSelfCommand}"
-                        Content="{helpers:Loc SkinEditorMenu_CancelButton}"
+                        Content="{localization:Loc SkinEditorMenu_CancelButton}"
                         FontSize="13"
                         Grid.Column="0"
                         Height="30"
@@ -268,7 +269,7 @@
                         x:Name="CancelButton" />
                     <Button
                         Command="{Binding SaveCommand}"
-                        Content="{helpers:Loc SkinEditorMenu_CreateButton}"
+                        Content="{localization:Loc SkinEditorMenu_CreateButton}"
                         FontSize="13"
                         Grid.Column="1"
                         Height="30"

@@ -47,7 +47,7 @@ public static class FileDragDropBehavior
         {
             e.Effects = DragDropEffects.Copy;
             var command = GetDragEnterCommand((DependencyObject)sender);
-            if (command?.CanExecute(null) == true) command.Execute(null);
+            if (command.CanExecute(null)) command.Execute(null);
         }
         else
         {
@@ -59,7 +59,7 @@ public static class FileDragDropBehavior
     private static void Element_DragLeave(object sender, DragEventArgs e)
     {
         var command = GetDragLeaveCommand((DependencyObject)sender);
-        if (command?.CanExecute(null) == true) command.Execute(null);
+        if (command.CanExecute(null)) command.Execute(null);
         e.Handled = true;
     }
 
@@ -67,10 +67,10 @@ public static class FileDragDropBehavior
     {
         if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
             var command = GetDropCommand((DependencyObject)sender);
             
-            if (command?.CanExecute(files) == true) command.Execute(files);
+            if (command.CanExecute(files)) command.Execute(files);
         }
         e.Handled = true;
     }

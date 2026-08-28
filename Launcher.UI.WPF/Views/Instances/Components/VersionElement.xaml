@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:gif="http://wpfanimatedgif.codeplex.com"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid
@@ -50,14 +51,14 @@
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal">
                         <TextBlock FontSize="12" Foreground="{DynamicResource ForegroundSecondaryBrush}">
-                            <Run Text="{helpers:Loc VersionElement_VersionLabel}" />
+                            <Run Text="{localization:Loc VersionElement_VersionLabel}" />
                             <Run Text="{Binding Path=(helpers:VersionElementHelper.GameVersion), RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </TextBlock>
                         <TextBlock
                             FontSize="12"
                             Foreground="{DynamicResource ForegroundSecondaryBrush}"
                             Margin="12,0,0,0">
-                            <Run Text="{helpers:Loc VersionElement_LastPlayedLabel}" />
+                            <Run Text="{localization:Loc VersionElement_LastPlayedLabel}" />
                             <Run Text="{Binding Path=(helpers:VersionElementHelper.LastPlayed), RelativeSource={RelativeSource AncestorType=UserControl}}" />
                         </TextBlock>
                     </StackPanel>

@@ -5,6 +5,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid
@@ -60,7 +61,7 @@
                 <Button
                     Command="{Binding Path=(helpers:AccountCardHelper.UseCommand), RelativeSource={RelativeSource AncestorType=UserControl}}"
                     CommandParameter="{Binding Path=(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=UserControl}}"
-                    Content="{helpers:Loc AccountCard_UseButton}"
+                    Content="{localization:Loc AccountCard_UseButton}"
                     FontSize="13"
                     Grid.Column="2"
                     Margin="5,0"
@@ -115,12 +116,12 @@
                             <MenuItem
                                 Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.RenameAccountCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                 CommandParameter="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                Header="{helpers:Loc AccountCard_ContextMenu_Rename}" />
+                                Header="{localization:Loc AccountCard_ContextMenu_Rename}" />
 
                             <MenuItem
                                 Command="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.DeleteAccountCommand), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                 CommandParameter="{Binding Path=PlacementTarget.(helpers:AccountCardHelper.MenuContext).(helpers:AccountCardHelper.CommandParameter), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                Header="{helpers:Loc AccountCard_ContextMenu_Remove}" />
+                                Header="{localization:Loc AccountCard_ContextMenu_Remove}" />
 
                         </ContextMenu>
                     </Button.ContextMenu>

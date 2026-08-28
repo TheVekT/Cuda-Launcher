@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Config.Abstractions;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Services.Customization.Abstractions;
 using Launcher.UI.WPF.ViewModels.Game;
 
 namespace Launcher.UI.WPF.Stores;

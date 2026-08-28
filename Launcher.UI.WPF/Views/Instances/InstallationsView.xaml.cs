@@ -1,12 +1,11 @@
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Views.Instances.Components;
 
 namespace Launcher.UI.WPF.Views.Instances;
 
-public partial class InstallationsView : UserControl
+public partial class InstallationsView
 {
     public InstallationsView()
     {
@@ -17,14 +16,12 @@ public partial class InstallationsView : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (LocalizationService.Instance != null)
-            LocalizationService.Instance.PropertyChanged += OnLocalizationChanged;
+        LocalizationService.Instance.PropertyChanged += OnLocalizationChanged;
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        if (LocalizationService.Instance != null)
-            LocalizationService.Instance.PropertyChanged -= OnLocalizationChanged;
+        LocalizationService.Instance.PropertyChanged -= OnLocalizationChanged;
     }
 
     private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)

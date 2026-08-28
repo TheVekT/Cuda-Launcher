@@ -5,10 +5,12 @@ using Launcher.Core.Identity.Abstractions;
 using Launcher.Core.Identity.Models;
 using Launcher.Infrastructure.Config.Abstractions;
 using Launcher.Infrastructure.Config.Models;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Collections;
+using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Services.Customization;
+using Launcher.UI.WPF.Services.Shell.Abstractions;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
 
 namespace Launcher.UI.WPF.Stores;
 

@@ -13,9 +13,13 @@ using Launcher.Core.Instances.Models;
 using Launcher.Core.System.Abstractions;
 using Launcher.Infrastructure.Integrations.Abstractions;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Services.Customization;
+using Launcher.UI.WPF.Services.Shell;
+using Launcher.UI.WPF.Services.Shell.Abstractions;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels.Common;
 using Launcher.UI.WPF.ViewModels.Config;
@@ -34,7 +38,7 @@ public partial class MainWindowViewModel : ObservableObject,
     private readonly IGameVersionService _versionService;
     private readonly ILaunchService _launchService;
     private readonly IDiscordService _discordService;
-    private readonly ImportOrchestratorService _importOrchestratorService;
+    private readonly IImportOrchestratorService _importOrchestratorService;
     private readonly IOverlayService _overlayService;
     private readonly INavigationService _navigationService;
     private readonly IDispatcherService _dispatcherService;
@@ -96,7 +100,7 @@ public partial class MainWindowViewModel : ObservableObject,
         IGameVersionService versionService,
         ILaunchService launchService,
         IDiscordService discordService,
-        ImportOrchestratorService importOrchestratorService,
+        IImportOrchestratorService importOrchestratorService,
         IOverlayService overlayService,
         INavigationService navigationService,
         IDispatcherService dispatcherService,

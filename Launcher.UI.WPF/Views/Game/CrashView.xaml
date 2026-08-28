@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:game="clr-namespace:Launcher.UI.WPF.ViewModels.Game"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
-    xmlns:local="clr-namespace:Launcher.UI.WPF.Views.Game"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid Width="512">
@@ -51,7 +51,7 @@
                         FontWeight="Bold"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
                         Margin="10,0,0,0"
-                        Text="{helpers:Loc CrashReportView_Title}"
+                        Text="{localization:Loc CrashReportView_Title}"
                         VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel
@@ -61,7 +61,7 @@
                     <TextBlock
                         FontSize="14"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                        Text="{helpers:Loc CrashReportView_ExitCode}"
+                        Text="{localization:Loc CrashReportView_ExitCode}"
                         VerticalAlignment="Center" />
                     <TextBlock
                         FontSize="14"
@@ -78,7 +78,7 @@
                         FontSize="14"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
                         Margin="0,0,0,8"
-                        Text="{helpers:Loc CrashReportView_StackTrace}"
+                        Text="{localization:Loc CrashReportView_StackTrace}"
                         VerticalAlignment="Center" />
                     <Border
                         Background="{DynamicResource BackgroundTransparentBrush}"
@@ -105,7 +105,7 @@
                     <TextBlock
                         FontSize="14"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"
-                        Text="{helpers:Loc CrashReportView_FromFile}"
+                        Text="{localization:Loc CrashReportView_FromFile}"
                         VerticalAlignment="Center" />
                     <TextBlock
                         FontSize="14"
@@ -123,7 +123,7 @@
                     <TextBlock Grid.Column="0" />
                     <Button
                         Command="{Binding CopyStackTraceCommand}"
-                        Content="{helpers:Loc CrashReportView_CopyError}"
+                        Content="{localization:Loc CrashReportView_CopyError}"
                         FontSize="13"
                         Grid.Column="1"
                         Height="30"
@@ -133,7 +133,7 @@
                         helpers:ButtonHelper.IconSize="12" />
                     <Button
                         Command="{Binding CloseSelfCommand}"
-                        Content="{helpers:Loc CrashReportView_Close}"
+                        Content="{localization:Loc CrashReportView_Close}"
                         FontSize="13"
                         Grid.Column="2"
                         Height="30"

@@ -1,9 +1,8 @@
 <Application
     x:Class="Launcher.UI.WPF.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:customization="clr-namespace:Launcher.UI.WPF.Services.Customization"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
-    xmlns:local="clr-namespace:Launcher.UI.WPF"
-    xmlns:services="clr-namespace:Launcher.UI.WPF.Services"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Application.Resources>
@@ -19,7 +18,7 @@
             <helpers:ImagePathConverter x:Key="ImagePathConverter" />
             <helpers:EqualConverter x:Key="EqualConverter" />
             <helpers:NotEqualConverter x:Key="NotEqualConverter" />
-            <x:Static Member="services:LocalizationService.Instance" x:Key="Loc" />
+            <x:Static Member="customization:LocalizationService.Instance" x:Key="Loc" />
             <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis" />
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
             <helpers:PercentToScaleConverter x:Key="PercentToScaleConverter" />

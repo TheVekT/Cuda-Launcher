@@ -10,6 +10,7 @@ public static class AssetsDependencyInjection
         services.AddSingleton<ICharacterManagerService, CharacterManagerService>();
         services.AddSingleton<IIconsService, IconsService>();
         services.AddSingleton<IMojangAssetCacheService, MojangAssetCacheService>();
+        services.AddSingleton<IAssetsExtractionService, AssetsesExtractionService>();
         
         return services;
     }

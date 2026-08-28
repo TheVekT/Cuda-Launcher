@@ -9,11 +9,15 @@ using Launcher.Infrastructure.Assets.Abstractions;
 using Launcher.Infrastructure.Assets.Models;
 using Launcher.Infrastructure.Assets.Validators;
 using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Collections;
+using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Services.Customization;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
 using Launcher.UI.WPF.Stores;
+using Launcher.UI.WPF.ViewModels.Game.Items;
 
 namespace Launcher.UI.WPF.ViewModels.Game;
 
@@ -40,7 +44,7 @@ public partial class SkinEditorViewModel : ObservableValidator
     [ObservableProperty] 
     private string _menuTitle;
 
-    public ObservableRangeCollection<CapeItemModel> AvailableCapes { get; } = new();
+    public ObservableRangeCollection<CapeItemViewModel> AvailableCapes { get; } = new();
 
     [ObservableProperty] 
     private string _characterName = string.Empty;
@@ -49,7 +53,7 @@ public partial class SkinEditorViewModel : ObservableValidator
     [ObservableProperty] 
     private SkinModelType _selectedModelType = SkinModelType.Classic;
     [ObservableProperty] 
-    private CapeItemModel? _selectedCape;
+    private CapeItemViewModel? _selectedCape;
     [ObservableProperty] 
     private string? _tempSkinFilePath;
     [ObservableProperty] 
@@ -72,12 +76,14 @@ public partial class SkinEditorViewModel : ObservableValidator
 
         MenuTitle = IsEditMode ? LocalizationService.Instance[LocKey.SkinEditorMenu_Settings_Title] : LocalizationService.Instance[LocKey.SkinEditorMenu_Title];
         
-        var noCapeOption = new CapeItemModel 
-        { 
-            Id = null!,
-            Alias = LocalizationService.Instance[LocKey.SkinEditorMenu_NoCapeOption], 
-            LocalImagePath = null! 
-        };
+        var noCapeOption = new CapeItemViewModel
+        (
+            id : null!,
+            alias : LocalizationService.Instance[LocKey.SkinEditorMenu_NoCapeOption], 
+            localImagePath : null!,
+            cape2DPreviewPath : null!,
+            isActive : false
+        );
         
         AvailableCapes.Add(noCapeOption);
         AvailableCapes.AddRange(_skinsStore.AvailableCapes);
@@ -157,7 +163,7 @@ public partial class SkinEditorViewModel : ObservableValidator
                 _editingSkin.FullSkinPath = _characterService.GetFullSkinPath(_editingSkin.CoreModel.SkinFileName);
                 _editingSkin.FullCapePath = SelectedCape?.LocalImagePath;
                 
-                _editingSkin.RefreshCoreUI();
+                _editingSkin.RefreshCoreUi();
                 if (needsPreviewUpdate)
                 {
                     _ = _skinsStore.RegeneratePreviewAsync(_editingSkin);
@@ -174,15 +180,16 @@ public partial class SkinEditorViewModel : ObservableValidator
                     skinVariant: SelectedModelType.ToString().ToLower()
                 );
                 
-                var newCharacterVM = new CharacterItemViewModel(coreCharacter)
-                {
-                    FullSkinPath = _characterService.GetFullSkinPath(coreCharacter.SkinFileName),
-                    FullCapePath = SelectedCape?.LocalImagePath
-                };
+                var newCharacterVm = new CharacterItemViewModel
+                (
+                    coreModel: coreCharacter,
+                    fullSkinPath: _characterService.GetFullSkinPath(coreCharacter.SkinFileName),
+                    fullCapePath: SelectedCape?.LocalImagePath
+                );
                 
-                _skinsStore.Skins.Add(newCharacterVM);
+                _skinsStore.Skins.Add(newCharacterVm);
                 
-                _ = _skinsStore.RegeneratePreviewAsync(newCharacterVM);
+                _ = _skinsStore.RegeneratePreviewAsync(newCharacterVm);
             }
 
             var coreModelsToSave = _skinsStore.Skins.Select(s => s.CoreModel).ToList();

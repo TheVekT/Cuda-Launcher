@@ -1,13 +1,12 @@
 using System.Windows;
 using System.Windows.Controls;
 using CommunityToolkit.Mvvm.Messaging;
-using Launcher.Core.Common.Models;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Models;
+using Launcher.UI.WPF.Models.Shell;
 
 namespace Launcher.UI.WPF.Views.Common.Notifications
 {
-    public partial class ErrorNotify : UserControl
+    public partial class ErrorNotify
     {
         public ErrorNotify()
         {

@@ -1,14 +1,13 @@
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using Launcher.UI.WPF.Helpers;
-using Launcher.UI.WPF.Services;
+using Launcher.UI.WPF.Helpers.Localization;
+using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels.Game;
 
 namespace Launcher.UI.WPF.Views.Game;
 
-public partial class PlayView : UserControl
+public partial class PlayView
 {
     private AppStore? _appStore;
 
@@ -45,19 +44,14 @@ public partial class PlayView : UserControl
 
     private void PlayView_Loaded(object sender, RoutedEventArgs e)
     {
-        if (LocalizationService.Instance != null)
-        {
-            LocalizationService.Instance.PropertyChanged += OnLocalizationChanged;
-        }
+        LocalizationService.Instance.PropertyChanged += OnLocalizationChanged;
         UpdatePlayButtonState();
     }
 
     private void PlayView_Unloaded(object sender, RoutedEventArgs e)
     {
-        if (LocalizationService.Instance != null)
-        {
-            LocalizationService.Instance.PropertyChanged -= OnLocalizationChanged;
-        }
+        LocalizationService.Instance.PropertyChanged -= OnLocalizationChanged;
+        
         if (_appStore != null)
         {
             _appStore.PropertyChanged -= OnAppStorePropertyChanged;
@@ -86,10 +80,8 @@ public partial class PlayView : UserControl
 
         if (PlayButton != null)
         {
-            if (LocalizationService.Instance != null)
-            {
-                PlayButton.Content = LocalizationService.Instance[isRunning ? LocKey.Play_PlayButton_Close : LocKey.Play_PlayButton];
-            }
+            PlayButton.Content = LocalizationService.Instance[isRunning ? LocKey.Play_PlayButton_Close : LocKey.Play_PlayButton];
+            
             PlayButton.Tag = Application.Current.TryFindResource(isRunning ? "Icon.Close" : "Icon.Play");
         }
     }

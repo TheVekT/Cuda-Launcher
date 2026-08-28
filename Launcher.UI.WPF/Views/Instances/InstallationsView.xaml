@@ -12,6 +12,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
     xmlns:instances="clr-namespace:Launcher.UI.WPF.ViewModels.Instances"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -38,12 +39,12 @@
                     FontSize="20"
                     Foreground="{DynamicResource ForegroundPrimaryBrush}"
                     Grid.Column="0"
-                    Text="{helpers:Loc Installations_Header_Title}"
+                    Text="{localization:Loc Installations_Header_Title}"
                     VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" />
                 <Button
                     Command="{Binding OpenAddVersionCommand}"
-                    Content="{helpers:Loc Installations_Header_NewInstallationButton}"
+                    Content="{localization:Loc Installations_Header_NewInstallationButton}"
                     FontSize="13"
                     Grid.Column="2"
                     Height="30"
@@ -94,10 +95,10 @@
                         Style="{StaticResource DefaultComboBox}"
                         Width="180">
 
-                        <ComboBoxItem Content="{helpers:Loc Installations_Sort_LastPlayed}" />
-                        <ComboBoxItem Content="{helpers:Loc Installations_Sort_Name}" />
-                        <ComboBoxItem Content="{helpers:Loc Installations_Sort_GameVersion}" />
-                        <ComboBoxItem Content="{helpers:Loc Installations_Sort_ModLoader}" />
+                        <ComboBoxItem Content="{localization:Loc Installations_Sort_LastPlayed}" />
+                        <ComboBoxItem Content="{localization:Loc Installations_Sort_Name}" />
+                        <ComboBoxItem Content="{localization:Loc Installations_Sort_GameVersion}" />
+                        <ComboBoxItem Content="{localization:Loc Installations_Sort_ModLoader}" />
                     </ComboBox>
                 </Grid>
 

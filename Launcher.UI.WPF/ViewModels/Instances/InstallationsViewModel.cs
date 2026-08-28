@@ -7,12 +7,13 @@ using Launcher.Core.Common.Enums;
 using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Instances.Abstractions;
 using Launcher.Core.Instances.Models;
-using Launcher.Core.System.Abstractions;
 using Launcher.Infrastructure.Assets.Abstractions;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Enums;
+using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Services.Customization;
+using Launcher.UI.WPF.Services.Shell.Abstractions;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
 using Launcher.UI.WPF.Stores;
 using Launcher.UI.WPF.ViewModels.Common;
 

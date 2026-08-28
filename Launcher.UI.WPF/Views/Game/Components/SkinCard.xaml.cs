@@ -1,11 +1,11 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Launcher.UI.WPF.Models;
+using Launcher.UI.WPF.ViewModels.Game.Items;
 
 namespace Launcher.UI.WPF.Views.Game.Components;
 
-public partial class SkinCard : UserControl
+public partial class SkinCard
 {
     public SkinCard()
     {
@@ -24,7 +24,7 @@ public partial class SkinCard : UserControl
     }
     
     public static readonly DependencyProperty CharacterProperty =
-        DependencyProperty.Register("Character", typeof(CharacterItemViewModel), typeof(SkinCard), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(Character), typeof(CharacterItemViewModel), typeof(SkinCard), new PropertyMetadata(null));
 
     public CharacterItemViewModel Character
     {
@@ -34,7 +34,7 @@ public partial class SkinCard : UserControl
 
     // 2. Команда "Применить"
     public static readonly DependencyProperty ApplyCommandProperty =
-        DependencyProperty.Register("ApplyCommand", typeof(ICommand), typeof(SkinCard), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(ApplyCommand), typeof(ICommand), typeof(SkinCard), new PropertyMetadata(null));
 
     public ICommand ApplyCommand
     {
@@ -43,7 +43,7 @@ public partial class SkinCard : UserControl
     }
     
     public static readonly DependencyProperty EditCommandProperty =
-        DependencyProperty.Register("EditCommand", typeof(ICommand), typeof(SkinCard), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(EditCommand), typeof(ICommand), typeof(SkinCard), new PropertyMetadata(null));
 
     public ICommand EditCommand
     {
@@ -52,7 +52,7 @@ public partial class SkinCard : UserControl
     }
     
     public static readonly DependencyProperty DeleteCommandProperty =
-        DependencyProperty.Register("DeleteCommand", typeof(ICommand), typeof(SkinCard), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(DeleteCommand), typeof(ICommand), typeof(SkinCard), new PropertyMetadata(null));
 
     public ICommand DeleteCommand
     {

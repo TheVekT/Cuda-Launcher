@@ -1,8 +1,7 @@
-using System.Windows.Controls;
 
 namespace Launcher.UI.WPF.Views.Instances;
 
-public partial class EditInstanceView : UserControl
+public partial class EditInstanceView
 {
     public EditInstanceView()
     {

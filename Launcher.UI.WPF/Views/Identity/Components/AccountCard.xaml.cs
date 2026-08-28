@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace Launcher.UI.WPF.Views.Identity.Components;
 
-public partial class AccountCard : UserControl
+public partial class AccountCard
 {
     public AccountCard()
     {

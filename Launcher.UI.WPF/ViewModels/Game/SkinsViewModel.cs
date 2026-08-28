@@ -5,15 +5,17 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Common.Enums;
 using Launcher.Core.Identity.Abstractions;
-using Launcher.Core.System.Abstractions;
 using Launcher.Infrastructure.Assets.Abstractions;
 using Launcher.Infrastructure.Assets.Models;
-using Launcher.UI.WPF.Helpers;
+using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Models;
-using Launcher.UI.WPF.Services;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Models.Game;
+using Launcher.UI.WPF.Services.Customization;
+using Launcher.UI.WPF.Services.Shell.Abstractions;
+using Launcher.UI.WPF.Services.Rendering.Abstractions;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
 using Launcher.UI.WPF.Stores;
+using Launcher.UI.WPF.ViewModels.Game.Items;
 
 namespace Launcher.UI.WPF.ViewModels.Game;
 
@@ -70,7 +72,7 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
             var profile = await _mojangProfileService.GetProfileAsync(accessToken);
             if (profile == null) return;
             
-            var loadedCapes = new List<CapeItemModel>();
+            var loadedCapes = new List<CapeItemViewModel>();
             foreach (var cape in profile.Capes)
             {
                 string localPath = await _assetCacheService.GetOrDownloadAssetAsync(cape.Url, cape.Id);
@@ -78,14 +80,14 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
                 if (localPath != null)
                 {
                     // Create a new CapeItemModel and add it to the loadedCapes list and generate a preview for it
-                    loadedCapes.Add(new CapeItemModel
-                    {
-                        Id = cape.Id,
-                        Alias = cape.Alias,
-                        LocalImagePath = localPath,
-                        Cape2DPreviewPath = _previewGeneratorService.GenerateCapePreview(localPath, cape.Id),
-                        IsActive = cape.State == "ACTIVE"
-                    });
+                    loadedCapes.Add(new CapeItemViewModel
+                    (
+                        id : cape.Id,
+                        alias : cape.Alias,
+                        localImagePath : localPath,
+                        cape2DPreviewPath : _previewGeneratorService.GenerateCapePreview(localPath, cape.Id),
+                        isActive : cape.State == "ACTIVE"
+                    ));
                 }
             }
             // Update the AvailableCapes collection with the loaded capes from Mojang profile

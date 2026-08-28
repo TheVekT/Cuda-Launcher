@@ -7,7 +7,7 @@ public static class InstancesDependencyInjection
 {
     public static IServiceCollection AddInstancesServices(this IServiceCollection services)
     {
-        services.AddSingleton<IDragDropParserService, DragDropParserService>();
+        services.AddSingleton<IFileTypeDetector, FileTypeDetector>();
         services.AddSingleton<IInstanceFileSystemService, InstanceFileSystemService>();
         services.AddSingleton<IInstanceService, InstanceService>();
         

@@ -7,9 +7,10 @@ using Launcher.Core.Identity.Abstractions;
 using Launcher.Infrastructure.Assets.Abstractions;
 using Launcher.Infrastructure.Config.Abstractions;
 using Launcher.Infrastructure.Config.Models;
-using Launcher.UI.WPF.Helpers;
-using Launcher.UI.WPF.Models;
-using Launcher.UI.WPF.Services.Abstractions;
+using Launcher.UI.WPF.Helpers.Collections;
+using Launcher.UI.WPF.Services.Rendering.Abstractions;
+using Launcher.UI.WPF.ViewModels.Game.Items;
+using CapeItemViewModel = Launcher.UI.WPF.ViewModels.Game.Items.CapeItemViewModel;
 
 namespace Launcher.UI.WPF.Stores;
 
@@ -22,7 +23,7 @@ public partial class SkinsStore : ObservableObject
     private readonly IPreviewGeneratorService _previewGeneratorService;
     
     public ObservableRangeCollection<CharacterItemViewModel> Skins { get; } = new();
-    public ObservableRangeCollection<CapeItemModel> AvailableCapes { get; } = new();
+    public ObservableRangeCollection<CapeItemViewModel> AvailableCapes { get; } = new();
     
     private string _accessToken = string.Empty;
 

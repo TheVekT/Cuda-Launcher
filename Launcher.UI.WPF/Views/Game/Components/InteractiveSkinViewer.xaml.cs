@@ -1,23 +1,22 @@
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using Microsoft.Web.WebView2.Core;
 
 namespace Launcher.UI.WPF.Views.Game.Components;
 
-public partial class InteractiveSkinViewer : UserControl
+public partial class InteractiveSkinViewer
 {
-    private bool _isWebViewReady = false;
+    private bool _isWebViewReady;
 
     public InteractiveSkinViewer()
     {
         InitializeComponent();
-        InitializeWebViewAsync();
+        _ = InitializeWebViewAsync();
     }
     
     public static readonly DependencyProperty SkinPathProperty =
-        DependencyProperty.Register("SkinPath", typeof(string), typeof(InteractiveSkinViewer), 
+        DependencyProperty.Register(nameof(SkinPath), typeof(string), typeof(InteractiveSkinViewer), 
             new PropertyMetadata(null, OnModelChanged));
 
     public string SkinPath
@@ -27,7 +26,7 @@ public partial class InteractiveSkinViewer : UserControl
     }
     
     public static readonly DependencyProperty CapePathProperty =
-        DependencyProperty.Register("CapePath", typeof(string), typeof(InteractiveSkinViewer), 
+        DependencyProperty.Register(nameof(CapePath), typeof(string), typeof(InteractiveSkinViewer), 
             new PropertyMetadata(null, OnModelChanged));
 
     public string CapePath
@@ -37,7 +36,7 @@ public partial class InteractiveSkinViewer : UserControl
     }
     
     public static readonly DependencyProperty SkinVariantProperty =
-        DependencyProperty.Register("SkinVariant", typeof(string), typeof(InteractiveSkinViewer), 
+        DependencyProperty.Register(nameof(SkinVariant), typeof(string), typeof(InteractiveSkinViewer), 
             new PropertyMetadata("classic", OnModelChanged));
 
     public string SkinVariant
@@ -47,7 +46,7 @@ public partial class InteractiveSkinViewer : UserControl
     }
     
     public static readonly DependencyProperty AnimationTypeProperty =
-        DependencyProperty.Register("AnimationType", typeof(string), typeof(InteractiveSkinViewer), 
+        DependencyProperty.Register(nameof(AnimationType), typeof(string), typeof(InteractiveSkinViewer), 
             new PropertyMetadata("idle", OnAnimationChanged));
 
     public string AnimationType
@@ -60,15 +59,14 @@ public partial class InteractiveSkinViewer : UserControl
     {
         if (d is InteractiveSkinViewer viewer && viewer._isWebViewReady)
         {
-            viewer.UpdateAnimationInBrowser();
+            _ = viewer.UpdateAnimationInBrowser();
         }
     }
     
     private async Task UpdateAnimationInBrowser()
     {
         if (!_isWebViewReady) return;
-    
-        // Защита от пустых значений
+        
         string animType = string.IsNullOrEmpty(AnimationType) ? "none" : AnimationType.ToLower();
     
         await SkinWebView.ExecuteScriptAsync($"setAnimation('{animType}');");
@@ -78,7 +76,7 @@ public partial class InteractiveSkinViewer : UserControl
     {
         if (d is InteractiveSkinViewer viewer)
         {
-            viewer.UpdateSkinInBrowser();
+            _ = viewer.UpdateSkinInBrowser();
         }
     }
     
@@ -101,8 +99,8 @@ public partial class InteractiveSkinViewer : UserControl
         {
             _isWebViewReady = true;
             
-            UpdateSkinInBrowser();
-            UpdateAnimationInBrowser();
+            _ = UpdateSkinInBrowser();
+            _ = UpdateAnimationInBrowser();
         };
     }
     
@@ -112,23 +110,21 @@ public partial class InteractiveSkinViewer : UserControl
 
         try
         {
-            // Готовим скин
             string skinBase64 = "null";
             if (!string.IsNullOrEmpty(SkinPath) && File.Exists(SkinPath))
             {
-                string base64String = Convert.ToBase64String(File.ReadAllBytes(SkinPath));
+                string base64String = Convert.ToBase64String(await File.ReadAllBytesAsync(SkinPath));
                 skinBase64 = $"'data:image/png;base64,{base64String}'";
             }
-
-            // Готовим плащ
+            
             string capeBase64 = "null";
             if (!string.IsNullOrEmpty(CapePath) && File.Exists(CapePath))
             {
-                string base64String = Convert.ToBase64String(File.ReadAllBytes(CapePath));
+                string base64String = Convert.ToBase64String(await File.ReadAllBytesAsync(CapePath));
                 capeBase64 = $"'data:image/png;base64,{base64String}'";
             }
 
-            bool isSlim = SkinVariant?.ToLower() == "slim";
+            bool isSlim = SkinVariant.Equals("slim", StringComparison.CurrentCultureIgnoreCase);
             
             string jsCommand = $"loadModel({skinBase64}, {capeBase64}, {(isSlim ? "true" : "false")});";
             await SkinWebView.ExecuteScriptAsync(jsCommand);
