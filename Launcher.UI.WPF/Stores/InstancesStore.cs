@@ -14,7 +14,6 @@ public partial class InstancesStore: ObservableObject
     //Services
     private readonly IInstanceFileSystemService _instanceFileSystemService;
     private readonly IInstanceService _instanceService;
-    private readonly ISettingsService _settingsService;
     private readonly IIconsService _iconsService;
     private readonly IFileDialogService _fileDialogService;
 
@@ -42,28 +41,20 @@ public partial class InstancesStore: ObservableObject
     {
         _instanceFileSystemService = instanceFileSystemService;
         _instanceService = instanceService;
-        _settingsService = settingsService;
         _iconsService = iconsService;
         _fileDialogService = fileDialogService;
 
         LoadIcons();
         LoadSavedInstances();
         
-        _settingsService.Initialize(this);
+        settingsService.Initialize(this);
 
         if (!string.IsNullOrEmpty(LastSelectedInstanceId))
         {
             var lastSelected = Instances.FirstOrDefault(i => i.Id == LastSelectedInstanceId);
-            if (lastSelected != null)
-            {
-                SelectedInstance = lastSelected;
-            }
-            else
-            {
-                SelectedInstance = Instances.FirstOrDefault();
-            }
+            SelectedInstance = lastSelected ?? Instances.FirstOrDefault();
         }
-        ApplySort();
+        ApplySort(SelectedSortIndex);
     }
     
     public void SelectIconFromFileDialog()
@@ -72,7 +63,7 @@ public partial class InstancesStore: ObservableObject
             filter: "Image Files|*.png;*.jpg;*.jpeg;*.ico;*.gif", 
             title: "Select icon");
 
-        if (filePaths != null && filePaths.Length > 0)
+        if (filePaths is { Length: > 0 })
         {
             ProcessIconFile(filePaths);
         }
@@ -80,7 +71,7 @@ public partial class InstancesStore: ObservableObject
 
     public void HandleIconDrop(string[]? files)
     {
-        if (files != null && files.Length > 0)
+        if (files is { Length: > 0 })
         {
             ProcessIconFile(files);
         }
@@ -88,7 +79,7 @@ public partial class InstancesStore: ObservableObject
 
     private void ProcessIconFile(string[]? files)
     {
-        foreach (var filePath in files ?? Array.Empty<string>())
+        foreach (var filePath in files ?? [])
             _iconsService.ImportIcon(filePath);
     
         if (files?.Length > 0)
@@ -97,7 +88,7 @@ public partial class InstancesStore: ObservableObject
         }
         else
         {
-            Console.WriteLine("[Error] Не удалось импортировать иконку.");
+            Console.WriteLine("[Error] Cannot import icon.");
         }
     }
     
@@ -134,35 +125,34 @@ public partial class InstancesStore: ObservableObject
         OnPropertyChanged(nameof(IconList));
     }
     
-    public void ApplySort()
+    public void ApplySort(int sortIndex)
     {
         var lastSelectedInstance = SelectedInstance;
         // Берем текущие элементы
         var items = Instances.ToList();
-        IEnumerable<MinecraftInstance> sortedItems = null;
+        IEnumerable<MinecraftInstance> sortedItems;
 
-        switch (_selectedSortIndex)
+        switch (sortIndex)
         {
-            case 0: // Last Played (Сначала новые, null в конце)
+            case 0: // Last Played
                 sortedItems = items.OrderByDescending(x => x.LastPlayedDate.HasValue)
                     .ThenByDescending(x => x.LastPlayedDate);
                 break;
 
-            case 1: // Name (А-Я)
+            case 1: // Name
                 sortedItems = items.OrderBy(x => x.Name);
                 break;
 
-            case 2: // Game Version (Сначала новые версии: 1.20 -> 1.8)
-                // Используем Version.TryParse, чтобы 1.10 было больше 1.2
+            case 2: // Game Version 
+                // Using TryParse to sort versions correctly, treating them as Version objects rather than strings
                 sortedItems = items.OrderByDescending(x => 
                 {
-                    // Пытаемся распарсить версию, чтобы сортировать как числа, а не как текст
                     if (Version.TryParse(x.GameVersion, out var v)) return v;
-                    return new Version(0, 0); // Если версия нестандартная, кидаем вниз
+                    return new Version(0, 0);
                 });
                 break;
 
-            case 3: // Mod Loader (Группировка по типу)
+            case 3: // Mod Loader
                 sortedItems = items.OrderBy(x => x.LoaderType.ToString())
                     .ThenBy(x => x.GameVersion);
                 break;
@@ -183,8 +173,6 @@ public partial class InstancesStore: ObservableObject
         else LastSelectedInstanceId = null;
     }
     
-    partial void OnSelectedSortIndexChanged(int value)
-    {
-        ApplySort();
-    }
+    partial void OnSelectedSortIndexChanged(int value) =>
+        ApplySort(value);
 }

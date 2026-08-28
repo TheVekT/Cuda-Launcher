@@ -8,6 +8,7 @@ public class LocExtension : MarkupExtension
 {
     public LocKey? Key { get; set; }
     public string? RawKey { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public string? StringFormat { get; set; }
 
     public LocExtension() { }

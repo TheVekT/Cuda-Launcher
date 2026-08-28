@@ -216,7 +216,7 @@ public class EnumToBooleanConverter : IValueConverter
         var checkValue = value.ToString();
         var targetValue = parameter.ToString();
         
-        return checkValue?.Equals(targetValue, StringComparison.InvariantCultureIgnoreCase);
+        return checkValue != null && checkValue.Equals(targetValue, StringComparison.InvariantCultureIgnoreCase);
     }
     
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

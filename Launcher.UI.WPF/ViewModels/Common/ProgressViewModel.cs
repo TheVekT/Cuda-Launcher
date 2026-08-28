@@ -6,13 +6,13 @@ namespace Launcher.UI.WPF.ViewModels.Common;
 public partial class ProgressViewModel : ObservableObject, IProgress<double>
 {
     [ObservableProperty]
-    private string _title;
+    private string? _title;
     [ObservableProperty]
-    private string _message;
+    private string? _message;
     [ObservableProperty]
     private double _progressValue;
     [ObservableProperty]
-    private string _progressText;
+    private string? _progressText;
     [ObservableProperty]
     private bool _isIndeterminate;
     [ObservableProperty]
@@ -32,14 +32,14 @@ public partial class ProgressViewModel : ObservableObject, IProgress<double>
     [RelayCommand]
     private void Hide()
     {
-        _onHide?.Invoke();
+        _onHide.Invoke();
     }
     
     [RelayCommand]
     private void Cancel()
     {
         _onCancel?.Invoke();
-        _onHide?.Invoke(); 
+        _onHide.Invoke(); 
     }
     
     public void Report(double value)

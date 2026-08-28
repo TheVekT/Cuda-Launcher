@@ -5,7 +5,7 @@ namespace Launcher.UI.WPF.Views.Instances.Skeletons;
 
 public partial class AddInstanceSkeleton
 {
-    private Storyboard _pulseStoryboard;
+    private Storyboard? _pulseStoryboard;
 
     public AddInstanceSkeleton()
     {

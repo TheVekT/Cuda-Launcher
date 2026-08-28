@@ -4,17 +4,12 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using DiscordRPC.Message;
-using Launcher.Core.System.Abstractions;
 using Launcher.Infrastructure.Assets.Abstractions;
 using Launcher.Infrastructure.Assets.Models;
 using Launcher.Infrastructure.Assets.Validators;
-using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Helpers.Collections;
 using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
-using Launcher.UI.WPF.Models;
-using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Services.Windows.Abstractions;
 using Launcher.UI.WPF.Stores;
@@ -156,7 +151,7 @@ public partial class SkinEditorViewModel : ObservableValidator
         try
         {
             var finalName = string.IsNullOrWhiteSpace(CharacterName) ? SuggestedName : CharacterName;
-            string currentSkinFileName = IsEditMode ? _editingSkin!.CoreModel.SkinFileName : string.Empty;
+            string? currentSkinFileName = IsEditMode ? _editingSkin!.CoreModel.SkinFileName : string.Empty;
             
             if (_isSkinReplaced && !string.IsNullOrEmpty(TempSkinFilePath))
             {
@@ -174,7 +169,7 @@ public partial class SkinEditorViewModel : ObservableValidator
                 _editingSkin.CoreModel.SkinVariant = SelectedModelType.ToString().ToLower();
                 _editingSkin.CoreModel.CapeId = SelectedCape?.Id;
                 
-                _editingSkin.FullSkinPath = _characterService.GetFullSkinPath(_editingSkin.CoreModel.SkinFileName);
+                _editingSkin.FullSkinPath = _characterService.GetFullSkinPath(_editingSkin.CoreModel.SkinFileName!);
                 _editingSkin.FullCapePath = SelectedCape?.LocalImagePath;
                 
                 _editingSkin.RefreshCoreUi();
@@ -193,17 +188,20 @@ public partial class SkinEditorViewModel : ObservableValidator
                     capeId: SelectedCape?.Id,
                     skinVariant: SelectedModelType.ToString().ToLower()
                 );
+
+                if (coreCharacter.SkinFileName != null)
+                {
+                    var newCharacterVm = new CharacterItemViewModel
+                    (
+                        coreModel: coreCharacter,
+                        fullSkinPath: _characterService.GetFullSkinPath(coreCharacter.SkinFileName),
+                        fullCapePath: SelectedCape?.LocalImagePath
+                    );
                 
-                var newCharacterVm = new CharacterItemViewModel
-                (
-                    coreModel: coreCharacter,
-                    fullSkinPath: _characterService.GetFullSkinPath(coreCharacter.SkinFileName),
-                    fullCapePath: SelectedCape?.LocalImagePath
-                );
+                    _skinsStore.Skins.Add(newCharacterVm);
                 
-                _skinsStore.Skins.Add(newCharacterVm);
-                
-                _ = _skinsStore.RegeneratePreviewAsync(newCharacterVm);
+                    _ = _skinsStore.RegeneratePreviewAsync(newCharacterVm);
+                }
             }
 
             var coreModelsToSave = _skinsStore.Skins.Select(s => s.CoreModel).ToList();

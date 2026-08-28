@@ -14,7 +14,7 @@ public partial class CharacterItemViewModel(
     public CharacterModel CoreModel { get; } = coreModel;
 
     [ObservableProperty]
-    private string _fullSkinPath = fullSkinPath;
+    private string? _fullSkinPath = fullSkinPath;
 
     [ObservableProperty]
     private string? _fullCapePath = fullCapePath;

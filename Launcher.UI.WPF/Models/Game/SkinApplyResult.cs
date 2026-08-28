@@ -1,3 +1,4 @@
+// ReSharper disable NotAccessedPositionalProperty.Global
 namespace Launcher.UI.WPF.Models.Game;
 
 public record SkinApplyResult(

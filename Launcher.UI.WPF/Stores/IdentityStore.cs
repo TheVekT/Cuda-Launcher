@@ -9,7 +9,6 @@ using Launcher.UI.WPF.Helpers.Collections;
 using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models.Shell;
-using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Services.Shell.Abstractions;
 using Launcher.UI.WPF.Services.Windows.Abstractions;
 
@@ -18,17 +17,18 @@ namespace Launcher.UI.WPF.Stores;
 public partial class IdentityStore : ObservableObject
 {
     private readonly IAccountStorageService _accountStorage;
-    private readonly ISettingsService _settingsService;
     private readonly IAuthService _authService;
     private readonly IDispatcherService _dispatcherService;
     private readonly INotificationService _notificationService;
     
-    private bool _isLoggingIn;
     private UserAccount? _currentAccount;
+    [ObservableProperty]
     private string _userName = "Guest";
     [ObservableProperty]
+    private bool _isLoggingIn;
+    [ObservableProperty]
     [property: SettingProperty]
-    private string _lastSelectedAccountUuid;
+    private string? _lastSelectedAccountUuid;
     
     public bool IsLoggedIn => CurrentAccount != null;
     public ObservableRangeCollection<UserAccount> Accounts { get; set; } = new();
@@ -41,12 +41,11 @@ public partial class IdentityStore : ObservableObject
         INotificationService notificationService)
     {
         _accountStorage = accountStorage;
-        _settingsService = settingsService;
         _authService = authService;
         _dispatcherService = dispatcherService;
         _notificationService = notificationService;
         
-        _settingsService.Initialize(this);
+        settingsService.Initialize(this);
         
         LoadSavedAccounts();
     }
@@ -107,7 +106,7 @@ public partial class IdentityStore : ObservableObject
             {
                 Debug.WriteLine($"[Auth] Account {acc.Username} is unauthorized or token expired: {ex.Message}");
                 
-                _dispatcherService.Invoke(() => 
+                await _dispatcherService.InvokeAsync(() => 
                 {
                     Accounts.Remove(acc);
                     
@@ -138,12 +137,12 @@ public partial class IdentityStore : ObservableObject
             if (_currentAccount != value)
             {
                 _currentAccount = value;
-                OnPropertyChanged(nameof(CurrentAccount));
+                OnPropertyChanged();
                 OnPropertyChanged(nameof(IsLoggedIn)); 
                 if (value != null)
                 {
                     WeakReferenceMessenger.Default.Send(new AccountLoggedMessage(value));
-                    LastSelectedAccountUuid = _currentAccount.UUID;
+                    LastSelectedAccountUuid = _currentAccount?.UUID;
                 }
             }
         }

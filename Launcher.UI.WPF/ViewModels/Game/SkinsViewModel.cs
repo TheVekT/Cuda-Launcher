@@ -11,7 +11,6 @@ using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models.Game;
 using Launcher.UI.WPF.Models.Shell;
-using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Services.Shell.Abstractions;
 using Launcher.UI.WPF.Services.Rendering.Abstractions;
 using Launcher.UI.WPF.Services.Windows.Abstractions;
@@ -76,7 +75,7 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
             var loadedCapes = new List<CapeItemViewModel>();
             foreach (var cape in profile.Capes)
             {
-                string localPath = await _assetCacheService.GetOrDownloadAssetAsync(cape.Url, cape.Id);
+                string? localPath = await _assetCacheService.GetOrDownloadAssetAsync(cape.Url, cape.Id);
                 
                 if (localPath != null)
                 {
@@ -109,7 +108,7 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
             if (activeMojangSkin != null)
             {
                 // Download the active skin and cape and create a temporary CharacterModel for it
-                string localSkinPath = await _assetCacheService.GetOrDownloadAssetAsync(activeMojangSkin.Url, activeMojangSkin.Id);
+                string? localSkinPath = await _assetCacheService.GetOrDownloadAssetAsync(activeMojangSkin.Url, activeMojangSkin.Id);
                 var activeCapeId = profile.Capes.FirstOrDefault(c => c.State == "ACTIVE")?.Id;
                 
                 // Create a temporary CharacterModel for the active skin
@@ -119,17 +118,17 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
                     name : profile.Name,
                     skinFileName : Path.GetFileName(localSkinPath),
                     capeId : activeCapeId,
-                    skinVariant : activeMojangSkin.Variant?.ToLower() ?? "classic"
+                    skinVariant : activeMojangSkin.Variant.ToLower()
                 );
                 
                 // Create a temporary CharacterItemViewModel for the active skin and set it as the selected skin in SkinsStore
-                var tempSkinVM = new CharacterItemViewModel(coreTempSkin)
+                var tempSkinVm = new CharacterItemViewModel(coreTempSkin)
                 {
                     FullSkinPath = localSkinPath,
                     FullCapePath = SkinsStore.AvailableCapes.FirstOrDefault(c => c.Id == activeCapeId)?.LocalImagePath,
                 };
-                Console.WriteLine($"[SkinsStore] Active skin set: {tempSkinVM.FullSkinPath}, Cape: {tempSkinVM.FullCapePath}");
-                SkinsStore.SelectedSkin = tempSkinVM;
+                Console.WriteLine($"[SkinsStore] Active skin set: {tempSkinVm.FullSkinPath}, Cape: {tempSkinVm.FullCapePath}");
+                SkinsStore.SelectedSkin = tempSkinVm;
             }
             
             OnPropertyChanged(nameof(SkinsStore.SelectedSkin));
@@ -141,17 +140,21 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
         }
     }
     
-    public async Task<SkinApplyResult> ApplyToMojangAsync(CharacterItemViewModel skinVM)
+    public async Task<SkinApplyResult> ApplyToMojangAsync(CharacterItemViewModel skinVm)
     {
         var token = _identityStore.CurrentAccount?.AccessToken;
         if (string.IsNullOrEmpty(token))
             return new SkinApplyResult(false, false, "Access token is missing.", "Access token is missing.");
         // 1. Request to Mojang API to apply skin and cape
+        if (skinVm.FullSkinPath == null || !File.Exists(skinVm.FullSkinPath))
+        {
+            return new SkinApplyResult(false, false, "Skin file does not exist.");
+        }
         var skinStatus = await _mojangProfileService.UploadSkinAsync(
-            token, skinVM.FullSkinPath, skinVM.CoreModel.SkinVariant);
-        var capeStatus = string.IsNullOrEmpty(skinVM.CoreModel.CapeId)
+            token, skinVm.FullSkinPath, skinVm.CoreModel.SkinVariant);
+        var capeStatus = string.IsNullOrEmpty(skinVm.CoreModel.CapeId)
             ? await _mojangProfileService.HideCapeAsync(token)
-            : await _mojangProfileService.ApplyCapeAsync(token, skinVM.CoreModel.CapeId);
+            : await _mojangProfileService.ApplyCapeAsync(token, skinVm.CoreModel.CapeId);
         // 2. Define a local function to get error messages based on the status
         string? GetErrorMessage(NetworkRequestStatus status, string target) => status switch
         {
@@ -207,15 +210,15 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
     [RelayCommand]
     private void EditSkin(CharacterItemViewModel skin)
     {
-        var skinEditorVM = new SkinEditorViewModel(_characterService, _dialogService, _skinsStore, skin);;
-        _overlayService.Show(skinEditorVM);
+        var skinEditorVm = new SkinEditorViewModel(_characterService, _dialogService, _skinsStore, skin);
+        _overlayService.Show(skinEditorVm);
     }
 
     [RelayCommand]
     private void AddCharacter()
     {
-        var skinEditorVM = new SkinEditorViewModel(_characterService, _dialogService, _skinsStore);
-        _overlayService.Show(skinEditorVM);
+        var skinEditorVm = new SkinEditorViewModel(_characterService, _dialogService, _skinsStore);
+        _overlayService.Show(skinEditorVm);
     }
     
     public async void Receive(AccountLoggedMessage message)

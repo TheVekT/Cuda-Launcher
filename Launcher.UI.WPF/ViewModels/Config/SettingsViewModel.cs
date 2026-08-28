@@ -26,7 +26,7 @@ public partial class SettingsViewModel: ObservableObject
         _appStore = appStore;
     }
 
-    private async Task ExecuteImportTheme(object o)
+    private async Task ExecuteImportTheme(object _)
     {
         var openFileDialog = new Microsoft.Win32.OpenFileDialog
         {
@@ -39,7 +39,7 @@ public partial class SettingsViewModel: ObservableObject
         }   
     }
 
-    private async Task ExecuteImportLanguage(object o)
+    private async Task ExecuteImportLanguage(object _)
     {
         var openFileDialog = new Microsoft.Win32.OpenFileDialog
         {

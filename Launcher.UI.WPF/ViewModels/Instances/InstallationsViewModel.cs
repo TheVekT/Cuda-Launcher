@@ -36,9 +36,6 @@ public partial class InstallationsViewModel : ObservableObject,
     private readonly InstancesStore _instancesStore;
     private readonly SettingsStore _settingsStore;
     private readonly AppStore _appStore;
-
-    //Attributes
-    private readonly string _instancesFilePath;
     
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
@@ -172,15 +169,13 @@ public partial class InstallationsViewModel : ObservableObject,
     {
         if (e.PropertyName == nameof(AppStore.IsGameRunning) && _appStore.IsGameRunning)
         {
-            _instancesStore.ApplySort();
+            _instancesStore.ApplySort(InstancesStore.SelectedSortIndex);
             _instanceService.SaveInstances(_instancesStore.Instances);
         }
     }
 
     public async void Receive(InstanceCreatedMessage message)
     {
-        if (message?.Instance == null)
-            return;
         try
         {
             _overlayService.SetClosable(false);
@@ -189,7 +184,7 @@ public partial class InstallationsViewModel : ObservableObject,
             void UpdateUiState()
             {
                 _instancesStore.Instances.Add(message.Instance);
-                _instancesStore.ApplySort();
+                _instancesStore.ApplySort(InstancesStore.SelectedSortIndex);
 
                 if (!_appStore.IsCurrentInstanceProcessing)
                     _instancesStore.SelectedInstance = message.Instance;
@@ -212,7 +207,7 @@ public partial class InstallationsViewModel : ObservableObject,
         try
         {
             _instanceService.SaveInstances(_instancesStore.Instances);
-            _instancesStore.ApplySort();
+            _instancesStore.ApplySort(InstancesStore.SelectedSortIndex);
             Debug.WriteLine($"Modified Instance: {message.Instance.Name}");
         }
         catch (Exception e)
@@ -224,24 +219,25 @@ public partial class InstallationsViewModel : ObservableObject,
     //Commands
     [RelayCommand]
     private async Task DeleteInstance(object parameter) =>
-        await DeleteInstance(parameter as MinecraftInstance);
+        await DeleteInstance((parameter as MinecraftInstance)!);
     
     [RelayCommand]
     private async Task OpenSettings(object parameter)
     {
         var instance = parameter as MinecraftInstance;
         if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
-        var InstanceSettingsVM = new EditInstanceViewModel(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
-        _overlayService.Show(InstanceSettingsVM);
-        await InstanceSettingsVM.InitializeAsync();
+        if (instance == null) return;
+        var instanceSettingsVm = new EditInstanceViewModel(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        _overlayService.Show(instanceSettingsVm);
+        await instanceSettingsVm.InitializeAsync();
     }
     
     [RelayCommand]
     private async Task OpenAddVersion()
     {
-        var InstanceVM = new AddInstanceViewModel(_versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
-        _overlayService.Show(InstanceVM);
-        await InstanceVM.InitializeAsync();
+        var instanceVm = new AddInstanceViewModel(_versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        _overlayService.Show(instanceVm);
+        await instanceVm.InitializeAsync();
     }
     
     [RelayCommand]

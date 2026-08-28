@@ -17,7 +17,7 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     private object? _currentOverlayView;
     [ObservableProperty]
     private bool _isOverlayVisible;
-    private string _themeBannerPath;
+    private string? _themeBannerPath;
     [ObservableProperty]
     private bool _isDownloading;
     [ObservableProperty]
@@ -25,7 +25,7 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     [ObservableProperty]
     private bool _isDragDropActive;
     [ObservableProperty]
-    private object _currentView;
+    private object? _currentView;
     [ObservableProperty]
     private bool _showCompactPlayButton;
     [ObservableProperty]
@@ -66,7 +66,7 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
         }
     }
 
-    public string ThemeBannerPath
+    public string? ThemeBannerPath
     {
         get => _themeBannerPath;
         set
@@ -79,20 +79,19 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
             _themeBannerPath = targetPath; 
         
             OnPropertyChanged(nameof(CurrentBannerPath));
-            OnPropertyChanged(nameof(ThemeBannerPath));
+            OnPropertyChanged();
         }
     }
 
-    public string CurrentBannerPath
-    {
-        get => ThemeBannerPath;
-    }
+    public string? CurrentBannerPath 
+        => ThemeBannerPath;
+
     partial void OnCurrentOverlayViewChanged(object? value)
     {
         IsOverlayVisible = value != null;
     }
     
-    partial void OnCurrentViewChanged(object value)
+    partial void OnCurrentViewChanged(object? value)
     {
         ShowCompactPlayButton = !(value is PlayViewModel);
     }

@@ -26,30 +26,30 @@ public partial class EditInstanceViewModel : ObservableObject
     private readonly SettingsStore _settingsStore;
     
     //Attributes
-    public List<ModLoaderItem> AvailableLoaders { get; } = new()
-    {
+    public List<ModLoaderItem> AvailableLoaders { get; } =
+    [
         new("Vanilla", "150px-Grass_Block_JE7_BE6.png"),
         // new("OptiFine", "optifine-default.png"),
         new("Forge", "forge-default.png"),
         new("NeoForge", "neoforge-default.png"),
         new("Fabric", "fabric-default.png"),
         new("Quilt", "quilt-default.png")
-    };
+    ];
     
-    private MinecraftInstance _instance;
+    private readonly MinecraftInstance _instance;
     
     [ObservableProperty]
-    private string _selectedIcon;
+    private string? _selectedIcon;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SuggestedName))]
-    private string _selectedGameVersion;
+    private string? _selectedGameVersion;
     [ObservableProperty]
-    private string _installationName;
+    private string? _installationName;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SuggestedName))]
-    private ModLoaderItem _selectedModLoader;
+    private ModLoaderItem? _selectedModLoader;
     [ObservableProperty]
-    private string _selectedLoaderVersion;
+    private string? _selectedLoaderVersion;
     [ObservableProperty]
     private bool _useGlobalGameSettings;
     [ObservableProperty]
@@ -59,7 +59,7 @@ public partial class EditInstanceViewModel : ObservableObject
     [ObservableProperty]
     private bool _isGameFullscreen;
     [ObservableProperty]
-    private string _selectedResolution;
+    private string? _selectedResolution;
     [ObservableProperty]
     private bool _isEnableAutoBackups;
     [ObservableProperty]
@@ -67,7 +67,7 @@ public partial class EditInstanceViewModel : ObservableObject
     [ObservableProperty]
     private int _maxBackupCount;
     [ObservableProperty]
-    private string _JVMArguments;
+    private string? _jvmArguments;
     
     [ObservableProperty]
     private bool _isViewReady;
@@ -112,10 +112,10 @@ public partial class EditInstanceViewModel : ObservableObject
         }
         else
         {
-            SelectedMaxRam = _instance.GameSettings.AllocatedMemory.Value;
-            IsGameFullscreen = _instance.GameSettings.Fullscreen.Value;
+            SelectedMaxRam = _instance.GameSettings.AllocatedMemory!.Value;
+            IsGameFullscreen = _instance.GameSettings.Fullscreen!.Value;
             SelectedResolution = _instance.GameSettings.GameResolution;
-            JVMArguments = _instance.GameSettings.JvmArgs;
+            JvmArguments = _instance.GameSettings.JvmArgs;
         }
         UseGlobalBackupSettings = _instance.BackupSettings.SavesBackupSettings == BackupPolicy.Inherit;
         if (UseGlobalBackupSettings)
@@ -125,8 +125,8 @@ public partial class EditInstanceViewModel : ObservableObject
         else
         {
             IsEnableAutoBackups = _instance.BackupSettings.SavesBackupSettings == BackupPolicy.ForceOn;
-            SelectedBackupFrequency = _instance.BackupSettings.SavesBackupFrequency.Value;
-            MaxBackupCount = _instance.BackupSettings.SavesMaxBackups.Value;
+            SelectedBackupFrequency = _instance.BackupSettings.SavesBackupFrequency!.Value;
+            MaxBackupCount = _instance.BackupSettings.SavesMaxBackups!.Value;
         }
         
         string targetLoaderName = _instance.LoaderType.ToString();
@@ -150,18 +150,18 @@ public partial class EditInstanceViewModel : ObservableObject
         _instance.IconPath = !string.IsNullOrEmpty(SelectedIcon) 
             ? _iconsService.GetIconName(SelectedIcon) 
             : _iconsService.GetIconName(_instancesStore.IconList.FirstOrDefault() ?? "");
-        _instance.LoaderVersion = (SelectedModLoader.Name == "Vanilla") ? null : SelectedLoaderVersion;
-        _instance.GameSettings.AllocatedMemory = UseGlobalGameSettings ? null : (int?)SelectedMaxRam;
-        _instance.GameSettings.Fullscreen = UseGlobalGameSettings ? null : (bool?)IsGameFullscreen;
+        _instance.LoaderVersion = (SelectedModLoader?.Name == "Vanilla") ? null : SelectedLoaderVersion;
+        _instance.GameSettings.AllocatedMemory = UseGlobalGameSettings ? null : SelectedMaxRam;
+        _instance.GameSettings.Fullscreen = UseGlobalGameSettings ? null : IsGameFullscreen;
         _instance.GameSettings.GameResolution =
             UseGlobalGameSettings ? null : (IsGameFullscreen ? "Auto" : SelectedResolution);
-        _instance.GameSettings.JvmArgs = UseGlobalGameSettings ? null : JVMArguments;
+        _instance.GameSettings.JvmArgs = UseGlobalGameSettings ? null : JvmArguments;
         _instance.BackupSettings.SavesBackupSettings = UseGlobalBackupSettings
             ? BackupPolicy.Inherit
             : (IsEnableAutoBackups ? BackupPolicy.ForceOn : BackupPolicy.ForceOff);
         _instance.BackupSettings.SavesBackupFrequency =
-            UseGlobalBackupSettings ? null : (BackupFrequency?)SelectedBackupFrequency;
-        _instance.BackupSettings.SavesMaxBackups = UseGlobalBackupSettings ? null : (int?)MaxBackupCount;
+            UseGlobalBackupSettings ? null : SelectedBackupFrequency;
+        _instance.BackupSettings.SavesMaxBackups = UseGlobalBackupSettings ? null : MaxBackupCount;
         
         WeakReferenceMessenger.Default.Send(new InstanceUpdatedMessage(_instance)); 
         WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
@@ -172,7 +172,7 @@ public partial class EditInstanceViewModel : ObservableObject
         SelectedMaxRam = SettingsStore.SelectedMaxRam;
         IsGameFullscreen = SettingsStore.IsGameFullScreen;
         SelectedResolution = SettingsStore.SelectedResolution;
-        JVMArguments = SettingsStore.JVMArguments;
+        JvmArguments = SettingsStore.JvmArguments;
     }
     
     private void RefreshGlobalBackupSettings()
@@ -186,11 +186,11 @@ public partial class EditInstanceViewModel : ObservableObject
     {
         try
         {
-            var type = GetLoaderType(SelectedModLoader.Name);
+            var type = GetLoaderType(SelectedModLoader?.Name);
 
             if (type == GameLoaderType.Vanilla || string.IsNullOrEmpty(SelectedGameVersion))
             {
-                _dispatcherService.Invoke(() => 
+                await _dispatcherService.InvokeAsync(() => 
                 {
                     LoaderVersions.Clear();
                     SelectedLoaderVersion = null;
@@ -200,9 +200,9 @@ public partial class EditInstanceViewModel : ObservableObject
 
             var loadedVersions = await _versionService.GetLoaderVersionsAsync(type, SelectedGameVersion);
             var versionList = loadedVersions.ToList();
-            string currentSavedVersion = _selectedLoaderVersion;
+            var currentSavedVersion = SelectedLoaderVersion;
             
-            _dispatcherService.Invoke(() => 
+            await _dispatcherService.InvokeAsync(() => 
             {
                 LoaderVersions.ReplaceRange(versionList);
 
@@ -250,7 +250,7 @@ public partial class EditInstanceViewModel : ObservableObject
         get
         {
             if (string.IsNullOrEmpty(SelectedGameVersion)) return "New Installation";
-            return $"{SelectedModLoader.Name} {SelectedGameVersion}";
+            return $"{SelectedModLoader?.Name} {SelectedGameVersion}";
         }
     }
     

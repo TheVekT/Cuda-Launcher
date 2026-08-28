@@ -6,7 +6,6 @@ using Launcher.Core.Identity.Models;
 using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models.Shell;
-using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Services.Shell.Abstractions;
 using Launcher.UI.WPF.Stores;
 
@@ -28,7 +27,7 @@ public partial class LoginViewModel: ObservableObject
     [ObservableProperty]
     private bool _isLoggingIn;
     [ObservableProperty]
-    private int _accountCount = 0;
+    private int _accountCount;
 
     public LoginViewModel(IAuthService authService, 
         IAccountStorageService accountStorage,
@@ -45,7 +44,7 @@ public partial class LoginViewModel: ObservableObject
         AccountCount = _identityStore.Accounts.Count;
         
             
-        _identityStore.Accounts.CollectionChanged += (s, e) => 
+        _identityStore.Accounts.CollectionChanged += (_, _) => 
         {
             AccountCount = _identityStore.Accounts.Count;
         };
@@ -62,7 +61,6 @@ public partial class LoginViewModel: ObservableObject
                 UseShellExecute = true
             });
         }
-        return;
     }
         
     private void HandleDeleteAccount(UserAccount account)
@@ -74,7 +72,7 @@ public partial class LoginViewModel: ObservableObject
             
         if (isSelectedAccountToDelete && _identityStore.Accounts.Count > 0)
         {
-            _identityStore.CurrentAccount = _identityStore.Accounts.FirstOrDefault();;
+            _identityStore.CurrentAccount = _identityStore.Accounts.FirstOrDefault();
         }
         else if (_identityStore.Accounts.Count > 0)
         {

@@ -15,7 +15,6 @@ namespace Launcher.UI.WPF.Stores;
 
 public partial class SkinsStore : ObservableObject
 {
-    private readonly ISettingsService _settingsService;
     private readonly ICharacterManagerService _characterService;
     private readonly ILauncherPathsService _pathsService;
     private readonly IPreviewGeneratorService _previewGeneratorService;
@@ -25,7 +24,7 @@ public partial class SkinsStore : ObservableObject
 
     [ObservableProperty]
     [property: SettingProperty]
-    private CharacterItemViewModel _selectedSkin;
+    private CharacterItemViewModel? _selectedSkin;
 
     public SkinsStore(
         ISettingsService settingsService, 
@@ -33,12 +32,11 @@ public partial class SkinsStore : ObservableObject
         IPreviewGeneratorService previewGeneratorService,
         ILauncherPathsService pathsService)
     {
-        _settingsService = settingsService;
         _characterService = characterService;
         _pathsService = pathsService;
         _previewGeneratorService = previewGeneratorService;
         
-        _settingsService.Initialize(this);
+        settingsService.Initialize(this);
         
         WeakReferenceMessenger.Default.RegisterAll(this);
     }
@@ -50,29 +48,30 @@ public partial class SkinsStore : ObservableObject
     
         foreach (var coreModel in coreSkins)
         {
-            var itemVM = new CharacterItemViewModel(coreModel)
+            if (coreModel.SkinFileName != null)
             {
-                FullSkinPath = _characterService.GetFullSkinPath(coreModel.SkinFileName)
-            };
+                var itemVm = new CharacterItemViewModel(coreModel)
+                {
+                    FullSkinPath = _characterService.GetFullSkinPath(coreModel.SkinFileName)
+                };
 
-            if (!string.IsNullOrEmpty(coreModel.CapeId))
-            {
-                itemVM.FullCapePath = Path.Combine(_pathsService.CacheDirectory, "MojangAssets", $"{coreModel.CapeId}.png");
+                if (!string.IsNullOrEmpty(coreModel.CapeId))
+                {
+                    itemVm.FullCapePath = Path.Combine(_pathsService.CacheDirectory, "MojangAssets", $"{coreModel.CapeId}.png");
+                }
+                uiSkins.Add(itemVm);
             }
-            uiSkins.Add(itemVM);
         }
     
         Skins.ReplaceRange(uiSkins);
         _ = Generate3DPreviewsBackgroundAsync();
     }
     
-    public async Task DeleteSkin(CharacterItemViewModel skinVM)
+    public async Task DeleteSkin(CharacterItemViewModel skinVm)
     {
-        if (skinVM == null) return;
-
-        bool wasSelected = SelectedSkin == skinVM;
+        bool wasSelected = SelectedSkin == skinVm;
             
-        Skins.Remove(skinVM);
+        Skins.Remove(skinVm);
         
         var coreModelsToSave = Skins.Select(s => s.CoreModel).ToList();
         await _characterService.SaveCharactersAsync(coreModelsToSave);
@@ -85,41 +84,47 @@ public partial class SkinsStore : ObservableObject
     
     private async Task Generate3DPreviewsBackgroundAsync()
     {
-        foreach (var skinVM in Skins)
+        foreach (var skinVm in Skins)
         {
-            if (!string.IsNullOrEmpty(skinVM.Skin3DPreviewPath)) continue;
+            if (!string.IsNullOrEmpty(skinVm.Skin3DPreviewPath)) continue;
 
             try
             {
-                string previewPath = await _previewGeneratorService.Generate3DSkinSnapshotAsync(
-                    skinVM.FullSkinPath, 
-                    skinVM.FullCapePath, 
-                    skinVM.CoreModel.Id, 
-                    skinVM.CoreModel.SkinVariant == "slim");
+                if (skinVm.FullSkinPath != null)
+                {
+                    string? previewPath = await _previewGeneratorService.Generate3DSkinSnapshotAsync(
+                        skinVm.FullSkinPath, 
+                        skinVm.FullCapePath, 
+                        skinVm.CoreModel.Id, 
+                        skinVm.CoreModel.SkinVariant == "slim");
                 
-                skinVM.Skin3DPreviewPath = previewPath;
+                    skinVm.Skin3DPreviewPath = previewPath;
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[SkinsStore] Ошибка генерации превью для {skinVM.CoreModel.Name}: {ex.Message}");
+                Console.WriteLine($"[SkinsStore] Ошибка генерации превью для {skinVm.CoreModel.Name}: {ex.Message}");
             }
         }
     }
     
-    public async Task RegeneratePreviewAsync(CharacterItemViewModel skinVM)
+    public async Task RegeneratePreviewAsync(CharacterItemViewModel skinVm)
     {
-        skinVM.Skin3DPreviewPath = null!;
+        skinVm.Skin3DPreviewPath = null!;
 
         try
         {
-            string previewPath = await _previewGeneratorService.Generate3DSkinSnapshotAsync(
-                skinVM.FullSkinPath, 
-                skinVM.FullCapePath, 
-                skinVM.CoreModel.Id, 
-                skinVM.CoreModel.SkinVariant == "slim",
-                forceRegenerate: true);
+            if (skinVm.FullSkinPath != null)
+            {
+                string? previewPath = await _previewGeneratorService.Generate3DSkinSnapshotAsync(
+                    skinVm.FullSkinPath, 
+                    skinVm.FullCapePath, 
+                    skinVm.CoreModel.Id, 
+                    skinVm.CoreModel.SkinVariant == "slim",
+                    forceRegenerate: true);
             
-            skinVM.Skin3DPreviewPath = previewPath;
+                skinVm.Skin3DPreviewPath = previewPath;
+            }
         }
         catch (Exception ex)
         {

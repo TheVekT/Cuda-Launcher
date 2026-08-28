@@ -11,6 +11,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <SelfContained>true</SelfContained>
+    <NoWarn>$(NoWarn);CS0657</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Embedded\Web\skinview.html" />

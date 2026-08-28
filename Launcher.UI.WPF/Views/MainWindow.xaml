@@ -312,7 +312,7 @@
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <Button
                                             BorderThickness="{DynamicResource DefaultBorderThickness}"
-                                            Command="{Binding InstallationsVM.OpenInstanceFolderCommand}"
+                                            Command="{Binding InstallationsVm.OpenInstanceFolderCommand}"
                                             Height="35"
                                             Padding="0"
                                             Style="{StaticResource DefaultButtonStyle}"
@@ -321,12 +321,12 @@
                                             x:Name="OpenFolderButton">
                                             <Button.ContextMenu>
                                                 <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                                                    <MenuItem Command="{Binding InstallationsVM.OpenInstanceFolderCommand}" Header="{localization:Loc MainWindow_Footer_OpenFolder_ContextMenu_OpenInstanceFolder}" />
+                                                    <MenuItem Command="{Binding InstallationsVm.OpenInstanceFolderCommand}" Header="{localization:Loc MainWindow_Footer_OpenFolder_ContextMenu_OpenInstanceFolder}" />
 
-                                                    <MenuItem Command="{Binding InstallationsVM.OpenModsFolderCommand}" Header="{localization:Loc MainWindow_Footer_OpenFolder_ContextMenu_OpenInstanceModsFolder}" />
+                                                    <MenuItem Command="{Binding InstallationsVm.OpenModsFolderCommand}" Header="{localization:Loc MainWindow_Footer_OpenFolder_ContextMenu_OpenInstanceModsFolder}" />
 
                                                     <Separator />
-                                                    <MenuItem Command="{Binding InstallationsVM.OpenRootFolderCommand}" Header="{localization:Loc MainWindow_Footer_OpenFolder_ContextMenu_OpenRootMinecraftFolder}" />
+                                                    <MenuItem Command="{Binding InstallationsVm.OpenRootFolderCommand}" Header="{localization:Loc MainWindow_Footer_OpenFolder_ContextMenu_OpenRootMinecraftFolder}" />
                                                 </ContextMenu>
                                             </Button.ContextMenu>
                                         </Button>
@@ -345,7 +345,7 @@
                             </Border>
                         </Grid>
                         <Grid Grid.Row="0" x:Name="TabsContainer">
-                            <instances1:InstallationsView DataContext="{Binding InstallationsVM}">
+                            <instances1:InstallationsView DataContext="{Binding InstallationsVm}">
                                 <instances1:InstallationsView.Style>
                                     <Style TargetType="UserControl">
                                         <Setter Property="Visibility" Value="Collapsed" />
@@ -358,7 +358,7 @@
                                 </instances1:InstallationsView.Style>
                             </instances1:InstallationsView>
 
-                            <game1:PlayView DataContext="{Binding PlayVM}">
+                            <game1:PlayView DataContext="{Binding PlayVm}">
                                 <game1:PlayView.Style>
                                     <Style TargetType="UserControl">
                                         <Setter Property="Visibility" Value="Collapsed" />
@@ -371,7 +371,7 @@
                                 </game1:PlayView.Style>
                             </game1:PlayView>
 
-                            <game1:SkinsView DataContext="{Binding SkinsVM}">
+                            <game1:SkinsView DataContext="{Binding SkinsVm}">
                                 <game1:SkinsView.Style>
                                     <Style TargetType="UserControl">
                                         <Setter Property="Visibility" Value="Collapsed" />

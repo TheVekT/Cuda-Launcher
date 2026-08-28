@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Launcher.Infrastructure.Assets.Models;
 
-public class CharacterModel(string id, string name, string skinFileName, string? capeId, string skinVariant)
+public class CharacterModel(string id, string name, string? skinFileName, string? capeId, string skinVariant)
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = id;
@@ -11,7 +11,7 @@ public class CharacterModel(string id, string name, string skinFileName, string?
     public string Name { get; set; } = name;
 
     [JsonPropertyName("skinFileName")]
-    public string SkinFileName { get; set; } = skinFileName;
+    public string? SkinFileName { get; set; } = skinFileName;
 
     [JsonPropertyName("capeId")] 
     public string? CapeId { get; set; } = capeId;

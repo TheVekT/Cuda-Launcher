@@ -340,7 +340,7 @@
                                     Margin="0,5"
                                     Style="{StaticResource DefaultTextInputStyle}"
                                     Tag="JVM Arguments"
-                                    Text="{Binding SettingsStore.JVMArguments}" />
+                                    Text="{Binding SettingsStore.JvmArguments}" />
                             </StackPanel>
                             <StackPanel
                                 Background="Transparent"

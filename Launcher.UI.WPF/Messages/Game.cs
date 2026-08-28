@@ -1,3 +1,3 @@
 namespace Launcher.UI.WPF.Messages;
 
-public record LaunchGameRequestMessage();
+public record LaunchGameRequestMessage;

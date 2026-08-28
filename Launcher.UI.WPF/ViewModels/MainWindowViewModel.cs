@@ -12,13 +12,10 @@ using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.System.Abstractions;
 using Launcher.Infrastructure.Integrations.Abstractions;
-using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models.Shell;
-using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Services.Customization;
-using Launcher.UI.WPF.Services.Shell;
 using Launcher.UI.WPF.Services.Shell.Abstractions;
 using Launcher.UI.WPF.Services.Windows.Abstractions;
 using Launcher.UI.WPF.Stores;
@@ -38,7 +35,6 @@ public partial class MainWindowViewModel : ObservableObject,
     //Services
     private readonly IGameVersionService _versionService;
     private readonly ILaunchService _launchService;
-    private readonly IDiscordService _discordService;
     private readonly IImportOrchestratorService _importOrchestratorService;
     private readonly IOverlayService _overlayService;
     private readonly INavigationService _navigationService;
@@ -52,12 +48,13 @@ public partial class MainWindowViewModel : ObservableObject,
     private readonly SettingsStore _settingsStore;
     private readonly InstancesStore _instancesStore;
     private readonly AppStore _appStore;
+    // ReSharper disable once NotAccessedField.Local
     private readonly SkinsStore _skinsStore;
     
     //ViewModels
-    private readonly PlayViewModel _playVM;
-    private readonly InstallationsViewModel _installationsVM;
-    private readonly SkinsViewModel _skinsVM;
+    private readonly PlayViewModel _playVm;
+    private readonly InstallationsViewModel _installationsVm;
+    private readonly SkinsViewModel _skinsVm;
     private readonly LoginViewModel _loginViewModel;
     private readonly SettingsViewModel _settingsViewModel;
     
@@ -65,9 +62,9 @@ public partial class MainWindowViewModel : ObservableObject,
     //Public ViewModels 
     public SettingsViewModel SettingsViewModel => _settingsViewModel;
     public LoginViewModel LoginViewModel => _loginViewModel;
-    public PlayViewModel PlayVM => _playVM;
-    public InstallationsViewModel InstallationsVM => _installationsVM;
-    public SkinsViewModel SkinsVM => _skinsVM;
+    public PlayViewModel PlayVm => _playVm;
+    public InstallationsViewModel InstallationsVm => _installationsVm;
+    public SkinsViewModel SkinsVm => _skinsVm;
     
     public InstancesStore InstancesStore => _instancesStore;
     public IdentityStore IdentityStore => _identityStore;
@@ -76,6 +73,7 @@ public partial class MainWindowViewModel : ObservableObject,
     private Process? _currentGameProcess;
     [ObservableProperty]
     private bool _isEnabledInstancesComboBox = true;
+    
     //public attributes
     public AppStore AppStore => _appStore;
     
@@ -83,9 +81,9 @@ public partial class MainWindowViewModel : ObservableObject,
 
     public async Task InitializeAsync()
     {
-        await _installationsVM.InitializeAsync();
+        await _installationsVm.InitializeAsync();
         await _identityStore.RefreshAllAccountsAsync();
-        await _skinsVM.SyncWithMojangAsync(_identityStore.CurrentAccount?.AccessToken);
+        await _skinsVm.SyncWithMojangAsync(_identityStore.CurrentAccount?.AccessToken);
         _ = Task.Run(async () => await _versionService.GetGameVersionsByTypeAsync(GameLoaderType.Vanilla));
 
         bool isOnline = await _connectivityService.CheckInternetAccessAsync();
@@ -113,15 +111,14 @@ public partial class MainWindowViewModel : ObservableObject,
         InstancesStore instancesStore,
         AppStore appStore,
         SkinsStore skinsStore,
-        PlayViewModel playVM, 
-        InstallationsViewModel installationsVM, 
-        SkinsViewModel skinsVM,
+        PlayViewModel playVm, 
+        InstallationsViewModel installationsVm, 
+        SkinsViewModel skinsVm,
         LoginViewModel loginViewModel,
         SettingsViewModel settingsViewModel)
     {
         _versionService = versionService;
         _launchService = launchService;
-        _discordService = discordService;
         _importOrchestratorService = importOrchestratorService;
         _overlayService = overlayService;
         _navigationService = navigationService;
@@ -138,19 +135,19 @@ public partial class MainWindowViewModel : ObservableObject,
         _skinsStore = skinsStore;
         
         //ViewModels
-        _playVM = playVM;
-        _installationsVM = installationsVM;
-        _skinsVM = skinsVM;
+        _playVm = playVm;
+        _installationsVm = installationsVm;
+        _skinsVm = skinsVm;
         _loginViewModel = loginViewModel;
         _settingsViewModel = settingsViewModel;
         
         
-        _discordService.Initialize(Core.Common.Constants.LauncherConstants.DiscordAppId);
+        discordService.Initialize(Core.Common.Constants.LauncherConstants.DiscordAppId);
         _overlayService.RegisterOverlaySetter(view => _appStore.CurrentOverlayView = view);
         _navigationService.RegisterNavigationHandler(view => AppStore.CurrentView = view);
         _launchService.GameCrashed += OnGameCrashed;
         
-        _navigationService.Navigate(_playVM);
+        _navigationService.Navigate(_playVm);
         
         WeakReferenceMessenger.Default.RegisterAll(this);
     }
@@ -314,7 +311,7 @@ public partial class MainWindowViewModel : ObservableObject,
         
         if (files != null && files.Length > 0)
         {
-            using var cts = new CancellationTokenSource();
+            var cts = new CancellationTokenSource();
             
             var progressVm = new ProgressViewModel(
                 onHide: () => _appStore.IsOverlayVisible = false, 
@@ -393,9 +390,9 @@ public partial class MainWindowViewModel : ObservableObject,
     {
         switch (pageName)
         {
-            case "Play": _navigationService.Navigate(_playVM); break;
-            case "Installations": _navigationService.Navigate(_installationsVM); break;
-            case "Skins": _navigationService.Navigate(_skinsVM); break;
+            case "Play": _navigationService.Navigate(_playVm); break;
+            case "Installations": _navigationService.Navigate(_installationsVm); break;
+            case "Skins": _navigationService.Navigate(_skinsVm); break;
         }
     }
 

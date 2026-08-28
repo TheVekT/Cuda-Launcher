@@ -20,10 +20,8 @@ public partial class SettingsStore: ObservableObject,
 {
     //Services
     private readonly IThemeService _themeService;
-    private readonly ISysInfoService _sysInfoService;
-    private readonly ISettingsService _settingsService;
-    
-    
+
+
     //General settings
     
     [ObservableProperty]
@@ -64,11 +62,11 @@ public partial class SettingsStore: ObservableObject,
     private int _maxBackupCount;
     [ObservableProperty]
     [property: SettingProperty]
-    private string _JVMArguments;
+    private string _jvmArguments;
     
     //Localization Settings
     
-    private LanguageModel _selectedLanguage;
+    private LanguageModel? _selectedLanguage;
     
     //Theme Settings
     
@@ -77,24 +75,21 @@ public partial class SettingsStore: ObservableObject,
     private string _currentThemePath;
     
     //Collections
-    public ObservableRangeCollection<ThemeModel> AvailableThemes { get; set; } = new ();
-    public ObservableRangeCollection<LanguageModel> AvailableLanguages { get; set; } = new ();
-    public ObservableCollection<string> AvailableResolutions { get; set; } = new ();
+    public ObservableRangeCollection<ThemeModel> AvailableThemes { get; set; } = [];
+    public ObservableRangeCollection<LanguageModel> AvailableLanguages { get; set; } = [];
+    public ObservableCollection<string> AvailableResolutions { get; set; } = ["Auto"];
     
     public IEnumerable<BackupFrequency> BackupFrequencyValues => Enum.GetValues(typeof(BackupFrequency)).Cast<BackupFrequency>();
     
     public SettingsStore(IThemeService themeService, ISysInfoService sysInfoService, ISettingsService settingsService)
     {
         _themeService = themeService;
-        _sysInfoService = sysInfoService;
-        _settingsService = settingsService;
         
-        // 1. Загружаем доступные темы в список
         var themes = _themeService.ReloadThemes();
         AvailableThemes.ReplaceRange(themes);
 
-        MaxPhysicalRam = _sysInfoService.GetTotalRAMInMB();
-        var avaliableRes = _sysInfoService.GetPrimaryMonitorResolutions();
+        MaxPhysicalRam = sysInfoService.GetTotalRAMInMB();
+        var avaliableRes = sysInfoService.GetPrimaryMonitorResolutions();
         AvailableResolutions.Clear();
         AvailableResolutions.Add("Auto");
         foreach (var res in avaliableRes){
@@ -104,7 +99,7 @@ public partial class SettingsStore: ObservableObject,
         var langs = LocalizationService.Instance.GetAvailableLanguages();
         AvailableLanguages.ReplaceRange(langs);
         
-        SelectedLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == "en-US") ?? AvailableLanguages.FirstOrDefault();
+        SelectedLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == "en-US") ?? AvailableLanguages.FirstOrDefault()!;
         
         _isKeepLauncherOpen = false;
         _isEnableAutoUpdates = true;
@@ -114,15 +109,15 @@ public partial class SettingsStore: ObservableObject,
         _selectedMaxRam = MaxPhysicalRam > 16000 ? 4096 : 2048;
         _isEnableSnapshots = false;
         _isGameFullScreen = false;
-        _selectedResolution = AvailableResolutions.FirstOrDefault();
+        _selectedResolution = AvailableResolutions.FirstOrDefault()!;
         _isEnableAutoBackups = true;
         _selectedBackupFrequency = BackupFrequency.Weekly;
         _maxBackupCount = 5;
-        _JVMArguments = "";
+        _jvmArguments = "";
         
         _currentThemePath = "default-dark.zip";
         
-        _settingsService.Initialize(this);
+        settingsService.Initialize(this);
         
         _themeService.ChangeTheme(_currentThemePath);
         
@@ -139,29 +134,36 @@ public partial class SettingsStore: ObservableObject,
     
     public void Receive(LanguageImportedMessage message)
     {
-        var lastLangCode = SelectedLanguage.Code;
+        var lastLangCode = SelectedLanguage?.Code;
         var langs = LocalizationService.Instance.GetAvailableLanguages();
         AvailableLanguages.ReplaceRange(langs);
-        SelectedLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == lastLangCode);
+
+        var lang = AvailableLanguages.FirstOrDefault(l => l.Code == lastLangCode);
+        if (lang != null)
+        {
+            SelectedLanguage = lang;
+        }
+        else
+        {
+            SelectedLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == "en-US") ?? AvailableLanguages.FirstOrDefault()!;
+        }
     }
     
     
     //Getters and Setters
 
     [SettingProperty]
-    public LanguageModel SelectedLanguage
+    public LanguageModel? SelectedLanguage
     {
         get => _selectedLanguage;
         set
         {
-            if (value == null) return;
-            
-            var actualLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == value.Code) ?? AvailableLanguages.FirstOrDefault();
+            var actualLanguage = AvailableLanguages.FirstOrDefault(l => l.Code == value?.Code) ?? AvailableLanguages.FirstOrDefault();
 
-            if (_selectedLanguage != actualLanguage)
+            if (_selectedLanguage != actualLanguage && actualLanguage != null)
             {
                 _selectedLanguage = actualLanguage;
-                OnPropertyChanged(nameof(SelectedLanguage));
+                OnPropertyChanged();
                 Console.WriteLine($"Selected language: {actualLanguage.Name}, code: {actualLanguage.Code}");
                 LocalizationService.Instance.LoadLanguage(actualLanguage.Code);
             }
@@ -170,7 +172,7 @@ public partial class SettingsStore: ObservableObject,
     
     partial void OnCurrentThemePathChanged(string value)
     {
-        _themeService.ChangeTheme(_currentThemePath);
+        _themeService.ChangeTheme(value);
     }
     
     [SettingProperty]
@@ -182,7 +184,7 @@ public partial class SettingsStore: ObservableObject,
             if (Math.Abs(_uiScale - value) >= 0.01)
             {
                 _uiScale = value; 
-                OnPropertyChanged(nameof(UiScale));
+                OnPropertyChanged();
             }
         }
     }

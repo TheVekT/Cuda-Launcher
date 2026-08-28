@@ -5,8 +5,8 @@ namespace Launcher.UI.WPF.ViewModels.Game.Items;
 public partial class CapeItemViewModel(
     string id,
     string alias,
-    string localImagePath,
-    string cape2DPreviewPath,
+    string? localImagePath,
+    string? cape2DPreviewPath,
     bool isActive)
     : ObservableObject
 {
@@ -17,10 +17,10 @@ public partial class CapeItemViewModel(
     private string _alias = alias;
     
     [ObservableProperty] 
-    private string _localImagePath = localImagePath;
+    private string? _localImagePath = localImagePath;
     
     [ObservableProperty] 
-    private string _cape2DPreviewPath = cape2DPreviewPath;
+    private string? _cape2DPreviewPath = cape2DPreviewPath;
     
     [ObservableProperty] 
     private bool _isActive = isActive;
