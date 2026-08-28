@@ -27,8 +27,10 @@ public class AssetsesExtractionService(ILauncherPathsService pathsService) : IAs
 
     private void RestoreFiles(string targetDirectory, string[] fileNames)
     {
-        var assembly = Assembly.GetExecutingAssembly();
-        var allResources = assembly.GetManifestResourceNames();
+        var assemblies = new[] { Assembly.GetEntryAssembly(), Assembly.GetExecutingAssembly() }
+            .OfType<Assembly>()
+            .Distinct()
+            .ToArray();
 
         if (!Directory.Exists(targetDirectory))
         {
@@ -38,20 +40,32 @@ public class AssetsesExtractionService(ILauncherPathsService pathsService) : IAs
         foreach (var fileName in fileNames)
         {
             var destPath = Path.Combine(targetDirectory, fileName);
-            var resourceName = allResources.FirstOrDefault(r => r.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
-
-            if (!string.IsNullOrEmpty(resourceName))
+            
+            Stream? stream = null;
+            foreach (var assembly in assemblies)
             {
-                using var stream = assembly.GetManifestResourceStream(resourceName);
-                if (stream == null) continue;
+                var resourceName = assembly.GetManifestResourceNames()
+                    .FirstOrDefault(r => r.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
 
-                var fileInfo = new FileInfo(destPath);
-                if (!fileInfo.Exists || fileInfo.Length != stream.Length)
+                if (!string.IsNullOrEmpty(resourceName))
                 {
-                    using var fileStream = File.Create(destPath);
-                    stream.CopyTo(fileStream);
-                    
-                    System.Diagnostics.Debug.WriteLine($"[Assets] Restored or Updated: {fileName}");
+                    stream = assembly.GetManifestResourceStream(resourceName);
+                    if (stream != null) break;
+                }
+            }
+
+            if (stream != null)
+            {
+                using (stream)
+                {
+                    var fileInfo = new FileInfo(destPath);
+                    if (!fileInfo.Exists || fileInfo.Length != stream.Length)
+                    {
+                        using var fileStream = File.Create(destPath);
+                        stream.CopyTo(fileStream);
+                        
+                        System.Diagnostics.Debug.WriteLine($"[Assets] Restored or Updated: {fileName}");
+                    }
                 }
             }
             else
