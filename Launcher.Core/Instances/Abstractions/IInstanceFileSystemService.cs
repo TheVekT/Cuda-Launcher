@@ -15,8 +15,8 @@ public interface IInstanceFileSystemService
     void OpenInstanceModsFolder(MinecraftInstance? instance);
     void OpenRootMinecraftFolder();
     
-    Task ImportModAsync(MinecraftInstance instance, string sourceFilePath);
-    Task ImportResourcePackAsync(MinecraftInstance instance, string sourceFilePath);
-    Task ImportShaderPackAsync(MinecraftInstance instance, string sourceFilePath);
-    Task ImportSaveAsync(MinecraftInstance instance, string sourceZipPath);
+    Task ImportModAsync(MinecraftInstance? instance, string sourceFilePath);
+    Task ImportResourcePackAsync(MinecraftInstance? instance, string sourceFilePath);
+    Task ImportShaderPackAsync(MinecraftInstance? instance, string sourceFilePath);
+    Task ImportSaveAsync(MinecraftInstance? instance, string sourceZipPath);
 }

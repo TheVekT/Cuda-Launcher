@@ -17,7 +17,7 @@ public class ImportOrchestratorService(
     IThemeService themeService)
     : IImportOrchestratorService
 {
-    public async Task<int> ProcessDroppedFilesAsync(string[] files, MinecraftInstance currentInstance, IProgress<(double Percent, string FileName)> progress, CancellationToken token)
+    public async Task<int> ProcessDroppedFilesAsync(string[] files, MinecraftInstance? currentInstance, IProgress<(double Percent, string FileName)> progress, CancellationToken token)
     {
         int totalFiles = files.Length;
         int processedFiles = 0;

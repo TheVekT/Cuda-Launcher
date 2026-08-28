@@ -1,5 +1,4 @@
 using System.Windows;
-using System.Windows.Controls;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models.Shell;

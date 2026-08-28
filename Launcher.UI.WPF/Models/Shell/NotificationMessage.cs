@@ -1,15 +1,36 @@
-using Launcher.UI.WPF.Helpers;
+using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.UI.WPF.Helpers.Enums;
+using Launcher.UI.WPF.Services.Customization;
 
 namespace Launcher.UI.WPF.Models.Shell;
 
-public class NotificationMessage
+public class NotificationMessage : ObservableObject
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
-    
-    public string Title { get; set; } = string.Empty;
-    public string Message { get; set; } = string.Empty;
-    public NotificationType Type { get; set; }
-    
-    public double DurationSeconds { get; set; } 
+    private readonly LocalizableText _rawTitle;
+    private readonly LocalizableText _rawMessage;
+
+    public Guid Id { get; } = Guid.NewGuid();
+    public NotificationType Type { get; init; }
+
+    public string Title => _rawTitle.Resolve();
+    public string Message => _rawMessage.Resolve();
+
+    public NotificationMessage(LocalizableText title, LocalizableText message, NotificationType type)
+    {
+        _rawTitle = title;
+        _rawMessage = message;
+        Type = type;
+        
+        PropertyChangedEventManager.AddHandler(
+            LocalizationService.Instance, 
+            OnLocalizationChanged, 
+            string.Empty);
+    }
+
+    private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(Message));
+    }
 }

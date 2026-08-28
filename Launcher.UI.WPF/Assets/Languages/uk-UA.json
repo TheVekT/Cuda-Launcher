@@ -230,6 +230,7 @@
     "Errors.CantInstallVersion.Desc": "Не вдалося встановити файли для {0}. Перевірте підключення до інтернету.",
     "Errors.CantInstallMods.Title": "Неможливо встановити моди",
     "Errors.CantInstallMods.Desc": "Не вдалося встановити моди для {0}. Перевірте підключення до інтернету.",
-    "Errors.LaunchError.Title": "Помилка запуску"
+    "Errors.LaunchError.Title": "Помилка запуску",
+    "Errors.LaunchError.Desc": "Невідома помилка: {0}"
   }
 }

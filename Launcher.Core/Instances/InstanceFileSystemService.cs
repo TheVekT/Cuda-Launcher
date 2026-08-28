@@ -44,23 +44,31 @@ public class InstanceFileSystemService : IInstanceFileSystemService
         return Path.Combine(_instancesBasePath, instance.Id);
     }
 
-    public async Task ImportModAsync(MinecraftInstance instance, string sourceFilePath)
+    public async Task ImportModAsync(MinecraftInstance? instance, string sourceFilePath)
     {
+        if (instance == null) 
+            throw new ArgumentNullException(nameof(instance));
         await CopyFileToInstanceFolderAsync(instance, "mods", sourceFilePath);
     }
 
-    public async Task ImportResourcePackAsync(MinecraftInstance instance, string sourceFilePath)
+    public async Task ImportResourcePackAsync(MinecraftInstance? instance, string sourceFilePath)
     {
+        if (instance == null) 
+            throw new ArgumentNullException(nameof(instance));
         await CopyFileToInstanceFolderAsync(instance, "resourcepacks", sourceFilePath);
     }
 
-    public async Task ImportShaderPackAsync(MinecraftInstance instance, string sourceFilePath)
+    public async Task ImportShaderPackAsync(MinecraftInstance? instance, string sourceFilePath)
     {
+        if (instance == null) 
+            throw new ArgumentNullException(nameof(instance));
         await CopyFileToInstanceFolderAsync(instance, "shaderpacks", sourceFilePath);
     }
 
-    public async Task ImportSaveAsync(MinecraftInstance instance, string sourceZipPath)
+    public async Task ImportSaveAsync(MinecraftInstance? instance, string sourceZipPath)
     {
+        if (instance == null) 
+            throw new ArgumentNullException(nameof(instance));
         var targetDir = Path.Combine(GetInstanceRootPath(instance), "saves");
         CreateDir(targetDir);
 

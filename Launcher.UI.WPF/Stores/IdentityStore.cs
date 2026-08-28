@@ -8,6 +8,7 @@ using Launcher.Infrastructure.Config.Models;
 using Launcher.UI.WPF.Helpers.Collections;
 using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Models.Shell;
 using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Services.Shell.Abstractions;
 using Launcher.UI.WPF.Services.Windows.Abstractions;
@@ -115,9 +116,9 @@ public partial class IdentityStore : ObservableObject
                     else if (Accounts.Count == 0)
                         CurrentAccount = null;
                 });
-                var title = LocalizationService.Instance[LocKey.Info_MojangTokenExpired_Title];
-                var description = LocalizationService.Instance[LocKey.Info_MojangTokenExpired_Desc];
-                _notificationService.ShowInfo(title, string.Format(description, acc.Username));
+                var title = LocalizableText.Key(LocKey.Info_MojangTokenExpired_Title);
+                var description = LocalizableText.Key(LocKey.Info_MojangTokenExpired_Desc, acc.Username);
+                _notificationService.ShowInfo(title, description);
             }
             catch (Exception ex)
             {

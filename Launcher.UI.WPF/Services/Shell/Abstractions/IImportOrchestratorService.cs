@@ -6,7 +6,7 @@ public interface IImportOrchestratorService
 {
     Task<int> ProcessDroppedFilesAsync(
         string[] files, 
-        MinecraftInstance currentInstance, 
+        MinecraftInstance? currentInstance, 
         IProgress<(double Percent, string FileName)> progress, 
         CancellationToken token);
 }

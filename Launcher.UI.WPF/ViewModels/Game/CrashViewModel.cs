@@ -7,32 +7,27 @@ using Launcher.UI.WPF.Services.Windows.Abstractions;
 
 namespace Launcher.UI.WPF.ViewModels.Game;
 
-public partial class CrashViewModel: ObservableObject
+public partial class CrashViewModel(
+    IClipboardService clipboardService,
+    int exitCode,
+    string stackTrace,
+    string? crashReportFilePath)
+    : ObservableObject
 {
-    private readonly IClipboardService _clipboardService;
-    
-    private readonly string _crashReportFilePath;
+    // ReSharper disable once UnusedMember.Local
+    private readonly string? _crashReportFilePath = crashReportFilePath;
     
     [ObservableProperty]
-    private int _exitCode;
+    private int _exitCode = exitCode;
     [ObservableProperty]
-    private string _stackTrace;
+    private string _stackTrace = stackTrace;
     [ObservableProperty]
-    private string _crashReportFile;
-    
-    public CrashViewModel(IClipboardService clipboardService, int exitCode, string stackTrace, string crashReportFilePath)
-    {
-        _clipboardService = clipboardService;
-        _exitCode = exitCode;
-        _stackTrace = stackTrace;
-        _crashReportFilePath = crashReportFilePath;
-        _crashReportFile = Path.GetFileName(crashReportFilePath);
-    }
-    
+    private string? _crashReportFile = crashReportFilePath != null ? Path.GetFileName(crashReportFilePath) : null;
+
 
     [RelayCommand]
     private void CopyStackTrace() =>
-        _clipboardService.SetText(StackTrace);
+        clipboardService.SetText(StackTrace);
     
     [RelayCommand]
     private void CloseSelf() =>

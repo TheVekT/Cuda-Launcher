@@ -1,7 +1,5 @@
 using System.Collections.ObjectModel;
-using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Helpers.Enums;
-using Launcher.UI.WPF.Models;
 using Launcher.UI.WPF.Models.Shell;
 
 namespace Launcher.UI.WPF.Services.Shell.Abstractions;
@@ -10,11 +8,11 @@ public interface INotificationService
 {
     ObservableCollection<NotificationMessage> Notifications { get; }
 
-    void Show(string title, string message, NotificationType type, double durationSeconds = 5);
-    void ShowSuccess(string title, string message, double durationSeconds = 5);
-    void ShowError(string title, string message, double durationSeconds = 7);
-    void ShowWarning(string title, string message, double durationSeconds = 6);
-    void ShowInfo(string title, string message, double durationSeconds = 5);
+    void Show(LocalizableText title, LocalizableText message, NotificationType type);
+    void ShowSuccess(LocalizableText title, LocalizableText message);
+    void ShowError(LocalizableText title, LocalizableText message);
+    void ShowWarning(LocalizableText title, LocalizableText message);
+    void ShowInfo(LocalizableText title, LocalizableText message);
     
     void Remove(Guid id);
 }

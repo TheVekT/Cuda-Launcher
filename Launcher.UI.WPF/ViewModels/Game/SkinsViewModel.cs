@@ -10,6 +10,7 @@ using Launcher.Infrastructure.Assets.Models;
 using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models.Game;
+using Launcher.UI.WPF.Models.Shell;
 using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Services.Shell.Abstractions;
 using Launcher.UI.WPF.Services.Rendering.Abstractions;
@@ -179,8 +180,8 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
                 ? LocKey.Warnings_ApplyMojangCharacter_RateLimit
                 : LocKey.Warnings_ApplyMojangCharacter_Unknown;
             _notificationService.ShowWarning(
-                LocalizationService.Instance[titleKey], 
-                LocalizationService.Instance[descKey]);
+                LocalizableText.Key(titleKey),
+                LocalizableText.Key(descKey));
         }
         return result;
     }

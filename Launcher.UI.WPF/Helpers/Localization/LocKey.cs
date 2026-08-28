@@ -3,6 +3,7 @@ namespace Launcher.UI.WPF.Helpers.Localization;
 
 public enum LocKey
 {
+    None,
     MainWindow_Title,
     MainWindow_Header_LogoText,
     MainWindow_Header_LoginButton,
@@ -228,4 +229,5 @@ public enum LocKey
     Errors_CantInstallMods_Title,
     Errors_CantInstallMods_Desc,
     Errors_LaunchError_Title,
+    Errors_LaunchError_Desc,
 }

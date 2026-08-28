@@ -10,33 +10,27 @@ public class NotificationService(IDispatcherService dispatcherService) : INotifi
 {
     public ObservableCollection<NotificationMessage> Notifications { get; } = new();
 
-    public void Show(string title, string message, NotificationType type, double durationSeconds = 5)
+    public void Show(LocalizableText title, LocalizableText message, NotificationType type)
     {
-        var notification = new NotificationMessage
-        {
-            Title = title,
-            Message = message,
-            Type = type,
-            DurationSeconds = durationSeconds
-        };
-        
+        var notification = new NotificationMessage(title, message, type);
+
         dispatcherService.InvokeAsync(() =>
         {
             Notifications.Add(notification);
         });
     }
     
-    public void ShowSuccess(string title, string message, double durationSeconds = 5) => 
-        Show(title, message, NotificationType.Success, durationSeconds);
+    public void ShowSuccess(LocalizableText title, LocalizableText message) => 
+        Show(title, message, NotificationType.Success);
 
-    public void ShowError(string title, string message, double durationSeconds = 7) => 
-        Show(title, message, NotificationType.Error, durationSeconds);
+    public void ShowError(LocalizableText title, LocalizableText message) => 
+        Show(title, message, NotificationType.Error);
 
-    public void ShowWarning(string title, string message, double durationSeconds = 6) => 
-        Show(title, message, NotificationType.Warning, durationSeconds);
+    public void ShowWarning(LocalizableText title, LocalizableText message) => 
+        Show(title, message, NotificationType.Warning);
 
-    public void ShowInfo(string title, string message, double durationSeconds = 5) => 
-        Show(title, message, NotificationType.Info, durationSeconds);
+    public void ShowInfo(LocalizableText title, LocalizableText message) => 
+        Show(title, message, NotificationType.Info);
 
     public void Remove(Guid id)
     {

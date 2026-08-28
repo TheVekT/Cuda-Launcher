@@ -31,7 +31,7 @@
     xmlns:instances1="clr-namespace:Launcher.UI.WPF.Views.Instances"
     xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:notifications1="clr-namespace:Launcher.UI.WPF.Views.Common.Notifications"
+    xmlns:notifications="clr-namespace:Launcher.UI.WPF.Views.Common.Notifications"
     xmlns:settings1="clr-namespace:Launcher.UI.WPF.ViewModels.Common"
     xmlns:settings2="clr-namespace:Launcher.UI.WPF.Views.Settings"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
@@ -456,7 +456,7 @@
                                             <Setter Property="ContentTemplate">
                                                 <Setter.Value>
                                                     <DataTemplate>
-                                                        <notifications1:InfoNotify />
+                                                        <notifications:InfoNotify />
                                                     </DataTemplate>
                                                 </Setter.Value>
                                             </Setter>
@@ -466,7 +466,7 @@
                                             <Setter Property="ContentTemplate">
                                                 <Setter.Value>
                                                     <DataTemplate>
-                                                        <notifications1:SuccessNotify />
+                                                        <notifications:SuccessNotify />
                                                     </DataTemplate>
                                                 </Setter.Value>
                                             </Setter>
@@ -476,7 +476,7 @@
                                             <Setter Property="ContentTemplate">
                                                 <Setter.Value>
                                                     <DataTemplate>
-                                                        <notifications1:WarnNotify />
+                                                        <notifications:WarnNotify />
                                                     </DataTemplate>
                                                 </Setter.Value>
                                             </Setter>
@@ -486,7 +486,7 @@
                                             <Setter Property="ContentTemplate">
                                                 <Setter.Value>
                                                     <DataTemplate>
-                                                        <notifications1:ErrorNotify />
+                                                        <notifications:ErrorNotify />
                                                     </DataTemplate>
                                                 </Setter.Value>
                                             </Setter>

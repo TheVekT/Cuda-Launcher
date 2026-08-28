@@ -102,6 +102,16 @@
                     Grid.Row="3"
                     Margin="0,0,0,10"
                     Orientation="Horizontal">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CrashReportFile}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                            <Setter Property="Visibility" Value="Visible" />
+                        </Style>
+                    </StackPanel.Style>
                     <TextBlock
                         FontSize="14"
                         Foreground="{DynamicResource ForegroundPrimaryBrush}"

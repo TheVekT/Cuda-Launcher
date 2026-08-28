@@ -15,6 +15,7 @@ using Launcher.Infrastructure.Integrations.Abstractions;
 using Launcher.UI.WPF.Helpers;
 using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Models.Shell;
 using Launcher.UI.WPF.Services;
 using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Services.Shell;
@@ -90,8 +91,8 @@ public partial class MainWindowViewModel : ObservableObject,
         bool isOnline = await _connectivityService.CheckInternetAccessAsync();
         if (!isOnline)
         {
-            var title = LocalizationService.Instance[LocKey.Warnings_NoInternetTitle] ?? "No Internet Connection";
-            var desc = LocalizationService.Instance[LocKey.Warnings_NoInternetDesc] ?? "You are currently offline. Some features and online versions will be unavailable.";
+            var title = LocalizableText.Key(LocKey.Warnings_NoInternetTitle);
+            var desc = LocalizableText.Key(LocKey.Warnings_NoInternetDesc);
             _notificationService.ShowWarning(title, desc);
         }
     }
@@ -156,8 +157,8 @@ public partial class MainWindowViewModel : ObservableObject,
     
     private void OnGameCrashed(MinecraftInstance instance, GameCrashReport report)
     {
-        var crashVM = new CrashViewModel(_clipboardService, report.ExitCode, report.StackTrace, report.CrashReportFilePath);
-        _overlayService.Show(crashVM);
+        var crashVm = new CrashViewModel(_clipboardService, report.ExitCode, report.StackTrace, report.CrashReportFilePath);
+        _overlayService.Show(crashVm);
     }
     
     private async Task HandlePlayButtonPress()
@@ -170,7 +171,7 @@ public partial class MainWindowViewModel : ObservableObject,
         }
         else if (_appStore.IsDownloading)
         {
-            return; 
+            // Do nothing, the game is downloading
         }
         else
         {
@@ -180,7 +181,7 @@ public partial class MainWindowViewModel : ObservableObject,
     
     private async Task CloseGameProcess()
     {
-        if (_currentGameProcess != null && !_currentGameProcess.HasExited)
+        if (_currentGameProcess is { HasExited: false })
         {
             try
             {
@@ -236,9 +237,9 @@ public partial class MainWindowViewModel : ObservableObject,
                 
                 if (result.Value.IsPerformanceModsInstalled == false || result.Value.IsEssentialApisInstalled == false)
                 {
-                    var title = LocalizationService.Instance[LocKey.Errors_CantInstallMods_Title];
-                    var desc = LocalizationService.Instance[LocKey.Errors_CantInstallMods_Desc];
-                    _notificationService.ShowError(title, string.Format(desc, _instancesStore.SelectedInstance.Name));
+                    var title = LocalizableText.Key(LocKey.Errors_CantInstallMods_Title);
+                    var desc = LocalizableText.Key(LocKey.Errors_CantInstallMods_Desc, _instancesStore.SelectedInstance.Name);
+                    _notificationService.ShowError(title, desc);
                 }
 
                 Console.WriteLine("Game started!");
@@ -257,22 +258,22 @@ public partial class MainWindowViewModel : ObservableObject,
                 {
                     Debug.WriteLine($"[Launch Error] Network error: {rootException.Message}");
                     _notificationService.ShowError(
-                        LocalizationService.Instance[LocKey.Errors_CantInstallVersion_Title],
-                        string.Format(LocalizationService.Instance[LocKey.Errors_CantInstallVersion_Desc], _instancesStore.SelectedInstance.Name));
+                        LocalizableText.Key(LocKey.Errors_CantInstallVersion_Title),
+                        LocalizableText.Key(LocKey.Errors_CantInstallVersion_Desc, _instancesStore.SelectedInstance.Name));
                 }
                 else if (rootException is FileNotFoundException or DirectoryNotFoundException)
                 {
                     Debug.WriteLine($"[Launch Error] File or directory not found: {rootException.Message}");
                     _notificationService.ShowError(
-                        LocalizationService.Instance[LocKey.Errors_LaunchError_Title],
-                        $"Required file or directory not found: {rootException.Message}");
+                        LocalizableText.Key(LocKey.Errors_LaunchError_Title),
+                        LocalizableText.Key(LocKey.Errors_LaunchError_Desc, rootException.Message));
                 }
                 else
                 {
                     var errorMessage = string.Join(Environment.NewLine, result.Errors.Select(x => x.Message));
                     _notificationService.ShowError(
-                        LocalizationService.Instance[LocKey.Errors_LaunchError_Title],
-                        errorMessage);
+                        LocalizableText.Key(LocKey.Errors_LaunchError_Title),
+                        LocalizableText.Key(LocKey.Errors_LaunchError_Desc, errorMessage));
                 }
             }
         }
@@ -280,12 +281,12 @@ public partial class MainWindowViewModel : ObservableObject,
         {
             Debug.WriteLine(ex);
             _notificationService.ShowError(
-                LocalizationService.Instance[LocKey.Errors_LaunchError_Title],
-                ex.Message);
+                LocalizableText.Key(LocKey.Errors_LaunchError_Title),
+                LocalizableText.Key(LocKey.Errors_LaunchError_Desc, ex.Message));
         }
         finally
         {
-            _dispatcherService.Invoke(() =>
+            await _dispatcherService.InvokeAsync(() =>
             {
                 _appStore.IsGameRunning = false;
                 _appStore.IsDownloading = false;
@@ -315,7 +316,7 @@ public partial class MainWindowViewModel : ObservableObject,
         {
             using var cts = new CancellationTokenSource();
             
-            var progressVM = new ProgressViewModel(
+            var progressVm = new ProgressViewModel(
                 onHide: () => _appStore.IsOverlayVisible = false, 
                 onCancel: () => cts.Cancel()                      
             )
@@ -327,14 +328,14 @@ public partial class MainWindowViewModel : ObservableObject,
                 ProgressText = "0%"
             };
 
-            _overlayService.Show(progressVM);
+            _overlayService.Show(progressVm);
 
             try
             {
                 var progressHandler = new Progress<(double Percent, string FileName)>(data => 
                 {
-                    progressVM.Report(data.Percent);
-                    progressVM.Message = String.Format(LocalizationService.Instance[LocKey.ProgressMenu_ImportingFiles_Description], data.FileName);
+                    progressVm.Report(data.Percent);
+                    progressVm.Message = String.Format(LocalizationService.Instance[LocKey.ProgressMenu_ImportingFiles_Description], data.FileName);
                 });
                 
                 int successCount = await _importOrchestratorService.ProcessDroppedFilesAsync(
@@ -345,15 +346,15 @@ public partial class MainWindowViewModel : ObservableObject,
 
                 if (successCount > 0)
                 {
-                    var title = LocalizationService.Instance[LocKey.Success_SuccessImport];
-                    var desc = String.Format(LocalizationService.Instance[LocKey.Success_SuccessImportDesc], successCount, files.Length);
+                    var title = LocalizableText.Key(LocKey.Success_SuccessImport);
+                    var desc = LocalizableText.Key(LocKey.Success_SuccessImportDesc, successCount, files.Length);
                     _notificationService.ShowSuccess(title, desc);
                 }
             }
             catch (OperationCanceledException)
             {
-                var title = LocalizationService.Instance[LocKey.Info_ImportCanceledTitle];
-                var desc = LocalizationService.Instance[LocKey.Info_ImportCanceledDesc];
+                var title = LocalizableText.Key(LocKey.Info_ImportCanceledTitle);
+                var desc = LocalizableText.Key(LocKey.Info_ImportCanceledDesc);
                 _notificationService.ShowInfo(title, desc);
             }
             finally

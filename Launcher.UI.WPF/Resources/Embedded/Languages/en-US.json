@@ -230,6 +230,7 @@
     "Errors.CantInstallVersion.Desc": "Cant install files for {0}. Check your internet connection.",
     "Errors.CantInstallMods.Title": "Cant install mods",
     "Errors.CantInstallMods.Desc": "Cant install mods for {0}. Check your internet connection.",
-    "Errors.LaunchError.Title": "Game launch failed"
+    "Errors.LaunchError.Title": "Game launch failed",
+    "Errors.LaunchError.Desc": "Unhandled error: {0}"
   }
 }
