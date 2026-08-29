@@ -58,6 +58,8 @@ public partial class MainWindow
         });
     }
 
+    #region Native Window & Theme Integration
+
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
@@ -68,37 +70,26 @@ public partial class MainWindow
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        const int WM_ERASEBKGND = 0x0014;
-        if (msg == WM_ERASEBKGND && _nativeBgBrush != IntPtr.Zero)
+        if (msg == 0x0014 && _nativeBgBrush != IntPtr.Zero) // WM_ERASEBKGND
         {
-            GetClientRect(hwnd, out RECT rc);
+            GetClientRect(hwnd, out Rect rc);
             FillRect(wParam, ref rc, _nativeBgBrush);
             handled = true;
-            return (IntPtr)1;
+            return 1;
         }
 
-        const int WM_NCHITTEST = 0x0084;
-        if (msg == WM_NCHITTEST && WindowState != WindowState.Maximized)
+        if (msg == 0x0084 && WindowState != WindowState.Maximized) // WM_NCHITTEST
         {
-            var result = HandleNcHitTest(hwnd, lParam);
-            if (result != IntPtr.Zero)
+            var hit = HandleNcHitTest(hwnd, lParam);
+            if (hit != IntPtr.Zero)
             {
                 handled = true;
-                return result;
+                return hit;
             }
         }
 
         return IntPtr.Zero;
     }
-
-    private const int HTLEFT = 10;
-    private const int HTRIGHT = 11;
-    private const int HTTOP = 12;
-    private const int HTTOPLEFT = 13;
-    private const int HTTOPRIGHT = 14;
-    private const int HTBOTTOM = 15;
-    private const int HTBOTTOMLEFT = 16;
-    private const int HTBOTTOMRIGHT = 17;
 
     private IntPtr HandleNcHitTest(IntPtr hwnd, IntPtr lParam)
     {
@@ -106,26 +97,23 @@ public partial class MainWindow
         int x = (short)(val & 0xFFFF);
         int y = (short)((val >> 16) & 0xFFFF);
 
-        if (!GetWindowRect(hwnd, out RECT rc))
-            return IntPtr.Zero;
+        if (!GetWindowRect(hwnd, out Rect rc)) return IntPtr.Zero;
 
         var dpi = VisualTreeHelper.GetDpi(this);
-        int borderX = (int)Math.Round(6 * (dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0));
-        int borderY = (int)Math.Round(6 * (dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0));
+        int bx = (int)Math.Round(6 * (dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0));
+        int by = (int)Math.Round(6 * (dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0));
 
-        bool isTop = y >= rc.Top && y < rc.Top + borderY;
-        bool isBottom = y <= rc.Bottom && y > rc.Bottom - borderY;
-        bool isLeft = x >= rc.Left && x < rc.Left + borderX;
-        bool isRight = x <= rc.Right && x > rc.Right - borderX;
+        bool top = y < rc.Top + by, bottom = y > rc.Bottom - by;
+        bool left = x < rc.Left + bx, right = x > rc.Right - bx;
 
-        if (isTop && isRight) return (IntPtr)HTTOPRIGHT;
-        if (isTop && isLeft) return (IntPtr)HTTOPLEFT;
-        if (isBottom && isRight) return (IntPtr)HTBOTTOMRIGHT;
-        if (isBottom && isLeft) return (IntPtr)HTBOTTOMLEFT;
-        if (isTop) return (IntPtr)HTTOP;
-        if (isRight) return (IntPtr)HTRIGHT;
-        if (isBottom) return (IntPtr)HTBOTTOM;
-        if (isLeft) return (IntPtr)HTLEFT;
+        if (top && right) return 14; // HTTOPRIGHT
+        if (top && left) return 13;  // HTTOPLEFT
+        if (bottom && right) return 17; // HTBOTTOMRIGHT
+        if (bottom && left) return 16;  // HTBOTTOMLEFT
+        if (top) return 12; // HTTOP
+        if (right) return 11; // HTRIGHT
+        if (bottom) return 15; // HTBOTTOM
+        if (left) return 10; // HTLEFT
 
         return IntPtr.Zero;
     }
@@ -142,89 +130,55 @@ public partial class MainWindow
             color = c;
 
         int colorRef = color.R | (color.G << 8) | (color.B << 16);
-
-        // Tell DWM to use dark mode frame and caption/resize backdrop matching AppBackground
         int useDarkMode = (color.R * 0.299 + color.G * 0.587 + color.B * 0.114) < 128 ? 1 : 0;
+
         DwmSetWindowAttribute(handle, 20 /* DWMWA_USE_IMMERSIVE_DARK_MODE */, ref useDarkMode, sizeof(int));
         DwmSetWindowAttribute(handle, 19 /* DWMWA_USE_IMMERSIVE_DARK_MODE (older Win10) */, ref useDarkMode, sizeof(int));
         DwmSetWindowAttribute(handle, 35 /* DWMWA_CAPTION_COLOR (Win11) */, ref colorRef, sizeof(int));
 
-        // Update CornerRadius and DWM Corner Preference based on DefaultCorner
         UpdateCornerRounding(handle);
 
-        // Create Win32 GDI brush for background erase and window class brush
         IntPtr newBrush = CreateSolidBrush(colorRef);
         IntPtr oldBrush = _nativeBgBrush;
         _nativeBgBrush = newBrush;
-        SetClassLong(handle, -10 /* GCLP_HBRBACKGROUND */, newBrush);
-
-        if (oldBrush != IntPtr.Zero)
-        {
-            DeleteObject(oldBrush);
-        }
+        if (oldBrush != IntPtr.Zero) DeleteObject(oldBrush);
     }
 
     private void UpdateCornerRounding(IntPtr handle)
     {
         if (handle == IntPtr.Zero) return;
 
-        CornerRadius cornerRadius = new CornerRadius(6);
-        if (TryFindResource("DefaultCorner") is CornerRadius cr)
-        {
-            cornerRadius = cr;
-        }
-
+        var corner = TryFindResource("DefaultCorner") as CornerRadius? ?? new CornerRadius(6);
         var chrome = System.Windows.Shell.WindowChrome.GetWindowChrome(this);
-        if (chrome != null)
-        {
-            chrome.CornerRadius = cornerRadius;
-        }
+        if (chrome != null) chrome.CornerRadius = corner;
 
-        // DWMWA_WINDOW_CORNER_PREFERENCE (33 on Windows 11)
-        int cornerPref;
-        if (WindowState == WindowState.Maximized || cornerRadius.TopLeft == 0)
-        {
-            cornerPref = 1; // DWMWCP_DONOTROUND
-        }
-        else if (cornerRadius.TopLeft <= 4)
-        {
-            cornerPref = 3; // DWMWCP_ROUNDSMALL
-        }
-        else
-        {
-            cornerPref = 2; // DWMWCP_ROUND
-        }
+        // DWMWA_WINDOW_CORNER_PREFERENCE (Win11): 1 = DONOTROUND, 2 = ROUND, 3 = ROUNDSMALL
+        int cornerPref = (WindowState == WindowState.Maximized || corner.TopLeft == 0) ? 1
+                       : corner.TopLeft <= 4 ? 3 : 2;
 
-        DwmSetWindowAttribute(handle, 33 /* DWMWA_WINDOW_CORNER_PREFERENCE */, ref cornerPref, sizeof(int));
+        DwmSetWindowAttribute(handle, 33, ref cornerPref, sizeof(int));
     }
 
     private void MainWindow_StateChanged(object? sender, EventArgs e)
     {
-        UpdateLayoutForWindowState();
-        var handle = new WindowInteropHelper(this).Handle;
-        if (handle != IntPtr.Zero)
-        {
-            UpdateCornerRounding(handle);
-        }
+        RootGrid.Margin = WindowState == WindowState.Maximized ? GetMaximizedMargin() : new Thickness(0);
+        UpdateCornerRounding(new WindowInteropHelper(this).Handle);
     }
 
-    private void UpdateLayoutForWindowState()
+    private Thickness GetMaximizedMargin()
     {
-        if (WindowState == WindowState.Maximized)
-        {
-            RootGrid.Margin = GetMaximizedMargin();
-        }
-        else
-        {
-            RootGrid.Margin = new Thickness(0);
-        }
+        int borderX = GetSystemMetrics(32 /* SM_CXFRAME */) + GetSystemMetrics(92 /* SM_CXPADDEDBORDER */);
+        int borderY = GetSystemMetrics(33 /* SM_CYFRAME */) + GetSystemMetrics(92 /* SM_CXPADDEDBORDER */);
+
+        var dpi = VisualTreeHelper.GetDpi(this);
+        double sx = dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0;
+        double sy = dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0;
+
+        return new Thickness(borderX / sx, borderY / sy, borderX / sx, borderY / sy);
     }
 
-    [DllImport("user32.dll")]
-    private static extern int GetSystemMetrics(int nIndex);
-
-    [DllImport("dwmapi.dll", PreserveSig = true)]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int val, int size);
 
     [DllImport("gdi32.dll")]
     private static extern IntPtr CreateSolidBrush(int crColor);
@@ -233,51 +187,21 @@ public partial class MainWindow
     private static extern bool DeleteObject(IntPtr hObject);
 
     [DllImport("user32.dll")]
-    private static extern int FillRect(IntPtr hDC, [In] ref RECT lprc, IntPtr hbr);
+    private static extern int GetSystemMetrics(int nIndex);
 
     [DllImport("user32.dll")]
-    private static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
+    private static extern int FillRect(IntPtr hDс, [In] ref Rect lprc, IntPtr hbr);
 
     [DllImport("user32.dll")]
-    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+    private static extern bool GetClientRect(IntPtr hWnd, out Rect lpRect);
 
-    [DllImport("user32.dll", EntryPoint = "SetClassLongPtr")]
-    private static extern IntPtr SetClassLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
-
-    [DllImport("user32.dll", EntryPoint = "SetClassLong")]
-    private static extern int SetClassLong32(IntPtr hWnd, int nIndex, int dwNewLong);
-
-    private static IntPtr SetClassLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
-    {
-        return IntPtr.Size == 8 
-            ? SetClassLongPtr64(hWnd, nIndex, dwNewLong) 
-            : new IntPtr(SetClassLong32(hWnd, nIndex, dwNewLong.ToInt32()));
-    }
+    [DllImport("user32.dll")]
+    private static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct RECT
-    {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
-    }
+    private struct Rect { public int Left, Top, Right, Bottom; }
 
-    private const int SM_CXFRAME = 32;
-    private const int SM_CYFRAME = 33;
-    private const int SM_CXPADDEDBORDER = 92;
-
-    private Thickness GetMaximizedMargin()
-    {
-        int borderX = GetSystemMetrics(SM_CXFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-        int borderY = GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-
-        var dpi = VisualTreeHelper.GetDpi(this);
-        double scaleX = dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0;
-        double scaleY = dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0;
-
-        return new Thickness(borderX / scaleX, borderY / scaleY, borderX / scaleX, borderY / scaleY);
-    }
+    #endregion
 
     private void PlayBlinkAnimation()
     {
@@ -354,7 +278,7 @@ public partial class MainWindow
         LocalizationService.Instance.PropertyChanged += OnLocalizationChanged;
         
         UpdatePlayButtonState();
-        UpdateLayoutForWindowState();
+        RootGrid.Margin = WindowState == WindowState.Maximized ? GetMaximizedMargin() : new Thickness(0);
         UpdateNativeColors();
     }
 
