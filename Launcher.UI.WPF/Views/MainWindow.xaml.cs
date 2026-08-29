@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -25,6 +26,7 @@ public partial class MainWindow
         DataContextChanged += MainWindow_DataContextChanged;
         Loaded += MainWindow_Loaded;
         Unloaded += MainWindow_Unloaded;
+        StateChanged += MainWindow_StateChanged;
         
         WeakReferenceMessenger.Default.Register<OverlayBlinkMessage>(this, (_, _) =>
         {
@@ -47,6 +49,42 @@ public partial class MainWindow
                     Hide();
             });
         });
+    }
+
+    private void MainWindow_StateChanged(object? sender, EventArgs e)
+    {
+        UpdateLayoutForWindowState();
+    }
+
+    private void UpdateLayoutForWindowState()
+    {
+        if (WindowState == WindowState.Maximized)
+        {
+            RootGrid.Margin = GetMaximizedMargin();
+        }
+        else
+        {
+            RootGrid.Margin = new Thickness(0);
+        }
+    }
+
+    [DllImport("user32.dll")]
+    private static extern int GetSystemMetrics(int nIndex);
+
+    private const int SM_CXFRAME = 32;
+    private const int SM_CYFRAME = 33;
+    private const int SM_CXPADDEDBORDER = 92;
+
+    private Thickness GetMaximizedMargin()
+    {
+        int borderX = GetSystemMetrics(SM_CXFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+        int borderY = GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+
+        var dpi = VisualTreeHelper.GetDpi(this);
+        double scaleX = dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0;
+        double scaleY = dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0;
+
+        return new Thickness(borderX / scaleX, borderY / scaleY, borderX / scaleX, borderY / scaleY);
     }
 
     private void PlayBlinkAnimation()
@@ -124,11 +162,13 @@ public partial class MainWindow
         LocalizationService.Instance.PropertyChanged += OnLocalizationChanged;
         
         UpdatePlayButtonState();
+        UpdateLayoutForWindowState();
     }
 
     private void MainWindow_Unloaded(object sender, RoutedEventArgs e)
     {
         LocalizationService.Instance.PropertyChanged -= OnLocalizationChanged;
+        StateChanged -= MainWindow_StateChanged;
         
         if (_appStore != null)
         {

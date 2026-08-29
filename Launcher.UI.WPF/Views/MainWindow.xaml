@@ -1,5 +1,5 @@
 <Window
-    Background="{DynamicResource AppBackgroundBrush}"
+    Background="Transparent"
     FontFamily="{DynamicResource GlobalFont}"
     FontWeight="Medium"
     Height="720"
@@ -80,13 +80,13 @@
     </Window.Resources>
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome
-            CaptionHeight="1"
+            CaptionHeight="32"
             CornerRadius="{DynamicResource DefaultCorner}"
-            GlassFrameThickness="0"
+            GlassFrameThickness="1"
             ResizeBorderThickness="6"
             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
-    <Grid>
+    <Grid Background="{DynamicResource AppBackgroundBrush}" x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
