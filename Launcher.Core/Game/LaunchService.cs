@@ -15,7 +15,9 @@ using Launcher.Core.Common.Enums;
 using Launcher.Core.Common.Messages;
 using Launcher.Core.Common.Models;
 using Launcher.Core.Game.Abstractions;
+using Launcher.Core.Game.Exceptions;
 using Launcher.Core.Game.Models;
+using Launcher.Core.Game.Validation;
 using Launcher.Core.Identity.Models;
 using Launcher.Core.Instances.Abstractions;
 using Launcher.Core.Instances.Models;
@@ -28,7 +30,8 @@ public class LaunchService(
     IInstanceFileSystemService fileService,
     IModrinthService modrinthService,
     IConnectivityService connectivityService,
-    IJavaPathResolver javaPathResolver)
+    IJavaPathResolver javaPathResolver,
+    JvmArgumentsValidator jvmValidator)
     : ILaunchService
 {
     private const int MaxLogBufferLines = 60;
@@ -65,17 +68,71 @@ public class LaunchService(
 
             SetupFileVerificationProgress(launcher, progress);
             
-            progress.Report(new GameLaunchProgressMessage(15, $"Preparing Minecraft {instance.GameVersion}..."));
+            progress.Report(new GameLaunchProgressMessage(10, $"Preparing Minecraft {instance.GameVersion}..."));
 
             string versionIdToLaunch = await ResolveVersionIdAsync(launcher, instance, globalMcPath, isConnected, progress);
 
-            progress.Report(new GameLaunchProgressMessage(90, "Finalizing..."));
             
-            var launchOption = CreateLaunchOption(instance, account, globalSettings, instancePath, globalMcPath);
+            string javaBinaryPath = javaPathResolver.ResolveJavaPath(globalMcPath, instance) ?? "javaw.exe";
 
-            progress.Report(new GameLaunchProgressMessage(95, "Starting game..."));
+            var safeGameSettings = instance.GameSettings;
+            string? instanceJvmArgs = safeGameSettings.JvmArgs;
+            string? globalJvmArgs = globalSettings.JvmArguments;
+
+            string? effectiveJvmArgs = null;
+            string? skippedGlobalArgsWarning = null;
+
+            if (!string.IsNullOrWhiteSpace(instanceJvmArgs))
+            {
+                // Priority 1: Instance JVM arguments (fails launch if invalid)
+                var validation = await jvmValidator.ValidateAsync(javaBinaryPath, instanceJvmArgs);
+                if (!validation.IsValid)
+                {
+                    string errorMsg = !string.IsNullOrWhiteSpace(validation.RejectedArgument)
+                        ? $"Invalid argument: '{validation.RejectedArgument}'"
+                        : (validation.ErrorMessage ?? "Unknown JVM error");
+
+                    var ex = new InvalidJvmArgumentsException(errorMsg, validation.RejectedArgument);
+                    return Result.Fail<GameLaunchResult>(new ExceptionalError(ex));
+                }
+
+                foreach (var issue in validation.SemanticIssues)
+                {
+                    Debug.WriteLine($"[Launch Warn] Instance JVM semantic issue: {issue.Message}");
+                }
+
+                effectiveJvmArgs = instanceJvmArgs;
+            }
+            else if (!string.IsNullOrWhiteSpace(globalJvmArgs))
+            {
+                // Priority 2: Global JVM arguments fallback (launch proceeds without them if invalid)
+                var validation = await jvmValidator.ValidateAsync(javaBinaryPath, globalJvmArgs);
+                if (validation.IsValid)
+                {
+                    foreach (var issue in validation.SemanticIssues)
+                    {
+                        Debug.WriteLine($"[Launch Warn] Global JVM semantic issue: {issue.Message}");
+                    }
+
+                    effectiveJvmArgs = globalJvmArgs;
+                }
+                else
+                {
+                    effectiveJvmArgs = null;
+                    skippedGlobalArgsWarning = !string.IsNullOrWhiteSpace(validation.RejectedArgument)
+                        ? validation.RejectedArgument
+                        : (validation.ErrorMessage ?? "Incompatible JVM flags");
+
+                    Debug.WriteLine($"[Launch Warn] Ignored invalid global JVM arguments: {skippedGlobalArgsWarning}");
+                }
+            }
+
+            var launchOption = CreateLaunchOption(instance, account, globalSettings, instancePath, globalMcPath, effectiveJvmArgs);
             
             var process = await BuildProcessAsync(launcher, globalMcPath, versionIdToLaunch, launchOption, isConnected);
+            
+            progress.Report(new GameLaunchProgressMessage(95, "Starting game..."));
+
             var logBuffer = new ConcurrentQueue<string>();
             ConfigureProcess(process, instance, instancePath, logBuffer);
 
@@ -86,7 +143,7 @@ public class LaunchService(
             instance.LastPlayedDate = DateTime.Now;
             progress.Report(new GameLaunchProgressMessage(100, "Game started!"));
             
-            return Result.Ok(new GameLaunchResult(process, isPerformanceModsInstalled, isEssentialApisInstalled));
+            return Result.Ok(new GameLaunchResult(process, isPerformanceModsInstalled, isEssentialApisInstalled, skippedGlobalArgsWarning));
         }
         catch (Exception ex)
         {
@@ -164,7 +221,7 @@ public class LaunchService(
             {
                 if (networkTimer.ElapsedMilliseconds > 500) 
                     currentAction = "Verifying files...";
-                double percent = 10 + ((double)args.ProgressedTasks / args.TotalTasks * 75);
+                double percent = 20 + ((double)args.ProgressedTasks / args.TotalTasks * 74);
                 progress?.Report(new GameLaunchProgressMessage(percent, currentAction));
             }
         };
@@ -208,7 +265,8 @@ public class LaunchService(
         UserAccount account, 
         GlobalLaunchSettings globalSettings, 
         string instancePath, 
-        MinecraftPath globalMcPath)
+        MinecraftPath globalMcPath,
+        string? effectiveJvmArgs)
     {
         var safeGameSettings = instance.GameSettings;
         var (screenWidth, screenHeight) = ParseResolution(safeGameSettings.GameResolution ?? globalSettings.Resolution);
@@ -234,9 +292,9 @@ public class LaunchService(
             JavaPath = javaPathResolver.ResolveJavaPath(globalMcPath, instance)
         };
 
-        if (!string.IsNullOrWhiteSpace(safeGameSettings.JvmArgs))
+        if (!string.IsNullOrWhiteSpace(effectiveJvmArgs))
         {
-            option.ExtraJvmArguments = [MArgument.FromCommandLine(safeGameSettings.JvmArgs)];
+            option.ExtraJvmArguments = [MArgument.FromCommandLine(effectiveJvmArgs)];
         }
 
         return option;

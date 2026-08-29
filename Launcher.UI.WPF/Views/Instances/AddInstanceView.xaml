@@ -492,7 +492,8 @@
                                                             Margin="0,5"
                                                             Style="{StaticResource DefaultTextInputStyle}"
                                                             Tag="JVM Arguments"
-                                                            Text="{Binding JVMArguments}" />
+                                                            Text="{Binding JvmArguments, UpdateSourceTrigger=PropertyChanged}"
+                                                            behaviors:JvmArgumentsValidationBehavior.IsEnabled="True" />
                                                     </StackPanel>
                                                 </StackPanel>
                                                 <StackPanel Orientation="Vertical">

@@ -9,6 +9,7 @@ using FluentResults;
 using Launcher.Core.Common.Enums;
 using Launcher.Core.Common.Messages;
 using Launcher.Core.Game.Abstractions;
+using Launcher.Core.Game.Exceptions;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.System.Abstractions;
 using Launcher.Infrastructure.Integrations.Abstractions;
@@ -214,7 +215,8 @@ public partial class MainWindowViewModel : ObservableObject,
             (
                 maxRamMb : _settingsStore.SelectedMaxRam,
                 isFullscreen : _settingsStore.IsGameFullScreen,
-                resolution : _settingsStore.IsGameFullScreen ? "Auto" : _settingsStore.SelectedResolution
+                resolution : _settingsStore.IsGameFullScreen ? "Auto" : _settingsStore.SelectedResolution,
+                jvmArguments : _settingsStore.JvmArguments
             );
 
             var progress = new Progress<GameLaunchProgressMessage>(p =>
@@ -239,6 +241,13 @@ public partial class MainWindowViewModel : ObservableObject,
                     _notificationService.ShowError(title, desc);
                 }
 
+                if (!string.IsNullOrEmpty(result.Value.SkippedGlobalJvmArguments))
+                {
+                    _notificationService.ShowWarning(
+                        LocalizableText.Key(LocKey.Warnings_InvalidGlobalJvmArgs_Title), 
+                        LocalizableText.Key(LocKey.Warnings_InvalidGlobalJvmArgs_Desc));
+                }
+
                 Console.WriteLine("Game started!");
                 if (!_settingsStore.IsKeepLauncherOpen)
                     WeakReferenceMessenger.Default.Send(new LauncherVisibilityMessage(false));
@@ -257,6 +266,13 @@ public partial class MainWindowViewModel : ObservableObject,
                     _notificationService.ShowError(
                         LocalizableText.Key(LocKey.Errors_CantInstallVersion_Title),
                         LocalizableText.Key(LocKey.Errors_CantInstallVersion_Desc, _instancesStore.SelectedInstance.Name));
+                }
+                else if (rootException is InvalidJvmArgumentsException jvmEx)
+                {
+                    Debug.WriteLine($"[Launch Error] Invalid JVM arguments: {jvmEx.Message}");
+                    _notificationService.ShowError(
+                        LocalizableText.Key(LocKey.Errors_InvalidInstanceJvmArgs_Title),
+                        LocalizableText.Key(LocKey.Errors_InvalidInstanceJvmArgs_Desc));
                 }
                 else if (rootException is FileNotFoundException or DirectoryNotFoundException)
                 {

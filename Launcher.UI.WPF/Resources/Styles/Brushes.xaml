@@ -43,6 +43,9 @@
     <SolidColorBrush Color="{DynamicResource DangerBackground}" x:Key="DangerBackgroundBrush" />
     <SolidColorBrush Color="{DynamicResource DangerBorder}" x:Key="DangerBorderBrush" />
     <SolidColorBrush Color="{DynamicResource DangerForeground}" x:Key="DangerForegroundBrush" />
+    <SolidColorBrush Color="{DynamicResource SuccessBackground}" x:Key="SuccessBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource SuccessBorder}" x:Key="SuccessBorderBrush" />
+    <SolidColorBrush Color="{DynamicResource SuccessForeground}" x:Key="SuccessForegroundBrush" />
     <SolidColorBrush Color="{DynamicResource FeaturedForeground}" x:Key="FeaturedForegroundBrush" />
 
 </ResourceDictionary>

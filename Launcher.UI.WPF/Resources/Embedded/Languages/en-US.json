@@ -231,6 +231,10 @@
     "Errors.CantInstallMods.Title": "Cant install mods",
     "Errors.CantInstallMods.Desc": "Cant install mods for {0}. Check your internet connection.",
     "Errors.LaunchError.Title": "Game launch failed",
-    "Errors.LaunchError.Desc": "Unhandled error: {0}"
+    "Errors.LaunchError.Desc": "Unhandled error: {0}",
+    "Warnings.InvalidGlobalJvmArgs.Title": "Invalid global JVM arguments",
+    "Warnings.InvalidGlobalJvmArgs.Desc": "Global JVM arguments are invalid and will be ignored for this launch.",
+    "Errors.InvalidInstanceJvmArgs.Title": "Invalid instance JVM arguments",
+    "Errors.InvalidInstanceJvmArgs.Desc": "Instance JVM arguments are invalid. Launch aborted, please check your settings."
   }
 }

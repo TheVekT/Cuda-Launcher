@@ -48,6 +48,9 @@
     <Color x:Key="DangerBackground">#33FF6467</Color>
     <Color x:Key="DangerBorder">#80FF6467</Color>
     <Color x:Key="DangerForeground">#FF6467</Color>
+    <Color x:Key="SuccessBackground">#334ADE80</Color>
+    <Color x:Key="SuccessBorder">#804ADE80</Color>
+    <Color x:Key="SuccessForeground">#4ADE80</Color>
     <Color x:Key="FeaturedForeground">#FFD02B</Color>
 
     <!--  Dimensions & Metrics  -->

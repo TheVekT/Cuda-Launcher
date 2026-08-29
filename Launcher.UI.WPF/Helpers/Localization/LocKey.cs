@@ -230,4 +230,8 @@ public enum LocKey
     Errors_CantInstallMods_Desc,
     Errors_LaunchError_Title,
     Errors_LaunchError_Desc,
+    Warnings_InvalidGlobalJvmArgs_Title,
+    Warnings_InvalidGlobalJvmArgs_Desc,
+    Errors_InvalidInstanceJvmArgs_Title,
+    Errors_InvalidInstanceJvmArgs_Desc
 }

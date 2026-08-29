@@ -9,7 +9,7 @@ namespace Launcher.Core.System;
 public class SysInfoService : ISysInfoService
 {
     // Windows API for monitor resolutions
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct Devmode
     {
         private const int CCHDEVICENAME = 32;
@@ -87,19 +87,23 @@ public class SysInfoService : ISysInfoService
     public IEnumerable<string> GetPrimaryMonitorResolutions()
     {
         var resolutions = new HashSet<string>();
-        var devMode = new Devmode();
-        int modeIndex = 0;
 
-        // Enumerate all display settings for the primary monitor
-        while (EnumDisplaySettings(null, modeIndex, ref devMode))
+        if (OperatingSystem.IsWindows())
         {
-            // We only want to include resolutions that are 32-bit color depth
-            // and have a width of at least 800 pixels
-            if (devMode is { dmBitsPerPel: 32, dmPelsWidth: >= 800 })
+            var devMode = new Devmode();
+            devMode.dmSize = (short)Marshal.SizeOf<Devmode>();
+            int modeIndex = 0;
+
+            // Enumerate all display settings for the primary monitor
+            while (EnumDisplaySettings(null, modeIndex, ref devMode))
             {
-                resolutions.Add($"{devMode.dmPelsWidth}x{devMode.dmPelsHeight}");
+                // Include resolutions with width >= 800 and height >= 600
+                if (devMode.dmPelsWidth >= 800 && devMode.dmPelsHeight >= 600)
+                {
+                    resolutions.Add($"{devMode.dmPelsWidth}x{devMode.dmPelsHeight}");
+                }
+                modeIndex++;
             }
-            modeIndex++;
         }
 
         // Sort the resolutions first by width, then by height, both in descending order

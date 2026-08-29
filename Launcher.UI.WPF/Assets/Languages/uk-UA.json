@@ -231,6 +231,10 @@
     "Errors.CantInstallMods.Title": "Неможливо встановити моди",
     "Errors.CantInstallMods.Desc": "Не вдалося встановити моди для {0}. Перевірте підключення до інтернету.",
     "Errors.LaunchError.Title": "Помилка запуску",
-    "Errors.LaunchError.Desc": "Невідома помилка: {0}"
+    "Errors.LaunchError.Desc": "Невідома помилка: {0}",
+    "Warnings.InvalidGlobalJvmArgs.Title": "Невалідні глобальні аргументи JVM",
+    "Warnings.InvalidGlobalJvmArgs.Desc": "Глобальні аргументи JVM невалідні і будуть проігноровані для цього запуску.",
+    "Errors.InvalidInstanceJvmArgs.Title": "Невалідні аргументи JVM версії",
+    "Errors.InvalidInstanceJvmArgs.Desc": "Аргументи JVM версії невалідні. Запуск перервано, будь ласка, перевірте налаштування."
   }
 }

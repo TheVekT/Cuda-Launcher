@@ -89,10 +89,10 @@ public partial class SettingsStore: ObservableObject,
         AvailableThemes.ReplaceRange(themes);
 
         MaxPhysicalRam = sysInfoService.GetTotalRAMInMB();
-        var avaliableRes = sysInfoService.GetPrimaryMonitorResolutions();
+        var availableRes = sysInfoService.GetPrimaryMonitorResolutions();
         AvailableResolutions.Clear();
         AvailableResolutions.Add("Auto");
-        foreach (var res in avaliableRes){
+        foreach (var res in availableRes){
             AvailableResolutions.Add(res);
         }
         
