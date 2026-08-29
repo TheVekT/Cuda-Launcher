@@ -51,6 +51,8 @@ public partial class EditInstanceViewModel : ObservableObject
     [ObservableProperty]
     private string? _selectedLoaderVersion;
     [ObservableProperty]
+    private IsolationType _selectedIsolation = IsolationType.Global;
+    [ObservableProperty]
     private bool _useGlobalGameSettings;
     [ObservableProperty]
     private bool _useGlobalBackupSettings;
@@ -132,6 +134,7 @@ public partial class EditInstanceViewModel : ObservableObject
         string targetLoaderName = _instance.LoaderType.ToString();
         SelectedModLoader = AvailableLoaders.FirstOrDefault(l => l.Name == targetLoaderName) 
                             ?? AvailableLoaders.FirstOrDefault(); 
+        SelectedIsolation = _instance.IsolationType;
         
         await Task.Delay(10);
         

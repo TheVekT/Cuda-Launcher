@@ -19,7 +19,7 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     private bool _isOverlayVisible;
     private string? _themeBannerPath;
     [ObservableProperty]
-    private bool _isDownloading;
+    private bool _isLoading;
     [ObservableProperty]
     private bool _isGameRunning;
     [ObservableProperty]
@@ -29,15 +29,25 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     [ObservableProperty]
     private bool _showCompactPlayButton;
     [ObservableProperty]
-    private double _downloadProgress;
+    private double _loadingProgress;
     [ObservableProperty]
-    private string? _downloadStatusText = "Initiating...";
+    private string? _loadingStatusText = "Initiating...";
     [ObservableProperty]
-    private string _downloadPercentText = "0%";
+    private string _loadingPercentText = "0%";
 
-    partial void OnDownloadProgressChanged(double value)
+    partial void OnLoadingProgressChanged(double value)
     {
-        DownloadPercentText = $"{value:0}%";
+        LoadingPercentText = $"{value:0}%";
+    }
+
+    partial void OnIsLoadingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsCurrentInstanceProcessing));
+    }
+
+    partial void OnIsGameRunningChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsCurrentInstanceProcessing));
     }
 
     public AppStore(IThemeService themeService, ILauncherPathsService pathsService)
@@ -57,14 +67,7 @@ public partial class AppStore: ObservableObject, IRecipient<ThemeChangedMessage>
     }
 
     //Getters and Setters
-    public bool IsCurrentInstanceProcessing
-    {
-        get
-        {
-            if (IsGameRunning || IsDownloading) return true;
-            return false;
-        }
-    }
+    public bool IsCurrentInstanceProcessing => IsGameRunning || IsLoading;
 
     public string? ThemeBannerPath
     {

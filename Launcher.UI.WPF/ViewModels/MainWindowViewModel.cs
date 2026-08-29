@@ -10,6 +10,8 @@ using Launcher.Core.Common.Enums;
 using Launcher.Core.Common.Messages;
 using Launcher.Core.Game.Abstractions;
 using Launcher.Core.Game.Exceptions;
+using Launcher.Core.Game.Models;
+using Launcher.Core.Instances.Abstractions;
 using Launcher.Core.Instances.Models;
 using Launcher.Core.System.Abstractions;
 using Launcher.Infrastructure.Integrations.Abstractions;
@@ -36,6 +38,7 @@ public partial class MainWindowViewModel : ObservableObject,
     //Services
     private readonly IGameVersionService _versionService;
     private readonly ILaunchService _launchService;
+    private readonly IInstanceBackupService _backupService;
     private readonly IImportOrchestratorService _importOrchestratorService;
     private readonly IOverlayService _overlayService;
     private readonly INavigationService _navigationService;
@@ -99,6 +102,7 @@ public partial class MainWindowViewModel : ObservableObject,
     public MainWindowViewModel(
         IGameVersionService versionService,
         ILaunchService launchService,
+        IInstanceBackupService backupService,
         IDiscordService discordService,
         IImportOrchestratorService importOrchestratorService,
         IOverlayService overlayService,
@@ -120,6 +124,7 @@ public partial class MainWindowViewModel : ObservableObject,
     {
         _versionService = versionService;
         _launchService = launchService;
+        _backupService = backupService;
         _importOrchestratorService = importOrchestratorService;
         _overlayService = overlayService;
         _navigationService = navigationService;
@@ -167,9 +172,9 @@ public partial class MainWindowViewModel : ObservableObject,
             await CloseGameProcess();
             _launchService.GameCrashed += OnGameCrashed;
         }
-        else if (_appStore.IsDownloading)
+        else if (_appStore.IsLoading)
         {
-            // Do nothing, the game is downloading
+            // Do nothing, the game is loading / launching
         }
         else
         {
@@ -195,8 +200,7 @@ public partial class MainWindowViewModel : ObservableObject,
     
     private async Task LaunchGameAsync()
     {
-        if (_appStore.IsDownloading) return;
-        if (_appStore.IsGameRunning) return;
+        if (_appStore.IsLoading || _appStore.IsGameRunning) return;
 
         if (_instancesStore.SelectedInstance == null) return;
         if (_identityStore.CurrentAccount == null) 
@@ -207,37 +211,78 @@ public partial class MainWindowViewModel : ObservableObject,
 
         try
         {
-            Console.WriteLine("Launching game...");
+            var targetInstance = _instancesStore.SelectedInstance;
             IsEnabledInstancesComboBox = false;
-            _appStore.IsDownloading = true;
+            _appStore.IsLoading = true;
+
+            // 1. Backups Phase
+            var globalBackupSettings = new GlobalBackupSettings(
+                savesMaxBackups: _settingsStore.MaxBackupCount,
+                savesBackupFrequency: _settingsStore.SelectedBackupFrequency
+            );
+
+            bool shouldBackup = (targetInstance.BackupSettings.SavesBackupSettings == BackupPolicy.ForceOn ||
+                                (targetInstance.BackupSettings.SavesBackupSettings != BackupPolicy.ForceOff && _settingsStore.IsEnableAutoBackups))
+                && _backupService.IsBackupDue(targetInstance, globalBackupSettings)
+                && _backupService.HasSavesToBackup(targetInstance);
+
+            if (shouldBackup)
+            {
+                Console.WriteLine("Creating backup before launch...");
+                _appStore.LoadingProgress = 0;
+                _appStore.LoadingStatusText = "Making backups...";
+
+                var backupProgress = new Progress<InstanceBackupProgress>(p =>
+                {
+                    _appStore.LoadingProgress = p.Percent;
+                    _appStore.LoadingStatusText = p.StatusText;
+                });
+
+                var backupResult = await _backupService.CreateBackupAsync(
+                    targetInstance, 
+                    _instancesStore.Instances, 
+                    globalBackupSettings, 
+                    backupProgress);
+
+                if (backupResult.IsFailed)
+                {
+                    Debug.WriteLine($"[Backup Warning] Backup failed: {backupResult.Errors.FirstOrDefault()?.Message}");
+                }
+                
+            }
+
+            // 2. Launch Phase
+            Console.WriteLine("Launching game...");
+            _appStore.LoadingProgress = 0;
+            _appStore.LoadingStatusText = "Preparing...";
         
             var globalSettings = new GlobalLaunchSettings
             (
-                maxRamMb : _settingsStore.SelectedMaxRam,
-                isFullscreen : _settingsStore.IsGameFullScreen,
-                resolution : _settingsStore.IsGameFullScreen ? "Auto" : _settingsStore.SelectedResolution,
-                jvmArguments : _settingsStore.JvmArguments
+                allocatedMemory : _settingsStore.SelectedMaxRam,
+                fullscreen : _settingsStore.IsGameFullScreen,
+                gameResolution : _settingsStore.IsGameFullScreen ? "Auto" : _settingsStore.SelectedResolution,
+                jvmArgs : _settingsStore.JvmArguments
             );
 
             var progress = new Progress<GameLaunchProgressMessage>(p =>
             {
-                _appStore.DownloadProgress = p.Percent;
-                _appStore.DownloadStatusText = p.Status;
+                _appStore.LoadingProgress = p.Percent;
+                _appStore.LoadingStatusText = p.Status;
             });
 
-            var result = await _launchService.LaunchGameAsync(_instancesStore.SelectedInstance,
+            var result = await _launchService.LaunchGameAsync(targetInstance,
                 _identityStore.CurrentAccount, globalSettings, progress);
 
             if (result.IsSuccess)
             {
                 _currentGameProcess = result.Value.Process;
                 _appStore.IsGameRunning = true;
-                _appStore.IsDownloading = false;
+                _appStore.IsLoading = false;
                 
                 if (result.Value.IsPerformanceModsInstalled == false || result.Value.IsEssentialApisInstalled == false)
                 {
                     var title = LocalizableText.Key(LocKey.Errors_CantInstallMods_Title);
-                    var desc = LocalizableText.Key(LocKey.Errors_CantInstallMods_Desc, _instancesStore.SelectedInstance.Name);
+                    var desc = LocalizableText.Key(LocKey.Errors_CantInstallMods_Desc, targetInstance.Name);
                     _notificationService.ShowError(title, desc);
                 }
 
@@ -265,7 +310,7 @@ public partial class MainWindowViewModel : ObservableObject,
                     Debug.WriteLine($"[Launch Error] Network error: {rootException.Message}");
                     _notificationService.ShowError(
                         LocalizableText.Key(LocKey.Errors_CantInstallVersion_Title),
-                        LocalizableText.Key(LocKey.Errors_CantInstallVersion_Desc, _instancesStore.SelectedInstance.Name));
+                        LocalizableText.Key(LocKey.Errors_CantInstallVersion_Desc, targetInstance.Name));
                 }
                 else if (rootException is InvalidJvmArgumentsException jvmEx)
                 {
@@ -301,8 +346,8 @@ public partial class MainWindowViewModel : ObservableObject,
         {
             await _dispatcherService.InvokeAsync(() =>
             {
+                _appStore.IsLoading = false;
                 _appStore.IsGameRunning = false;
-                _appStore.IsDownloading = false;
                 _currentGameProcess = null;
                 IsEnabledInstancesComboBox = true;
                 WeakReferenceMessenger.Default.Send(new LauncherVisibilityMessage(true));

@@ -25,13 +25,13 @@ public class InstanceFileSystemService : IInstanceFileSystemService
         _portableGlobalPath = Path.Combine(_pathsService.DataDirectory, "Global");
     }
 
-    public string GetGlobalMinecraftPath()
+    public string GetSharedGameDataPath()
     {
         if (!Directory.Exists(_portableGlobalPath)) Directory.CreateDirectory(_portableGlobalPath);
         return _portableGlobalPath;
     }
 
-    private string GetExternalMinecraftPath()
+    public string GetExternalMinecraftPath()
     {
         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraft");
     }
@@ -165,7 +165,7 @@ public class InstanceFileSystemService : IInstanceFileSystemService
                 return instancePath;
 
             default:
-                return GetGlobalMinecraftPath();
+                return GetExternalMinecraftPath();
         }
     }
 

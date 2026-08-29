@@ -10,6 +10,7 @@ public static class InstancesDependencyInjection
         services.AddSingleton<IFileTypeDetector, FileTypeDetector>();
         services.AddSingleton<IInstanceFileSystemService, InstanceFileSystemService>();
         services.AddSingleton<IInstanceService, InstanceService>();
+        services.AddSingleton<IInstanceBackupService, InstanceBackupService>();
         
         return services;
     }

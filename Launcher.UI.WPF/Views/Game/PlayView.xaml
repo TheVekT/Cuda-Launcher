@@ -36,8 +36,8 @@
                 <Border Padding="0">
                     <Grid
                         Margin="0,0,0,5"
-                        Visibility="{Binding AppStore.IsDownloading, Converter={StaticResource BoolToVis}}"
-                        x:Name="DownloadInfoPanel">
+                        Visibility="{Binding AppStore.IsLoading, Converter={StaticResource BoolToVis}}"
+                        x:Name="LoadingInfoPanel">
 
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -53,7 +53,7 @@
                             <TextBlock
                                 FontSize="11"
                                 Foreground="{DynamicResource ForegroundOnAccentBrush}"
-                                Text="{Binding AppStore.DownloadStatusText}"
+                                Text="{Binding AppStore.LoadingStatusText}"
                                 TextTrimming="CharacterEllipsis"
                                 x:Name="StatusText" />
 
@@ -63,7 +63,7 @@
                                 Foreground="{DynamicResource ForegroundOnAccentBrush}"
                                 Grid.Column="1"
                                 Margin="10,0,0,0"
-                                Text="{Binding AppStore.DownloadPercentText}"
+                                Text="{Binding AppStore.LoadingPercentText}"
                                 x:Name="PercentText" />
                         </Grid>
 
@@ -75,7 +75,7 @@
                             Height="4"
                             Margin="6,0"
                             Maximum="100"
-                            Value="{Binding AppStore.DownloadProgress}"
+                            Value="{Binding AppStore.LoadingProgress}"
                             x:Name="InstallProgressBar" />
 
                     </Grid>
@@ -93,7 +93,7 @@
                     Width="200"
                     helpers:ButtonHelper.BalanceText="True"
                     helpers:ButtonHelper.CornerRadius="{DynamicResource PlayButtonCorner}"
-                    helpers:ButtonHelper.IsLoading="{Binding AppStore.IsDownloading}"
+                    helpers:ButtonHelper.IsLoading="{Binding AppStore.IsLoading}"
                     x:Name="PlayButton" />
 
             </StackPanel>

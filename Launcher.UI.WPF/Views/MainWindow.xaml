@@ -305,7 +305,7 @@
                                             Style="{StaticResource AccentButtonStyle}"
                                             Visibility="{Binding AppStore.ShowCompactPlayButton, Converter={StaticResource BoolToVis}}"
                                             Width="35"
-                                            helpers:ButtonHelper.IsLoading="{Binding AppStore.IsDownloading}"
+                                            helpers:ButtonHelper.IsLoading="{Binding AppStore.IsLoading}"
                                             x:Name="PlayButtonCompact" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" />

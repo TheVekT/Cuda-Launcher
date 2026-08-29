@@ -63,7 +63,7 @@ public class LaunchService(
 
             progress.Report(new GameLaunchProgressMessage(5, "Initializing..."));
 
-            var globalMcPath = new MinecraftPath(fileService.GetGlobalMinecraftPath());
+            var globalMcPath = new MinecraftPath(fileService.GetSharedGameDataPath());
             var launcher = new MinecraftLauncher(globalMcPath);
 
             SetupFileVerificationProgress(launcher, progress);
@@ -77,7 +77,7 @@ public class LaunchService(
 
             var safeGameSettings = instance.GameSettings;
             string? instanceJvmArgs = safeGameSettings.JvmArgs;
-            string? globalJvmArgs = globalSettings.JvmArguments;
+            string? globalJvmArgs = globalSettings.JvmArgs;
 
             string? effectiveJvmArgs = null;
             string? skippedGlobalArgsWarning = null;
@@ -269,7 +269,7 @@ public class LaunchService(
         string? effectiveJvmArgs)
     {
         var safeGameSettings = instance.GameSettings;
-        var (screenWidth, screenHeight) = ParseResolution(safeGameSettings.GameResolution ?? globalSettings.Resolution);
+        var (screenWidth, screenHeight) = ParseResolution(safeGameSettings.GameResolution ?? globalSettings.GameResolution);
 
         var instanceMcPath = new MinecraftPath(instancePath)
         {
@@ -281,8 +281,8 @@ public class LaunchService(
 
         var option = new MLaunchOption
         {
-            MaximumRamMb = safeGameSettings.AllocatedMemory ?? globalSettings.MaxRamMb,
-            FullScreen = safeGameSettings.Fullscreen ?? globalSettings.IsFullscreen,
+            MaximumRamMb = safeGameSettings.AllocatedMemory ?? globalSettings.AllocatedMemory,
+            FullScreen = safeGameSettings.Fullscreen ?? globalSettings.Fullscreen,
             ScreenWidth = screenWidth,
             ScreenHeight = screenHeight,
             Session = new MSession(account.Username, account.AccessToken, account.UUID),

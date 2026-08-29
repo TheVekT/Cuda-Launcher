@@ -284,7 +284,7 @@ public static class JvmArgumentsValidationBehavior
 
         if (fileService != null && javaResolver != null)
         {
-            var globalMcPath = new MinecraftPath(fileService.GetGlobalMinecraftPath());
+            var globalMcPath = new MinecraftPath(fileService.GetSharedGameDataPath());
             string? resolved = javaResolver.ResolveJavaPath(globalMcPath, "1.20.1");
             if (!string.IsNullOrWhiteSpace(resolved))
                 return resolved;

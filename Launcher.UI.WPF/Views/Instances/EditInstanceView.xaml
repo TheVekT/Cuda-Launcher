@@ -355,6 +355,7 @@
                                         Content="{localization:Loc InstallationSettings_InheritBackupSettings}"
                                         FontSize="13"
                                         IsChecked="{Binding UseGlobalBackupSettings}"
+                                        IsEnabled="{Binding SelectedIsolation, Converter={StaticResource NotEqualConverter}, ConverterParameter=Global}"
                                         Margin="0,5"
                                         Style="{StaticResource DefaultToggleSwitchStyle}"
                                         VerticalAlignment="Top"

@@ -8,7 +8,8 @@ public interface IInstanceFileSystemService
     
     string PrepareForLaunch(MinecraftInstance instance);
     
-    string GetGlobalMinecraftPath();
+    string GetSharedGameDataPath();
+    string GetExternalMinecraftPath();
     void DeleteInstance(MinecraftInstance instance);
     
     void OpenInstanceFolder(MinecraftInstance? instance);

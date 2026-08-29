@@ -112,7 +112,7 @@ public partial class SettingsStore: ObservableObject,
         _selectedResolution = AvailableResolutions.FirstOrDefault()!;
         _isEnableAutoBackups = true;
         _selectedBackupFrequency = BackupFrequency.Weekly;
-        _maxBackupCount = 5;
+        _maxBackupCount = 3;
         _jvmArguments = "";
         
         _currentThemePath = "default-dark.zip";
