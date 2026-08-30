@@ -212,6 +212,8 @@
     "Errors.IrisAndSodiumNotSupportedDesc": "Iris та Sodium не підтримуються для версії гри {0} з завантажувачем {1}.\nЦі моди не будуть додані до збірки.",
     "Errors.LoginMicrosoftTitle": "Помилка входу Microsoft",
     "Errors.LoginMicrosoftDesc": "Під час входу через Microsoft сталася помилка. Будь ласка, спробуйте ще раз.",
+    "Errors.NoMinecraftLicense.Title": "Помилка ліцензії Minecraft",
+    "Errors.NoMinecraftLicense.Desc": "Цей обліковий запис Microsoft не володіє Minecraft: Java Edition. Будь ласка, придбайте гру або увійдіть з іншим обліковим записом.",
     "Errors.SkinValidation.NoFileSelected": "Оберіть файл скіна.",
     "Errors.SkinValidation.FileNotFound": "Файл не знайдено.",
     "Errors.SkinValidation.NotPng": "Файл скіна повинен бути у форматі PNG.",

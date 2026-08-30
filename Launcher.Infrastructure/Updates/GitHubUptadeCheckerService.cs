@@ -108,9 +108,10 @@ public class GitHubUpdateCheckerService : IUpdateCheckerService
                 return Result.Ok(new UpdateCheckResult(false, currentVersion, null));
             }
 
-            bool isNewer = CompareVersions(latestRelease.Version, currentVersion) > 0;
+            string normalizedCurrentVersion = NormalizeVersionString(currentVersion);
+            bool isNewer = CompareVersions(latestRelease.Version, normalizedCurrentVersion) > 0;
 
-            return Result.Ok(new UpdateCheckResult(isNewer, currentVersion, isNewer ? latestRelease : null));
+            return Result.Ok(new UpdateCheckResult(isNewer, normalizedCurrentVersion, isNewer ? latestRelease : null));
         }
         catch (Exception ex)
         {
@@ -152,12 +153,10 @@ public class GitHubUpdateCheckerService : IUpdateCheckerService
 
     private static string NormalizeVersionString(string rawTag)
     {
-        string trimmed = rawTag.Trim();
-        if (trimmed.StartsWith('v') || trimmed.StartsWith('V'))
-        {
-            trimmed = trimmed[1..];
-        }
-        return trimmed;
+        if (string.IsNullOrWhiteSpace(rawTag))
+            return string.Empty;
+
+        return rawTag.Trim().TrimStart('v', 'V');
     }
 
     private static int CompareVersions(string versionA, string versionB)
@@ -198,12 +197,13 @@ public class GitHubUpdateCheckerService : IUpdateCheckerService
 
         private static (string Core, string? Prerelease) SplitVersion(string version)
         {
-            int dashIndex = version.IndexOf('-');
+            string clean = NormalizeVersionString(version);
+            int dashIndex = clean.IndexOf('-');
             if (dashIndex > 0)
             {
-                return (version[..dashIndex], version[(dashIndex + 1)..]);
+                return (clean[..dashIndex], clean[(dashIndex + 1)..]);
             }
-            return (version, null);
+            return (clean, null);
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Identity.Abstractions;
+using Launcher.Core.Identity.Exceptions;
 using Launcher.Core.Identity.Models;
 using Launcher.Infrastructure.Config.Abstractions;
 using Launcher.Infrastructure.Config.Models;
@@ -118,6 +119,23 @@ public partial class IdentityStore : ObservableObject
                 var title = LocalizableText.Key(LocKey.Info_MojangTokenExpired_Title);
                 var description = LocalizableText.Key(LocKey.Info_MojangTokenExpired_Desc, acc.Username);
                 _notificationService.ShowInfo(title, description);
+            }
+            catch (MinecraftNotPurchasedException ex)
+            {
+                Debug.WriteLine($"[Auth] Account {acc.Username} has no Minecraft license: {ex.Message}");
+                
+                await _dispatcherService.InvokeAsync(() => 
+                {
+                    Accounts.Remove(acc);
+                    
+                    if (CurrentAccount == acc && Accounts.Count > 0)
+                        CurrentAccount = Accounts.FirstOrDefault();
+                    else if (Accounts.Count == 0)
+                        CurrentAccount = null;
+                });
+                var title = LocalizableText.Key(LocKey.Errors_NoMinecraftLicense_Title);
+                var description = LocalizableText.Key(LocKey.Errors_NoMinecraftLicense_Desc);
+                _notificationService.ShowError(title, description);
             }
             catch (Exception ex)
             {
