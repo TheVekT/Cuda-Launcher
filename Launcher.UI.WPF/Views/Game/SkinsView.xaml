@@ -1,0 +1,197 @@
+<UserControl
+    Background="Transparent"
+    FontFamily="{DynamicResource GlobalFont}"
+    MinHeight="450"
+    MinWidth="900"
+    d:DataContext="{d:DesignInstance Type=game:SkinsViewModel,
+                                     IsDesignTimeCreatable=True}"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Views.Game.SkinsView"
+    x:Name="RootPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:components="clr-namespace:Launcher.UI.WPF.Views.Game.Components"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:game="clr-namespace:Launcher.UI.WPF.ViewModels.Game"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <helpers:SnappingWidthConverter x:Key="SnappingConverter" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid HorizontalAlignment="Center" Margin="0,24,0,24">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IdentityStore.CurrentAccount.IsOffline}" Value="False">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Grid
+                Grid.Column="0"
+                VerticalAlignment="Top"
+                x:Name="SkinPreview">
+                <Border
+                    Background="{DynamicResource BackgroundCardBrush}"
+                    BorderBrush="{DynamicResource BorderSecondaryBrush}"
+                    BorderThickness="{DynamicResource DefaultBorderThickness}"
+                    CornerRadius="{DynamicResource DefaultCorner}"
+                    Height="370"
+                    Padding="10"
+                    Width="280">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            FontSize="15"
+                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                            Grid.Row="0"
+                            HorizontalAlignment="Left"
+                            Padding="10,0"
+                            Text="{localization:Loc Skins_Preview_Title}"
+                            VerticalAlignment="Center" />
+                        <components:InteractiveSkinViewer
+                            AnimationType="walk"
+                            CapePath="{Binding SkinsStore.SelectedSkin.FullCapePath}"
+                            Grid.Row="1"
+                            SkinPath="{Binding SkinsStore.SelectedSkin.FullSkinPath}"
+                            SkinVariant="{Binding SkinsStore.SelectedSkin.CoreModel.SkinVariant}" />
+                    </Grid>
+                </Border>
+            </Grid>
+            <Grid Grid.Column="1" Margin="10,0,0,0">
+                <Border
+                    Background="{DynamicResource BackgroundCardBrush}"
+                    BorderBrush="{DynamicResource BorderSecondaryBrush}"
+                    BorderThickness="{DynamicResource DefaultBorderThickness}"
+                    CornerRadius="{DynamicResource DefaultCorner}"
+                    HorizontalAlignment="Left"
+                    Padding="10">
+
+                    <Border.Width>
+                        <MultiBinding Converter="{StaticResource SnappingConverter}">
+                            <Binding ElementName="RootPage" Path="ActualWidth" />
+                            <Binding Path="BorderThickness" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="Padding" RelativeSource="{RelativeSource Self}" />
+                        </MultiBinding>
+                    </Border.Width>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                FontSize="15"
+                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                Padding="5,0"
+                                Text="{localization:Loc Skins_Library_Title}"
+                                VerticalAlignment="Center" />
+                            <Button
+                                Command="{Binding AddCharacterCommand}"
+                                Content="{localization:Loc Skins_Library_AddSkinButton}"
+                                FontSize="13"
+                                Grid.Column="1"
+                                Height="30"
+                                Margin="5,0"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Tag="{StaticResource Icon.AddIcon}"
+                                VerticalAlignment="Center"
+                                helpers:ButtonHelper.IconSize="13" />
+                        </Grid>
+
+                        <ScrollViewer
+                            Grid.Row="1"
+                            Margin="0,5,0,5"
+                            Padding="0,0,0,0"
+                            VerticalScrollBarVisibility="Hidden">
+
+                            <WrapPanel Orientation="Horizontal">
+
+                                <ItemsControl ItemsSource="{Binding SkinsStore.Skins}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <components:SkinCard
+                                                ApplyCommand="{Binding DataContext.ApplySkinCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                Character="{Binding}"
+                                                DeleteCommand="{Binding DataContext.DeleteSkinCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                EditCommand="{Binding DataContext.EditSkinCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                Margin="5" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </WrapPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+        <Grid>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IdentityStore.CurrentAccount}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IdentityStore.CurrentAccount.IsOffline}" Value="True">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <StackPanel
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                x:Name="OfflineStub">
+                <Viewbox
+                    Height="64"
+                    Margin="0,0,0,20"
+                    Width="64">
+                    <Path
+                        Data="{StaticResource Icon.Lock}"
+                        Stroke="{DynamicResource ForegroundSecondaryBrush}"
+                        StrokeThickness="1.33" />
+                </Viewbox>
+                <TextBlock
+                    FontSize="24"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                    HorizontalAlignment="Center"
+                    Text="{localization:Loc Skins_FunctionUnavailableTitle}" />
+                <TextBlock
+                    FontSize="16"
+                    Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                    HorizontalAlignment="Center"
+                    Margin="0,10,0,0"
+                    Text="{localization:Loc Skins_FunctionUnavailableDesc}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

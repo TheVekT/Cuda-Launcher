@@ -1,0 +1,133 @@
+<UserControl
+    Background="Transparent"
+    FontFamily="{DynamicResource GlobalFont}"
+    MinHeight="450"
+    MinWidth="900"
+    d:DataContext="{d:DesignInstance Type=instances:InstallationsViewModel,
+                                     IsDesignTimeCreatable=False}"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Views.Instances.InstallationsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:components="clr-namespace:Launcher.UI.WPF.Views.Instances.Components"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:instances="clr-namespace:Launcher.UI.WPF.ViewModels.Instances"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <helpers:TimeAgoConverter x:Key="TimeAgoConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid Margin="130,24,130,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid
+                Grid.Row="0"
+                Height="30"
+                Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    FontSize="20"
+                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                    Grid.Column="0"
+                    Text="{localization:Loc Installations_Header_Title}"
+                    VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" />
+                <Button
+                    Command="{Binding OpenAddVersionCommand}"
+                    Content="{localization:Loc Installations_Header_NewInstallationButton}"
+                    FontSize="13"
+                    Grid.Column="2"
+                    Height="30"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Tag="{StaticResource Icon.AddIcon}"
+                    helpers:ButtonHelper.IconSize="13" />
+            </Grid>
+            <Grid Grid.Row="1">
+                <Grid Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border
+                        Background="{DynamicResource BackgroundSurfaceBrush}"
+                        BorderBrush="{DynamicResource BorderPrimaryBrush}"
+                        BorderThickness="{DynamicResource DefaultBorderThickness}"
+                        CornerRadius="{DynamicResource DefaultCorner}"
+                        Grid.Column="0"
+                        Height="30"
+                        Margin="0,0,6,0"
+                        x:Name="SearchBlock">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Path
+                                Data="{StaticResource Icon.Search}"
+                                Grid.Column="0"
+                                Height="12"
+                                Margin="10,0"
+                                Stretch="Uniform"
+                                Stroke="{DynamicResource ForegroundPrimaryBrush}"
+                                StrokeThickness="1"
+                                VerticalAlignment="Center"
+                                Width="12" />
+                            <TextBox
+                                FontSize="14"
+                                Grid.Column="1"
+                                Style="{StaticResource SearchTextBoxStyle}"
+                                VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                    <ComboBox
+                        Grid.Column="1"
+                        SelectedIndex="{Binding InstancesStore.SelectedSortIndex}"
+                        Style="{StaticResource DefaultComboBox}"
+                        Width="180">
+
+                        <ComboBoxItem Content="{localization:Loc Installations_Sort_LastPlayed}" />
+                        <ComboBoxItem Content="{localization:Loc Installations_Sort_Name}" />
+                        <ComboBoxItem Content="{localization:Loc Installations_Sort_GameVersion}" />
+                        <ComboBoxItem Content="{localization:Loc Installations_Sort_ModLoader}" />
+                    </ComboBox>
+                </Grid>
+
+            </Grid>
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
+                <ItemsControl ItemsSource="{Binding InstancesStore.Instances}">
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <components:VersionElement
+                                helpers:VersionElementHelper.DeleteCommand="{Binding DataContext.DeleteInstanceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                helpers:VersionElementHelper.GameVersion="{Binding GameVersion}"
+                                helpers:VersionElementHelper.Icon="{Binding IconPath, Converter={StaticResource ImagePathConverter}}"
+                                helpers:VersionElementHelper.Instance="{Binding}"
+                                helpers:VersionElementHelper.LastPlayed="{Binding LastPlayedDate, Converter={StaticResource TimeAgoConverter}}"
+                                helpers:VersionElementHelper.ModLoader="{Binding LoaderType}"
+                                helpers:VersionElementHelper.OpenSettingsCommand="{Binding DataContext.OpenSettingsCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                helpers:VersionElementHelper.VersionName="{Binding Name}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

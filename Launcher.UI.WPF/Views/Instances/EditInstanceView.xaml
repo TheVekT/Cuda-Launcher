@@ -1,0 +1,519 @@
+<UserControl
+    Background="Transparent"
+    FontFamily="{DynamicResource GlobalFont}"
+    d:DataContext="{d:DesignInstance Type=instances:EditInstanceViewModel,
+                                     IsDesignTimeCreatable=False}"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Views.Instances.EditInstanceView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:behaviors="clr-namespace:Launcher.UI.WPF.Behaviors"
+    xmlns:controls="clr-namespace:Launcher.UI.WPF.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:gif="http://wpfanimatedgif.codeplex.com"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:instances="clr-namespace:Launcher.UI.WPF.ViewModels.Instances"
+    xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:skeletons="clr-namespace:Launcher.UI.WPF.Views.Instances.Skeletons"
+    xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <helpers:StringFormatConverter x:Key="StringFormatConverter" />
+        <DataTemplate x:Key="MenuTemplate">
+            <Grid Width="512">
+                <Border
+                    Background="{DynamicResource OverlayBackgroundPrimaryBrush}"
+                    BorderBrush="{DynamicResource OverlayBorderPrimaryBrush}"
+                    BorderThickness="{DynamicResource DefaultBorderThickness}"
+                    CornerRadius="{DynamicResource DefaultCorner}"
+                    Padding="20">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0">
+                            <TextBlock
+                                FontSize="16"
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                Margin="0,0,0,5"
+                                Text="{localization:Loc InstallationSettings_Title}" />
+                            <TextBlock
+                                FontSize="13"
+                                Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                Text="{localization:Loc InstallationSettings_Subtitle}" />
+                            <Border
+                                Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
+                                CornerRadius="{DynamicResource DefaultCorner}"
+                                HorizontalAlignment="Center"
+                                Margin="0,10"
+                                Padding="4"
+                                VerticalAlignment="Top"
+                                Width="472">
+                                <controls:FlexPanel>
+
+                                    <RadioButton
+                                        Content="{localization:Loc InstallationSettings_Tabs_General}"
+                                        GroupName="InstanceSettingsTabs"
+                                        IsChecked="True"
+                                        Style="{StaticResource SegmentedTabButtonStyle}"
+                                        x:Name="TabGeneral" />
+
+                                    <RadioButton
+                                        Content="{localization:Loc InstallationSettings_Tabs_Advanced}"
+                                        GroupName="InstanceSettingsTabs"
+                                        IsChecked="False"
+                                        Style="{StaticResource SegmentedTabButtonStyle}"
+                                        x:Name="TabAdvanced" />
+                                </controls:FlexPanel>
+                            </Border>
+                        </StackPanel>
+                        <ScrollViewer
+                            Grid.Row="1"
+                            HorizontalScrollBarVisibility="Disabled"
+                            Style="{StaticResource MinimalScrollViewer}"
+                            VerticalScrollBarVisibility="Auto"
+                            Visibility="{Binding ElementName=TabGeneral, Path=IsChecked, Converter={StaticResource BoolToVis}}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Margin="0,5">
+                                    <TextBlock
+                                        FontSize="12"
+                                        FontWeight="Bold"
+                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                        Text="{localization:Loc InstallationSettings_NameLabel}" />
+                                    <TextBox
+                                        FontSize="12"
+                                        Height="35"
+                                        Margin="0,5,0,0"
+                                        Style="{StaticResource DefaultTextInputStyle}"
+                                        Tag="{Binding SuggestedName}"
+                                        Text="{Binding InstallationName, UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBlock
+                                        Background="Transparent"
+                                        FontSize="11"
+                                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                        Margin="0,5,0,0"
+                                        Text="{localization:Loc InstallationSettings_NamePlaceholder}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Margin="0,5">
+                                    <TextBlock
+                                        FontSize="12"
+                                        FontWeight="Bold"
+                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                        Text="{localization:Loc InstallationSettings_ModLoaderLabel}" />
+                                    <ComboBox
+                                        Height="35"
+                                        IsEnabled="False"
+                                        ItemContainerStyle="{StaticResource ImageComboBoxItemStyle}"
+                                        ItemTemplate="{StaticResource ImageComboBoxItemTemplate}"
+                                        ItemsSource="{Binding AvailableLoaders}"
+                                        Margin="0,5,0,0"
+                                        SelectedItem="{Binding SelectedModLoader}"
+                                        Style="{StaticResource LoaderComboBox}" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Margin="0,5">
+                                    <TextBlock
+                                        FontSize="12"
+                                        FontWeight="Bold"
+                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                        Text="{localization:Loc InstallationSettings_GameVersionLabel}" />
+                                    <ComboBox
+                                        Height="35"
+                                        IsEnabled="False"
+                                        Margin="0,5,0,0"
+                                        SelectedIndex="0"
+                                        Style="{StaticResource OverlayComboBox}"
+                                        x:Name="SelectVersionComboBox">
+                                        <ComboBoxItem Content="{Binding SelectedGameVersion}" />
+                                    </ComboBox>
+                                    <Expander
+                                        FontSize="12"
+                                        Foreground="{DynamicResource ForegroundSecondaryBrush}"
+                                        Header="{localization:Loc InstallationSettings_LoaderVersionLabel}"
+                                        Margin="0,5,0,0">
+                                        <Expander.Style>
+                                            <Style BasedOn="{StaticResource MoreContentExpanderStyle}" TargetType="Expander">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedModLoader.Name}" Value="Vanilla">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Expander.Style>
+                                        <ComboBox
+                                            Height="35"
+                                            ItemsSource="{Binding LoaderVersions}"
+                                            Margin="0,5,0,0"
+                                            MaxDropDownHeight="230"
+                                            SelectedItem="{Binding SelectedLoaderVersion}"
+                                            Style="{StaticResource OverlayComboBox}" />
+                                    </Expander>
+                                </StackPanel>
+                                <StackPanel Grid.Row="3" Margin="0,5">
+                                    <TextBlock
+                                        FontSize="12"
+                                        FontWeight="Bold"
+                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                        Text="{localization:Loc InstallationSettings_InstallationIconLabel}" />
+
+                                    <Border
+                                        Background="{DynamicResource OverlayBackgroundSurfaceBrush}"
+                                        CornerRadius="{DynamicResource DefaultCorner}"
+                                        Margin="0,5,0,0"
+                                        MaxHeight="120"
+                                        Padding="5">
+
+                                        <ListBox
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            ItemsSource="{Binding InstancesStore.IconList}"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                            ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                            SelectedItem="{Binding SelectedIcon}">
+                                            <ListBox.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <UniformGrid Columns="8" VerticalAlignment="Top" />
+                                                </ItemsPanelTemplate>
+                                            </ListBox.ItemsPanel>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="{DynamicResource DefaultCorner}">
+                                                        <Image
+                                                            Height="40"
+                                                            HorizontalAlignment="Center"
+                                                            Stretch="Uniform"
+                                                            VerticalAlignment="Center"
+                                                            Width="40"
+                                                            gif:ImageBehavior.AnimatedSource="{Binding}" />
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+
+                                            <ListBox.ItemContainerStyle>
+                                                <Style TargetType="ListBoxItem">
+                                                    <Setter Property="Padding" Value="2" />
+                                                    <Setter Property="Margin" Value="2" />
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                    <Setter Property="Cursor" Value="Hand" />
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="ListBoxItem">
+                                                                <Border
+                                                                    Background="Transparent"
+                                                                    BorderBrush="Transparent"
+                                                                    BorderThickness="1"
+                                                                    CornerRadius="{DynamicResource DefaultCorner}"
+                                                                    Padding="{TemplateBinding Padding}"
+                                                                    x:Name="Bd">
+                                                                    <ContentPresenter />
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsSelected" Value="True">
+                                                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource BorderAccentBrush}" />
+                                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBackgroundBrush}" />
+                                                                    </Trigger>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" TargetName="Bd" Value="{DynamicResource OverlayHoverButtonBackgroundBrush}" />
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </ListBox.ItemContainerStyle>
+                                        </ListBox>
+                                    </Border>
+
+
+                                    <!--  Click="UploadButton_Click"  -->
+                                    <!--  DragEnter="UploadButton_DragEnter"  -->
+                                    <!--  Drop="UploadButton_Drop"  -->
+                                    <Button
+                                        Command="{Binding SelectIconCommand}"
+                                        Content="{localization:Loc InstallationSettings_InstallationIconUpload}"
+                                        Height="50"
+                                        Margin="0,5,0,0"
+                                        Style="{StaticResource UploadDropZoneStyle}"
+                                        behaviors:FileDragDropBehavior.DropCommand="{Binding DropIconCommand}" />
+                                </StackPanel>
+                            </Grid>
+                        </ScrollViewer>
+                        <ScrollViewer
+                            Grid.Row="1"
+                            HorizontalScrollBarVisibility="Hidden"
+                            Style="{StaticResource MinimalScrollViewer}"
+                            VerticalScrollBarVisibility="Auto"
+                            Visibility="{Binding ElementName=TabAdvanced, Path=IsChecked, Converter={StaticResource BoolToVis}}">
+                            <StackPanel Orientation="Vertical">
+                                <CheckBox
+                                    Content="{localization:Loc InstallationSettings_InheritGameSettings}"
+                                    FontSize="13"
+                                    IsChecked="{Binding UseGlobalGameSettings}"
+                                    Margin="0,5,0,0"
+                                    Style="{StaticResource DefaultToggleSwitchStyle}"
+                                    VerticalAlignment="Top"
+                                    helpers:ScaleHelper.ScaleFactor="0.8"
+                                    x:Name="InheritGameSettings" />
+                                <StackPanel IsEnabled="{Binding IsChecked, ElementName=InheritGameSettings, Converter={StaticResource EqualConverter}, ConverterParameter=False}" Orientation="Vertical">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="IsEnabled" Value="{Binding IsChecked, ElementName=EnableBackupInherit, Converter={StaticResource EqualConverter}, ConverterParameter=False}" />
+                                            <Setter Property="Opacity" Value="1" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Opacity" Value="0.5" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <StackPanel Orientation="Vertical">
+                                        <StackPanel Margin="0,5" Orientation="Vertical">
+                                            <TextBlock FontSize="13" Foreground="{DynamicResource ForegroundPrimaryBrush}">
+                                                <TextBlock FontSize="13" Foreground="{DynamicResource ForegroundPrimaryBrush}">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding Converter="{StaticResource StringFormatConverter}">
+                                                            <localization:Loc Key="InstallationSettings_AllocatedMemoryLabel" />
+
+                                                            <Binding ElementName="AllocatedMemory" Path="Value" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </TextBlock>
+                                            <Slider
+                                                IsSnapToTickEnabled="True"
+                                                Maximum="{Binding SettingsStore.MaxPhysicalRam}"
+                                                Minimum="1024"
+                                                Style="{StaticResource DefaultSliderStyle}"
+                                                TickFrequency="512"
+                                                Value="{Binding SelectedMaxRam}"
+                                                x:Name="AllocatedMemory" />
+                                        </StackPanel>
+                                        <CheckBox
+                                            Content="{localization:Loc InstallationSettings_FullscreenModeLabel}"
+                                            FontSize="13"
+                                            IsChecked="{Binding IsGameFullscreen}"
+                                            Margin="0,5,0,0"
+                                            Style="{StaticResource DefaultToggleSwitchStyle}"
+                                            VerticalAlignment="Top"
+                                            helpers:ScaleHelper.ScaleFactor="0.8"
+                                            x:Name="FullscreenModeCheckbox" />
+                                        <StackPanel
+                                            Margin="0,5"
+                                            Orientation="Vertical"
+                                            Style="{StaticResource AnimatedVisibilityStyle}"
+                                            helpers:VisibilityHelper.IsVisible="{Binding Path=IsChecked, ElementName=FullscreenModeCheckbox, Converter={StaticResource EqualConverter}, ConverterParameter=False}">
+                                            <TextBlock
+                                                FontSize="13"
+                                                Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                                Margin="0,0,0,5"
+                                                Text="{localization:Loc InstallationSettings_WindowResolutionLabel}" />
+                                            <ComboBox
+                                                Height="30"
+                                                ItemsSource="{Binding SettingsStore.AvailableResolutions}"
+                                                SelectedItem="{Binding SelectedResolution}"
+                                                Style="{StaticResource OverlayComboBox}">
+
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding}" x:Name="ResolutionText" />
+
+                                                        <DataTemplate.Triggers>
+                                                            <DataTrigger Binding="{Binding}" Value="Auto">
+                                                                <Setter Property="Text" TargetName="ResolutionText" Value="{localization:Loc InstallationSettings_Resolution_Auto}" />
+                                                            </DataTrigger>
+                                                        </DataTemplate.Triggers>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <TextBlock
+                                            FontSize="13"
+                                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                            Margin="0,5,0,0"
+                                            Text="{localization:Loc InstallationSettings_EditJVMArgumentsLabel}"
+                                            TextWrapping="Wrap" />
+                                        <TextBox
+                                            FontSize="12"
+                                            Margin="0,5"
+                                            Style="{StaticResource DefaultTextInputStyle}"
+                                            Tag="JVM Arguments"
+                                            Text="{Binding JvmArguments, UpdateSourceTrigger=PropertyChanged}"
+                                            behaviors:JvmArgumentsValidationBehavior.IsEnabled="True" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox
+                                        Content="{localization:Loc InstallationSettings_InheritBackupSettings}"
+                                        FontSize="13"
+                                        IsChecked="{Binding UseGlobalBackupSettings}"
+                                        IsEnabled="{Binding SelectedIsolation, Converter={StaticResource NotEqualConverter}, ConverterParameter=Global}"
+                                        Margin="0,5"
+                                        Style="{StaticResource DefaultToggleSwitchStyle}"
+                                        VerticalAlignment="Top"
+                                        helpers:ScaleHelper.ScaleFactor="0.8"
+                                        x:Name="EnableBackupInherit" />
+
+                                    <StackPanel IsEnabled="{Binding IsChecked, ElementName=EnableBackupInherit, Converter={StaticResource EqualConverter}, ConverterParameter=False}" Orientation="Vertical">
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="IsEnabled" Value="{Binding IsChecked, ElementName=EnableBackupInherit, Converter={StaticResource EqualConverter}, ConverterParameter=False}" />
+                                                <Setter Property="Opacity" Value="1" />
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Opacity" Value="0.5" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                        <Border Padding="0,5">
+                                            <StackPanel>
+                                                <CheckBox
+                                                    Content="{localization:Loc InstallationSettings_EnableBackups}"
+                                                    FontSize="12"
+                                                    IsChecked="{Binding IsEnableAutoBackups}"
+                                                    Margin="0,0,0,5"
+                                                    Style="{StaticResource DefaultToggleSwitchStyle}"
+                                                    VerticalAlignment="Top"
+                                                    helpers:ScaleHelper.ScaleFactor="0.8"
+                                                    x:Name="EnableBackupsCheckbox" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                                    Margin="0,0,0,6"
+                                                    Text="{localization:Loc InstallationSettings_BackupFreqLabel}" />
+                                                <ComboBox
+                                                    Height="30"
+                                                    ItemsSource="{Binding SettingsStore.BackupFrequencyValues}"
+                                                    SelectedItem="{Binding SelectedBackupFrequency}"
+                                                    Style="{StaticResource OverlayComboBox}">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock x:Name="FreqText" />
+                                                            <DataTemplate.Triggers>
+                                                                <DataTrigger Binding="{Binding}" Value="Daily">
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{localization:Loc InstallationSettings_BackupFreq_Daily}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding}" Value="Weekly">
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{localization:Loc InstallationSettings_BackupFreq_Weekly}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding}" Value="Biweekly">
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{localization:Loc InstallationSettings_BackupFreq_Biweekly}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding}" Value="Monthly">
+                                                                    <Setter Property="Text" TargetName="FreqText" Value="{localization:Loc InstallationSettings_BackupFreq_Monthly}" />
+                                                                </DataTrigger>
+                                                            </DataTemplate.Triggers>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                                <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
+                                                    <TextBlock
+                                                        FontSize="12"
+                                                        Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                                                        Margin="0,0,10,0"
+                                                        Text="{localization:Loc InstallationSettings_BackupsLimitLabel}"
+                                                        VerticalAlignment="Center" />
+                                                    <TextBox
+                                                        Background="Transparent"
+                                                        FontSize="12"
+                                                        MaxLength="1"
+                                                        Padding="4"
+                                                        Style="{StaticResource DefaultTextInputStyle}"
+                                                        Text="{Binding MaxBackupCount}"
+                                                        TextAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Width="25"
+                                                        behaviors:NumericTextBoxBehavior.IsEnabled="True" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <Grid Grid.Row="2" Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button
+                                Command="{Binding CloseSelfCommand}"
+                                Content="{localization:Loc InstallationSettings_Cancel}"
+                                FontSize="13"
+                                Grid.Column="0"
+                                Height="30"
+                                Margin="0,0,4,0"
+                                Style="{StaticResource DefaultButtonStyle}"
+                                Tag="{StaticResource Icon.Close}"
+                                helpers:ButtonHelper.IconSize="10"
+                                x:Name="CancelButton" />
+                            <Button
+                                Command="{Binding SaveCommand}"
+                                Content="{localization:Loc InstallationSettings_Save}"
+                                FontSize="13"
+                                Grid.Column="1"
+                                Height="30"
+                                IsDefault="True"
+                                Margin="4,0,0,0"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Tag="{StaticResource Icon.Accept}"
+                                helpers:ButtonHelper.IconSize="12"
+                                x:Name="SaveButton" />
+
+                        </Grid>
+                    </Grid>
+                </Border>
+                <Button
+                    Command="{Binding CloseSelfCommand}"
+                    Cursor="Hand"
+                    Height="12"
+                    HorizontalAlignment="Right"
+                    Margin="0,20,20,0"
+                    VerticalAlignment="Top"
+                    Width="12">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="Transparent">
+                                <ContentPresenter />
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                    <Viewbox Stretch="Uniform">
+                        <Path
+                            Data="{StaticResource Icon.Close}"
+                            Stroke="{DynamicResource ForegroundPlaceholderBrush}"
+                            StrokeThickness="1.33" />
+                    </Viewbox>
+                </Button>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+    <Grid>
+        <skeletons:EditInstanceSkeleton Visibility="{Binding IsViewReady, Converter={StaticResource InverseBoolToVis}}" />
+        <ContentControl Content="{Binding}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="ContentTemplate">
+                        <Setter.Value>
+                            <DataTemplate />
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsViewReady}" Value="True">
+                            <Setter Property="ContentTemplate" Value="{StaticResource MenuTemplate}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+    </Grid>
+</UserControl>

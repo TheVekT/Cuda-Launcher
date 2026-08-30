@@ -1,0 +1,51 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  Base Surfaces  -->
+    <SolidColorBrush Color="{DynamicResource AppBackground}" x:Key="AppBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource BackgroundSurface}" x:Key="BackgroundSurfaceBrush" />
+    <SolidColorBrush Color="{DynamicResource BackgroundCard}" x:Key="BackgroundCardBrush" />
+    <SolidColorBrush Color="{DynamicResource BackgroundTransparent}" x:Key="BackgroundTransparentBrush" />
+    <SolidColorBrush Color="{DynamicResource BackgroundAccent}" x:Key="BackgroundAccentBrush" />
+
+    <!--  Overlays  -->
+    <SolidColorBrush Color="{DynamicResource OverlayBackgroundPrimary}" x:Key="OverlayBackgroundPrimaryBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlayBackgroundSurface}" x:Key="OverlayBackgroundSurfaceBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlayBorderPrimary}" x:Key="OverlayBorderPrimaryBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlaySelection}" x:Key="OverlaySelectionBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlayButtonBackground}" x:Key="OverlayButtonBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource OverlayHoverButtonBackground}" x:Key="OverlayHoverButtonBackgroundBrush" />
+
+    <!--  Text & Content  -->
+    <SolidColorBrush Color="{DynamicResource ForegroundPrimary}" x:Key="ForegroundPrimaryBrush" />
+    <SolidColorBrush Color="{DynamicResource ForegroundSecondary}" x:Key="ForegroundSecondaryBrush" />
+    <SolidColorBrush Color="{DynamicResource ForegroundPlaceholder}" x:Key="ForegroundPlaceholderBrush" />
+    <SolidColorBrush Color="{DynamicResource ForegroundOnAccent}" x:Key="ForegroundOnAccentBrush" />
+
+    <!--  Borders  -->
+    <SolidColorBrush Color="{DynamicResource BorderPrimary}" x:Key="BorderPrimaryBrush" />
+    <SolidColorBrush Color="{DynamicResource BorderSecondary}" x:Key="BorderSecondaryBrush" />
+    <SolidColorBrush Color="{DynamicResource BorderAccent}" x:Key="BorderAccentBrush" />
+
+    <!--  Interactive / Inputs / Buttons  -->
+    <SolidColorBrush Color="{DynamicResource InputBackground}" x:Key="InputBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource HoverBackgroundNav}" x:Key="HoverBackgroundNavBrush" />
+    <SolidColorBrush Color="{DynamicResource HoverBackgroundDefaultBtn}" x:Key="HoverBackgroundDefaultBtnBrush" />
+
+    <!--  Main CTA (Play Button)  -->
+    <SolidColorBrush Color="{DynamicResource PlayButtonBackground}" x:Key="PlayButtonBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource PlayButtonBorder}" x:Key="PlayButtonBorderBrush" />
+    <SolidColorBrush Color="{DynamicResource PlayButtonForeground}" x:Key="PlayButtonForegroundBrush" />
+
+    <!--  Feedback & Status  -->
+    <SolidColorBrush Color="{DynamicResource AlertBackground}" x:Key="AlertBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource AlertBorder}" x:Key="AlertBorderBrush" />
+    <SolidColorBrush Color="{DynamicResource AlertForeground}" x:Key="AlertForegroundBrush" />
+    <SolidColorBrush Color="{DynamicResource DangerBackground}" x:Key="DangerBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource DangerBorder}" x:Key="DangerBorderBrush" />
+    <SolidColorBrush Color="{DynamicResource DangerForeground}" x:Key="DangerForegroundBrush" />
+    <SolidColorBrush Color="{DynamicResource SuccessBackground}" x:Key="SuccessBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource SuccessBorder}" x:Key="SuccessBorderBrush" />
+    <SolidColorBrush Color="{DynamicResource SuccessForeground}" x:Key="SuccessForegroundBrush" />
+    <SolidColorBrush Color="{DynamicResource FeaturedForeground}" x:Key="FeaturedForegroundBrush" />
+
+</ResourceDictionary>

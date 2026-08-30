@@ -1,0 +1,158 @@
+using System.IO;
+using System.Text;
+using System.Windows;
+using System.Windows.Markup;
+using System.Windows.Media;
+// ReSharper disable InconsistentNaming
+
+namespace Launcher.UI.WPF.Views.Config.Components
+{
+    public partial class ThemePreviewCard
+    {
+        public ThemePreviewCard()
+        {
+            InitializeComponent();
+        }
+        
+        public static readonly DependencyProperty ThemeXamlPathProperty =
+            DependencyProperty.Register(nameof(ThemeXamlPath), typeof(string), typeof(ThemePreviewCard), new PropertyMetadata(null, OnThemeXamlPathChanged));
+
+        public string ThemeXamlPath
+        {
+            get => (string)GetValue(ThemeXamlPathProperty);
+            set => SetValue(ThemeXamlPathProperty, value);
+        }
+        
+        public static readonly DependencyProperty ZipPathSourceProperty =
+            DependencyProperty.Register(nameof(ZipPathSource), typeof(string), typeof(ThemePreviewCard), new PropertyMetadata(null));
+        
+        public string ZipPathSource
+        {
+            get => (string)GetValue(ZipPathSourceProperty);
+            set => SetValue(ZipPathSourceProperty, value);
+        }
+        
+        public static readonly DependencyProperty CurrentThemePathVmProperty =
+            DependencyProperty.Register(nameof(CurrentThemePathVm), typeof(string), typeof(ThemePreviewCard), 
+                new PropertyMetadata(null, OnCurrentThemePathVMChanged));
+        
+        public string CurrentThemePathVm
+        {
+            get => (string)GetValue(CurrentThemePathVmProperty);
+            set => SetValue(CurrentThemePathVmProperty, value);
+        }
+
+        public static readonly DependencyProperty IsSelectedProperty =
+           DependencyProperty.Register(nameof(IsSelected), typeof(bool), typeof(ThemePreviewCard), new PropertyMetadata(false));
+        
+        public bool IsSelected
+        {
+            get => (bool)GetValue(IsSelectedProperty);
+            set => SetValue(IsSelectedProperty, value);
+        }
+        
+        private static void OnCurrentThemePathVMChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ThemePreviewCard card)
+            {
+                card.IsSelected = !string.IsNullOrEmpty(card.ZipPathSource) && 
+                                  !string.IsNullOrEmpty(card.CurrentThemePathVm) &&
+                                  card.ZipPathSource == card.CurrentThemePathVm;
+            }
+        }
+        
+        private static void OnThemeXamlPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is ThemePreviewCard card && e.NewValue is string path && File.Exists(path))
+            {
+                try
+                {
+                    string xamlContent = File.ReadAllText(path);
+
+                    using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(xamlContent)))
+                    {
+                        var parserContext = new ParserContext();
+                        parserContext.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
+                        parserContext.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");
+
+                        var dict = (ResourceDictionary)XamlReader.Load(stream, parserContext);
+
+                        card.P_GlobalFont = GetFont(dict, "GlobalFont");
+                        card.P_AppBackground = GetBrush(dict, "AppBackground");
+                        card.P_BorderPrimary = GetBrush(dict, "BorderPrimary");
+                        card.P_BackgroundSurface = GetBrush(dict, "BackgroundSurface");
+                        card.P_BorderSecondary = GetBrush(dict, "BorderSecondary");
+                        card.P_InputBackground = GetBrush(dict, "InputBackground");
+                        card.P_BackgroundAccent = GetBrush(dict, "BackgroundAccent");
+                        card.P_ForegroundOnAccent = GetBrush(dict, "ForegroundOnAccent");
+                        card.P_ForegroundPrimary = GetBrush(dict, "ForegroundPrimary");
+                        card.P_ForegroundSecondary = GetBrush(dict, "ForegroundSecondary");
+                    }
+                }
+                catch
+                {
+                    card.ThemeName = "Load Error";
+                }
+            }
+        }
+
+        private static Brush GetBrush(ResourceDictionary dict, string key)
+        {
+            if (dict.Contains(key) && dict[key] is Color color)
+            {
+                var b = new SolidColorBrush(color);
+                b.Freeze();
+                return b;
+            }
+            return Brushes.Transparent; 
+        }
+
+        private static FontFamily GetFont(ResourceDictionary dict, string key)
+        {
+            if (dict.Contains(key) && dict[key] is FontFamily font)
+            {
+                return font;
+            }
+            return new FontFamily("Arial");
+        }
+        
+        public static readonly DependencyProperty P_GlobalFontProperty = DP_Font("P_GlobalFont");
+        public FontFamily P_GlobalFont { get => (FontFamily)GetValue(P_GlobalFontProperty); set => SetValue(P_GlobalFontProperty, value); }
+        
+        public static readonly DependencyProperty P_AppBackgroundProperty = DP("P_AppBackground");
+        public Brush P_AppBackground { get => (Brush)GetValue(P_AppBackgroundProperty); set => SetValue(P_AppBackgroundProperty, value); }
+        
+        public static readonly DependencyProperty P_BorderPrimaryProperty = DP("P_BorderPrimary");
+        public Brush P_BorderPrimary { get => (Brush)GetValue(P_BorderPrimaryProperty); set => SetValue(P_BorderPrimaryProperty, value); }
+        
+        public static readonly DependencyProperty P_BackgroundSurfaceProperty = DP("P_BackgroundSurface");
+        public Brush P_BackgroundSurface { get => (Brush)GetValue(P_BackgroundSurfaceProperty); set => SetValue(P_BackgroundSurfaceProperty, value); }
+        
+        public static readonly DependencyProperty P_BorderSecondaryProperty = DP("P_BorderSecondary");
+        public Brush P_BorderSecondary { get => (Brush)GetValue(P_BorderSecondaryProperty); set => SetValue(P_BorderSecondaryProperty, value); }
+        
+        public static readonly DependencyProperty P_InputBackgroundProperty = DP("P_InputBackground");
+        public Brush P_InputBackground { get => (Brush)GetValue(P_InputBackgroundProperty); set => SetValue(P_InputBackgroundProperty, value); }
+        
+        public static readonly DependencyProperty P_BackgroundAccentProperty = DP("P_BackgroundAccent");
+        public Brush P_BackgroundAccent { get => (Brush)GetValue(P_BackgroundAccentProperty); set => SetValue(P_BackgroundAccentProperty, value); }
+        
+        public static readonly DependencyProperty P_ForegroundOnAccentProperty = DP("P_ForegroundOnAccent");
+        public Brush P_ForegroundOnAccent { get => (Brush)GetValue(P_ForegroundOnAccentProperty); set => SetValue(P_ForegroundOnAccentProperty, value); }
+        
+        public static readonly DependencyProperty P_ForegroundPrimaryProperty = DP("P_ForegroundPrimary");
+        public Brush P_ForegroundPrimary { get => (Brush)GetValue(P_ForegroundPrimaryProperty); set => SetValue(P_ForegroundPrimaryProperty, value); }
+        
+        public static readonly DependencyProperty P_ForegroundSecondaryProperty = DP("P_ForegroundSecondary");
+        public Brush P_ForegroundSecondary { get => (Brush)GetValue(P_ForegroundSecondaryProperty); set => SetValue(P_ForegroundSecondaryProperty, value); }
+
+        public static readonly DependencyProperty ThemeNameProperty = DependencyProperty.Register(nameof(ThemeName), typeof(string), typeof(ThemePreviewCard), new PropertyMetadata("Unknown"));
+        public string ThemeName { get => (string)GetValue(ThemeNameProperty); set => SetValue(ThemeNameProperty, value); }
+        
+        public static readonly DependencyProperty ThemeAuthorProperty = DependencyProperty.Register(nameof(ThemeAuthor), typeof(string), typeof(ThemePreviewCard), new PropertyMetadata("Unknown"));
+        public string ThemeAuthor { get => (string)GetValue(ThemeAuthorProperty); set => SetValue(ThemeAuthorProperty, value); }
+
+        private static DependencyProperty DP(string name) => DependencyProperty.Register(name, typeof(Brush), typeof(ThemePreviewCard), new PropertyMetadata(Brushes.Transparent));
+        private static DependencyProperty DP_Font(string name) => DependencyProperty.Register(name, typeof(FontFamily), typeof(ThemePreviewCard), new PropertyMetadata(new FontFamily("Arial")));
+    }
+}

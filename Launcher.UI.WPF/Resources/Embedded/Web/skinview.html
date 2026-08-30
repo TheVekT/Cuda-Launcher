@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 0; overflow: hidden; background-color: transparent; }
+        canvas { display: block; }
+    </style>
+    <script src="skinview3d.bundle.js"></script>
+</head>
+<body>
+<canvas id="skin_container"></canvas>
+<script>
+    let skinViewer = new skinview3d.SkinViewer({
+        canvas: document.getElementById("skin_container"),
+        width: window.innerWidth,
+        height: window.innerHeight
+    });
+    
+    skinViewer.camera.position.x = -20; 
+    skinViewer.camera.position.y = 15;  
+    skinViewer.camera.position.z = 40;  
+    skinViewer.controls.update();      
+
+    function loadModel(skinBase64, capeBase64, isSlim) {
+        if (skinBase64) skinViewer.loadSkin(skinBase64, { model: isSlim ? "slim" : "default" });
+        if (capeBase64) skinViewer.loadCape(capeBase64);
+        else skinViewer.resetCape();
+    }
+
+    function setAnimation(type) {
+        try {
+            if (skinViewer.animation) {
+                skinViewer.animation = null;
+            }
+            
+            skinViewer.playerObject.rotation.x = 0;
+            skinViewer.playerObject.rotation.y = 0;
+            skinViewer.playerObject.rotation.z = 0;
+
+            let skin = skinViewer.playerObject.skin;
+            if (skin) {
+                let parts = [skin.leftArm, skin.rightArm, skin.leftLeg, skin.rightLeg, skin.head, skin.body];
+                parts.forEach(part => {
+                    if (part) { part.rotation.x = 0; part.rotation.y = 0; part.rotation.z = 0; }
+                });
+            }
+            
+            switch (type) {
+                case "walk":
+                    if(skinview3d.WalkingAnimation) skinViewer.animation = new skinview3d.WalkingAnimation();
+                    break;
+                case "run":
+                    if(skinview3d.RunningAnimation) skinViewer.animation = new skinview3d.RunningAnimation();
+                    break;
+                case "fly":
+                    if(skinview3d.FlyingAnimation) skinViewer.animation = new skinview3d.FlyingAnimation();
+                    break;
+                case "idle":
+                    if(skinview3d.IdleAnimation) skinViewer.animation = new skinview3d.IdleAnimation();
+                    break;
+                default:
+                    if (skin) {
+                        skin.leftArm.rotation.x = -0.15;
+                        skin.rightArm.rotation.x = 0.15;
+                        skin.leftLeg.rotation.x = 0.15;
+                        skin.rightLeg.rotation.x = -0.15;
+                    }
+                    break;
+            }
+            if (skinViewer.animation) {
+                skinViewer.animation.speed = 0.8; 
+            }
+        } catch (e) {
+            console.error("Install Error:", e);
+        }
+    }
+
+    function takeSnapshot() {
+        if (skinViewer.animation) {
+            skinViewer.animation = null;
+        }
+
+        skinViewer.playerObject.rotation.x = 0;
+        skinViewer.playerObject.rotation.y = 0;
+        skinViewer.playerObject.rotation.z = 0;
+
+
+        let skin = skinViewer.playerObject.skin;
+        if (skin) {
+ 
+            skin.rightArm.rotation.x = 0.6;
+            skin.leftArm.rotation.x = -0.6;
+            
+            skin.leftLeg.rotation.x = 0.5;
+            skin.rightLeg.rotation.x = -0.5;
+            
+            if (skin.head) {
+                skin.head.rotation.x = -0.1;
+                skin.head.rotation.y = 0.2;
+            }
+
+            if (skinViewer.playerObject.cape) {
+                skinViewer.playerObject.cape.rotation.x = 0.3;
+            }
+        }
+        skinViewer.renderer.render(skinViewer.scene, skinViewer.camera);
+        return skinViewer.canvas.toDataURL("image/png");
+    }
+
+    window.addEventListener("resize", () => {
+        skinViewer.width = window.innerWidth;
+        skinViewer.height = window.innerHeight;
+    });
+</script>
+</body>
+</html>

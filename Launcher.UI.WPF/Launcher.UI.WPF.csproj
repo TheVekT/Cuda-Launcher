@@ -1,0 +1,360 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <AssemblyName>Cuda Launcher</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SelfContained>true</SelfContained>
+    <NoWarn>$(NoWarn);CS0657</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Embedded\Web\skinview.html" />
+    <EmbeddedResource Include="Resources\Embedded\Web\skinview3d.bundle.js" />
+    <None Remove="Assets\Images\banner-default.jpg" />
+    <None Remove="Assets\Skins\sk1.png" />
+    <None Remove="Assets\Skins\sk2.png" />
+    <None Remove="Assets\Skins\sk4.png" />
+    <None Remove="Assets\Skins\sk3.png" />
+    <None Remove="Assets\Skins\TheVekT(NOW).png" />
+    <!-- Ensure theme XAML files are compiled as Page so CLR types in XAML resolve correctly -->
+    <None Remove="Assets\Icons\150px-Yellow_Glazed_Terracotta_(S)_JE1_BE1.png" />
+    <Content Include="Assets\Icons\150px-Yellow_Glazed_Terracotta_(S)_JE1_BE1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-TNT_JE3_BE2.png" />
+    <Content Include="Assets\Icons\150px-TNT_JE3_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Stone_JE8.png" />
+    <Content Include="Assets\Icons\150px-Stone_JE8.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Smithing_Table_JE2_BE2.png" />
+    <Content Include="Assets\Icons\150px-Smithing_Table_JE2_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Sand_JE5_BE3.png" />
+    <Content Include="Assets\Icons\150px-Sand_JE5_BE3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Red_Glazed_Terracotta_(S)_JE1_BE1.png" />
+    <Content Include="Assets\Icons\150px-Red_Glazed_Terracotta_(S)_JE1_BE1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Orange_Glazed_Terracotta_(S)_JE2_BE2.png" />
+    <Content Include="Assets\Icons\150px-Orange_Glazed_Terracotta_(S)_JE2_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Oak_Log_(UD)_JE8_BE3.png" />
+    <Content Include="Assets\Icons\150px-Oak_Log_(UD)_JE8_BE3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Netherrack_JE4_BE2.png" />
+    <Content Include="Assets\Icons\150px-Netherrack_JE4_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Glass_JE4_BE2.png" />
+    <Content Include="Assets\Icons\150px-Glass_JE4_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Glowstone_BE.png" />
+    <Content Include="Assets\Icons\150px-Glowstone_BE.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Cobblestone_JE5_BE3.png" />
+    <Content Include="Assets\Icons\150px-Cobblestone_JE5_BE3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Chest.gif" />
+    <Content Include="Assets\Icons\150px-Chest.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Bookshelf_JE4_BE2.png" />
+    <Content Include="Assets\Icons\150px-Bookshelf_JE4_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Block_of_Diamond_JE5_BE3.png" />
+    <Content Include="Assets\Icons\150px-Block_of_Diamond_JE5_BE3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Bedrock_JE2_BE2.png" />
+    <Content Include="Assets\Icons\150px-Bedrock_JE2_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\150px-Anvil_(N)_BE3.png" />
+    <Content Include="Assets\Icons\150px-Anvil_(N)_BE3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\120px-Poison_JE3_BE2.png" />
+    <Content Include="Assets\Icons\120px-Poison_JE3_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\120px-Impulse_Command_Block_JE5_BE2.png" />
+    <Content Include="Assets\Icons\120px-Impulse_Command_Block_JE5_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\120px-Furnace_(S)_JE4.png" />
+    <Content Include="Assets\Icons\120px-Furnace_(S)_JE4.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\120px-Enchanting_Table_JE4_BE2.png" />
+    <Content Include="Assets\Icons\120px-Enchanting_Table_JE4_BE2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\120px-Emerald_JE3_BE3.png" />
+    <Content Include="Assets\Icons\120px-Emerald_JE3_BE3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\120px-Crafting_Table_JE4_BE3.png" />
+    <Content Include="Assets\Icons\120px-Crafting_Table_JE4_BE3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\120px-Bricks_JE5_BE3.png" />
+    <Content Include="Assets\Icons\120px-Bricks_JE5_BE3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Icons\quilt-default.png" />
+    <None Remove="Assets\Icons\150px-Grass_Block_JE7_BE6.png" />
+    <None Remove="Assets\Languages\uk-UA.json" />
+    <Content Include="Assets\Languages\uk-UA.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Page Remove="Assets\Themes\CyberPunk.xaml" />
+    <Page Remove="Assets\Themes\default-dark.xaml" />
+    <Page Remove="Assets\Themes\default-light.xaml" />
+    <Page Remove="Assets\Themes\SteamPunk.xaml" />
+    <None Remove="Assets\Themes\CyberPunk.zip" />
+    <Content Include="Assets\Themes\CyberPunk.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Themes\SteamPunk.zip" />
+    <Content Include="Assets\Themes\SteamPunk.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Page Update="Resources\Overlay\Notifications\InfoNotify1.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Content Update="Resources\Embedded\Languages\en-US.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\Embedded\Images\banner-default.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="icon.ico" />
+    <Resource Include="icon.ico" />
+    <None Remove="Assets\Web\skinview.html" />
+    <None Remove="Assets\Web\skinview3d.bundle.js" />
+    <Content Update="Resources\Embedded\Icons\150px-Grass_Block_JE7_BE6.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Page Update="Views\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Game\SkinsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Game\PlayView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Instances\InstallationsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Game\SkinEditorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Identity\LoginView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Instances\AddInstanceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Instances\EditInstanceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Settings\Customization\CustomizationView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Common\ConfirmView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Common\ProgressView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Settings\SettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Common\Notifications\ErrorNotify.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Common\Notifications\InfoNotify.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Common\Notifications\SuccessNotify.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Common\Notifications\WarnNotify.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Config\CustomizationView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Identity\Components\AccountCard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Common\Components\CustomTitleBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Game\Components\InteractiveSkinViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Game\Components\SkinCard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Instances\Components\VersionElement.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Config\Components\ThemePreviewCard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Instances\Skeletons\AddInstanceSkeleton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Instances\Skeletons\EditInstanceSkeleton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <None Remove="Assets\Icons\0_Grass_Block_JE7_BE6.png" />
+    <None Remove="Resources\Embedded\Icons\00_Grass_Block_JE7_BE6.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\00_Grass_Block_JE7_BE6.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Resources\Styles\Global.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Assets\Themes\Theme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Assets\Themes\Default-Light\Theme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <!-- Ensure other theme files are compiled as Page -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Assets\Images\banner-default.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="Assets\Languages\en.json" />
+    <None Remove="Assets\Languages\ru.json" />
+    <None Remove="Assets\Themes\Fonts\Rajdhani-Medium.ttf" />
+    <!-- theme files must not be Content when they define CLR types; compiled as Page above -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\Images\" />
+    <Folder Include="Assets\Themes\" />
+    <Folder Include="Assets\Web\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Launcher.Core\Launcher.Core.csproj" />
+    <ProjectReference Include="..\Launcher.Infrastructure\Launcher.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Embedded\Themes\default-light.zip" />
+    <None Remove="Resources\Embedded\default-light.zip" />
+    <None Remove="Resources\Embedded\default-dark.zip" />
+    <None Remove="Resources\Embedded\Themes\default-dark.zip" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\fabric-default.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\forge-default.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\logo.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\neoforge-default.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\optifine-default.png" />
+    <EmbeddedResource Include="Resources\Embedded\Icons\quilt-default.png" />
+    <EmbeddedResource Include="Resources\Embedded\Themes\default-dark.zip" />
+    <None Remove="Resources\Embedded\Themes\default-light.zip" />
+    <None Remove="Resources\Embedded\Images\banner-default.jpg" />
+    <EmbeddedResource Include="Resources\Embedded\Images\banner-default.jpg" />
+    <None Remove="Resources\Embedded\Languages\en-US.json" />
+    <EmbeddedResource Include="Resources\Embedded\Languages\en-US.json" />
+    <None Remove="Assets\Icons\fabric-default.png" />
+    <None Remove="Assets\Icons\forge-default.png" />
+    <None Remove="Assets\Icons\logo.png" />
+    <None Remove="Assets\Icons\neoforge-default.png" />
+    <None Remove="Assets\Icons\optifine-default.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0-preview.2.26159.112" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0-preview.2.26159.112" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3908-prerelease" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
+  </ItemGroup>
+
+</Project>

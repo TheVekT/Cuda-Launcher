@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <AssemblyName>Launcher Updater</AssemblyName>
+        
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+
+        <InvariantGlobalization>false</InvariantGlobalization>
+        <EventSourceSupport>false</EventSourceSupport>
+        <UseSystemResourceKeys>true</UseSystemResourceKeys>
+        <PublishReadyToRun>false</PublishReadyToRun>
+
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+        <ApplicationIcon>icon.ico</ApplicationIcon>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Resource Include="icon.ico">
+            <Link>icon.ico</Link>
+        </Resource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="ViewModels\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Page Update="Resources\Components\CustomTitleBar.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <XamlRuntime>Wpf</XamlRuntime>
+            <SubType>Designer</SubType>
+        </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0-preview.2.26159.112" />
+    </ItemGroup>
+</Project>

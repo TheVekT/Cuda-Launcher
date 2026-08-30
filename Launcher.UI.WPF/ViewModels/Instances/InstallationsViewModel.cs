@@ -1,0 +1,257 @@
+using System.ComponentModel;
+using System.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Launcher.Core.Common.Enums;
+using Launcher.Core.Game.Abstractions;
+using Launcher.Core.Instances.Abstractions;
+using Launcher.Core.Instances.Models;
+using Launcher.Infrastructure.Assets.Abstractions;
+using Launcher.UI.WPF.Helpers.Enums;
+using Launcher.UI.WPF.Helpers.Localization;
+using Launcher.UI.WPF.Messages;
+using Launcher.UI.WPF.Services.Customization;
+using Launcher.UI.WPF.Services.Shell.Abstractions;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
+using Launcher.UI.WPF.Stores;
+using Launcher.UI.WPF.ViewModels.Common;
+
+namespace Launcher.UI.WPF.ViewModels.Instances;
+
+public partial class InstallationsViewModel : ObservableObject,
+    IRecipient<InstanceCreatedMessage>,
+    IRecipient<InstanceUpdatedMessage>
+{
+    //Services
+    private readonly IGameVersionService _versionService;
+    private readonly IInstanceService _instanceService;
+    private readonly IInstanceFileSystemService _instanceFileSystemService;
+    private readonly IOverlayService _overlayService;
+    private readonly IDispatcherService _dispatcherService;
+    private readonly IInputService _inputService;
+    private readonly IIconsService _iconsService;
+
+    //Stores
+    private readonly InstancesStore _instancesStore;
+    private readonly SettingsStore _settingsStore;
+    private readonly AppStore _appStore;
+    
+    //public properties
+    public InstancesStore InstancesStore => _instancesStore;
+    public AppStore AppStore => _appStore;
+  
+    
+    public InstallationsViewModel(
+        IGameVersionService versionService,
+        IInstanceService instanceService,
+        IInstanceFileSystemService instanceFileSystemService,
+        IOverlayService overlayService,
+        IDispatcherService dispatcherService,
+        IInputService inputService,
+        IIconsService iconsService,
+        InstancesStore instancesStore,
+        SettingsStore settingsStore,
+        AppStore appStore)
+    {
+        _versionService = versionService;
+        _instanceService = instanceService;
+        _instanceFileSystemService = instanceFileSystemService;
+        _overlayService = overlayService;
+        _dispatcherService = dispatcherService;
+        _inputService = inputService;
+        _iconsService = iconsService;
+        _instancesStore = instancesStore;
+        _settingsStore = settingsStore;
+        _appStore = appStore;
+        
+        _appStore.PropertyChanged += OnAppStorePropertyChanged;
+        WeakReferenceMessenger.Default.RegisterAll(this);
+    }
+    
+    public async Task InitializeAsync()
+    {
+        await HandleLatestReleaseAsync();
+    }
+    
+    private async Task HandleLatestReleaseAsync()
+    {
+        try
+        {
+            var vanillaVersions = await _versionService.GetVanillaVersionsAsync();
+            var latestVersion = vanillaVersions.FirstOrDefault();
+
+            if (string.IsNullOrEmpty(latestVersion)) return;
+            bool isFirstLaunch = _instancesStore.Instances.Count == 0;
+
+            if (isFirstLaunch) CreateLatestRelease(latestVersion);
+            else UpdateLatestRelease(latestVersion);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[InstallationsVM] Ошибка обработки Latest Release: {ex.Message}");
+        }
+    }
+
+    private void CreateLatestRelease(string latestVersion)
+    {
+        var latestInstance = new MinecraftInstance
+        {
+            Id = "LatestRelease",
+            Name = "Latest Release",
+            GameVersion = latestVersion,
+            LoaderType = GameLoaderType.Vanilla,
+            IsolationType = IsolationType.Full, 
+            IconPath = "logo.png",
+            GameSettings = new GameSettings
+            {
+                GameResolution = null,
+                AllocatedMemory = null,
+                Fullscreen = null,
+                JvmArgs = null
+            },
+            BackupSettings = new BackupSettings
+            {
+                SavesBackupSettings = BackupPolicy.Inherit,
+                SavesBackupFrequency = null,
+                SavesMaxBackups = null,
+                LastBackupDate = null
+            }
+        };
+        _instancesStore.Instances.Add(latestInstance);
+        _instancesStore.SelectedInstance = latestInstance;
+        _instanceService.SaveInstances(_instancesStore.Instances);
+    }
+
+    private void UpdateLatestRelease(string latestVersion)
+    {
+        var latestInstance = _instancesStore.Instances.FirstOrDefault(i => i.Id == "LatestRelease");
+        
+        if (latestInstance != null && latestInstance.GameVersion != latestVersion)
+        {
+            latestInstance.GameVersion = latestVersion;
+            _instanceService.SaveInstances(_instancesStore.Instances);
+        }
+    }
+    
+    private void ExecuteOpenInstanceFolder()
+    {
+        if (_instancesStore.SelectedInstance == null) return;
+    
+        if (_inputService.IsShiftPressed)
+            _instanceFileSystemService.OpenInstanceModsFolder(_instancesStore.SelectedInstance);
+        else
+            _instanceFileSystemService.OpenInstanceFolder(_instancesStore.SelectedInstance);
+    }
+    
+
+    private async Task DeleteInstance(MinecraftInstance instance)
+    {
+        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
+        var confirmVm = new ConfirmViewModel(
+            string.Format(LocalizationService.Instance[LocKey.Confirmation_DeleteInstanceTitle], instance.Name), 
+            string.Format(LocalizationService.Instance[LocKey.Confirmation_DeleteInstanceMessage], instance.Name),
+            ConfirmButtons.Delete);
+
+        _overlayService.Show(confirmVm);
+        bool isConfirmed = await confirmVm.WaitAsync();
+        _overlayService.Close();
+        
+        if (!isConfirmed)
+        {
+            return;
+        }
+        _instancesStore.DeleteInstance(instance);
+    }
+    
+
+    private void OnAppStorePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AppStore.IsGameRunning) && _appStore.IsGameRunning)
+        {
+            _instancesStore.ApplySort(InstancesStore.SelectedSortIndex);
+            _instanceService.SaveInstances(_instancesStore.Instances);
+        }
+    }
+
+    public async void Receive(InstanceCreatedMessage message)
+    {
+        try
+        {
+            _overlayService.SetClosable(false);
+            await _instanceFileSystemService.InitializeOnCreation(message.Instance);
+
+            void UpdateUiState()
+            {
+                _instancesStore.Instances.Add(message.Instance);
+                _instancesStore.ApplySort(InstancesStore.SelectedSortIndex);
+
+                if (!_appStore.IsCurrentInstanceProcessing)
+                    _instancesStore.SelectedInstance = message.Instance;
+            }
+            await _dispatcherService.InvokeAsync(UpdateUiState);
+        
+            _instanceService.SaveInstances(_instancesStore.Instances);
+            _overlayService.SetClosable(true);
+            WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
+            Debug.WriteLine($"Created instance: {message.Instance.Name}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[InstallationsVM] Error creating new instance: {ex.Message}");
+        }
+    }
+
+    public void Receive(InstanceUpdatedMessage message)
+    {
+        try
+        {
+            _instanceService.SaveInstances(_instancesStore.Instances);
+            _instancesStore.ApplySort(InstancesStore.SelectedSortIndex);
+            Debug.WriteLine($"Modified Instance: {message.Instance.Name}");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[InstallationsVM] Error updating instance: {e.Message}");
+        }
+    }
+    
+    //Commands
+    [RelayCommand]
+    private async Task DeleteInstance(object parameter) =>
+        await DeleteInstance((parameter as MinecraftInstance)!);
+    
+    [RelayCommand]
+    private async Task OpenSettings(object parameter)
+    {
+        var instance = parameter as MinecraftInstance;
+        if (instance == _instancesStore.SelectedInstance && _appStore.IsCurrentInstanceProcessing) return;
+        if (instance == null) return;
+        var instanceSettingsVm = new EditInstanceViewModel(instance, _versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        _overlayService.Show(instanceSettingsVm);
+        await instanceSettingsVm.InitializeAsync();
+    }
+    
+    [RelayCommand]
+    private async Task OpenAddVersion()
+    {
+        var instanceVm = new AddInstanceViewModel(_versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        _overlayService.Show(instanceVm);
+        await instanceVm.InitializeAsync();
+    }
+    
+    [RelayCommand]
+    private void OpenInstanceFolder() =>
+        ExecuteOpenInstanceFolder();
+
+    [RelayCommand]
+    private void OpenModsFolder()
+    {
+        if (_instancesStore.SelectedInstance != null)
+            _instanceFileSystemService.OpenInstanceModsFolder(_instancesStore.SelectedInstance);
+    }
+
+    [RelayCommand]
+    private void OpenRootFolder() =>
+        _instanceFileSystemService.OpenRootMinecraftFolder();
+}

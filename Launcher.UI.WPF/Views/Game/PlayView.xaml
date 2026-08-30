@@ -1,0 +1,102 @@
+<UserControl
+    Background="Transparent"
+    FontFamily="{DynamicResource GlobalFont}"
+    MinHeight="450"
+    MinWidth="900"
+    d:DataContext="{d:DesignInstance Type=game:PlayViewModel,
+                                     IsDesignTimeCreatable=True}"
+    mc:Ignorable="d"
+    x:Class="Launcher.UI.WPF.Views.Game.PlayView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:game="clr-namespace:Launcher.UI.WPF.ViewModels.Game"
+    xmlns:helpers="clr-namespace:Launcher.UI.WPF.Helpers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <Button
+            Height="35"
+            HorizontalAlignment="Right"
+            Margin="0,0,20,10"
+            Opacity="0.5"
+            Padding="0"
+            Style="{StaticResource DefaultButtonStyle}"
+            Tag="{StaticResource Icon.EditBanner}"
+            VerticalAlignment="Bottom"
+            Width="35" />
+        <Border
+            Background="{DynamicResource BackgroundAccentBrush}"
+            BorderThickness="{DynamicResource SecondaryBorderThickness}"
+            CornerRadius="{DynamicResource DefaultCorner}"
+            HorizontalAlignment="Center"
+            Margin="0,0,0,-30"
+            VerticalAlignment="Bottom">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                <Border Padding="0">
+                    <Grid
+                        Margin="0,0,0,5"
+                        Visibility="{Binding AppStore.IsLoading, Converter={StaticResource BoolToVis}}"
+                        x:Name="LoadingInfoPanel">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="6,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock
+                                FontSize="11"
+                                Foreground="{DynamicResource ForegroundOnAccentBrush}"
+                                Text="{Binding AppStore.LoadingStatusText}"
+                                TextTrimming="CharacterEllipsis"
+                                x:Name="StatusText" />
+
+                            <TextBlock
+                                FontSize="11"
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource ForegroundOnAccentBrush}"
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                Text="{Binding AppStore.LoadingPercentText}"
+                                x:Name="PercentText" />
+                        </Grid>
+
+                        <ProgressBar
+                            Background="{DynamicResource BackgroundSurfaceBrush}"
+                            BorderThickness="{DynamicResource SecondaryBorderThickness}"
+                            Foreground="{DynamicResource ForegroundOnAccentBrush}"
+                            Grid.Row="1"
+                            Height="4"
+                            Margin="6,0"
+                            Maximum="100"
+                            Value="{Binding AppStore.LoadingProgress}"
+                            x:Name="InstallProgressBar" />
+
+                    </Grid>
+                </Border>
+                <Button
+                    Background="{DynamicResource PlayButtonBackgroundBrush}"
+                    BorderBrush="{DynamicResource PlayButtonBorderBrush}"
+                    BorderThickness="{DynamicResource PlayButtonBorderThickness}"
+                    Command="{Binding LaunchCommand}"
+                    FontSize="18"
+                    Foreground="{DynamicResource PlayButtonForegroundBrush}"
+                    Height="50"
+                    HorizontalAlignment="Center"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Width="200"
+                    helpers:ButtonHelper.BalanceText="True"
+                    helpers:ButtonHelper.CornerRadius="{DynamicResource PlayButtonCorner}"
+                    helpers:ButtonHelper.IsLoading="{Binding AppStore.IsLoading}"
+                    x:Name="PlayButton" />
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
