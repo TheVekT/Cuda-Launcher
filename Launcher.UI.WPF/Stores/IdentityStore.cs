@@ -97,8 +97,14 @@ public partial class IdentityStore : ObservableObject
 
         foreach (var acc in accountsList)
         {
-            if (acc.IsOffline) continue;
-
+            if (acc.IsOffline && string.IsNullOrEmpty(acc.AccessToken))
+            {
+                var newAcc = _authService.LoginOffline(acc.Username);
+                acc.UUID = newAcc.UUID;
+                acc.AccessToken = newAcc.AccessToken;
+                return;
+            }
+            // Validate and refresh the microsoft account then
             try
             {
                 await _authService.ValidateAndRefreshAccountAsync(acc);

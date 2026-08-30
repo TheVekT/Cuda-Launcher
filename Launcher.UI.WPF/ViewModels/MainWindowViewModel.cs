@@ -87,7 +87,8 @@ public partial class MainWindowViewModel : ObservableObject,
     {
         await _installationsVm.InitializeAsync();
         await _identityStore.RefreshAllAccountsAsync();
-        await _skinsVm.SyncWithMojangAsync(_identityStore.CurrentAccount?.AccessToken);
+        if (_identityStore.CurrentAccount is { IsOffline: false })
+            await _skinsVm.SyncWithMojangAsync(_identityStore.CurrentAccount);
         _ = Task.Run(async () => await _versionService.GetGameVersionsByTypeAsync(GameLoaderType.Vanilla));
 
         bool isOnline = await _connectivityService.CheckInternetAccessAsync();

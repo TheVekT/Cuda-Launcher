@@ -82,7 +82,7 @@ public class AuthService : IAuthService
         return new UserAccount(
             offlineSession.Username ?? safeNickname, 
             offlineSession.UUID ?? Guid.NewGuid().ToString(), 
-            null, 
+            offlineSession.AccessToken, 
             isOffline: true);
     }
 
