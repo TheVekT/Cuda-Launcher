@@ -1,0 +1,63 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  Typography  -->
+    <FontFamily x:Key="GlobalFont">Arial</FontFamily>
+
+    <!--  Base Surfaces  -->
+    <Color x:Key="AppBackground">#F9F9F9</Color>
+    <Color x:Key="BackgroundSurface">#FFFFFF</Color>
+    <Color x:Key="BackgroundCard">#FFFFFF</Color>
+    <Color x:Key="BackgroundTransparent">#66FFFFFF</Color>
+    <Color x:Key="BackgroundAccent">#171717</Color>
+
+    <!--  Overlays  -->
+    <Color x:Key="OverlayBackgroundPrimary">#FFFFFF</Color>
+    <Color x:Key="OverlayBackgroundSurface">#B7B7B7</Color>
+    <Color x:Key="OverlayBorderPrimary">#E5E5E5</Color>
+    <Color x:Key="OverlaySelection">#606060</Color>
+    <Color x:Key="OverlayButtonBackground">#C0C0C0</Color>
+    <Color x:Key="OverlayHoverButtonBackground">#C4C4C4</Color>
+
+    <!--  Text & Content  -->
+    <Color x:Key="ForegroundPrimary">#171717</Color>
+    <Color x:Key="ForegroundSecondary">#666666</Color>
+    <Color x:Key="ForegroundPlaceholder">#999999</Color>
+    <Color x:Key="ForegroundOnAccent">#FFFFFF</Color>
+
+    <!--  Borders  -->
+    <Color x:Key="BorderPrimary">#D4D4D4</Color>
+    <Color x:Key="BorderSecondary">#E5E5E5</Color>
+    <Color x:Key="BorderAccent">#171717</Color>
+
+    <!--  Interactive / Inputs / Buttons  -->
+    <Color x:Key="InputBackground">#FFFFFF</Color>
+    <Color x:Key="HoverBackgroundNav">#EBEBEB</Color>
+    <Color x:Key="HoverBackgroundDefaultBtn">#E0E0E0</Color>
+
+    <!--  Main CTA (Play Button)  -->
+    <Color x:Key="PlayButtonBackground">#171717</Color>
+    <Color x:Key="PlayButtonBorder">#00000000</Color>
+    <Color x:Key="PlayButtonForeground">#FFFFFF</Color>
+    <CornerRadius x:Key="PlayButtonCorner">6</CornerRadius>
+    <Thickness x:Key="PlayButtonBorderThickness">0</Thickness>
+
+    <!--  Feedback & Status  -->
+    <Color x:Key="AlertBackground">#80842029</Color>
+    <Color x:Key="AlertBorder">#F5C2C7</Color>
+    <Color x:Key="AlertForeground">#842029</Color>
+    <Color x:Key="DangerBackground">#26DC3545</Color>
+    <Color x:Key="DangerBorder">#80DC3545</Color>
+    <Color x:Key="DangerForeground">#DC3545</Color>
+    <Color x:Key="SuccessBackground">#26198754</Color>
+    <Color x:Key="SuccessBorder">#80198754</Color>
+    <Color x:Key="SuccessForeground">#198754</Color>
+    <Color x:Key="FeaturedForeground">#C44000</Color>
+
+    <!--  Dimensions & Metrics  -->
+    <CornerRadius x:Key="DefaultCorner">6</CornerRadius>
+    <CornerRadius x:Key="SecondaryCorner">10</CornerRadius>
+    <CornerRadius x:Key="NavButtonsCorner">20</CornerRadius>
+    <Thickness x:Key="DefaultBorderThickness">1</Thickness>
+    <Thickness x:Key="SecondaryBorderThickness">0</Thickness>
+
+</ResourceDictionary>

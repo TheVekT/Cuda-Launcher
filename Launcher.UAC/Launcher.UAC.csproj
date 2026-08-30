@@ -8,13 +8,14 @@
         <AssemblyName>Launcher Helper</AssemblyName>
 
         <SelfContained>true</SelfContained>
-        <ApplicationIcon>..\Launcher.UI.WPF\icon.ico</ApplicationIcon>
+
+        <ApplicationIcon>icon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
-      <Resource Include="..\Launcher.UI.WPF\icon.ico">
-        <Link>icon.ico</Link>
-      </Resource>
+        <Resource Include="icon.ico">
+            <Link>icon.ico</Link>
+        </Resource>
     </ItemGroup>
 
 </Project>

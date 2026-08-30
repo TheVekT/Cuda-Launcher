@@ -148,7 +148,7 @@ public partial class MainWindowViewModel : ObservableObject,
         _settingsViewModel = settingsViewModel;
         
         
-        discordService.Initialize(Core.Common.Constants.LauncherConstants.DiscordAppId);
+        discordService.Initialize(Infrastructure.Common.Constants.DiscordAppId);
         _overlayService.RegisterOverlaySetter(view => _appStore.CurrentOverlayView = view);
         _navigationService.RegisterNavigationHandler(view => AppStore.CurrentView = view);
         _launchService.GameCrashed += OnGameCrashed;

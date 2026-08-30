@@ -86,7 +86,7 @@
             ResizeBorderThickness="6"
             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
-    <Grid Background="{DynamicResource AppBackgroundBrush}" x:Name="RootGrid">
+    <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
