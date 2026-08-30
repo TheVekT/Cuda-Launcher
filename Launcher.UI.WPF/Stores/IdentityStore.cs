@@ -2,6 +2,7 @@ using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Identity.Abstractions;
+using Launcher.Core.Identity.Exceptions;
 using Launcher.Core.Identity.Models;
 using Launcher.Infrastructure.Config.Abstractions;
 using Launcher.Infrastructure.Config.Models;
@@ -96,8 +97,14 @@ public partial class IdentityStore : ObservableObject
 
         foreach (var acc in accountsList)
         {
-            if (acc.IsOffline) continue;
-
+            if (acc.IsOffline && string.IsNullOrEmpty(acc.AccessToken))
+            {
+                var newAcc = _authService.LoginOffline(acc.Username);
+                acc.UUID = newAcc.UUID;
+                acc.AccessToken = newAcc.AccessToken;
+                return;
+            }
+            // Validate and refresh the microsoft account then
             try
             {
                 await _authService.ValidateAndRefreshAccountAsync(acc);
@@ -118,6 +125,23 @@ public partial class IdentityStore : ObservableObject
                 var title = LocalizableText.Key(LocKey.Info_MojangTokenExpired_Title);
                 var description = LocalizableText.Key(LocKey.Info_MojangTokenExpired_Desc, acc.Username);
                 _notificationService.ShowInfo(title, description);
+            }
+            catch (MinecraftNotPurchasedException ex)
+            {
+                Debug.WriteLine($"[Auth] Account {acc.Username} has no Minecraft license: {ex.Message}");
+                
+                await _dispatcherService.InvokeAsync(() => 
+                {
+                    Accounts.Remove(acc);
+                    
+                    if (CurrentAccount == acc && Accounts.Count > 0)
+                        CurrentAccount = Accounts.FirstOrDefault();
+                    else if (Accounts.Count == 0)
+                        CurrentAccount = null;
+                });
+                var title = LocalizableText.Key(LocKey.Errors_NoMinecraftLicense_Title);
+                var description = LocalizableText.Key(LocKey.Errors_NoMinecraftLicense_Desc);
+                _notificationService.ShowError(title, description);
             }
             catch (Exception ex)
             {

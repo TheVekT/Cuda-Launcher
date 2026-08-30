@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Identity.Abstractions;
+using Launcher.Core.Identity.Exceptions;
 using Launcher.Core.Identity.Models;
 using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
@@ -118,12 +120,19 @@ public partial class LoginViewModel: ObservableObject
             WeakReferenceMessenger.Default.Send(new CloseOverlayMessage());
             WeakReferenceMessenger.Default.Send(new AccountLoggedMessage(newAccount));
         }
+        catch (MinecraftNotPurchasedException ex)
+        {
+            Debug.WriteLine($"[Auth Error] Minecraft license not found: {ex.Message}");
+            var title = LocalizableText.Key(LocKey.Errors_NoMinecraftLicense_Title);
+            var desc = LocalizableText.Key(LocKey.Errors_NoMinecraftLicense_Desc);
+            _notificationService.ShowError(title, desc);
+        }
         catch (Exception ex) 
         { 
+            Debug.WriteLine($"[Auth Error] Microsoft login failed: {ex}");
             var title = LocalizableText.Key(LocKey.Errors_LoginMicrosoftTitle);
             var desc = LocalizableText.Key(LocKey.Errors_LoginMicrosoftDesc);
             _notificationService.ShowError(title, desc);
-            Console.WriteLine(ex.Message); 
         }
         finally 
         { 

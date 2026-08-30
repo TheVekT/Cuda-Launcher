@@ -7,6 +7,7 @@ using CmlLib.Core.Auth;
 using CmlLib.Core.Auth.Microsoft;
 using Launcher.Core.Config.Abstractions;
 using Launcher.Core.Identity.Abstractions;
+using Launcher.Core.Identity.Exceptions;
 using Launcher.Core.Identity.Models;
 
 namespace Launcher.Core.Identity;
@@ -62,6 +63,13 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
+            Debug.WriteLine($"[Auth Error] Microsoft Login failed: {ex}");
+
+            if (IsMinecraftNotPurchased(ex))
+            {
+                throw new MinecraftNotPurchasedException("This Microsoft account does not own Minecraft: Java Edition.", ex);
+            }
+
             throw new Exception($"Microsoft Login failed: {ex.Message}", ex);
         }
     }
@@ -74,7 +82,7 @@ public class AuthService : IAuthService
         return new UserAccount(
             offlineSession.Username ?? safeNickname, 
             offlineSession.UUID ?? Guid.NewGuid().ToString(), 
-            null, 
+            offlineSession.AccessToken, 
             isOffline: true);
     }
 
@@ -111,6 +119,12 @@ public class AuthService : IAuthService
             return account;
         }
         
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            Debug.WriteLine($"[Auth Error] Account {account.Username} has no Minecraft profile (404 Not Found).");
+            throw new MinecraftNotPurchasedException("This Microsoft account does not own Minecraft: Java Edition.");
+        }
+        
         if (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden)
         {
             Debug.WriteLine("[Auth] Token expired! Starting built-in Silent Refresh...");
@@ -140,11 +154,42 @@ public class AuthService : IAuthService
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Auth Error] Refresh failed: {ex.Message}");
+                Debug.WriteLine($"[Auth Error] Refresh failed: {ex}");
+                if (IsMinecraftNotPurchased(ex))
+                {
+                    throw new MinecraftNotPurchasedException("This Microsoft account does not own Minecraft: Java Edition.", ex);
+                }
                 throw new UnauthorizedAccessException("Session expired or cache is empty. Manual Microsoft login required.", ex);
             }
         }
 
         return account;
+    }
+
+    private static bool IsMinecraftNotPurchased(Exception ex)
+    {
+        Exception? current = ex;
+        while (current != null)
+        {
+            if (current.Message.Contains("NOT_FOUND", StringComparison.OrdinalIgnoreCase) ||
+                current.Message.Contains("Not Found", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (current is HttpRequestException httpEx && httpEx.StatusCode == HttpStatusCode.NotFound)
+            {
+                return true;
+            }
+
+            if (current is WebException webEx && webEx.Response is HttpWebResponse webResp && webResp.StatusCode == HttpStatusCode.NotFound)
+            {
+                return true;
+            }
+
+            current = current.InnerException;
+        }
+
+        return false;
     }
 }

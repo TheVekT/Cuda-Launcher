@@ -212,6 +212,8 @@
     "Errors.IrisAndSodiumNotSupportedDesc": "Iris and Sodium are not supported for minecraft version {0} with {1} loader.\nThis mods will not be added to the installation.",
     "Errors.LoginMicrosoftTitle": "Microsoft Login Failed",
     "Errors.LoginMicrosoftDesc": "An error occurred while trying to log in with your Microsoft account. Please try again.",
+    "Errors.NoMinecraftLicense.Title": "No Minecraft License",
+    "Errors.NoMinecraftLicense.Desc": "This Microsoft account does not own Minecraft: Java Edition. Please purchase the game or log in with a different account.",
     "Errors.SkinValidation.NoFileSelected": "Select skin file.",
     "Errors.SkinValidation.FileNotFound": "File not found.",
     "Errors.SkinValidation.NotPng": "Skin file must be a PNG image.",

@@ -65,6 +65,10 @@ public class AccountStorageService : IAccountStorageService
                     var decryptedToken = SecurityHelper.Unprotect(acc.AccessToken);
                     acc.AccessToken = decryptedToken;
                 }
+                else if (string.IsNullOrEmpty(acc.AccessToken))
+                {
+                    acc.AccessToken = "access_token";
+                }
             }
             return loadedAccounts;
         }

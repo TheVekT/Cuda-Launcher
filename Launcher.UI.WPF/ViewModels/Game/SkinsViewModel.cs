@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Launcher.Core.Common.Enums;
 using Launcher.Core.Identity.Abstractions;
+using Launcher.Core.Identity.Models;
 using Launcher.Infrastructure.Assets.Abstractions;
 using Launcher.Infrastructure.Assets.Models;
 using Launcher.UI.WPF.Helpers.Localization;
@@ -63,8 +64,12 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
         WeakReferenceMessenger.Default.RegisterAll(this);
     }
     
-    public async Task SyncWithMojangAsync(string? accessToken)
+    public async Task SyncWithMojangAsync(UserAccount? user)
     {
+        if (user == null) return;
+        if (user.IsOffline) return;
+        var accessToken = user.AccessToken;
+        
         if (string.IsNullOrEmpty(accessToken)) return;
         try
         {
@@ -196,7 +201,7 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
         var applied = await ApplyToMojangAsync(skin);
         if (applied.IsCapeApplied || applied.IsSkinApplied)
         {
-            await SyncWithMojangAsync(_identityStore.CurrentAccount?.AccessToken);
+            await SyncWithMojangAsync(_identityStore.CurrentAccount);
         }
         await Task.Delay(1000);
     }
@@ -225,7 +230,7 @@ public partial class SkinsViewModel : ObservableObject, IRecipient<AccountLogged
     {
         if (!message.User.IsOffline)
         {
-            await SyncWithMojangAsync(message.User.AccessToken);
+            await SyncWithMojangAsync(message.User);
         }
     }
 }

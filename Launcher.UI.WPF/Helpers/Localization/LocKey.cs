@@ -210,6 +210,8 @@ public enum LocKey
     Errors_IrisAndSodiumNotSupportedDesc,
     Errors_LoginMicrosoftTitle,
     Errors_LoginMicrosoftDesc,
+    Errors_NoMinecraftLicense_Title,
+    Errors_NoMinecraftLicense_Desc,
     Errors_SkinValidation_NoFileSelected,
     Errors_SkinValidation_FileNotFound,
     Errors_SkinValidation_NotPng,
