@@ -5,10 +5,10 @@ namespace Launcher.Core.Identity.Models;
 public class MojangProfile
 {
     [JsonPropertyName("id")] 
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
     
     [JsonPropertyName("name")] 
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     
     [JsonPropertyName("skins")] 
     public List<MojangSkin> Skins { get; set; } = new();
