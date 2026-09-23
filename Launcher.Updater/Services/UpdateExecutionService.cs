@@ -252,20 +252,7 @@ public class UpdateExecutionService : IUpdateExecutionService
 
                 using var archive = ZipFile.OpenRead(zipPath);
 
-                string? commonRoot = null;
-                var exeEntry = archive.Entries.FirstOrDefault(e => e.Name.Equals("Cuda Launcher.exe", StringComparison.OrdinalIgnoreCase));
-                if (exeEntry != null)
-                {
-                    int slashIndex = exeEntry.FullName.IndexOfAny(new[] { '/', '\\' });
-                    if (slashIndex > 0)
-                    {
-                        string candidateRoot = exeEntry.FullName[..(slashIndex + 1)];
-                        if (archive.Entries.All(e => e.FullName.StartsWith(candidateRoot, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            commonRoot = candidateRoot;
-                        }
-                    }
-                }
+                string? commonRoot = DetectCommonRoot(archive);
 
                 string manifestEntryName = !string.IsNullOrEmpty(commonRoot) ? $"{commonRoot}app-manifest.json" : "app-manifest.json";
                 var manifestEntry = archive.GetEntry(manifestEntryName) ?? 
@@ -285,12 +272,25 @@ public class UpdateExecutionService : IUpdateExecutionService
                 if (currentManifest != null && newManifest != null)
                 {
                     var newFileKeys = newManifest.GetFilePaths()
-                        .Select(NormalizeRelativePath)
+                        .Select(p =>
+                        {
+                            string norm = NormalizeRelativePath(p);
+                            if (!string.IsNullOrEmpty(commonRoot) && norm.StartsWith(commonRoot, StringComparison.OrdinalIgnoreCase))
+                            {
+                                norm = norm[commonRoot.Length..];
+                            }
+                            return norm;
+                        })
                         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
                     foreach (var oldFile in currentManifest.GetFilePaths())
                     {
                         string normalized = NormalizeRelativePath(oldFile);
+                        if (!string.IsNullOrEmpty(commonRoot) && normalized.StartsWith(commonRoot, StringComparison.OrdinalIgnoreCase))
+                        {
+                            normalized = normalized[commonRoot.Length..];
+                        }
+
                         if (IsGuardedPath(normalized))
                             continue;
 
@@ -308,13 +308,30 @@ public class UpdateExecutionService : IUpdateExecutionService
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    string relativePath = entry.FullName;
+                    string rawPath = entry.FullName.Replace('\\', '/');
+
+                    // If this entry is the common root directory itself (e.g. "Cuda-Launcher" or "Cuda-Launcher/"), skip it
+                    if (!string.IsNullOrEmpty(commonRoot))
+                    {
+                        string commonRootTrimmed = commonRoot.TrimEnd('/');
+                        if (rawPath.TrimEnd('/').Equals(commonRootTrimmed, StringComparison.OrdinalIgnoreCase))
+                        {
+                            currentEntry++;
+                            continue;
+                        }
+                    }
+
+                    string relativePath = rawPath;
                     if (!string.IsNullOrEmpty(commonRoot) && relativePath.StartsWith(commonRoot, StringComparison.OrdinalIgnoreCase))
                     {
                         relativePath = relativePath[commonRoot.Length..];
                     }
 
-                    if (string.IsNullOrWhiteSpace(relativePath)) continue;
+                    if (string.IsNullOrWhiteSpace(relativePath))
+                    {
+                        currentEntry++;
+                        continue;
+                    }
 
                     // Never overwrite the running temp folder or updater inside temp, or user Data directory
                     if (relativePath.StartsWith("temp/", StringComparison.OrdinalIgnoreCase) ||
@@ -459,6 +476,67 @@ public class UpdateExecutionService : IUpdateExecutionService
     private static string NormalizeRelativePath(string path)
     {
         return path.Replace('\\', '/').Trim('/', ' ');
+    }
+
+    private static string? DetectCommonRoot(ZipArchive archive)
+    {
+        var entries = archive.Entries
+            .Where(e => !string.IsNullOrWhiteSpace(e.FullName))
+            .ToList();
+
+        if (entries.Count == 0)
+            return null;
+
+        // Strategy 1: Check where app-manifest.json or Cuda Launcher.exe is located
+        var keyEntry = archive.Entries.FirstOrDefault(e => e.Name.Equals("app-manifest.json", StringComparison.OrdinalIgnoreCase))
+            ?? archive.Entries.FirstOrDefault(e => e.Name.Equals("Cuda Launcher.exe", StringComparison.OrdinalIgnoreCase));
+
+        if (keyEntry != null)
+        {
+            string normKeyPath = keyEntry.FullName.Replace('\\', '/');
+            int lastSlash = normKeyPath.LastIndexOf('/');
+            if (lastSlash > 0)
+            {
+                string candidateRoot = normKeyPath[..(lastSlash + 1)]; // e.g. "Cuda-Launcher/"
+                string candidateTrimmed = candidateRoot.TrimEnd('/');
+
+                bool allBelong = entries.All(e =>
+                {
+                    string norm = e.FullName.Replace('\\', '/');
+                    return norm.Equals(candidateTrimmed, StringComparison.OrdinalIgnoreCase) ||
+                           norm.StartsWith(candidateRoot, StringComparison.OrdinalIgnoreCase);
+                });
+
+                if (allBelong)
+                    return candidateRoot;
+            }
+        }
+
+        // Strategy 2: Check if every entry shares the exact same top-level directory
+        string? candidateTopDir = null;
+        foreach (var entry in entries)
+        {
+            string norm = entry.FullName.Replace('\\', '/');
+            int slash = norm.IndexOf('/');
+            if (slash <= 0)
+            {
+                // A file exists in the root of the archive -> flat archive, no common root
+                return null;
+            }
+
+            string topDir = norm[..(slash + 1)];
+            if (candidateTopDir == null)
+            {
+                candidateTopDir = topDir;
+            }
+            else if (!candidateTopDir.Equals(topDir, StringComparison.OrdinalIgnoreCase))
+            {
+                // Multiple top-level folders -> no common root
+                return null;
+            }
+        }
+
+        return candidateTopDir;
     }
 
     private static void TryDeleteFile(string filePath)
