@@ -8,6 +8,13 @@
         <UseWPF>true</UseWPF>
         <AssemblyName>Launcher Updater</AssemblyName>
         
+        <!-- Isolated fixed version for updater to keep binary hash stable across launcher releases -->
+        <Version>1.0.0</Version>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+        <InformationalVersion>1.0.0</InformationalVersion>
+        <Deterministic>true</Deterministic>
+        
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>

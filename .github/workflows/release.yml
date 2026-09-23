@@ -39,8 +39,8 @@ jobs:
           $version = "${{ inputs.version }}".Trim()
           Write-Host "Starting build for version $version..."
           
-          # Run dotnet publish for the solution with explicit version override
-          dotnet publish -c Release -p:Version="$version"
+          # Run dotnet publish for the solution with explicit LauncherVersion override
+          dotnet publish -c Release -p:LauncherVersion="$version"
 
       - name: Generate Manifests and Packages
         shell: pwsh
