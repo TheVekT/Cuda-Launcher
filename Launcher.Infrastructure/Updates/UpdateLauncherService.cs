@@ -21,9 +21,21 @@ public class UpdateLauncherService : IUpdateLauncherService
 
     public Result LaunchUpdater(UpdateCheckResult updateResult)
     {
-        if (!updateResult.IsUpdateAvailable || updateResult.TargetRelease == null)
+        var release = updateResult.TargetRelease;
+        var invalidReasons = new List<string>();
+
+        if (!updateResult.IsUpdateAvailable || release == null)
+            invalidReasons.Add("Update is not available or TargetRelease is missing");
+        if (string.IsNullOrWhiteSpace(release?.Version))
+            invalidReasons.Add("TargetVersion is empty");
+        if (string.IsNullOrWhiteSpace(release?.DownloadUrl))
+            invalidReasons.Add("DownloadUrl is empty");
+        if (string.IsNullOrWhiteSpace(release?.Sha256))
+            invalidReasons.Add("Sha256 is empty");
+
+        if (invalidReasons.Count > 0)
         {
-            return Result.Fail("No update available to launch updater.");
+            return Result.Fail($"Cannot launch updater: {string.Join(", ", invalidReasons)}.");
         }
 
         try
@@ -44,19 +56,30 @@ public class UpdateLauncherService : IUpdateLauncherService
 
             int currentPid = Environment.ProcessId;
             string targetAppDirectory = appDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            string targetVersion = updateResult.TargetRelease.Version;
+            string targetVersion = release!.Version;
             string restartExecutablePath = Path.Combine(appDirectory, MainExecutableName);
-
-            string arguments = $"--pid {currentPid} --target \"{targetAppDirectory}\" --target-version \"{targetVersion}\" --restart \"{restartExecutablePath}\" --url \"{updateResult.TargetRelease.DownloadUrl}\"";
+            string downloadUrl = release.DownloadUrl;
+            string archiveSha256 = release.Sha256;
 
             var startInfo = new ProcessStartInfo
             {
                 FileName = stagedUpdaterPath,
-                Arguments = arguments,
                 WorkingDirectory = tempDirectory,
-                UseShellExecute = true,
+                UseShellExecute = false,
                 CreateNoWindow = false
             };
+            startInfo.ArgumentList.Add("--pid");
+            startInfo.ArgumentList.Add(currentPid.ToString());
+            startInfo.ArgumentList.Add("--target");
+            startInfo.ArgumentList.Add(targetAppDirectory);
+            startInfo.ArgumentList.Add("--target-version");
+            startInfo.ArgumentList.Add(targetVersion);
+            startInfo.ArgumentList.Add("--restart");
+            startInfo.ArgumentList.Add(restartExecutablePath);
+            startInfo.ArgumentList.Add("--url");
+            startInfo.ArgumentList.Add(downloadUrl);
+            startInfo.ArgumentList.Add("--sha256");
+            startInfo.ArgumentList.Add(archiveSha256);
 
             var process = Process.Start(startInfo);
             if (process == null)
@@ -77,9 +100,26 @@ public class UpdateLauncherService : IUpdateLauncherService
         try
         {
             string tempDirectory = Path.Combine(_pathsService.BaseDirectory, TempFolderName);
-            if (Directory.Exists(tempDirectory))
+            if (!Directory.Exists(tempDirectory))
             {
-                Directory.Delete(tempDirectory, recursive: true);
+                return Result.Ok();
+            }
+
+            int retries = 0;
+            while (true)
+            {
+                try
+                {
+                    if (Directory.Exists(tempDirectory))
+                    {
+                        Directory.Delete(tempDirectory, recursive: true);
+                    }
+                    break;
+                }
+                catch (Exception) when (++retries <= 4)
+                {
+                    Thread.Sleep(250);
+                }
             }
 
             return Result.Ok();

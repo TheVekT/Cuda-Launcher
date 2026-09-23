@@ -53,13 +53,19 @@ public partial class App
         // 4. Close the updater after completion (managed here in App, not in ViewModel)
         if (success)
         {
-            await Task.Delay(1000);
+            viewModel.StatusTitle = "Restarting...";
+            viewModel.StatusDetail = "Update applied successfully. Launching Cuda Launcher...";
+            viewModel.Progress = 100;
+            await Task.Delay(500);
+            updateExecutionService.RestartApplication(parsedArgs.RestartExecutablePath, parsedArgs.TargetDirectory);
             Shutdown();
         }
         else
         {
-            // In case of error, keep visible briefly so user can see what failed
-            await Task.Delay(3000);
+            // In case of error, keep visible briefly so user can see what failed, then restart original launcher
+            viewModel.StatusDetail = $"{viewModel.StatusDetail} • Restarting original launcher...";
+            await Task.Delay(3500);
+            updateExecutionService.RestartApplication(parsedArgs.RestartExecutablePath, parsedArgs.TargetDirectory);
             Shutdown();
         }
     }

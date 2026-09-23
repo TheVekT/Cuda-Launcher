@@ -1,14 +1,19 @@
 <Project>
     <PropertyGroup>
-        <Version>0.0.2-beta</Version>
-        <AssemblyVersion>0.0.2</AssemblyVersion>
-        <FileVersion>0.0.2</FileVersion>
-        <InformationalVersion>0.0.2-beta</InformationalVersion>
+        <Version Condition="'$(Version)' == ''">0.0.2-beta</Version>
+        
+        <_NumericVersion>$(Version.Split('-')[0])</_NumericVersion>
+        <_NumericVersion>$(_NumericVersion.Split('+')[0])</_NumericVersion>
+        
+        <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">$(_NumericVersion)</AssemblyVersion>
+        <FileVersion Condition="'$(FileVersion)' == ''">$(_NumericVersion)</FileVersion>
+        
+        <InformationalVersion Condition="'$(InformationalVersion)' == ''">$(Version)</InformationalVersion>
 
         <Authors>TheVekT</Authors>
         <Company>Cuda Launcher</Company>
         <Copyright>Copyright © 2026</Copyright>
-        
+
         <OutputPath>$(SolutionDir)Build\$(Configuration)\</OutputPath>
         <PublishDir>$(SolutionDir)Build\$(Configuration)\</PublishDir>
 
