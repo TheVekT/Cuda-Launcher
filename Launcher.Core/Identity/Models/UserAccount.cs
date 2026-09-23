@@ -4,8 +4,8 @@ namespace Launcher.Core.Identity.Models;
 
 public class UserAccount
 {
-    public string Username { get; set; }
-    public string UUID { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string UUID { get; set; } = string.Empty;
     public string? AccessToken { get; set; }
     public bool IsOffline { get; set; }
     
