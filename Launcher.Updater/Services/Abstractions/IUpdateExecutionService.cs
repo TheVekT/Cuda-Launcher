@@ -8,4 +8,6 @@ public interface IUpdateExecutionService
         UpdaterArgs args, 
         IProgress<UpdateProgressInfo>? progress = null, 
         CancellationToken cancellationToken = default);
+
+    void RestartApplication(string executablePath, string targetDirectory);
 }

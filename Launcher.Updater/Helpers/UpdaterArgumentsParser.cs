@@ -11,9 +11,8 @@ public static class UpdaterArgumentsParser
         string targetDir = string.Empty;
         string targetVersion = string.Empty;
         string restartPath = string.Empty;
-        string repoOwner = "TheVekT";
-        string repoName = "Cuda-Launcher";
-        string? downloadUrl = null;
+        string downloadUrl = string.Empty;
+        string expectedSha256 = string.Empty;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -36,17 +35,13 @@ public static class UpdaterArgumentsParser
                     case "--restart":
                         restartPath = args[++i].Trim('\"');
                         break;
-                    case "--owner":
-                    case "--repo-owner":
-                        repoOwner = args[++i].Trim('\"');
-                        break;
-                    case "--repo":
-                    case "--repo-name":
-                        repoName = args[++i].Trim('\"');
-                        break;
                     case "--url":
                     case "--download-url":
                         downloadUrl = args[++i].Trim('\"');
+                        break;
+                    case "--sha256":
+                    case "--hash":
+                        expectedSha256 = args[++i].Trim('\"');
                         break;
                 }
             }
@@ -70,8 +65,7 @@ public static class UpdaterArgumentsParser
             targetDir, 
             targetVersion, 
             restartPath, 
-            repoOwner, 
-            repoName,
-            downloadUrl);
+            downloadUrl, 
+            expectedSha256);
     }
 }

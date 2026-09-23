@@ -1,3 +1,4 @@
+using Launcher.Core.Config.Abstractions;
 using Launcher.Infrastructure.Updates.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 

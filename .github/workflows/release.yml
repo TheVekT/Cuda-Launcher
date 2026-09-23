@@ -1,0 +1,188 @@
+name: Build and Publish Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Target Version (e.g. 1.2.0 or 0.0.3-beta)'
+        required: true
+        type: string
+      base_version:
+        description: 'Base Version for Delta (optional, e.g. 1.1.0)'
+        required: false
+        type: string
+      is_prerelease:
+        description: 'Mark as Pre-release'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build and Publish
+        shell: pwsh
+        run: |
+          $version = "${{ inputs.version }}".Trim()
+          Write-Host "Starting build for version $version..."
+          
+          # Run dotnet publish for the solution with explicit version override
+          dotnet publish -c Release -p:Version="$version"
+
+      - name: Generate Manifests and Packages
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = "${{ inputs.version }}".Trim()
+          $baseVersion = "${{ inputs.base_version }}".Trim()
+          
+          # Resolve target build paths
+          $buildDir = Resolve-Path "Build/Release"
+          $artifactsDir = New-Item -ItemType Directory -Force -Path "Artifacts"
+          
+          Write-Host "Scanning build directory: $buildDir"
+          
+          # 1. Collect all published files for app-manifest.json
+          $excludedExtensions = @(".pdb", ".xml")
+          $allFiles = Get-ChildItem -Path $buildDir -Recurse -File | Where-Object {
+              $ext = $_.Extension.ToLowerInvariant()
+              $excludedExtensions -notcontains $ext
+          }
+          
+          $filesDict = [ordered]@{}
+          foreach ($file in $allFiles) {
+              $relPath = [System.IO.Path]::GetRelativePath($buildDir, $file.FullName)
+              $relPathNormalized = $relPath.Replace("\", "/")
+          
+              # Exclude root manifests from the file tracking list
+              if ($relPathNormalized -eq "app-manifest.json" -or $relPathNormalized -eq "release.app.json") {
+                  continue
+              }
+          
+              $hash = (Get-FileHash -Path $file.FullName -Algorithm SHA256).Hash.ToUpperInvariant()
+              $filesDict[$relPathNormalized] = $hash
+          }
+          
+          # 2. Write app-manifest.json to build folder
+          $appManifestObj = [ordered]@{
+              version = $version
+              files = $filesDict
+          }
+          $appManifestJson = $appManifestObj | ConvertTo-Json -Depth 5
+          $manifestPath = Join-Path $buildDir "app-manifest.json"
+          [System.IO.File]::WriteAllText($manifestPath, $appManifestJson, [System.Text.Encoding]::UTF8)
+          
+          # 3. Pack full portable distribution archive
+          $portableZipName = "Cuda-Launcher-$version-Portable.zip"
+          $portableZipPath = Join-Path $artifactsDir $portableZipName
+          Write-Host "Creating full archive: $portableZipPath"
+          
+          [System.IO.Compression.ZipFile]::CreateFromDirectory($buildDir, $portableZipPath)
+          $fullArchiveHash = (Get-FileHash -Path $portableZipPath -Algorithm SHA256).Hash.ToUpperInvariant()
+          
+          # 4. Generate delta update package if base version is provided
+          $deltaArchiveData = $null
+          if (-not [string]::IsNullOrWhiteSpace($baseVersion)) {
+              Write-Host "Generating delta between base version $baseVersion and $version..."
+          
+              $baseDownloadDir = New-Item -ItemType Directory -Force -Path "temp_base_download"
+              $baseExtractDir = New-Item -ItemType Directory -Force -Path "temp_base_extracted"
+              $deltaStageDir = New-Item -ItemType Directory -Force -Path "temp_delta_stage"
+          
+              try {
+                  gh release download "v$baseVersion" --pattern "*$baseVersion-Portable.zip" --dir $baseDownloadDir
+              } catch {
+                  Write-Warning "Tag v$baseVersion not found, trying tag $baseVersion..."
+                  gh release download "$baseVersion" --pattern "*$baseVersion-Portable.zip" --dir $baseDownloadDir
+              }
+          
+              $downloadedZip = Get-ChildItem -Path $baseDownloadDir -Filter "*.zip" | Select-Object -First 1
+              if ($downloadedZip) {
+                  [System.IO.Compression.ZipFile]::ExtractToDirectory($downloadedZip.FullName, $baseExtractDir)
+          
+                  # Compare files byte-by-byte via SHA-256 against base release
+                  foreach ($relPath in $filesDict.Keys) {
+                      $newFilePath = Join-Path $buildDir ($relPath.Replace("/", "\"))
+                      $baseFilePath = Join-Path $baseExtractDir ($relPath.Replace("/", "\"))
+          
+                      $isChanged = $false
+                      if (-not (Test-Path $baseFilePath)) {
+                          $isChanged = $true
+                      } else {
+                          $baseHash = (Get-FileHash -Path $baseFilePath -Algorithm SHA256).Hash.ToUpperInvariant()
+                          if ($baseHash -ne $filesDict[$relPath]) {
+                              $isChanged = $true
+                          }
+                      }
+          
+                      if ($isChanged) {
+                          $targetInDelta = Join-Path $deltaStageDir ($relPath.Replace("/", "\"))
+                          $targetParent = [System.IO.Path]::GetDirectoryName($targetInDelta)
+                          if (-not (Test-Path $targetParent)) {
+                              New-Item -ItemType Directory -Force -Path $targetParent | Out-Null
+                          }
+                          Copy-Item -Path $newFilePath -Destination $targetInDelta -Force
+                      }
+                  }
+          
+                  # Inject the complete app-manifest.json of the target version into delta root
+                  Copy-Item -Path $manifestPath -Destination (Join-Path $deltaStageDir "app-manifest.json") -Force
+          
+                  $deltaZipName = "Cuda-Launcher-$version-delta.zip"
+                  $deltaZipPath = Join-Path $artifactsDir $deltaZipName
+                  Write-Host "Creating delta archive: $deltaZipPath"
+          
+                  [System.IO.Compression.ZipFile]::CreateFromDirectory($deltaStageDir, $deltaZipPath)
+                  $deltaArchiveHash = (Get-FileHash -Path $deltaZipPath -Algorithm SHA256).Hash.ToUpperInvariant()
+          
+                  $deltaArchiveData = [ordered]@{
+                      baseVersion = $baseVersion
+                      fileName = $deltaZipName
+                      sha256 = $deltaArchiveHash
+                  }
+              } else {
+                  Write-Error "Failed to download base version archive for $baseVersion. Delta skipped."
+              }
+          }
+          
+          # 5. Generate release metadata manifest (release.app.json)
+          $releaseAppObj = [ordered]@{
+              version = $version
+              fullArchive = [ordered]@{
+                  fileName = $portableZipName
+                  sha256 = $fullArchiveHash
+              }
+              deltaArchive = $deltaArchiveData
+          }
+          
+          $releaseAppJson = $releaseAppObj | ConvertTo-Json -Depth 5
+          $releaseAppPath = Join-Path $artifactsDir "release.app.json"
+          [System.IO.File]::WriteAllText($releaseAppPath, $releaseAppJson, [System.Text.Encoding]::UTF8)
+          
+          Write-Host "release.app.json generated successfully:"
+          Write-Host $releaseAppJson
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ inputs.version }}"
+          name: "Cuda Launcher ${{ inputs.version }}"
+          prerelease: ${{ inputs.is_prerelease }}
+          draft: false
+          files: |
+            Artifacts/release.app.json
+            Artifacts/*.zip

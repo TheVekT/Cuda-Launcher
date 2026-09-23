@@ -8,4 +8,6 @@ public record AppReleaseInfo(
     bool IsPrerelease,
     string DownloadUrl,
     string FileName,
-    long FileSizeBytes);
+    long FileSizeBytes,
+    string Sha256,
+    bool IsDelta);

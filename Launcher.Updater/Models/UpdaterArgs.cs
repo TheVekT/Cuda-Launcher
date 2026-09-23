@@ -5,6 +5,5 @@ public record UpdaterArgs(
     string TargetDirectory,
     string TargetVersion,
     string RestartExecutablePath,
-    string RepositoryOwner,
-    string RepositoryName,
-    string? DownloadUrl = null);
+    string DownloadUrl,
+    string ExpectedSha256);
