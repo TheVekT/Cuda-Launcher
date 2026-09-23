@@ -305,7 +305,7 @@
                                                     <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
                                                         <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
                                                         <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding SelectedModLoader.Name}" Value="Vanilla">
+                                                            <DataTrigger Binding="{Binding IsGlobalIsolationRecommended}" Value="True">
                                                                 <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{localization:Loc AddInstallation_RecommendedBadge}" />
                                                             </DataTrigger>
                                                         </Style.Triggers>
@@ -315,7 +315,7 @@
                                             <Grid
                                                 Margin="0,10,0,0"
                                                 Style="{StaticResource AnimatedVisibilityStyle}"
-                                                helpers:VisibilityHelper.IsVisible="{Binding SelectedModLoader, Converter={StaticResource NotEqualConverter}, ConverterParameter=Vanilla}">
+                                                helpers:VisibilityHelper.IsVisible="{Binding IsPartialIsolationVisible}">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="Auto" />
@@ -366,10 +366,10 @@
                                                 Tag="{localization:Loc AddInstallation_OptionFullIsolationDesc}">
                                                 <RadioButton.Style>
                                                     <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
-                                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{localization:Loc AddInstallation_RecommendedBadge}" />
+                                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
                                                         <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding SelectedModLoader.Name}" Value="Vanilla">
-                                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
+                                                            <DataTrigger Binding="{Binding IsFullIsolationRecommended}" Value="True">
+                                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{localization:Loc AddInstallation_RecommendedBadge}" />
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>

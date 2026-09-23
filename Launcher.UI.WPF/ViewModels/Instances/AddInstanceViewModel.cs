@@ -52,6 +52,10 @@ public partial class AddInstanceViewModel: ObservableObject
     private string? _installationName;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SuggestedName))]
+    [NotifyPropertyChangedFor(nameof(IsPartialIsolationVisible))]
+    [NotifyPropertyChangedFor(nameof(RecommendedIsolation))]
+    [NotifyPropertyChangedFor(nameof(IsGlobalIsolationRecommended))]
+    [NotifyPropertyChangedFor(nameof(IsFullIsolationRecommended))]
     private ModLoaderItem? _selectedModLoader;
     [ObservableProperty]
     private string? _selectedLoaderVersion;
@@ -235,7 +239,9 @@ public partial class AddInstanceViewModel: ObservableObject
             GameVersion = SelectedGameVersion,
             LoaderVersion = (SelectedModLoader?.Name == "Vanilla") ? null : SelectedLoaderVersion,
             LoaderType = GetLoaderType(SelectedModLoader?.Name),
-            IsolationType = SelectedIsolation,
+            IsolationType = (!IsPartialIsolationVisible && SelectedIsolation == IsolationType.Partial)
+                ? RecommendedIsolation
+                : SelectedIsolation,
             LastPlayedDate = null,
             GameSettings = new GameSettings
             {
@@ -308,10 +314,26 @@ public partial class AddInstanceViewModel: ObservableObject
             return $"{SelectedModLoader?.Name} {SelectedGameVersion}";
         }
     }
+
+    public bool IsPartialIsolationVisible => SelectedModLoader?.Name != "Vanilla";
+
+    public IsolationType RecommendedIsolation => 
+        SelectedModLoader?.Name == "Vanilla" ? IsolationType.Global : IsolationType.Full;
+
+    public bool IsGlobalIsolationRecommended => RecommendedIsolation == IsolationType.Global;
+
+    public bool IsFullIsolationRecommended => RecommendedIsolation == IsolationType.Full;
     
     partial void OnSelectedModLoaderChanged(ModLoaderItem? value)
     {
-        SelectedIsolation = value?.Name == "Vanilla" ? IsolationType.Global : IsolationType.Full;
+        // When switching to Vanilla or if currently selected isolation is hidden/unsupported,
+        // reset back to the recommended isolation.
+        if (!IsPartialIsolationVisible && SelectedIsolation == IsolationType.Partial)
+            SelectedIsolation = RecommendedIsolation;
+        else if (value?.Name == "Vanilla")
+            SelectedIsolation = IsolationType.Global;
+        else if (SelectedIsolation == IsolationType.Global)
+            SelectedIsolation = IsolationType.Full;
         
         _ = RefreshGameVersions();
         _ = RefreshLoaderVersions();
@@ -322,6 +344,10 @@ public partial class AddInstanceViewModel: ObservableObject
     [RelayCommand]
     private void ToggleCreatingPage()
     {
+        // Ensure hidden partial isolation cannot remain selected when navigating between pages
+        if (!IsPartialIsolationVisible && SelectedIsolation == IsolationType.Partial)
+            SelectedIsolation = RecommendedIsolation;
+
         _dispatcherService.Invoke(() =>
         {
             CreatingPage1Visible = !CreatingPage1Visible;
