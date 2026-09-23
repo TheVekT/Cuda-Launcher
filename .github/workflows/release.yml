@@ -86,12 +86,16 @@ jobs:
           $manifestPath = Join-Path $buildDir "app-manifest.json"
           [System.IO.File]::WriteAllText($manifestPath, $appManifestJson, [System.Text.Encoding]::UTF8)
           
-          # 3. Pack full portable distribution archive
+          # 3. Pack full portable distribution archive (nested under Cuda-Launcher/)
           $portableZipName = "Cuda-Launcher-$version-Portable.zip"
           $portableZipPath = Join-Path $artifactsDir $portableZipName
-          Write-Host "Creating full archive: $portableZipPath"
+          Write-Host "Creating full archive with subfolder Cuda-Launcher: $portableZipPath"
           
-          [System.IO.Compression.ZipFile]::CreateFromDirectory($buildDir, $portableZipPath)
+          $fullStageDir = New-Item -ItemType Directory -Force -Path "temp_full_stage"
+          $fullSubfolder = New-Item -ItemType Directory -Force -Path (Join-Path $fullStageDir "Cuda-Launcher")
+          Copy-Item -Path "$buildDir\*" -Destination $fullSubfolder -Recurse -Force
+          
+          [System.IO.Compression.ZipFile]::CreateFromDirectory($fullStageDir, $portableZipPath)
           $fullArchiveHash = (Get-FileHash -Path $portableZipPath -Algorithm SHA256).Hash.ToUpperInvariant()
           
           # 4. Generate delta update package if base version is provided
@@ -114,10 +118,16 @@ jobs:
               if ($downloadedZip) {
                   [System.IO.Compression.ZipFile]::ExtractToDirectory($downloadedZip.FullName, $baseExtractDir)
           
+                  # Base archive may be flat (0.0.2/0.0.3) or wrapped in Cuda-Launcher (0.0.4+)
+                  $baseLauncherExe = Get-ChildItem -Path $baseExtractDir -Filter "Cuda Launcher.exe" -Recurse | Select-Object -First 1
+                  $baseRoot = if ($baseLauncherExe) { $baseLauncherExe.DirectoryName } else { $baseExtractDir }
+
+                  $deltaSubfolder = New-Item -ItemType Directory -Force -Path (Join-Path $deltaStageDir "Cuda-Launcher")
+          
                   # Compare files byte-by-byte via SHA-256 against base release
                   foreach ($relPath in $filesDict.Keys) {
                       $newFilePath = Join-Path $buildDir ($relPath.Replace("/", "\"))
-                      $baseFilePath = Join-Path $baseExtractDir ($relPath.Replace("/", "\"))
+                      $baseFilePath = Join-Path $baseRoot ($relPath.Replace("/", "\"))
           
                       $isChanged = $false
                       if (-not (Test-Path $baseFilePath)) {
@@ -130,7 +140,7 @@ jobs:
                       }
           
                       if ($isChanged) {
-                          $targetInDelta = Join-Path $deltaStageDir ($relPath.Replace("/", "\"))
+                          $targetInDelta = Join-Path $deltaSubfolder ($relPath.Replace("/", "\"))
                           $targetParent = [System.IO.Path]::GetDirectoryName($targetInDelta)
                           if (-not (Test-Path $targetParent)) {
                               New-Item -ItemType Directory -Force -Path $targetParent | Out-Null
@@ -139,12 +149,12 @@ jobs:
                       }
                   }
           
-                  # Inject the complete app-manifest.json of the target version into delta root
-                  Copy-Item -Path $manifestPath -Destination (Join-Path $deltaStageDir "app-manifest.json") -Force
+                  # Inject the complete app-manifest.json of the target version into delta subfolder
+                  Copy-Item -Path $manifestPath -Destination (Join-Path $deltaSubfolder "app-manifest.json") -Force
           
                   $deltaZipName = "Cuda-Launcher-$version-delta.zip"
                   $deltaZipPath = Join-Path $artifactsDir $deltaZipName
-                  Write-Host "Creating delta archive: $deltaZipPath"
+                  Write-Host "Creating delta archive with subfolder Cuda-Launcher: $deltaZipPath"
           
                   [System.IO.Compression.ZipFile]::CreateFromDirectory($deltaStageDir, $deltaZipPath)
                   $deltaArchiveHash = (Get-FileHash -Path $deltaZipPath -Algorithm SHA256).Hash.ToUpperInvariant()
@@ -176,6 +186,40 @@ jobs:
           Write-Host "release.app.json generated successfully:"
           Write-Host $releaseAppJson
 
+      - name: Build Installer (Inno Setup)
+        shell: pwsh
+        run: |
+          $version = "${{ inputs.version }}".Trim()
+          $buildDir = (Resolve-Path "Build/Release").Path
+          $artifactsDir = (Resolve-Path "Artifacts").Path
+          $iconPath = (Resolve-Path "Launcher.UI.WPF/icon.ico").Path
+          $issScript = (Resolve-Path "packaging/setup.iss").Path
+
+          Write-Host "Checking for Inno Setup compiler..."
+          $iscc = (Get-Command iscc -ErrorAction SilentlyContinue)?.Source
+          if (-not $iscc -and (Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) {
+              $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          }
+          if (-not $iscc) {
+              Write-Host "Inno Setup not found in PATH or standard directory. Installing via Chocolatey..."
+              choco install innosetup --no-progress -y
+              $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          }
+
+          Write-Host "Compiling installer with ISCC: $iscc"
+          Write-Host "Version: $version, Source: $buildDir, Output: $artifactsDir, Icon: $iconPath"
+
+          & "$iscc" "/DMyAppVersion=$version" "/DMySourceDir=$buildDir" "/DMyOutputDir=$artifactsDir" "/DMyIconFile=$iconPath" "$issScript"
+
+          $installerName = "Cuda-Launcher-$version-Setup.exe"
+          $installerPath = Join-Path $artifactsDir $installerName
+          if (-not (Test-Path $installerPath)) {
+              Write-Error "Installer was not generated at expected path: $installerPath"
+              exit 1
+          }
+
+          Write-Host "Installer created successfully: $installerPath"
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -186,3 +230,4 @@ jobs:
           files: |
             Artifacts/release.app.json
             Artifacts/*.zip
+            Artifacts/*.exe
