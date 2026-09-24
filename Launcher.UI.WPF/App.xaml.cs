@@ -10,6 +10,7 @@ using Launcher.Infrastructure.Assets;
 using System.Reflection;
 using Launcher.Infrastructure.Assets.Abstractions;
 using Launcher.Infrastructure.Config;
+using Launcher.Infrastructure.Config.Abstractions;
 using Launcher.Infrastructure.Customization;
 using Launcher.Infrastructure.Integrations;
 using Launcher.Infrastructure.Localization;
@@ -102,8 +103,12 @@ public partial class App
 
             // Check and handle updates before initializing main UI
             var updateLauncherService = Services.GetRequiredService<IUpdateLauncherService>();
+            
             updateLauncherService.CleanupTempDirectory();
-
+            
+            var isEnableAutoUpdates = Services.GetRequiredService<ISettingsService>()
+                .GetPropertyValue<SettingsStore, bool>(nameof(SettingsStore.IsEnableAutoUpdates), defaultValue: true);
+            
             try 
             {
                 var updateChecker = Services.GetRequiredService<IUpdateCheckerService>();
@@ -111,12 +116,12 @@ public partial class App
                     .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
                     .InformationalVersion
                     .Split('+')[0];
-
+                
                 if (currentVersion != null)
                 {
                     var updateResult = await updateChecker.CheckForUpdatesAsync(currentVersion, true);
                 
-                    if (updateResult.IsSuccess && updateResult.Value.IsUpdateAvailable)
+                    if (updateResult.IsSuccess && updateResult.Value.IsUpdateAvailable && isEnableAutoUpdates)
                     {
                         Console.WriteLine("Update available, launching updater...");
                         var launchResult = updateLauncherService.LaunchUpdater(updateResult.Value);
@@ -155,7 +160,7 @@ public partial class App
                 "Launcher Error", 
                 MessageBoxButton.OK, 
                 MessageBoxImage.Error);
-            
+            Console.WriteLine($"Critical error: {ex.Message}");
             Current.Shutdown();
         }
     }

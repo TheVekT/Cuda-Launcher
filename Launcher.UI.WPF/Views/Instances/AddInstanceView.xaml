@@ -282,7 +282,7 @@
                                         CornerRadius="{DynamicResource DefaultCorner}"
                                         Grid.Row="0"
                                         Margin="0,10,0,0"
-                                        Padding="10,15">
+                                        Padding="10,10">
                                         <StackPanel Orientation="Vertical">
 
                                             <TextBlock
@@ -306,6 +306,23 @@
                                                         <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding IsGlobalIsolationRecommended}" Value="True">
+                                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{localization:Loc AddInstallation_RecommendedBadge}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </RadioButton.Style>
+                                            </RadioButton>
+                                            <RadioButton
+                                                Content="{localization:Loc AddInstallation_OptionFullIsolation}"
+                                                GroupName="IsolationGroup"
+                                                IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Full}"
+                                                Margin="0,10,0,0"
+                                                Tag="{localization:Loc AddInstallation_OptionFullIsolationDesc}">
+                                                <RadioButton.Style>
+                                                    <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
+                                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsFullIsolationRecommended}" Value="True">
                                                                 <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{localization:Loc AddInstallation_RecommendedBadge}" />
                                                             </DataTrigger>
                                                         </Style.Triggers>
@@ -356,25 +373,12 @@
                                                             VerticalAlignment="Center" />
                                                     </StackPanel>
                                                 </Border>
-
                                             </Grid>
-                                            <RadioButton
-                                                Content="{localization:Loc AddInstallation_OptionFullIsolation}"
-                                                GroupName="IsolationGroup"
-                                                IsChecked="{Binding SelectedIsolation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Full}"
-                                                Margin="0,10,0,0"
-                                                Tag="{localization:Loc AddInstallation_OptionFullIsolationDesc}">
-                                                <RadioButton.Style>
-                                                    <Style BasedOn="{StaticResource PointOptionRadioStyle}" TargetType="RadioButton">
-                                                        <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{x:Null}" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsFullIsolationRecommended}" Value="True">
-                                                                <Setter Property="helpers:RadioButtonHelper.RecommendedBadgeText" Value="{localization:Loc AddInstallation_RecommendedBadge}" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </RadioButton.Style>
-                                            </RadioButton>
+                                            <TextBlock Margin="0,4,0,0">
+                                                <Hyperlink Command="{Binding OpenIsolationGuideCommand}" Style="{StaticResource DefaultHyperlinkStyle}">
+                                                    <Run FontSize="13" Text="{localization:Loc AddInstallation_IsolationGuideLabel}" />
+                                                </Hyperlink>
+                                            </TextBlock>
                                         </StackPanel>
                                     </Border>
                                     <StackPanel Grid.Row="1">

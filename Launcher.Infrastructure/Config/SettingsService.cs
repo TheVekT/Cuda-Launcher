@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using Launcher.Core.Config.Abstractions;
@@ -54,6 +55,57 @@ public class SettingsService : ISettingsService
         _registeredStores.Add(store);
         InjectStoreData(store);
         store.PropertyChanged += OnStorePropertyChanged;
+    }
+    
+    public T? GetPropertyValue<TStore, T>(string propertyName, T? defaultValue = default)
+    {
+        return GetPropertyValue<T>(typeof(TStore), propertyName, defaultValue);
+    }
+
+    public T? GetPropertyValue<T>(Type storeType, string propertyName, T? defaultValue = default)
+    {
+        return GetPropertyValue<T>(storeType.Name, propertyName, defaultValue);
+    }
+
+    public T? GetPropertyValue<T>(INotifyPropertyChanged store, string propertyName)
+    {
+        return GetPropertyValue<T>(store.GetType(), propertyName);
+    }
+
+    public T? GetPropertyValue<T>(string storeName, string propertyName, T? defaultValue = default)
+    {
+        var registeredStore = _registeredStores.FirstOrDefault(s => s.GetType().Name == storeName);
+        if (registeredStore != null)
+        {
+            var prop = registeredStore.GetType().GetProperty(propertyName);
+            if (prop != null && Attribute.IsDefined(prop, typeof(SettingPropertyAttribute)))
+            {
+                var val = prop.GetValue(registeredStore);
+                if (val is T typedVal)
+                    return typedVal;
+            }
+        }
+
+        if (_cachedJsonData == null)
+            LoadRawJson();
+
+        if (_cachedJsonData != null &&
+            _cachedJsonData.TryGetValue(storeName, out var storeData) &&
+            storeData.TryGetValue(propertyName, out var jsonElement))
+        {
+            try
+            {
+                var deserialized = JsonSerializer.Deserialize(jsonElement.GetRawText(), typeof(T));
+                if (deserialized is T typedDeserialized)
+                    return typedDeserialized;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SettingsService] Error deserializing {storeName}.{propertyName}: {ex.Message}");
+            }
+        }
+
+        return defaultValue;
     }
 
     private void InjectStoreData(INotifyPropertyChanged store)

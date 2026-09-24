@@ -158,6 +158,7 @@ public enum LocKey
     AddInstallation_BackupFreq_Monthly,
     AddInstallation_BackupsLimitLabel,
     AddInstallation_UAC_AlertLabel,
+    AddInstallation_IsolationGuideLabel,
     InstallationSettings_Title,
     InstallationSettings_Subtitle,
     InstallationSettings_Tabs_General,

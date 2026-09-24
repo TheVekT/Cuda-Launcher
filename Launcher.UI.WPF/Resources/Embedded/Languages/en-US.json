@@ -160,6 +160,7 @@
     "AddInstallation.BackupFreq.Monthly": "Monthly",
     "AddInstallation.BackupsLimitLabel": "Backup limit:",
     "AddInstallation.UAC.AlertLabel": "Required admin privileges.",
+    "AddInstallation.IsolationGuideLabel": "Learn more about isolation types",
     "InstallationSettings.Title": "Installation Settings",
     "InstallationSettings.Subtitle": "Configure your installation settings",
     "InstallationSettings.Tabs.General": "General",

@@ -11,6 +11,7 @@ public static class WindowsDependencyInjection
         services.AddSingleton<IInputService, InputService>();
         services.AddSingleton<IFileDialogService, WpfFileDialogService>();
         services.AddSingleton<IClipboardService, WpfClipboardService>();
+        services.AddSingleton<IBrowserService, SystemBrowserService>();
         
         return services;
     }

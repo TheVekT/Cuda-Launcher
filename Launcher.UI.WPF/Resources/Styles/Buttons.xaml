@@ -448,4 +448,23 @@
         </Setter>
     </Style>
 
+    <!--  Hyperlink Style  -->
+    <Style TargetType="Hyperlink" x:Key="DefaultHyperlinkStyle">
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundSecondaryBrush}" />
+        <Setter Property="TextDecorations" Value="Underline" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource ForegroundPlaceholderBrush}" />
+                <Setter Property="TextDecorations" Value="{x:Null}" />
+                <Setter Property="Cursor" Value="Arrow" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="Hyperlink" BasedOn="{StaticResource DefaultHyperlinkStyle}" />
+
 </ResourceDictionary>

@@ -19,6 +19,7 @@ public partial class AddInstanceViewModel: ObservableObject
     //Services
     private readonly IGameVersionService _versionService;
     private readonly IDispatcherService _dispatcherService;
+    private readonly IBrowserService _browserService;
     private readonly IIconsService _iconsService;
     
     //Stores
@@ -95,12 +96,14 @@ public partial class AddInstanceViewModel: ObservableObject
     
     public AddInstanceViewModel(IGameVersionService versionService,
         IDispatcherService dispatcherService,
+        IBrowserService browserService,
         IIconsService iconsService,
         InstancesStore instancesStore, 
         SettingsStore settingsStore)
     {
         _versionService = versionService;
         _dispatcherService = dispatcherService;
+        _browserService = browserService;
         _iconsService = iconsService;
         
         _instancesStore = instancesStore;
@@ -374,4 +377,9 @@ public partial class AddInstanceViewModel: ObservableObject
     [RelayCommand]
     private void DropIcon(string[]? files) =>
         _instancesStore.HandleIconDrop(files);
+    
+    [RelayCommand]
+    private void OpenIsolationGuide() =>
+        _browserService.OpenUrl("https://github.com/TheVekT/Cuda-Launcher/blob/main/docs/Instance-Isolation.md");
+    
 }

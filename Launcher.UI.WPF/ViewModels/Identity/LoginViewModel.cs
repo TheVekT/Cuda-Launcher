@@ -9,6 +9,7 @@ using Launcher.UI.WPF.Helpers.Localization;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Models.Shell;
 using Launcher.UI.WPF.Services.Shell.Abstractions;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Identity;
@@ -19,6 +20,7 @@ public partial class LoginViewModel: ObservableObject
     private readonly IAccountStorageService _accountStorage;
     private readonly IOverlayService _overlayService;
     private readonly INotificationService _notificationService;
+    private readonly IBrowserService _browserService;
     //Stores
     private readonly IdentityStore _identityStore;
     //Attributes
@@ -35,6 +37,7 @@ public partial class LoginViewModel: ObservableObject
         IAccountStorageService accountStorage,
         IOverlayService overlayService,
         INotificationService notificationService,
+        IBrowserService browserService,
         IdentityStore identityStore)
     { 
         _authService = authService; 
@@ -42,6 +45,7 @@ public partial class LoginViewModel: ObservableObject
         _overlayService = overlayService;
         _notificationService = notificationService;
         _identityStore = identityStore;
+        _browserService = browserService;
             
         AccountCount = _identityStore.Accounts.Count;
         
@@ -54,14 +58,10 @@ public partial class LoginViewModel: ObservableObject
         
     private void HandleRenameAccount(UserAccount account)
     {
-        if (account.AccountTypeString == "Microsoft")
+        if (!account.IsOffline)
         {
             //Open URL https://www.minecraft.net/en-us/msaprofile/mygames/editprofile
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = "https://www.minecraft.net/en-us/msaprofile/mygames/editprofile",
-                UseShellExecute = true
-            });
+            _browserService.OpenUrl("https://www.minecraft.net/en-us/msaprofile/mygames/editprofile");
         }
     }
         
