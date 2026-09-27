@@ -1,4 +1,3 @@
-using Launcher.Core.Config.Abstractions;
 using Launcher.Infrastructure.Updates.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +16,7 @@ public static class UpdatesDependencyInjection
                 repositoryOwner,
                 repositoryName));
         services.AddSingleton<IUpdateLauncherService, UpdateLauncherService>();
+        services.AddSingleton<IAppVersionProvider, AppVersionProvider>();
 
         return services;
     }

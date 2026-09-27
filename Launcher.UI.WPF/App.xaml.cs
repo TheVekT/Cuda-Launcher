@@ -10,6 +10,7 @@ using Launcher.Core.Identity;
 using Launcher.Core.Instances;
 using Launcher.Core.Mods;
 using Launcher.Core.System;
+using Launcher.Core.System.Abstractions;
 using Launcher.Infrastructure.Assets;
 using Launcher.Infrastructure.Assets.Abstractions;
 using Launcher.Infrastructure.Config;
@@ -183,12 +184,9 @@ public partial class App
         try 
         {
             var updateChecker = Services.GetRequiredService<IUpdateCheckerService>();
-            var currentVersion = Assembly.GetEntryAssembly()?
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-                .InformationalVersion
-                .Split('+')[0];
+            var currentVersion = Services.GetRequiredService<IAppVersionProvider>().CurrentVersion;
 
-            if (currentVersion != null)
+            if (!string.IsNullOrEmpty(currentVersion))
             {
                 var updateResult = await updateChecker.CheckForUpdatesAsync(currentVersion, true);
 
