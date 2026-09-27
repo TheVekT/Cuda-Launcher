@@ -107,6 +107,11 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
+                <Border
+                    Background="{DynamicResource AppBackgroundBrush}"
+                    Grid.Row="0"
+                    Height="45"
+                    VerticalAlignment="Top" />
                 <Grid
                     Background="{DynamicResource BackgroundTransparentBrush}"
                     Grid.Row="0"

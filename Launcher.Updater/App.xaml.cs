@@ -25,6 +25,7 @@ public partial class App
         // Services
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<IUpdateExecutionService, UpdateExecutionService>();
+        services.AddSingleton<IAppVersionProvider, AppVersionProvider>();
 
         // ViewModels
         services.AddSingleton<MainWindowViewModel>();

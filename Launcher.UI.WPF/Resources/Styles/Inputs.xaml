@@ -7,6 +7,7 @@
     <helpers:ImagePathConverter x:Key="ImagePathConverter" />
     <!--  Search TextBox Style  -->
     <Style TargetType="TextBox" x:Key="SearchTextBoxStyle">
+        <Setter Property="FontFamily" Value="{DynamicResource GlobalFont}" />
         <Setter Property="Foreground" Value="{DynamicResource ForegroundPrimaryBrush}" />
         <Setter Property="CaretBrush" Value="{DynamicResource ForegroundPrimaryBrush}" />
         <Setter Property="Template">
@@ -21,11 +22,13 @@
                                 VerticalAlignment="Center"
                                 x:Name="PART_ContentHost" />
                             <TextBlock
+                                FontFamily="{TemplateBinding FontFamily}"
                                 FontSize="{TemplateBinding FontSize}"
                                 Foreground="{DynamicResource ForegroundPlaceholderBrush}"
                                 IsHitTestVisible="False"
                                 Margin="{TemplateBinding Padding}"
-                                Text="{localization:Loc Installations_Header_SearchInstallations}"
+                                Padding="2,0,0,0"
+                                Text="{Binding Path=(helpers:TextBoxHelper.Placeholder), RelativeSource={RelativeSource TemplatedParent}}"
                                 VerticalAlignment="Center"
                                 Visibility="Collapsed"
                                 x:Name="PlaceholderText" />

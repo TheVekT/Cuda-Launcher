@@ -8,9 +8,19 @@ namespace Launcher.Infrastructure.Updates;
 
 public class GitHubUpdateCheckerService : IUpdateCheckerService
 {
+    private const int StartFibonacciIndex = 4; // F(4) = 3
+    private const int MaxFibonacciIndex = 13;   // F(13) = 233
+    private static readonly TimeSpan InactivityResetThreshold = TimeSpan.FromMinutes(5);
+
     private readonly HttpClient _httpClient;
     private readonly string _repositoryOwner;
     private readonly string _repositoryName;
+
+    private readonly SemaphoreSlim _lock = new(1, 1);
+    private Result<UpdateCheckResult>? _cachedResult;
+    private DateTimeOffset _lastCheckTime = DateTimeOffset.MinValue;
+    private DateTimeOffset? _rateLimitResetTime;
+    private int _consecutiveChecksCount;
 
     public GitHubUpdateCheckerService(
         HttpClient httpClient, 
@@ -27,6 +37,64 @@ public class GitHubUpdateCheckerService : IUpdateCheckerService
         bool includePrereleases = false, 
         CancellationToken cancellationToken = default)
     {
+        await _lock.WaitAsync(cancellationToken);
+        try
+        {
+            var now = DateTimeOffset.UtcNow;
+
+            // 1. Strict rate-limit lock: if all hourly requests were exhausted, lock network calls until reset
+            if (_rateLimitResetTime.HasValue && now < _rateLimitResetTime.Value)
+            {
+                if (_cachedResult != null)
+                    return _cachedResult;
+
+                var waitSeconds = (int)Math.Ceiling((_rateLimitResetTime.Value - now).TotalSeconds);
+                return Result.Fail<UpdateCheckResult>(
+                    $"GitHub API rate limit exhausted. Try again in {waitSeconds} seconds.");
+            }
+
+            // 2. Inactivity threshold: reset progressive backoff if idle
+            if (_lastCheckTime != DateTimeOffset.MinValue && (now - _lastCheckTime) > InactivityResetThreshold)
+            {
+                _consecutiveChecksCount = 0;
+            }
+
+            // 3. Fibonacci cooldown validation
+            var activeCooldown = GetCooldownDuration(_consecutiveChecksCount);
+            bool isCacheValid = _cachedResult != null && (now - _lastCheckTime) < activeCooldown;
+
+            if (isCacheValid)
+            {
+                return _cachedResult!;
+            }
+
+            var result = await FetchReleasesFromGitHubAsync(currentVersion, includePrereleases, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _cachedResult = result;
+                _lastCheckTime = now;
+                _consecutiveChecksCount++;
+            }
+            else if (_rateLimitResetTime.HasValue && _cachedResult != null)
+            {
+                // Fallback to existing cache if the limit was reached on this call
+                return _cachedResult;
+            }
+
+            return result;
+        }
+        finally
+        {
+            _lock.Release();
+        }
+    }
+
+    private async Task<Result<UpdateCheckResult>> FetchReleasesFromGitHubAsync(
+        string currentVersion, 
+        bool includePrereleases, 
+        CancellationToken cancellationToken)
+    {
         try
         {
             string requestUri = $"https://api.github.com/repos/{_repositoryOwner}/{_repositoryName}/releases";
@@ -36,6 +104,10 @@ public class GitHubUpdateCheckerService : IUpdateCheckerService
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
 
             using var response = await _httpClient.SendAsync(request, cancellationToken);
+            
+            // Read and store rate limit headers directly from the response
+            UpdateRateLimitTracking(response.Headers);
+
             if (!response.IsSuccessStatusCode)
             {
                 return Result.Fail<UpdateCheckResult>(
@@ -212,6 +284,54 @@ public class GitHubUpdateCheckerService : IUpdateCheckerService
         {
             return Result.Fail<UpdateCheckResult>(new Error($"Error checking updates: {ex.Message}").CausedBy(ex));
         }
+    }
+
+    private void UpdateRateLimitTracking(HttpResponseHeaders headers)
+    {
+        if (headers.TryGetValues("x-ratelimit-remaining", out var remainingValues) &&
+            int.TryParse(remainingValues.FirstOrDefault(), out var remaining))
+        {
+            if (headers.TryGetValues("x-ratelimit-reset", out var resetValues) &&
+                long.TryParse(resetValues.FirstOrDefault(), out var resetUnixSeconds))
+            {
+                var resetTime = DateTimeOffset.FromUnixTimeSeconds(resetUnixSeconds);
+
+                // If remaining requests count is exhausted, cache is locked strictly until reset time
+                if (remaining <= 0)
+                    _rateLimitResetTime = resetTime;
+                else
+                    _rateLimitResetTime = null;
+            }
+        }
+    }
+
+    private static TimeSpan GetCooldownDuration(int consecutiveChecks)
+    {
+        if (consecutiveChecks <= 0)
+            return TimeSpan.Zero;
+
+        int targetIndex = Math.Min(StartFibonacciIndex + (consecutiveChecks - 1), MaxFibonacciIndex);
+        int seconds = CalculateFibonacci(targetIndex);
+
+        return TimeSpan.FromSeconds(seconds);
+    }
+
+    private static int CalculateFibonacci(int n)
+    {
+        if (n <= 0) return 0;
+        if (n == 1) return 1;
+
+        int prev = 0;
+        int current = 1;
+
+        for (int i = 2; i <= n; i++)
+        {
+            int next = prev + current;
+            prev = current;
+            current = next;
+        }
+
+        return current;
     }
 
     private static string NormalizeVersionString(string rawTag)

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -31,6 +32,7 @@ public partial class InstallationsViewModel : ObservableObject,
     private readonly IDispatcherService _dispatcherService;
     private readonly IInputService _inputService;
     private readonly IIconsService _iconsService;
+    private readonly IBrowserService _browserService;
 
     //Stores
     private readonly InstancesStore _instancesStore;
@@ -40,6 +42,10 @@ public partial class InstallationsViewModel : ObservableObject,
     //public properties
     public InstancesStore InstancesStore => _instancesStore;
     public AppStore AppStore => _appStore;
+    
+    [ObservableProperty]
+    private string _searchText = string.Empty;
+    public ICollectionView FilteredInstallationsView { get; }
   
     
     public InstallationsViewModel(
@@ -50,6 +56,7 @@ public partial class InstallationsViewModel : ObservableObject,
         IDispatcherService dispatcherService,
         IInputService inputService,
         IIconsService iconsService,
+        IBrowserService browserService,
         InstancesStore instancesStore,
         SettingsStore settingsStore,
         AppStore appStore)
@@ -61,9 +68,15 @@ public partial class InstallationsViewModel : ObservableObject,
         _dispatcherService = dispatcherService;
         _inputService = inputService;
         _iconsService = iconsService;
+        _browserService = browserService;
+        
         _instancesStore = instancesStore;
         _settingsStore = settingsStore;
         _appStore = appStore;
+        
+        FilteredInstallationsView = new ListCollectionView(_instancesStore.Instances){
+            Filter = FilterInstallations
+        };
         
         _appStore.PropertyChanged += OnAppStorePropertyChanged;
         WeakReferenceMessenger.Default.RegisterAll(this);
@@ -144,6 +157,19 @@ public partial class InstallationsViewModel : ObservableObject,
             _instanceFileSystemService.OpenInstanceFolder(_instancesStore.SelectedInstance);
     }
     
+    private bool FilterInstallations(object obj)
+    {
+        if (obj is not MinecraftInstance instance)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(SearchText))
+            return true;
+        
+        return instance.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+               instance.GameVersion.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+               instance.LoaderType.ToString().Contains(SearchText, StringComparison.OrdinalIgnoreCase);
+    }
+    
 
     private async Task DeleteInstance(MinecraftInstance instance)
     {
@@ -173,6 +199,9 @@ public partial class InstallationsViewModel : ObservableObject,
             _instanceService.SaveInstances(_instancesStore.Instances);
         }
     }
+    
+    partial void OnSearchTextChanged(string value) =>
+        FilteredInstallationsView.Refresh();
 
     public async void Receive(InstanceCreatedMessage message)
     {
@@ -235,7 +264,7 @@ public partial class InstallationsViewModel : ObservableObject,
     [RelayCommand]
     private async Task OpenAddVersion()
     {
-        var instanceVm = new AddInstanceViewModel(_versionService, _dispatcherService, _iconsService, _instancesStore, _settingsStore);
+        var instanceVm = new AddInstanceViewModel(_versionService, _dispatcherService, _browserService, _iconsService, _instancesStore, _settingsStore);
         _overlayService.Show(instanceVm);
         await instanceVm.InitializeAsync();
     }

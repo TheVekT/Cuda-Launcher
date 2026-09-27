@@ -14,7 +14,7 @@
     xmlns:instances="clr-namespace:Launcher.UI.WPF.ViewModels.Instances"
     xmlns:localization="clr-namespace:Launcher.UI.WPF.Helpers.Localization"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:viewModels="clr-namespace:Launcher.UI.WPF.ViewModels"
+    xmlns:models="clr-namespace:Launcher.Core.Instances.Models;assembly=Launcher.Core"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <helpers:TimeAgoConverter x:Key="TimeAgoConverter" />
@@ -86,7 +86,9 @@
                                 FontSize="14"
                                 Grid.Column="1"
                                 Style="{StaticResource SearchTextBoxStyle}"
-                                VerticalAlignment="Center" />
+                                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                VerticalAlignment="Center"
+                                helpers:TextBoxHelper.Placeholder="{localization:Loc Installations_Header_SearchInstallations}" />
                         </Grid>
                     </Border>
                     <ComboBox
@@ -104,7 +106,7 @@
 
             </Grid>
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
-                <ItemsControl ItemsSource="{Binding InstancesStore.Instances}">
+                <ItemsControl ItemsSource="{Binding FilteredInstallationsView}">
 
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -113,7 +115,7 @@
                     </ItemsControl.ItemsPanel>
 
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate DataType="{x:Type models:MinecraftInstance}">
                             <components:VersionElement
                                 helpers:VersionElementHelper.DeleteCommand="{Binding DataContext.DeleteInstanceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                 helpers:VersionElementHelper.GameVersion="{Binding GameVersion}"

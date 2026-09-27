@@ -18,6 +18,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <helpers:StringFormatConverter x:Key="StringFormatConverter" />
+        <helpers:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVis" />
     </UserControl.Resources>
     <Grid Width="512">
         <Border
@@ -515,7 +516,96 @@
                 <Grid
                     Grid.Row="1"
                     Visibility="{Binding ElementName=TabAbout, Path=IsChecked, Converter={StaticResource BoolToVis}}"
-                    x:Name="AboutSettingsPanel" />
+                    x:Name="AboutSettingsPanel">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel
+                        Grid.Row="0"
+                        Margin="0,5"
+                        Orientation="Vertical">
+                        <TextBlock
+                            FontSize="14"
+                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                            Margin="0,0,0,5"
+                            Text="{localization:Loc SettingsMenu_About_LauncherNameLabel}" />
+                        <TextBlock FontSize="13" Foreground="{DynamicResource ForegroundSecondaryBrush}">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource StringFormatConverter}">
+                                    <localization:Loc Key="SettingsMenu_About_LauncherVersionLabel" />
+
+                                    <Binding Path="AppStore.CurrentAppVersion" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Row="1"
+                        Margin="0,5"
+                        Orientation="Vertical">
+                        <TextBlock
+                            FontSize="13"
+                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,5">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding AppStore.UpdateCheckResult.Value.IsUpdateAvailable}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Setter Property="Text">
+                                                <Setter.Value>
+                                                    <MultiBinding Converter="{StaticResource StringFormatConverter}">
+                                                        <localization:Loc Key="SettingsMenu_About_UpdateAvailableLabel" />
+                                                        <Binding Path="AppStore.UpdateCheckResult.Value.TargetRelease.Version" />
+                                                    </MultiBinding>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding AppStore.UpdateCheckResult.Value.IsUpdateAvailable}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Setter Property="Text" Value="{localization:Loc Key=SettingsMenu_About_UpdateNotAvailableLabel}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Button
+                            Command="{Binding AppStore.CheckForUpdatesCommand}"
+                            Content="{localization:Loc SettingsMenu_About_CheckForUpdatesButton}"
+                            FontSize="14"
+                            Height="35"
+                            Style="{StaticResource OverlayDefaultButtonStyle}"
+                            Visibility="{Binding AppStore.IsAppUpdateAvailable, Converter={StaticResource InverseBoolToVis}}" />
+                        <Button
+                            Command="{Binding AppStore.RestartAndUpdateCommand}"
+                            Content="{localization:Loc SettingsMenu_About_UpdateAvailableButton}"
+                            FontSize="14"
+                            Height="35"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Visibility="{Binding AppStore.IsAppUpdateAvailable, Converter={StaticResource BoolToVis}}" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Row="2"
+                        Margin="0,8,0,0"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            FontSize="14"
+                            Foreground="{DynamicResource ForegroundPrimaryBrush}"
+                            Text="{localization:Loc SettingsMenu_About_CreatedByLabel}"
+                            VerticalAlignment="Center" />
+                        <Button
+                            Command="{Binding OpenGitHubCommand}"
+                            Content="TheVekT"
+                            Height="24"
+                            Margin="8,0,0,0"
+                            Style="{StaticResource GitHubButtonStyle}"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
             </Grid>
         </Border>
         <Button

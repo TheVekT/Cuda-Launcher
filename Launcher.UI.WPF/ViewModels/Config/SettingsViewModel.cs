@@ -5,6 +5,7 @@ using Launcher.Infrastructure.Customization.Models;
 using Launcher.UI.WPF.Messages;
 using Launcher.UI.WPF.Services.Customization;
 using Launcher.UI.WPF.Services.Customization.Abstractions;
+using Launcher.UI.WPF.Services.Windows.Abstractions;
 using Launcher.UI.WPF.Stores;
 
 namespace Launcher.UI.WPF.ViewModels.Config;
@@ -13,17 +14,18 @@ public partial class SettingsViewModel: ObservableObject
 {
     private readonly SettingsStore _settingsStore;
     private readonly IThemeService _themeService;
-    
     private readonly AppStore _appStore;
+    private readonly IBrowserService _browserService;
     
     public SettingsStore SettingsStore => _settingsStore;
     public AppStore AppStore => _appStore;
     
-    public SettingsViewModel(SettingsStore settingsStore, IThemeService themeService, AppStore appStore)
+    public SettingsViewModel(SettingsStore settingsStore, IThemeService themeService, AppStore appStore, IBrowserService browserService)
     {
         _settingsStore = settingsStore;
         _themeService = themeService;
         _appStore = appStore;
+        _browserService = browserService;
     }
 
     private async Task ExecuteImportTheme(object _)
@@ -75,4 +77,8 @@ public partial class SettingsViewModel: ObservableObject
     [RelayCommand]
     private async Task ImportLanguage(object parameter) =>
         await ExecuteImportLanguage(parameter);
+
+    [RelayCommand]
+    private void OpenGitHub(string? url = null) =>
+        _browserService.OpenUrl(!string.IsNullOrWhiteSpace(url) ? url : "https://github.com/TheVekT/Cuda-Launcher");
 }

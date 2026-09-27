@@ -1,15 +1,22 @@
 <Project>
-    <PropertyGroup>
-        <Version Condition="'$(Version)' == ''">0.0.2-beta</Version>
+    <!-- Versioning configuration for all projects except Launcher.Updater -->
+    <PropertyGroup Condition="!$(MSBuildProjectName.StartsWith('Launcher.Updater'))">
+        <_TargetVersion Condition="'$(LauncherVersion)' != ''">$(LauncherVersion)</_TargetVersion>
+        <_TargetVersion Condition="'$(_TargetVersion)' == '' and '$(Version)' != ''">$(Version)</_TargetVersion>
+        <_TargetVersion Condition="'$(_TargetVersion)' == ''">0.0.2-beta</_TargetVersion>
         
-        <_NumericVersion>$(Version.Split('-')[0])</_NumericVersion>
+        <_NumericVersion>$(_TargetVersion.Split('-')[0])</_NumericVersion>
         <_NumericVersion>$(_NumericVersion.Split('+')[0])</_NumericVersion>
         
+        <Version>$(_TargetVersion)</Version>
         <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">$(_NumericVersion)</AssemblyVersion>
         <FileVersion Condition="'$(FileVersion)' == ''">$(_NumericVersion)</FileVersion>
         
-        <InformationalVersion Condition="'$(InformationalVersion)' == ''">$(Version)</InformationalVersion>
+        <InformationalVersion Condition="'$(InformationalVersion)' == ''">$(_TargetVersion)</InformationalVersion>
+    </PropertyGroup>
 
+    <!-- General build settings for all projects in the solution -->
+    <PropertyGroup>
         <Authors>TheVekT</Authors>
         <Company>Cuda Launcher</Company>
         <Copyright>Copyright © 2026</Copyright>
@@ -21,5 +28,6 @@
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <Deterministic>true</Deterministic>
     </PropertyGroup>
 </Project>
